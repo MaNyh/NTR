@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="33a119f9-768a-4659-9f59-f91ca0e6bbad" name="Default Changelist" comment="init cookiecutter project">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/README.rst" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/README.rst" afterDir="false" />
-    </list>
+    <list default="true" id="33a119f9-768a-4659-9f59-f91ca0e6bbad" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,7 +51,14 @@
       <option name="project" value="LOCAL" />
       <updated>1616068386328</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="update README.rst">
+      <created>1616079045198</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1616079045198</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -76,6 +80,7 @@
     </ignored-roots>
     <MESSAGE value="delete former project. New project will be initiated" />
     <MESSAGE value="init cookiecutter project" />
-    <option name="LAST_COMMIT_MESSAGE" value="init cookiecutter project" />
+    <MESSAGE value="update README.rst" />
+    <option name="LAST_COMMIT_MESSAGE" value="update README.rst" />
   </component>
 </project>

@@ -23,6 +23,13 @@ Numerical Test Rig. A Python-Package for Pre- and Postprocessing Computational F
 * Documentation: https://NTR.readthedocs.io.
 
 
+Usage
+--------
+Install Package using pip
+'pip install PATH/TO/PACKAGE'
+
+create a yaml-config-file
+
 Features
 --------
 
