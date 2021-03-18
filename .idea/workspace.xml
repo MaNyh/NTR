@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="33a119f9-768a-4659-9f59-f91ca0e6bbad" name="Default Changelist" comment="update README.rst">
-      <change afterPath="$PROJECT_DIR$/NTR/geometryUtils/__init__.py" afterDir="false" />
+    <list default="true" id="33a119f9-768a-4659-9f59-f91ca0e6bbad" name="Default Changelist" comment="init Submodule geometryUtils">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NTR/NTR/NTR.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/NTR/NTR.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -68,7 +68,14 @@
       <option name="project" value="LOCAL" />
       <updated>1616079350283</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="init Submodule geometryUtils">
+      <created>1616080367919</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1616080367919</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -91,6 +98,7 @@
     <MESSAGE value="delete former project. New project will be initiated" />
     <MESSAGE value="init cookiecutter project" />
     <MESSAGE value="update README.rst" />
-    <option name="LAST_COMMIT_MESSAGE" value="update README.rst" />
+    <MESSAGE value="init Submodule geometryUtils" />
+    <option name="LAST_COMMIT_MESSAGE" value="init Submodule geometryUtils" />
   </component>
 </project>

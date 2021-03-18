@@ -1,9 +1,16 @@
 """Main module."""
 
-class mainObject:
-    input = {}
-    functions = []
-    output = {}
+def caseConstruct():
+    return 0
 
-    def __init__(self,input,functions):
+class mainObject:
+    def __init__(self, input, functions):
+        input = input
+        vars = {}
+        algorithms = algorithms
+        output = []
+
+    def execute(self):
+        for function in algorithms:
+            self.output.append(function())
 
