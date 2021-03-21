@@ -10,7 +10,21 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=7.0', ]
+requirements = ['Click>=7.0',
+                "pip>=21.0.1",
+                "bump2version>=0.5.11",
+                "wheel>=0.33.6",
+                "watchdog>=0.9.0",
+                "flake8>=3.7.8",
+                "tox>=3.14.0",
+                "coverage>=4.5.4",
+                "Sphinx>=1.8.5",
+                "twine>=1.14.0",
+                "matplotlib>=3.3.4",
+                "numpy>=1.20.0",
+                "vtk>=9.0.1",
+                "scipy>=1.6.1",
+                ]
 
 setup_requirements = [ ]
 
@@ -48,6 +62,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nyhuis/NTR',
-    version='0.1.0',
+    version='0.1.1',
     zip_safe=False,
 )
