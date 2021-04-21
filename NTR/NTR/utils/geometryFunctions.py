@@ -1,9 +1,21 @@
 import math
 import numpy as np
 from scipy.interpolate import UnivariateSpline
+from scipy.spatial import Delaunay
 
 
 def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
+    """
+    Returns mid-passage line from sceletal-line
+    Returns two lists of Points representing a curve through the passage
+
+
+    Input:
+    x_mcl, y_mcl = Touple
+    beta1, beta2 = Angle in deg - Beta = Anströmwinkel
+    x_inlet, x_outlet = scalar - representing position x-component of in/outlet
+    t = scalar pitch
+    """
     spl = UnivariateSpline(x_mcl, y_mcl, k=5)
     deri_spl = spl.derivative()
 
@@ -54,10 +66,11 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
 
 
 def calcConcaveHull(x, y, alpha=0.007):
-    # https://stackoverflow.com/questions/50549128/boundary-enclosing-a-given-set-of-points/50714300#50714300
+    """
+    DOCUMENTATION INCOMPLETE
 
-    from scipy.spatial import Delaunay
-
+    origin: https://stackoverflow.com/questions/50549128/boundary-enclosing-a-given-set-of-points/50714300#50714300
+    """
     points = []
     for i in range(len(x)):
         points.append([x[i], y[i]])
@@ -158,6 +171,11 @@ def calcConcaveHull(x, y, alpha=0.007):
 
 
 def sortProfilePoints(x, y, alpha=0.007):
+    """
+    DOCUMENTATION INCOMPLETE
+
+    """
+
     x, y = calcConcaveHull(x, y, alpha=alpha)
 
     ind_vk = x.index(min(x))
@@ -214,7 +232,7 @@ def sortProfilePoints(x, y, alpha=0.007):
 
 def rotatePoints(origin, x, y, angle):
     """
-    Rotate a point counterclockwise by a given angle around a given origin.
+    Rotate a point counterclockwise (rotation around z-axis) by a given angle around a given origin.
     """
 
     angle = angle * (math.pi / 180.0)
