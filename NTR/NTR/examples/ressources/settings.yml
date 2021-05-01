@@ -15,7 +15,7 @@ geom:
 
 mesh:
     create_bool                     : True
-    factor                          : 1.6
+    factor                          : 1
     delta_i                         : 0.0015
     first_cell_width                : 0.03333333333333333
     exp_ratio                       : 1.01

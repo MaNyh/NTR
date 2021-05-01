@@ -22,13 +22,31 @@ yPerHighHGridBlockPitchStart = args["yPerHighHGridBlockPitchStart"]
 vk_BlockStartFromChord = args["vk_BlockStartFromChord"]
 hk_BlockStartFromChord = args["hk_BlockStartFromChord"]
 factor = args["factor"]
+
 delta_i = args["delta_i"]
+delta_i /= factor
+
 cellwidthcoeff = args["cellwidthcoeff"]
+
 first_cell_width = args["first_cell_width"]
+first_cell_width /= factor
+
 exp_ratio = args["exp_ratio"]
+
 layers = args["layers"]
+layers = int(layers*factor)
+
 extrudeLength = args["extrudeLength"]
 extrudeNodes = args["extrudeNodes"]
+extrudeNodes *= int(factor*extrudeNodes)
+
+print("factor: " +str(factor))
+print("delta_i: " +str(delta_i))
+print("first_cell_width: " +str(first_cell_width))
+print("exp_ratio: " +str(exp_ratio))
+print("layers: " +str(layers))
+print("extrudeLength: " +str(extrudeLength))
+print("extrudeNodes: " +str(extrudeNodes))
 
 
 data = openTecplotFile(pointcloudfile)
@@ -59,7 +77,6 @@ for i in range(len(x_ps)):
     cspline_ps.insert_point(i + 1, Point(x_ps[i], y_ps[i], 0))
 
 cspline_ps.insert_point(len(x_ps) + 1, Point(x_ss[0], y_ss[0], 0))
-
 cspline_inlet.insert_point(1, Point(x_lower[0], y_lower[0], 0))
 cspline_inlet.insert_point(2, Point(x_upper[0], y_upper[0], 0))
 cspline_outlet.insert_point(1, Point(x_lower[-1], y_lower[-1], 0))
@@ -281,17 +298,9 @@ segment_group("fixed").add_segment(segment("Block_2", 1, 3, 1))
 segment_group("fixed").add_segment(segment("Block_1", 1, 3, 1))
 segment_group("fixed").smoother_bc(3)
 
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
-face_group("midspan").planar_smoothing(500)
 
-"""
+face_group("midspan").planar_smoothing(5000)
+
 # =============================================================================
 # Extrudieren
 # =============================================================================
@@ -369,7 +378,7 @@ segment("Block_12", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
 
 
 search_connections(1E-007)
-"""
+
 save_project(os.path.join(script_path, 'mesh.igg'))
 
 export_FLUENT(os.path.join(script_path,"fluent.msh"))
