@@ -5,7 +5,7 @@ igg:
     argument_pickle_dict            : "args.pkl"
 
 geom:
-    create_bool                     : False
+    create_bool                     : True
     ptcloud_profile                 : "profile_pointcloud.txt"
     beta_meta_01                    : 135
     beta_meta_02                    : 115

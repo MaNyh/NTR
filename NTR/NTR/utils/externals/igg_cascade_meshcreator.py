@@ -1,9 +1,8 @@
-import sys
 import os
-script_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(script_path, "../..")))
 import pickle
 
+print("starting")
+print(__file__)
 
 def read_pickle_args(path):
     filepath = os.path.join(path,"args.pkl")
@@ -16,6 +15,21 @@ script_path = os.path.dirname(os.path.abspath(__file__))
 args = read_pickle_args(script_path)
 
 pointcloudfile = args["pointcloudfile"]
+openTecplotFile = args["openTecplotFile"]
+
+yPerLowHGridBlockPitchStart = args["yPerLowHGridBlockPitchStart"]
+yPerHighHGridBlockPitchStart = args["yPerHighHGridBlockPitchStart"]
+vk_BlockStartFromChord = args["vk_BlockStartFromChord"]
+hk_BlockStartFromChord = args["hk_BlockStartFromChord"]
+factor = args["factor"]
+delta_i = args["delta_i"]
+cellwidthcoeff = args["cellwidthcoeff"]
+first_cell_width = args["first_cell_width"]
+exp_ratio = args["exp_ratio"]
+layers = args["layers"]
+extrudeLength = args["extrudeLength"]
+extrudeNodes = args["extrudeNodes"]
+
 
 data = openTecplotFile(pointcloudfile)
 x_ss, y_ss = data[0][0], data[0][1]
@@ -33,7 +47,7 @@ cspline_ss = new_cspline("cspline_ss")
 cspline_ps = new_cspline("cspline_ps")
 cspline_inlet = new_cspline("cspline_inlet")
 cspline_outlet = new_cspline("cspline_outlet")
-"""
+
 for i in range(len(x_lower)):
     cspline_peri_lower.insert_point(i + 1, Point(x_lower[i], y_lower[i], 0))
     cspline_peri_upper.insert_point(i + 1, Point(x_upper[i], y_upper[i], 0))
@@ -64,7 +78,7 @@ p1 = CurvePointNorm(Curve("cspline_peri_upper"),
                                                                                        0.0).y + 0.4 * pitch,
                                                                         0))))
 
-"""
+
 
 """
 p2=CurvePointNorm(Curve("cspline_peri_lower"),
@@ -72,7 +86,7 @@ p2=CurvePointNorm(Curve("cspline_peri_lower"),
 			0.0))))
 """
 
-"""
+
 
 p2 = CurvePointNorm(Curve("cspline_peri_lower"),
                     Curve("cspline_peri_lower").calc_normalize(
@@ -349,7 +363,6 @@ segment("Block_12", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
 
 search_connections(1E-007)
 
-save_project(os.path.join(path_script, 'mesh.igg'))
+save_project(os.path.join(script_path, 'mesh.igg'))
 
-export_FLUENT("./fluent.msh")
-"""
+export_FLUENT(os.path.join(script_path,"fluent.msh"))

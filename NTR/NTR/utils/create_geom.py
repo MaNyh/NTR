@@ -1,6 +1,6 @@
 import numpy as np
 from NTR.utils.geom_functions import sortProfilePoints, calcMidPoints, calcMidPassageStreamLine, rotate_points
-from NTR.utils.functions import writeTecplot1DFile
+from NTR.utils.externals.tecplot_functions import writeTecplot1DFile
 
 
 def create(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, pitch):
