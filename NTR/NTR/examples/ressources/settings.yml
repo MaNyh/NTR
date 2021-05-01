@@ -1,0 +1,30 @@
+
+igg:
+    install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
+    executable                      : "iggx86_64.exe"
+    argument_pickle_dict            : "args.pkl"
+
+geom:
+    create_bool                     : False
+    ptcloud_profile                 : "profile_pointcloud.txt"
+    beta_meta_01                    : 135
+    beta_meta_02                    : 115
+    x_inlet                         : -0.1
+    x_outlet                        : 0.27
+    pitch                           : 0.0765
+
+mesh:
+    create_bool                     : True
+    factor                          : 1.6
+    delta_i                         : 0.0015
+    first_cell_width                : 0.03333333333333333
+    exp_ratio                       : 1.01
+    layers                          : 6
+    extrudeNodes                    : 60
+    extrudeLength                   : 0.04
+    vk_BlockStartFromChord          : 0.02
+    hk_BlockStartFromChord          : 0.98
+    cellwidthcoeff                  : 0.4
+    yPerLowHGridBlockPitchStart     : 0.3
+    yPerHighHGridBlockPitchStart    : 0.7
+    oGridExtend                     : 0.3
