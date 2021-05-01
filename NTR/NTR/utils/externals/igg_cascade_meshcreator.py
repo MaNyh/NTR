@@ -240,6 +240,7 @@ segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff * delta_i, cellwidthcoef
 segment("Block_12", 1, 1, 1).cluster_both_ends(cellwidthcoeff * delta_i)
 segment("Block_11", 1, 2, 1).cluster_both_ends(cellwidthcoeff * delta_i)
 
+
 # =============================================================================
 # Glaettung
 # =============================================================================
@@ -289,6 +290,12 @@ face_group("midspan").planar_smoothing(500)
 face_group("midspan").planar_smoothing(500)
 face_group("midspan").planar_smoothing(500)
 face_group("midspan").planar_smoothing(500)
+
+"""
+# =============================================================================
+# Extrudieren
+# =============================================================================
+
 
 block_by_face_extrusion(face("Block_1", 1), Vector(0, 0, extrudeLength), 1, 1)
 block_by_face_extrusion(face("Block_2", 1), Vector(0, 0, extrudeLength), 1, 1)
@@ -362,7 +369,7 @@ segment("Block_12", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
 
 
 search_connections(1E-007)
-
+"""
 save_project(os.path.join(script_path, 'mesh.igg'))
 
 export_FLUENT(os.path.join(script_path,"fluent.msh"))
