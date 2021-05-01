@@ -66,6 +66,6 @@ def run_igg_meshfuncs():
         write_igg_config(args_dict_path, args)
         os.system(igg_exe + " -batch -print -script " + script_path)
         #os.remove(args_dict_path)
-        # os.chdir(cwd)
+        os.chdir(cwd)
     else:
         print("skipping meshing")
