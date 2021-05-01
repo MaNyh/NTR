@@ -1,3 +1,4 @@
+import sys
 import os
 import pickle
 
@@ -15,7 +16,11 @@ script_path = os.path.dirname(os.path.abspath(__file__))
 args = read_pickle_args(script_path)
 
 pointcloudfile = args["pointcloudfile"]
-openTecplotFile = args["openTecplotFile"]
+add_path = args["add_path"]
+sys.path.append(add_path)
+
+from NTR.utils.externals.tecplot_functions import openTecplotFile
+
 
 yPerLowHGridBlockPitchStart = args["yPerLowHGridBlockPitchStart"]
 yPerHighHGridBlockPitchStart = args["yPerHighHGridBlockPitchStart"]

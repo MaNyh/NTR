@@ -2,7 +2,7 @@ import os
 import yaml
 import pickle
 
-from NTR.utils.externals.tecplot_functions import openTecplotFile
+import NTR
 from NTR.utils.create_geom import create
 
 def yaml_dict_read(yml_file):
@@ -48,7 +48,7 @@ def run_igg_meshfuncs():
 
         args = {}
         args["pointcloudfile"] = point_cloud_path
-        args["openTecplotFile"] = openTecplotFile
+        args["add_path"] = os.path.dirname(os.path.abspath(NTR.__file__))
 
         args["yPerLowHGridBlockPitchStart"] = settings["mesh"]["yPerLowHGridBlockPitchStart"]
         args["yPerHighHGridBlockPitchStart"] = settings["mesh"]["yPerHighHGridBlockPitchStart"]
