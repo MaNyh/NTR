@@ -19,7 +19,7 @@ pointcloudfile = args["pointcloudfile"]
 add_path = args["add_path"]
 sys.path.append(add_path)
 
-from NTR.utils.externals.tecplot_functions import openTecplotFile
+from utils.externals.tecplot_functions import openTecplotFile
 
 
 yPerLowHGridBlockPitchStart = args["yPerLowHGridBlockPitchStart"]
@@ -33,8 +33,8 @@ delta_i /= factor
 
 cellwidthcoeff = args["cellwidthcoeff"]
 
-first_cell_width = args["first_cell_width"]
-first_cell_width /= factor
+first_cell_width = delta_i*args["first_cell_width"]
+first_cell_width *= factor
 
 exp_ratio = args["exp_ratio"]
 
