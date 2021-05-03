@@ -11,7 +11,6 @@ def read_pickle_args(path):
         dict = pickle.load(Fobj)
     return dict
 
-
 script_path = os.path.dirname(os.path.abspath(__file__))
 args = read_pickle_args(script_path)
 
@@ -19,7 +18,7 @@ pointcloudfile = args["pointcloudfile"]
 add_path = args["add_path"]
 sys.path.append(add_path)
 
-from utils.externals.tecplot_functions import openTecplotFile
+from NTR.utils.externals.tecplot_functions import openTecplotFile
 
 
 yPerLowHGridBlockPitchStart = args["yPerLowHGridBlockPitchStart"]
@@ -42,8 +41,7 @@ layers = args["layers"]
 layers = int(layers*factor)
 
 extrudeLength = args["extrudeLength"]
-extrudeNodes = args["extrudeNodes"]
-extrudeNodes *= int(factor*extrudeNodes)
+extrudeNodes = int(factor*args["extrudeNodes"])
 
 print("factor: " +str(factor))
 print("delta_i: " +str(delta_i))
