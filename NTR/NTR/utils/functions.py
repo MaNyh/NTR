@@ -69,3 +69,10 @@ def run_igg_meshfuncs():
         os.chdir(cwd)
     else:
         print("skipping meshing")
+
+
+def read_pickle_args(path):
+    filepath = os.path.join(path,"args.pkl")
+    with open(filepath,"rb") as Fobj:
+        dict = pickle.load(Fobj)
+    return dict
