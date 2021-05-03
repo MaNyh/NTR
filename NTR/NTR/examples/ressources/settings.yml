@@ -15,16 +15,15 @@ geom:
 
 mesh:
     create_bool                     : True
-    factor                          : 1
+    factor                          : 1.3
     delta_i                         : 0.0015
     first_cell_width                : 0.03333333333333333
     exp_ratio                       : 1.01
     layers                          : 6
     extrudeNodes                    : 60
     extrudeLength                   : 0.04
-    vk_BlockStartFromChord          : 0.02
-    hk_BlockStartFromChord          : 0.98
+    vk_BlockStartFromChord          : 0.005
+    hk_BlockStartFromChord          : 0.995
     cellwidthcoeff                  : 0.4
     yPerLowHGridBlockPitchStart     : 0.3
     yPerHighHGridBlockPitchStart    : 0.7
-    oGridExtend                     : 0.3

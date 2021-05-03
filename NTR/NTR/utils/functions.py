@@ -55,6 +55,7 @@ def run_igg_meshfuncs():
         args["vk_BlockStartFromChord"] = settings["mesh"]["vk_BlockStartFromChord"]
         args["hk_BlockStartFromChord"] = settings["mesh"]["hk_BlockStartFromChord"]
         args["factor"] = settings["mesh"]["factor"]
+        #args["ogrid_factor"] = 3/args["factor"]#settings["mesh"]["ogrid_factor"]
         args["delta_i"] = settings["mesh"]["delta_i"]
         args["cellwidthcoeff"] = settings["mesh"]["cellwidthcoeff"]
         args["first_cell_width"] = settings["mesh"]["first_cell_width"]
