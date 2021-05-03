@@ -7,14 +7,13 @@ from NTR.utils.create_geom import create
 
 def yaml_dict_read(yml_file):
 
-    args_from_yaml= {}
+    args_from_yaml = {}
 
     with open(yml_file, "r") as Fobj:
-        document = yaml.load_all(Fobj,Loader=yaml.FullLoader)
+        document = yaml.load_all(Fobj, Loader=yaml.FullLoader)
         for settings in document:
             for key, value in settings.items():
-                args_from_yaml[key]=value
-
+                args_from_yaml[key] = value
     return args_from_yaml
 
 def write_igg_config(file, args):
@@ -23,7 +22,7 @@ def write_igg_config(file, args):
 
 
 def run_igg_meshfuncs():
-    global args
+    #global args
     settings = yaml_dict_read("ressources/settings.yml")
     if settings["geom"]["create_bool"]:
         print("create_geometry")
@@ -55,7 +54,7 @@ def run_igg_meshfuncs():
         args["vk_BlockStartFromChord"] = settings["mesh"]["vk_BlockStartFromChord"]
         args["hk_BlockStartFromChord"] = settings["mesh"]["hk_BlockStartFromChord"]
         args["factor"] = settings["mesh"]["factor"]
-        #args["ogrid_factor"] = 3/args["factor"]#settings["mesh"]["ogrid_factor"]
+        args["ogrid_factor"] = settings["mesh"]["ogrid_factor"]
         args["delta_i"] = settings["mesh"]["delta_i"]
         args["cellwidthcoeff"] = settings["mesh"]["cellwidthcoeff"]
         args["first_cell_width"] = settings["mesh"]["first_cell_width"]
@@ -63,6 +62,9 @@ def run_igg_meshfuncs():
         args["layers"] = settings["mesh"]["layers"]
         args["extrudeLength"] = settings["mesh"]["extrudeLength"]
         args["extrudeNodes"] = settings["mesh"]["extrudeNodes"]
+
+        args["shift_vk_block_xaxiscoeff"] = settings["mesh"]["shift_vk_block_xaxiscoeff"]
+        args["shift_hk_block_xaxiscoeff"] = settings["mesh"]["shift_hk_block_xaxiscoeff"]
 
         write_igg_config(args_dict_path, args)
         os.system(igg_exe + " -batch -print -script " + script_path)

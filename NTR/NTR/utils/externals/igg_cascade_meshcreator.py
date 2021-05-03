@@ -29,11 +29,13 @@ yPerHighHGridBlockPitchStart = args["yPerHighHGridBlockPitchStart"]
 vk_BlockStartFromChord = args["vk_BlockStartFromChord"]
 hk_BlockStartFromChord = args["hk_BlockStartFromChord"]
 factor = args["factor"]
-ogrid_factor = 2/factor#args["ogrid_factor"]
+ogrid_factor = args["ogrid_factor"]
 delta_i = args["delta_i"]/factor
 cellwidthcoeff = args["cellwidthcoeff"]
-first_cell_width = factor*delta_i*args["first_cell_width"]
+first_cell_width = args["first_cell_width"]/factor
 
+shift_vk_block_xaxiscoeff = args["shift_vk_block_xaxiscoeff"]
+shift_hk_block_xaxiscoeff = args["shift_hk_block_xaxiscoeff"]
 
 exp_ratio = args["exp_ratio"]
 
@@ -138,7 +140,7 @@ def extrude_to_3d():
     patch("Block_12", 2, 1).set_type("SOL")
     patch("Block_1", 1, 1).set_type("SOL")
     patch("Block_12", 3, 1).set_type("SOL")
-    # search_connections(1E-007)
+
     segment("Block_1", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
     segment("Block_2", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
     segment("Block_3", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
@@ -228,36 +230,34 @@ def set_nodedistribution():
     segment("Block_3", 1, 3, 1).cluster_uniform()
     segment("Block_2", 1, 3, 1).cluster_uniform()
     segment("Block_1", 1, 3, 1).cluster_uniform()
-    segment("Block_10", 1, 2, 1).cluster_tanh(cellwidthcoeff * delta_i, cellwidthcoeff * delta_i)
-    segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff * delta_i, cellwidthcoeff * delta_i)
-    segment("Block_12", 1, 1, 1).cluster_both_ends(cellwidthcoeff * delta_i)
-    segment("Block_11", 1, 2, 1).cluster_both_ends(cellwidthcoeff * delta_i)
+
+    segment("Block_10", 1, 2, 1).cluster_tanh(cellwidthcoeff / factor , cellwidthcoeff / factor)
+    segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff / factor, cellwidthcoeff / factor)
+    segment("Block_12", 1, 1, 1).cluster_both_ends(cellwidthcoeff / factor)
+    segment("Block_11", 1, 2, 1).cluster_both_ends(cellwidthcoeff / factor)
 
 
 def set_blocks():
     # =============================================================================
     # Blockerstellung
     # =============================================================================
-    # p1=CurvePointNorm(Curve("cspline_peri_upper"),Curve("cspline_peri_upper").calc_normalize(Curve("cspline_peri_upper").project_point(CurvePointNorm(Curve("cspline_ps"),0.0))))
+
+
+    #VK-Blockgrenze
     p1 = CurvePointNorm(Curve("cspline_peri_upper"),
                         Curve("cspline_peri_upper").calc_normalize(
                             Curve("cspline_peri_upper").project_point(Point(CurvePointNorm(Curve("cspline_ps"), 0.0).x,
                                                                             CurvePointNorm(Curve("cspline_ps"),
-                                                                                           0.0).y + 0.4 * pitch,
+                                                                                           0.0).y + shift_vk_block_xaxiscoeff * pitch,
                                                                             0))))
-    """
-    p2=CurvePointNorm(Curve("cspline_peri_lower"),
-                  Curve("cspline_peri_lower").calc_normalize(Curve("cspline_peri_lower").project_point(CurvePointNorm(Curve("cspline_ss"),
-                0.0))))
-    """
+
+    #HK-Blockgrenze
     p2 = CurvePointNorm(Curve("cspline_peri_lower"),
                         Curve("cspline_peri_lower").calc_normalize(
                             Curve("cspline_peri_lower").project_point(Point(CurvePointNorm(Curve("cspline_ps"), 1.0).x,
                                                                             CurvePointNorm(Curve("cspline_ps"),
-                                                                                           0.0).y + 0.15 * pitch,
+                                                                                           0.0).y + shift_hk_block_xaxiscoeff * pitch,
                                                                             1.0))) + 0.05)
-    p_vk = CurvePointNorm(Curve("cspline_ps"), 0.0)
-    p_hk = CurvePointNorm(Curve("cspline_ps"), 1.0)
 
     new_block_face(CurvePointNorm(Curve("cspline_peri_lower"), 0.0),
                    CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
