@@ -32,6 +32,7 @@ factor = args["factor"]
 ogrid_factor = args["ogrid_factor"]
 delta_i = args["delta_i"]/factor
 cellwidthcoeff = args["cellwidthcoeff"]
+streamline_nodedensity_factor = = args["streamline_nodedensity_factor"]
 first_cell_width = args["first_cell_width"]/factor
 
 shift_vk_block_xaxiscoeff = args["shift_vk_block_xaxiscoeff"]
@@ -44,6 +45,8 @@ layers = int(layers*factor)
 
 extrudeLength = args["extrudeLength"]
 extrudeNodes = int(factor*args["extrudeNodes"])
+
+smoothing_iterations = args["smoothing"]
 
 print("factor: " +str(factor))
 print("delta_i: " +str(delta_i))
@@ -193,19 +196,20 @@ def smooth_2d_mesh():
     segment_group("fixed").add_segment(segment("Block_2", 1, 3, 1))
     segment_group("fixed").add_segment(segment("Block_1", 1, 3, 1))
     segment_group("fixed").smoother_bc(3)
-    face_group("midspan").planar_smoothing(5000)
+    face_group("midspan").planar_smoothing(smoothing_iterations)
 
 
 def set_nodedistribution():
     # =============================================================================
     # Setze punktevertielungen
     # =============================================================================
+
     segment("Block_7", 1, 4, 1).set_number_of_points(
-        int(factor * segment("Block_7", 1, 4, 1).get_discrete_length() / delta_i) + 1, 1)
+        int(factor * segment("Block_7", 1, 4, 1).get_discrete_length() / delta_i*streamline_nodedensity_factor) + 1, 1)
     segment("Block_5", 1, 4, 1).set_number_of_points(
-        int(factor * segment("Block_5", 1, 4, 1).get_discrete_length() / delta_i) + 1, 1)
+        int(factor * segment("Block_5", 1, 4, 1).get_discrete_length() / delta_i*streamline_nodedensity_factor) + 1, 1)
     segment("Block_6", 1, 4, 1).set_number_of_points(
-        int(factor * segment("Block_6", 1, 4, 1).get_discrete_length() / delta_i) + 1, 1)
+        int(factor * segment("Block_6", 1, 4, 1).get_discrete_length() / delta_i*streamline_nodedensity_factor) + 1, 1)
     segment("Block_2", 1, 3, 1).set_number_of_points(
         int(factor * segment("Block_2", 1, 3, 1).get_discrete_length() / delta_i) + 1, 1)
     segment("Block_1", 1, 1, 1).set_number_of_points(

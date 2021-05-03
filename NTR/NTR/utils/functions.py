@@ -46,6 +46,7 @@ def run_igg_meshfuncs():
         point_cloud_path = os.path.join(cwd, "ressources", "geom.dat")
 
         args = {}
+
         args["pointcloudfile"] = point_cloud_path
         args["add_path"] = os.path.dirname(os.path.abspath(NTR.__file__))
 
@@ -65,6 +66,9 @@ def run_igg_meshfuncs():
 
         args["shift_vk_block_xaxiscoeff"] = settings["mesh"]["shift_vk_block_xaxiscoeff"]
         args["shift_hk_block_xaxiscoeff"] = settings["mesh"]["shift_hk_block_xaxiscoeff"]
+
+        args["smoothing"] = settings["mesh"]["smoothing"]
+
 
         write_igg_config(args_dict_path, args)
         os.system(igg_exe + " -batch -print -script " + script_path)
