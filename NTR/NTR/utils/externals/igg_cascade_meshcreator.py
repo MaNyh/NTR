@@ -32,7 +32,7 @@ factor = args["factor"]
 ogrid_factor = args["ogrid_factor"]
 delta_i = args["delta_i"]/factor
 cellwidthcoeff = args["cellwidthcoeff"]
-streamline_nodedensity_factor = = args["streamline_nodedensity_factor"]
+streamline_nodedensity_factor = args["streamline_nodedensity_factor"]
 first_cell_width = args["first_cell_width"]/factor
 
 shift_vk_block_xaxiscoeff = args["shift_vk_block_xaxiscoeff"]

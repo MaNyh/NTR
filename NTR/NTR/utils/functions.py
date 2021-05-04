@@ -63,7 +63,7 @@ def run_igg_meshfuncs():
         args["layers"] = settings["mesh"]["layers"]
         args["extrudeLength"] = settings["mesh"]["extrudeLength"]
         args["extrudeNodes"] = settings["mesh"]["extrudeNodes"]
-
+        args["streamline_nodedensity_factor"] = settings["mesh"]["streamline_nodedensity_factor"]
         args["shift_vk_block_xaxiscoeff"] = settings["mesh"]["shift_vk_block_xaxiscoeff"]
         args["shift_hk_block_xaxiscoeff"] = settings["mesh"]["shift_hk_block_xaxiscoeff"]
 
