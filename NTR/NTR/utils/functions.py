@@ -68,11 +68,10 @@ def run_igg_meshfuncs():
         args["shift_hk_block_xaxiscoeff"] = settings["mesh"]["shift_hk_block_xaxiscoeff"]
 
         args["smoothing"] = settings["mesh"]["smoothing"]
-
+        args["export_fluent"] = settings["mesh"]["export_fluent"]
 
         write_igg_config(args_dict_path, args)
         os.system(igg_exe + " -batch -print -script " + script_path)
-        #os.remove(args_dict_path)
         os.chdir(cwd)
     else:
         print("skipping meshing")
