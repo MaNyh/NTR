@@ -47,6 +47,7 @@ extrudeLength = args["extrudeLength"]
 extrudeNodes = int(factor*args["extrudeNodes"])
 
 smoothing_iterations = args["smoothing"]
+export_fluent = args["export_fluent"]
 
 print("factor: " +str(factor))
 print("delta_i: " +str(delta_i))
@@ -103,6 +104,7 @@ def extrude_to_3d():
     block_by_face_extrusion(face("Block_10", 1), Vector(0, 0, extrudeLength), 1, 1)
     block_by_face_extrusion(face("Block_11", 1), Vector(0, 0, extrudeLength), 1, 1)
     block_by_face_extrusion(face("Block_12", 1), Vector(0, 0, extrudeLength), 1, 1)
+
     patch("Block_1", 3, 1).set_type("SOL")
     patch("Block_1", 2, 1).set_type("SOL")
     patch("Block_1", 5, 1).set_type("SOL")
@@ -143,7 +145,7 @@ def extrude_to_3d():
     patch("Block_12", 2, 1).set_type("SOL")
     patch("Block_1", 1, 1).set_type("SOL")
     patch("Block_12", 3, 1).set_type("SOL")
-
+    search_connections(1E-007)
     segment("Block_1", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
     segment("Block_2", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
     segment("Block_3", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
@@ -156,7 +158,7 @@ def extrude_to_3d():
     segment("Block_10", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
     segment("Block_11", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
     segment("Block_12", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    search_connections(1E-007)
+
 
 
 def smooth_2d_mesh():
