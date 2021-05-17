@@ -35,6 +35,7 @@ def run_igg_meshfuncs(case_path):
                settings["geom"]["pitch"], )
     else:
         print("skipping geometry")
+
     if settings["mesh"]["create_bool"]:
         print("create_mesh")
         cwd = os.getcwd()
@@ -53,38 +54,21 @@ def run_igg_meshfuncs(case_path):
         args["pointcloudfile"] = point_cloud_path
         args["add_path"] = ntrpath
         args["case_path"] = case_path
-
-        args["yPerLowHGridBlockPitchStart"] = settings["mesh"]["yPerLowHGridBlockPitchStart"]
-        args["yPerHighHGridBlockPitchStart"] = settings["mesh"]["yPerHighHGridBlockPitchStart"]
-        args["vk_BlockStartFromChord"] = settings["mesh"]["vk_BlockStartFromChord"]
-        args["hk_BlockStartFromChord"] = settings["mesh"]["hk_BlockStartFromChord"]
-        args["factor"] = settings["mesh"]["factor"]
-        args["ogrid_factor"] = settings["mesh"]["ogrid_factor"]
-        args["delta_i"] = settings["mesh"]["delta_i"]
-        args["cellwidthcoeff"] = settings["mesh"]["cellwidthcoeff"]
-        args["first_cell_width"] = settings["mesh"]["first_cell_width"]
-        args["exp_ratio"] = settings["mesh"]["exp_ratio"]
-        args["layers"] = settings["mesh"]["layers"]
-        args["extrudeLength"] = settings["mesh"]["extrudeLength"]
-        args["extrudeNodes"] = settings["mesh"]["extrudeNodes"]
-        args["streamline_nodedensity_factor"] = settings["mesh"]["streamline_nodedensity_factor"]
-        args["shift_vk_block_xaxiscoeff"] = settings["mesh"]["shift_vk_block_xaxiscoeff"]
-        args["shift_hk_block_xaxiscoeff"] = settings["mesh"]["shift_hk_block_xaxiscoeff"]
-
-        args["smoothing"] = settings["mesh"]["smoothing"]
+        for i in settings["mesh"]:
+            args[i] = settings["mesh"][i]
 
         args["save_project"] = os.path.join(case_path, 'mesh.igg')
         args["save_fluent"] = os.path.join(case_path, "fluent.msh")
-
+        print(args.keys())
         write_igg_config(args_dict_path, args)
-        os.system(igg_exe + " -print -script " + script_path)
+        os.system(igg_exe + " -batch -print -script " + script_path)
         os.chdir(cwd)
     else:
         print("skipping meshing")
 
 
 def read_pickle_args(path):
-    filepath = os.path.join(path,"args.pkl")
+    filepath = os.path.join(path, "args.pkl")
     with open(filepath,"rb") as Fobj:
         dict = pickle.load(Fobj)
     return dict
