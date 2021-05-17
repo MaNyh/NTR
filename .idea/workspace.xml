@@ -2,15 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/examples/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/examples/ressources/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/ressources/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/examples/ressources/profile_pointcloud.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/ressources/profile_pointcloud.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/examples/ressources/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/ressources/settings.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/examples/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/run.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/utils/externals/igg_cascade_meshcreator.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/utils/externals/igg_cascade_meshcreator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/utils/externals/tecplot_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/utils/externals/tecplot_functions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NTR/utils/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/utils/functions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -19,7 +10,13 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="d4f33c5257773a971d5590aca564031c05496790" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="ProjectId" id="1setqkV4jK5f9ehYjHAwnqPermn" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -65,6 +62,9 @@
       <module name="NTR" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/NTR/examples" />
       <option name="IS_MODULE_SDK" value="true" />

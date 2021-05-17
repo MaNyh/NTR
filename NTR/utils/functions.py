@@ -44,7 +44,7 @@ def run_igg_meshfuncs(case_path):
         ntrpath = os.path.dirname(os.path.abspath(NTR.__file__))
 
         script_path = os.path.join(ntrpath, "utils", "externals", "igg_cascade_meshcreator.py")
-        args_dict_path = os.path.join(ntrpath, "tmp", settings["igg"]["argument_pickle_dict"])
+        args_dict_path = os.path.join(ntrpath,"..", "examples", settings["igg"]["argument_pickle_dict"])
 
         point_cloud_path = os.path.join(ntrpath,"..", "examples", "ressources", "geom.dat")
 

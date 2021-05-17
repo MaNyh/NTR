@@ -13,7 +13,7 @@ def read_pickle_args(path):
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 package_path = os.path.join(script_path, "..", "..")
-tmp_path = os.path.join(package_path, "tmp")
+tmp_path = os.path.join(package_path, "..", "examples")
 args = read_pickle_args(tmp_path)
 
 pointcloudfile = args["pointcloudfile"]
