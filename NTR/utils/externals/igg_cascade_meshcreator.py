@@ -4,23 +4,23 @@ import pickle
 
 
 print("starting")
-print(__file__)
 
 def read_pickle_args(path):
-    filepath = os.path.join(path,"args.pkl")
-    with open(filepath,"rb") as Fobj:
+    filepath = os.path.join(path, "igg_args.pkl")
+    with open(filepath, "rb") as Fobj:
         dict = pickle.load(Fobj)
     return dict
 
 script_path = os.path.dirname(os.path.abspath(__file__))
-args = read_pickle_args(script_path)
+package_path = os.path.join(script_path, "..", "..")
+tmp_path = os.path.join(package_path, "tmp")
+args = read_pickle_args(tmp_path)
 
 pointcloudfile = args["pointcloudfile"]
+case_path = args["case_path"]
 add_path = args["add_path"]
+
 sys.path.append(add_path)
-
-print(add_path)
-
 from NTR.utils.externals.tecplot_functions import openTecplotFile
 
 
@@ -47,7 +47,10 @@ extrudeLength = args["extrudeLength"]
 extrudeNodes = int(factor*args["extrudeNodes"])
 
 smoothing_iterations = args["smoothing"]
-export_fluent = args["export_fluent"]
+
+
+save_project_path = args["save_project"]
+save_fluent_path = args["save_fluent"]
 
 print("factor: " +str(factor))
 print("delta_i: " +str(delta_i))
@@ -118,7 +121,7 @@ def extrude_to_3d():
     segment("Block_11", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
     segment("Block_12", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
 
-    #connect_whole_grid("ALL", 1E-006)
+    connect_whole_grid("ALL", 1E-006)
 
     patch("Block_1", 1, 1).set_type("SOL")
     patch("Block_1", 2, 1).set_type("SOL")
@@ -376,10 +379,17 @@ def set_blocks():
 
 
 
+
+
+
 iggsplines_from_data()
 set_blocks()
 set_nodedistribution()
 smooth_2d_mesh()
 extrude_to_3d()
-save_project(os.path.join(script_path, 'mesh.igg'))
-export_FLUENT(os.path.join(script_path,"fluent.msh"))
+
+os.chdir(case_path)
+
+save_project("mesh.igg")
+export_FLUENT("fluent.msh")
+

@@ -21,7 +21,7 @@ def write_igg_config(file, args):
         pickle.dump(args, Fobj, protocol=0)
 
 
-def run_igg_meshfuncs():
+def run_igg_meshfuncs(case_path):
     #global args
     settings = yaml_dict_read("ressources/settings.yml")
     if settings["geom"]["create_bool"]:
@@ -40,15 +40,19 @@ def run_igg_meshfuncs():
         cwd = os.getcwd()
         os.chdir(settings["igg"]["install_directory"])
         igg_exe = settings["igg"]["executable"]
-        script_path = os.path.join(cwd, ".." , "utils","externals", "igg_cascade_meshcreator.py")
-        args_dict_path = os.path.join(cwd,".." , "utils","externals",settings["igg"]["argument_pickle_dict"])
 
-        point_cloud_path = os.path.join(cwd, "ressources", "geom.dat")
+        ntrpath = os.path.dirname(os.path.abspath(NTR.__file__))
+
+        script_path = os.path.join(ntrpath, "utils", "externals", "igg_cascade_meshcreator.py")
+        args_dict_path = os.path.join(ntrpath, "tmp", settings["igg"]["argument_pickle_dict"])
+
+        point_cloud_path = os.path.join(ntrpath,"..", "examples", "ressources", "geom.dat")
 
         args = {}
 
         args["pointcloudfile"] = point_cloud_path
-        args["add_path"] = os.path.dirname(os.path.abspath(NTR.__file__))
+        args["add_path"] = ntrpath
+        args["case_path"] = case_path
 
         args["yPerLowHGridBlockPitchStart"] = settings["mesh"]["yPerLowHGridBlockPitchStart"]
         args["yPerHighHGridBlockPitchStart"] = settings["mesh"]["yPerHighHGridBlockPitchStart"]
@@ -68,10 +72,12 @@ def run_igg_meshfuncs():
         args["shift_hk_block_xaxiscoeff"] = settings["mesh"]["shift_hk_block_xaxiscoeff"]
 
         args["smoothing"] = settings["mesh"]["smoothing"]
-        args["export_fluent"] = settings["mesh"]["export_fluent"]
+
+        args["save_project"] = os.path.join(case_path, 'mesh.igg')
+        args["save_fluent"] = os.path.join(case_path, "fluent.msh")
 
         write_igg_config(args_dict_path, args)
-        os.system(igg_exe + " -batch -print -script " + script_path)
+        os.system(igg_exe + " -print -script " + script_path)
         os.chdir(cwd)
     else:
         print("skipping meshing")
