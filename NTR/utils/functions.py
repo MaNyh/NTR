@@ -22,7 +22,6 @@ def write_igg_config(file, args):
 
 
 def run_igg_meshfuncs(case_path):
-    #global args
     settings = yaml_dict_read("ressources/settings.yml")
     if settings["geom"]["create_bool"]:
         print("create_geometry")
@@ -45,9 +44,9 @@ def run_igg_meshfuncs(case_path):
         ntrpath = os.path.dirname(os.path.abspath(NTR.__file__))
 
         script_path = os.path.join(ntrpath, "utils", "externals", "igg_cascade_meshcreator.py")
-        args_dict_path = os.path.join(ntrpath,"..", "examples", settings["igg"]["argument_pickle_dict"])
+        args_dict_path = os.path.join(ntrpath, "utils", "externals", settings["igg"]["argument_pickle_dict"])
 
-        point_cloud_path = os.path.join(ntrpath,"..", "examples", "ressources", "geom.dat")
+        point_cloud_path = os.path.join(ntrpath, "..", "examples", "ressources", "geom.dat")
 
         args = {}
 
@@ -59,7 +58,7 @@ def run_igg_meshfuncs(case_path):
 
         args["save_project"] = os.path.join(case_path, 'mesh.igg')
         args["save_fluent"] = os.path.join(case_path, "fluent.msh")
-        print(args.keys())
+
         write_igg_config(args_dict_path, args)
         os.system(igg_exe + " -batch -print -script " + script_path)
         os.chdir(cwd)

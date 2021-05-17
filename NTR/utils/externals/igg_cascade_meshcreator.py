@@ -4,8 +4,10 @@ import pickle
 
 
 print("starting")
+print(os.path.abspath(sys.argv[4]))
 
 def read_pickle_args(path):
+    print("reading yaml-dictionary ", path)
     filepath = os.path.join(path, "igg_args.pkl")
     with open(filepath, "rb") as Fobj:
         dict = pickle.load(Fobj)
@@ -13,7 +15,7 @@ def read_pickle_args(path):
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 package_path = os.path.join(script_path, "..", "..")
-tmp_path = os.path.join(package_path, "..", "examples")
+tmp_path = os.path.join(script_path)
 args = read_pickle_args(tmp_path)
 
 pointcloudfile = args["pointcloudfile"]
@@ -378,7 +380,7 @@ def set_blocks():
     connect_whole_grid("ALL", 1E-06)
 
 
-
+print(os.path.abspath(__file__))
 
 
 

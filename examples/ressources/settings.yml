@@ -1,4 +1,3 @@
-
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
     executable                      : "iggx86_64.exe"
