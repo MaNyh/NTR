@@ -17,6 +17,10 @@ __pycache__/
 *.xml
 *.xmt_txt
 *.config
+*.geom
+
+# project files
+.idea/
 
 # Distribution / packaging
 venv/
