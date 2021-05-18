@@ -1,0 +1,34 @@
+igg:
+    install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
+    executable                      : "iggx86_64.exe"
+    argument_pickle_dict            : "igg_args.pkl"
+
+geom:
+    create_bool                     : True                                 #True: mesh will be created
+    ptcloud_profile                 : "profile_pointcloud.txt"              #Name of the pointcloud-file
+    beta_meta_01                    : 135                                   #Inflow angle [deg]
+    beta_meta_02                    : 115                                   #Outflow angle [deg]
+    x_inlet                         : -0.1                                  #Shift Inlet along x [cm]
+    x_outlet                        : 0.27                                  #Shift Outlet along x [cm]
+    pitch                           : 0.0765                                #Pitch [cm]
+
+mesh:
+    create_bool                     : True                                  #True: mesh will be created
+    export_fluent                   : True                                  #True: fluent.msh will be exported
+    factor                          : 1.3                                   #Mesh-density factor
+    ogrid_factor                    : 2.0                                   #o-grid-node-ratio
+    delta_i                         : 0.0015                                #node-distribution along fixed edges
+    first_cell_width                : 0.000015                              #first cell height when factor=1
+    exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
+    layers                          : 12                                     #fixed cells in boundary layer
+    extrudeNodes                    : 31                                    #nodes along span (extrudeLength) when factor=1
+    extrudeLength                   : 0.04                                  #length of extruded span
+    vk_BlockStartFromChord          : 0.015                                 #LE and TE-Block Meshing
+    hk_BlockStartFromChord          : 0.985                                 #LE and TE-Block Meshing
+    cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
+    streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
+    yPerLowHGridBlockPitchStart     : 0.3                                   #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.75                                  #move high-y-per-block along y-pitch
+    shift_vk_block_xaxiscoeff       : 0.26                                  #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : 0.15                                  #move periodic vertices (yPer from TE) along x
+    smoothing                       : 5000                                  #smoothing iterations
