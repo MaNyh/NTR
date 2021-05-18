@@ -6,7 +6,7 @@ import NTR
 from NTR.utils.create_geom import create
 
 def yaml_dict_read(yml_file):
-
+    print(yml_file)
     args_from_yaml = {}
 
     with open(yml_file, "r") as Fobj:
@@ -22,11 +22,12 @@ def write_igg_config(file, args):
 
 
 def run_igg_meshfuncs(case_path):
-    settings = yaml_dict_read("ressources/settings.yml")
+    settings = yaml_dict_read(os.path.join(case_path, "settings.yml"))
+    print(os.path.abspath(case_path))
     if settings["geom"]["create_bool"]:
         print("create_geometry")
-
-        create(settings["geom"]["ptcloud_profile"],
+        ptstxtfile = os.path.join(os.path.abspath(case_path),settings["geom"]["ptcloud_profile"])
+        create(ptstxtfile,
                settings["geom"]["beta_meta_01"],
                settings["geom"]["beta_meta_02"],
                settings["geom"]["x_inlet"],
@@ -46,7 +47,7 @@ def run_igg_meshfuncs(case_path):
         script_path = os.path.join(ntrpath, "utils", "externals", "igg_cascade_meshcreator.py")
         args_dict_path = os.path.join(ntrpath, "utils", "externals", settings["igg"]["argument_pickle_dict"])
 
-        point_cloud_path = os.path.join(ntrpath, "..", "examples", "ressources", "geom.dat")
+        point_cloud_path = os.path.join(case_path, "geom.dat")
 
         args = {}
 

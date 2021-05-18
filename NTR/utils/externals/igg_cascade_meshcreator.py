@@ -4,7 +4,6 @@ import pickle
 
 
 print("starting")
-print(os.path.abspath(sys.argv[4]))
 
 def read_pickle_args(path):
     print("reading yaml-dictionary ", path)
@@ -109,7 +108,8 @@ def extrude_to_3d():
     for b in blocks:
         segment(b, 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
 
-    connect_whole_grid("ALL", 1E-006)
+
+def set_patches():
 
     patch("Block_1", 1, 1).set_type("SOL")
     patch("Block_1", 2, 1).set_type("SOL")
@@ -162,9 +162,7 @@ def extrude_to_3d():
     patch("Block_12", 1, 1).set_type("SOL")
     patch("Block_12", 2, 1).set_type("SOL")
     patch("Block_12", 3, 1).set_type("SOL")
-    #connect_whole_grid("ALL", 1E-06)
-
-
+    connect_whole_grid("PATCHES",1E-06)
 
 def smooth_2d_mesh():
     # =============================================================================
@@ -363,6 +361,7 @@ set_blocks()
 set_nodedistribution()
 smooth_2d_mesh()
 extrude_to_3d()
+set_patches()
 
 os.chdir(case_path)
 save_project("mesh.igg")
