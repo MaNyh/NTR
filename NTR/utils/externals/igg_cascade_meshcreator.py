@@ -93,35 +93,21 @@ def iggsplines_from_data():
     cspline_outlet.insert_point(1, Point(x_lower[-1], y_lower[-1], 0))
     cspline_outlet.insert_point(2, Point(x_upper[-1], y_upper[-1], 0))
 
+
+blocks = ["Block_1", "Block_2", "Block_3", "Block_4",
+          "Block_5", "Block_6", "Block_7", "Block_8",
+          "Block_9", "Block_10", "Block_11", "Block_12"]
+
+
 def extrude_to_3d():
     # =============================================================================
     # Extrudieren
     # =============================================================================
-    block_by_face_extrusion(face("Block_1", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_2", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_3", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_4", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_5", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_6", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_7", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_8", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_9", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_10", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_11", 1), Vector(0, 0, extrudeLength), 1, 1)
-    block_by_face_extrusion(face("Block_12", 1), Vector(0, 0, extrudeLength), 1, 1)
+    for b in blocks:
+        block_by_face_extrusion(face(b, 1), Vector(0, 0, extrudeLength), 1, 1)
 
-    segment("Block_1", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_2", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_3", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_4", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_5", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_6", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_7", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_8", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_9", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_10", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_11", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
-    segment("Block_12", 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
+    for b in blocks:
+        segment(b, 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
 
     connect_whole_grid("ALL", 1E-006)
 
@@ -185,18 +171,9 @@ def smooth_2d_mesh():
     # Glaettung
     # =============================================================================
     create_face_group("midspan")
-    face_group("midspan").add_face(face("Block_1", 1))
-    face_group("midspan").add_face(face("Block_2", 1))
-    face_group("midspan").add_face(face("Block_3", 1))
-    face_group("midspan").add_face(face("Block_4", 1))
-    face_group("midspan").add_face(face("Block_9", 1))
-    face_group("midspan").add_face(face("Block_11", 1))
-    face_group("midspan").add_face(face("Block_12", 1))
-    face_group("midspan").add_face(face("Block_8", 1))
-    face_group("midspan").add_face(face("Block_10", 1))
-    face_group("midspan").add_face(face("Block_5", 1))
-    face_group("midspan").add_face(face("Block_6", 1))
-    face_group("midspan").add_face(face("Block_7", 1))
+    for b in blocks:
+        face_group("midspan").add_face(face(b, 1))
+
     create_segment_group("solid")
     segment_group("solid").add_segment(segment("Block_11", 1, 2, 1))
     segment_group("solid").add_segment(segment("Block_12", 1, 1, 1))
@@ -204,6 +181,7 @@ def smooth_2d_mesh():
     segment_group("solid").add_segment(segment("Block_10", 1, 2, 1))
     segment_group("solid").smoother_bc(0, first_cell_width, exp_ratio, layers)
     create_segment_group("fixed")
+
     segment_group("fixed").add_segment(segment("Block_1", 1, 1, 1))
     segment_group("fixed").add_segment(segment("Block_4", 1, 1, 1))
     segment_group("fixed").add_segment(segment("Block_5", 1, 1, 1))
@@ -380,10 +358,6 @@ def set_blocks():
     connect_whole_grid("ALL", 1E-06)
 
 
-print(os.path.abspath(__file__))
-
-
-
 iggsplines_from_data()
 set_blocks()
 set_nodedistribution()
@@ -391,7 +365,6 @@ smooth_2d_mesh()
 extrude_to_3d()
 
 os.chdir(case_path)
-
 save_project("mesh.igg")
 export_FLUENT("fluent.msh")
 
