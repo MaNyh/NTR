@@ -3,14 +3,19 @@ from NTR.utils.geom_functions import sortProfilePoints, calcMidPoints, calcMidPa
 from NTR.utils.externals.tecplot_functions import writeTecplot1DFile
 
 
-def create(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, pitch):
+def create(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, pitch, unit):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
     coords_df = np.loadtxt(path_profile_coords)
 
-    x_raw = coords_df[:, 0] / 1000.0
-    y_raw = coords_df[:, 1] / 1000.0
+    if unit == "m":
+        unitcoeff = 1
+    elif unit == "mm":
+        unitcoeff = 1/1000
+
+    x_raw = coords_df[:, 0] * unitcoeff
+    y_raw = coords_df[:, 1] * unitcoeff
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================

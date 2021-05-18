@@ -24,47 +24,44 @@ def write_igg_config(file, args):
 def run_igg_meshfuncs(case_path):
     settings = yaml_dict_read(os.path.join(case_path, "settings.yml"))
     print(os.path.abspath(case_path))
-    if settings["geom"]["create_bool"]:
-        print("create_geometry")
-        ptstxtfile = os.path.join(os.path.abspath(case_path),settings["geom"]["ptcloud_profile"])
-        create(ptstxtfile,
-               settings["geom"]["beta_meta_01"],
-               settings["geom"]["beta_meta_02"],
-               settings["geom"]["x_inlet"],
-               settings["geom"]["x_outlet"],
-               settings["geom"]["pitch"], )
-    else:
-        print("skipping geometry")
 
-    if settings["mesh"]["create_bool"]:
-        print("create_mesh")
-        cwd = os.getcwd()
-        os.chdir(settings["igg"]["install_directory"])
-        igg_exe = settings["igg"]["executable"]
+    print("create_geometry")
+    ptstxtfile = os.path.join(os.path.abspath(case_path),settings["geom"]["ptcloud_profile"])
+    create(ptstxtfile,
+           settings["geom"]["beta_meta_01"],
+           settings["geom"]["beta_meta_02"],
+           settings["geom"]["x_inlet"],
+           settings["geom"]["x_outlet"],
+           settings["geom"]["pitch"],
+           settings["geom"]["ptcloud_profile_unit"] )
 
-        ntrpath = os.path.dirname(os.path.abspath(NTR.__file__))
 
-        script_path = os.path.join(ntrpath, "utils", "externals", "igg_cascade_meshcreator.py")
-        args_dict_path = os.path.join(ntrpath, "utils", "externals", settings["igg"]["argument_pickle_dict"])
+    print("create_mesh")
+    cwd = os.getcwd()
+    os.chdir(settings["igg"]["install_directory"])
+    igg_exe = settings["igg"]["executable"]
 
-        point_cloud_path = os.path.join(case_path, "geom.dat")
+    ntrpath = os.path.dirname(os.path.abspath(NTR.__file__))
 
-        args = {}
+    script_path = os.path.join(ntrpath, "utils", "externals", "igg_cascade_meshcreator.py")
+    args_dict_path = os.path.join(ntrpath, "utils", "externals", settings["igg"]["argument_pickle_dict"])
 
-        args["pointcloudfile"] = point_cloud_path
-        args["add_path"] = ntrpath
-        args["case_path"] = case_path
-        for i in settings["mesh"]:
-            args[i] = settings["mesh"][i]
+    point_cloud_path = os.path.join(case_path, "geom.dat")
 
-        args["save_project"] = os.path.join(case_path, 'mesh.igg')
-        args["save_fluent"] = os.path.join(case_path, "fluent.msh")
+    args = {}
 
-        write_igg_config(args_dict_path, args)
-        os.system(igg_exe + " -batch -print -script " + script_path)
-        os.chdir(cwd)
-    else:
-        print("skipping meshing")
+    args["pointcloudfile"] = point_cloud_path
+    args["add_path"] = ntrpath
+    args["case_path"] = case_path
+    for i in settings["mesh"]:
+        args[i] = settings["mesh"][i]
+
+    args["save_project"] = os.path.join(case_path, 'mesh.igg')
+    args["save_fluent"] = os.path.join(case_path, "fluent.msh")
+
+    write_igg_config(args_dict_path, args)
+    os.system(igg_exe + " -batch -print -script " + script_path)
+    os.chdir(cwd)
 
 
 def read_pickle_args(path):
