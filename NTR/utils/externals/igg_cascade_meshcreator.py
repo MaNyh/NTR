@@ -26,8 +26,7 @@ from NTR.utils.externals.tecplot_functions import openTecplotFile
 
 yPerLowHGridBlockPitchStart = args["yPerLowHGridBlockPitchStart"]
 yPerHighHGridBlockPitchStart = args["yPerHighHGridBlockPitchStart"]
-vk_BlockStartFromChord = args["vk_BlockStartFromChord"]
-hk_BlockStartFromChord = args["hk_BlockStartFromChord"]
+blockStartFromChord = args["blockStartFromChord"]
 factor = args["factor"]
 ogrid_factor = args["ogrid_factor"]
 delta_i = args["delta_i"] / factor
@@ -37,6 +36,11 @@ first_cell_width = args["first_cell_width"] / factor
 
 shift_vk_block_xaxiscoeff = args["shift_vk_block_xaxiscoeff"]
 shift_hk_block_xaxiscoeff = args["shift_hk_block_xaxiscoeff"]
+
+hk_ps_shift = args["hk_ps_shift"]
+hk_ss_shift = args["hk_ss_shift"]
+vk_ps_shift = args["vk_ps_shift"]
+vk_ss_shift = args["vk_ss_shift"]
 
 exp_ratio = args["exp_ratio"]
 
@@ -236,8 +240,8 @@ def set_nodedistribution():
     segment("Block_2", 1, 3, 1).cluster_uniform()
     segment("Block_1", 1, 3, 1).cluster_uniform()
 
-    segment("Block_10", 1, 2, 1).cluster_tanh(cellwidthcoeff / factor, cellwidthcoeff / factor)
-    segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff / factor, cellwidthcoeff / factor)
+    segment("Block_10", 1, 2, 1).cluster_tanh(cellwidthcoeff / factor**2, cellwidthcoeff / factor**2)
+    segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff / factor**2, cellwidthcoeff / factor**2)
     segment("Block_12", 1, 1,1).cluster_uniform()
     segment("Block_11", 1, 2,1).cluster_uniform()
 
@@ -265,16 +269,16 @@ def set_blocks():
     p3 = Point(CurvePointNorm(Curve("cspline_ss"), 0.5).x,
                CurvePointNorm(Curve("cspline_ss"), 0.5).y + yPerLowHGridBlockPitchStart * pitch, 0)
 
-
+    #VK
     pt1 = Point(p1.x, p1.y + yPerHighHGridBlockPitchStart * pitch - pitch, 0)  # vk_ss
-    pt2 = CurvePointNorm(Curve("cspline_ss"), hk_BlockStartFromChord)  # vk_ssBOUNDARY
-    pt3 = CurvePointNorm(Curve("cspline_ps"), vk_BlockStartFromChord)  # vk_psBOUNDARY
+    pt2 = CurvePointNorm(Curve("cspline_ss"), (1-blockStartFromChord)*vk_ss_shift)  # vk_ssBOUNDARY
+    pt3 = CurvePointNorm(Curve("cspline_ps"), blockStartFromChord*vk_ps_shift)  # vk_psBOUNDARY
     pt4 = Point(p1.x, p1.y + yPerLowHGridBlockPitchStart * pitch - pitch, 0) # vk_ss
-
+    #HK
     pt5 = Point(p2.x, p2.y + yPerLowHGridBlockPitchStart * pitch, 0)
     pt6 = Point(p2.x, p2.y + yPerHighHGridBlockPitchStart * pitch, 0)
-    pt7 = CurvePointNorm(Curve("cspline_ss"), vk_BlockStartFromChord) # vk_psBOUNDARY
-    pt8 = CurvePointNorm(Curve("cspline_ps"), hk_BlockStartFromChord) # vk_psBOUNDARY
+    pt7 = CurvePointNorm(Curve("cspline_ss"), blockStartFromChord*hk_ss_shift )
+    pt8 = CurvePointNorm(Curve("cspline_ps"), (1-blockStartFromChord)*hk_ps_shift)
 
     pt9 = CurvePointNorm(Curve("cspline_peri_lower"), 0.0)
     pt10 = CurvePointNorm(Curve("cspline_peri_lower"),Curve("cspline_peri_lower").calc_normalize(Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))

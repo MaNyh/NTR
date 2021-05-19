@@ -8,25 +8,28 @@ geom:
     ptcloud_profile_unit            : "m"                                    #m vs mm
     beta_meta_01                    : 120                                   #Inflow angle [deg]
     beta_meta_02                    : 25                                   #Outflow angle [deg]
-    x_inlet                         : -0.1                                  #Shift Inlet along x [cm]
-    x_outlet                        : 0.2                                  #Shift Outlet along x [cm]
-    pitch                           : 0.076                                #Pitch [cm]
+    x_inlet                         : -0.05                                  #Shift Inlet along x [cm]
+    x_outlet                        : 0.14                                  #Shift Outlet along x [cm]
+    pitch                           : 0.0545                                #Pitch [cm]
 
 mesh:
     factor                          : 1.3                                   #Mesh-density factor
-    ogrid_factor                    : 5.0                                   #o-grid-node-ratio
+    ogrid_factor                    : 2.0                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.000015                              #first cell height when factor=1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 3                                     #fixed cells in boundary layer
     extrudeNodes                    : 4                                    #nodes along span (extrudeLength) when factor=1
     extrudeLength                   : 0.004                                  #length of extruded span
-    vk_BlockStartFromChord          : 0.04                                 #LE and TE-Block Meshing
-    hk_BlockStartFromChord          : 0.96                                #LE and TE-Block Meshing
+    blockStartFromChord             : 0.03                                 #LE and TE-Block Meshing
+    hk_ps_shift                     : 0.96                                #LE and TE-Block Meshing
+    hk_ss_shift                     : 1
+    vk_ps_shift                     : 1.05                                #LE and TE-Block Meshing
+    vk_ss_shift                     : 1
     cellwidthcoeff                  : 0.02                                #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.35                                   #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.6                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.26                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : 0.15                                  #move periodic vertices (yPer from TE) along x
+    shift_vk_block_xaxiscoeff       : -0.1                                  #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : -0.7                                    #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations

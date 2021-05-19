@@ -14,15 +14,18 @@ geom:
 
 mesh:
     factor                          : 1.3                                   #Mesh-density factor
-    ogrid_factor                    : 2.0                                   #o-grid-node-ratio
+    ogrid_factor                    : 1                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.000015                              #first cell height when factor=1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 2                                     #fixed cells in boundary layer
     extrudeNodes                    : 4                                    #nodes along span (extrudeLength) when factor=1
     extrudeLength                   : 0.004                                  #length of extruded span
-    vk_BlockStartFromChord          : 0.015                                 #LE and TE-Block Meshing
-    hk_BlockStartFromChord          : 0.985                                 #LE and TE-Block Meshing
+    blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
+    hk_ps_shift                     : 1                                #LE and TE-Block Meshing
+    hk_ss_shift                     : 1
+    vk_ps_shift                     : 1                                #LE and TE-Block Meshing
+    vk_ss_shift                     : 1
     cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.3                                   #move low-y-per-block along y-pitch
