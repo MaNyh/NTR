@@ -10,10 +10,9 @@ geom:
     beta_meta_02                    : 25                                   #Outflow angle [deg]
     x_inlet                         : -0.1                                  #Shift Inlet along x [cm]
     x_outlet                        : 0.2                                  #Shift Outlet along x [cm]
-    pitch                           : 0.0765                                #Pitch [cm]
+    pitch                           : 0.076                                #Pitch [cm]
 
 mesh:
-    export_fluent                   : True                                  #True: fluent.msh will be exported
     factor                          : 1.3                                   #Mesh-density factor
     ogrid_factor                    : 5.0                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges

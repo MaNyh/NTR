@@ -13,7 +13,6 @@ geom:
     pitch                           : 0.0765                                #Pitch [m]
 
 mesh:
-    export_fluent                   : True                                  #True: fluent.msh will be exported
     factor                          : 1.3                                   #Mesh-density factor
     ogrid_factor                    : 2.0                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
