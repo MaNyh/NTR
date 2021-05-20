@@ -22,11 +22,10 @@ mesh:
     extrudeNodes                    : 31                                    #nodes along span (extrudeLength) when factor=1
     extrudeLength                   : 0.04                                  #length of extruded span
     blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
-    hk_ps_shift                      : 1                                #LE and TE-Block Meshing
+    hk_ps_shift                     : 1                                #LE and TE-Block Meshing
     hk_ss_shift                     : 1
     vk_ps_shift                     : 1                                #LE and TE-Block Meshing
-    vk_ss_shift                         : 1
-    cellwidthcoeff                  : 0.001
+    vk_ss_shift                     : 1
     cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.3                                   #move low-y-per-block along y-pitch
