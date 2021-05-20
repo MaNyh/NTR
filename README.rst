@@ -23,12 +23,32 @@ Numerical Test Rig. A Python-Package for Pre- and Postprocessing Computational F
 * Documentation: https://NTR.readthedocs.io.
 
 
-Usage
+Installation
 --------
-Install Package using pip
+Install package using pip
 'pip install PATH/TO/PACKAGE'
 
-create a yaml-config-file
+Or install via
+'python setup.py install'
+
+As a developer, install development-requirements via
+'pip install -r requirements_dev.txt'
+
+Usage
+--------
+
+Meshing:
+See ./examples/"meshing-case"
+Create a case-directory
+
+./case
+    pointcloudfile.txt
+    settings.yml
+    run.py
+
+Run run.py
+
+This structure is not final and must be optimized in the future.
 
 Features
 --------
