@@ -1,22 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="change README.rst">
-      <change afterPath="$PROJECT_DIR$/NTR/preprocessing/openfoam/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/casecade_meshing/__init__.py" afterDir="false" />
+    <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/preprocessing/create_probes.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/preprocessing/openfoam/create_probes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.rst" beforeDir="false" afterPath="$PROJECT_DIR$/README.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/gwk_verdichterprofil_lesmesh/profile_pointcloud.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_lesmesh/profile_pointcloud.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/gwk_verdichterprofil_lesmesh/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_lesmesh/run.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/gwk_verdichterprofil_lesmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_lesmesh/settings.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/gwk_verdichterprofil_ransmesh/profile_pointcloud.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_ransmesh/profile_pointcloud.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/gwk_verdichterprofil_ransmesh/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_ransmesh/run.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/gwk_verdichterprofil_ransmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_ransmesh/settings.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/seehausen_turbinenprofil_ransmesh/profile_pointcloud.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/seehausen_turbinenprofil_ransmesh/profile_pointcloud.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/seehausen_turbinenprofil_ransmesh/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/seehausen_turbinenprofil_ransmesh/run.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/seehausen_turbinenprofil_ransmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/seehausen_turbinenprofil_ransmesh/settings.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NTR/preprocessing/openfoam/create_probes.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/preprocessing/openfoam/create_probes.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +52,7 @@
       <recent name="D:\CodingProjects\NTR" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.run">
+  <component name="RunManager" selected="Python.create_probes">
     <configuration name="create_probes" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="NTR" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -173,8 +160,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.run" />
         <item itemvalue="Python.create_probes" />
+        <item itemvalue="Python.run" />
         <item itemvalue="Python.run (4)" />
         <item itemvalue="Python.run (2)" />
         <item itemvalue="Python.run (3)" />
@@ -295,7 +282,21 @@
       <option name="project" value="LOCAL" />
       <updated>1621499755062</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista">
+      <created>1621509916073</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1621509916073</updated>
+    </task>
+    <task id="LOCAL-00017" summary="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista">
+      <created>1621510072154</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1621510072154</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -323,6 +324,7 @@
     <MESSAGE value="delete double settings-key" />
     <MESSAGE value="initial implementation of createProbesProfileDict" />
     <MESSAGE value="change README.rst" />
-    <option name="LAST_COMMIT_MESSAGE" value="change README.rst" />
+    <MESSAGE value="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista" />
+    <option name="LAST_COMMIT_MESSAGE" value="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista" />
   </component>
 </project>

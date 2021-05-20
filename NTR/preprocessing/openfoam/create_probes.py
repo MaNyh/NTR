@@ -14,7 +14,7 @@ import pyvista as pv
 from NTR.utils.geom_functions import sortProfilePoints, calcMidPassageStreamLine, calcMeanCamberLine, getBoundaryValues, getGeom2DVTUSLice2
 
 
-def createProbesProfileDict(midspan_z, path_blade_surface, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
+def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
                             interval_time_steps_probes, output_path, tolerance=1e-6):
 
     """
@@ -30,6 +30,10 @@ def createProbesProfileDict(midspan_z, path_blade_surface, pden_Probes_Profile_S
     # blade_surface einlesen und Normalenvektor bestimmen der
     blade_surface = pv.PolyData(path_blade_surface)
     blade_surface = blade_surface.compute_normals()
+
+    bladebounds =blade_surface.bounds
+    midspan_z = (bladebounds[5]-bladebounds[2])/2
+
     cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
 
     # Mittelschnitt erstellen
