@@ -6,7 +6,6 @@ import NTR
 from NTR.utils.create_geom import create
 
 def yaml_dict_read(yml_file):
-    print(yml_file)
     args_from_yaml = {}
 
     with open(yml_file, "r") as Fobj:
@@ -62,6 +61,7 @@ def run_igg_meshfuncs(case_path):
     write_igg_config(args_dict_path, args)
     os.system(igg_exe + " -batch -print -script " + script_path)
     os.chdir(cwd)
+
 
 
 def read_pickle_args(path):
