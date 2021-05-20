@@ -6,10 +6,10 @@ Created on Mon Feb 18 20:33:27 2019
 """
 
 
-import vtk
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import pyvista as pv
 
 from NTR.utils.geom_functions import sortProfilePoints, calcMidPassageStreamLine, calcMeanCamberLine, getBoundaryValues, getGeom2DVTUSLice2
 
@@ -28,44 +28,22 @@ def createProbesProfileDict(midspan_z, path_blade_surface, pden_Probes_Profile_S
     :return: openFoamDict
     """
     # blade_surface einlesen und Normalenvektor bestimmen der
-
-    reader = vtk.vtkXMLUnstructuredGridReader()
-    reader.SetFileName(path_blade_surface)
-    reader.Update()
-    blade_surface = reader.GetOutput()
-
-    cellLocator = vtk.vtkCellLocator()
-    cellLocator.SetDataSet(blade_surface);
-    cellLocator.BuildLocator();
-
-    # Cell Data to Point Data
-
-    mapper = vtk.vtkCellDataToPointData()
-    if vtk.VTK_MAJOR_VERSION <= 5:
-        mapper.AddInput(blade_surface)
-    else:
-        mapper.AddInputData(blade_surface)
-    mapper.Update()
+    blade_surface = pv.PolyData(path_blade_surface)
+    blade_surface = blade_surface.compute_normals()
+    cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
 
     # Mittelschnitt erstellen
 
-    cut_plane = vtk.vtkPlane()
-    cut_plane.SetOrigin(0, 0, midspan_z)
-    cut_plane.SetNormal(0, 0, 1)
 
-    cutter = vtk.vtkCutter()
-    cutter.SetCutFunction(cut_plane)
-    cutter.SetInputConnection(mapper.GetOutputPort())
-    cutter.Update()
-    data = cutter.GetOutput()
-    surface_normals = data.GetPointData().GetArray('Normals')
+    points = cut_plane.points
+    surface_normals = cut_plane.cell_normals
     # Punkte extrahieren
     x_values = []
     y_values = []
 
-    for i in range(data.GetNumberOfPoints()):
-        point = data.GetPoint(i)
-        normal = surface_normals.GetTuple(i)
+    for i in range(len(points)):
+        point = points[i]
+        normal = surface_normals[i]
 
         x_values.append(point[0] - tolerance * normal[0])
         y_values.append(point[1] - tolerance * normal[1])
@@ -77,7 +55,7 @@ def createProbesProfileDict(midspan_z, path_blade_surface, pden_Probes_Profile_S
 
     plt.plot(x_ss, y_ss)
     plt.plot(x_ps, y_ps)
-    # plt.plot(x_values,y_values,'r-x')
+
     x_bl_ss = x_ss[::int(pden_Probes_Profile_SS)]
     y_bl_ss = y_ss[::int(pden_Probes_Profile_SS)]
 

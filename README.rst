@@ -24,7 +24,8 @@ Numerical Test Rig. A Python-Package for Pre- and Postprocessing Computational F
 
 
 Installation
---------
+-------------
+
 Install package using pip
 'pip install PATH/TO/PACKAGE'
 
@@ -35,25 +36,31 @@ As a developer, install development-requirements via
 'pip install -r requirements_dev.txt'
 
 Usage
---------
+-------------
 
 Meshing:
 See ./examples/"meshing-case"
 Create a case-directory
 
 ./case
-    pointcloudfile.txt
-    settings.yml
-    run.py
+    -pointcloudfile.txt
+
+    -settings.yml
+
+    -run.py
 
 Run run.py
 
-This structure is not final and must be optimized in the future.
+This structure is not final and must be optimized in the future. Set up settings.yml for your specific case. Right now, also the path to igg has to be set here
 
 Features
---------
+-------------
 
-* TODO
+preprocessing
+    -meshing
+        -igg_cascademeshing
+    -openfoam
+        -create_probes
 
 Credits
 -------

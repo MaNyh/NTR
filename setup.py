@@ -24,6 +24,7 @@ requirements = ['Click>=7.0',
                 "numpy>=1.20.0",
                 "vtk>=9.0.1",
                 "scipy>=1.6.1",
+                "pyvista>=0.25.0",
                 ]
 
 setup_requirements = [ ]
