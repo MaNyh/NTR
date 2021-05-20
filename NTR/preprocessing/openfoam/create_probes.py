@@ -18,7 +18,6 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
                             interval_time_steps_probes, output_path, tolerance=1e-6):
 
     """
-    :param midspan_z: float
     :param path_blade_surface: vtk-mesh
     :param pden_Probes_Profile_SS: integer (slicer)
     :param pden_Probes_Profile_PS: integer (slicer)
