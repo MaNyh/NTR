@@ -276,3 +276,347 @@ def rotate_points(origin, x, y, angle):
     return new_x, new_y
 
 
+def calcMeanCamberLine(x, y, beta1, beta2):
+    # vk und hk bestimmen
+
+    x, y = zip(*sorted(zip(x, y)))
+
+    ind_vk, ind_hk = calc_vk_hk(x, y, beta1, beta2)
+
+    x_vk = x[ind_vk]
+    y_vk = y[ind_vk]
+
+    x_hk = x[ind_hk]
+    y_hk = y[ind_hk]
+
+    def sortPoints(x, y, ind_vk, ind_hk):
+
+        # Punkte der Saugseite bestimmen
+
+        # ersten Punkt nach der Vorderkante bestimmen
+
+        dists = []
+        indizes = []
+
+        for i in range(len(x)):
+            if i != ind_vk and y[i] > y[ind_vk]:
+                dists.append(((x[i] - x[ind_vk]) ** 2 + (y[i] - y[ind_vk]) ** 2) * (0.5))
+                indizes.append(i)
+
+        ind_ss_p2 = indizes[dists.index(min(dists))]
+
+        indizes = range(len(x))
+
+        indizes.remove(ind_vk)
+        indizes.remove(ind_ss_p2)
+
+        indizes_ss = []
+
+        indizes_ss.append(ind_vk)
+        indizes_ss.append(ind_ss_p2)
+
+        ind = ind_ss_p2
+
+        while ind != ind_hk:
+
+            dists = []
+            inds = []
+
+            point = (x[ind], y[ind])
+            for i in range(len(indizes)):
+                point2 = (x[indizes[i]], y[indizes[i]])
+                dist = ((point2[0] - point[0]) ** 2 + (point2[1] - point[1]) ** 2) * (0.5)
+
+                if indizes[i] not in indizes_ss:
+                    dists.append(dist)
+                    inds.append(indizes[i])
+
+            indizes_ss.append(inds[dists.index(min(dists))])
+            indizes.remove(inds[dists.index(min(dists))])
+            ind = inds[dists.index(min(dists))]
+
+            indizes_ps = list(indizes)
+            indizes_ps.insert(0, ind_vk)
+            indizes_ps.append(ind_hk)
+
+        x_ss = []
+        y_ss = []
+
+        for i in range(len(indizes_ss)):
+            x_ss.append(x[indizes_ss[i]])
+            y_ss.append(y[indizes_ss[i]])
+
+        x_ps = []
+        y_ps = []
+
+        for i in range(len(indizes_ps)):
+            x_ps.append(x[indizes_ps[i]])
+            y_ps.append(y[indizes_ps[i]])
+
+        return x_ss, y_ss, x_ps, y_ps
+
+    x_ss, y_ss, x_ps, y_ps = sortPoints(x, y, ind_vk, ind_hk)
+
+    x_mid_ss = []
+    y_mid_ss = []
+
+    def calcMidPoints(x1, y1, x2, y2):
+
+        x_mid_ss = []
+        y_mid_ss = []
+
+        for i in range(len(x1)):
+
+            dists = []
+
+            for j in range(len(x2)):
+                dist = ((x1[i] - x2[j]) ** 2 + (y1[i] - y2[j]) ** 2) ** (0.5)
+
+                dists.append(dist)
+
+            index_p = np.argmin(dists)
+
+            p_x = x2[index_p]
+            p_y = y2[index_p]
+
+            def midpoint(x1, y1, x2, y2):
+                return ((x1 + x2) / 2, (y1 + y2) / 2)
+
+            x_mid, y_mid = midpoint(p_x, p_y, x1[i], y1[i])
+
+            x_mid_ss.append(x_mid)
+            y_mid_ss.append(y_mid)
+
+        return x_mid_ss, y_mid_ss
+
+    x_mid_ss, y_mid_ss = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
+    x_mid_ps, y_mid_ps = calcMidPoints(x_ps, y_ps, x_ss, y_ss)
+    x_mids, y_mids = calcMidPoints(x_mid_ps, y_mid_ps, x_mid_ss, y_mid_ss)
+
+    return x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk
+
+
+def getBoundaryValues(x_bounds, y_bounds):
+    x = x_bounds
+    y = y_bounds
+
+    x_min = min(x)
+    x_max = max(x)
+
+    x_inlet = []
+    x_outlet = []
+
+    y_inlet = []
+    y_outlet = []
+    x_peri = []
+    y_peri = []
+
+    def sort_value(y, u):
+
+        y = np.asarray(y)
+        u = np.asarray(u)
+
+        idx = np.argsort(y)
+
+        y = np.asarray(y)[idx]
+        u = np.asarray(u)[idx]
+
+        new_y = []
+        new_u = []
+
+        for i in range(len(y)):
+            new_y.append(y[i])
+            new_u.append(u[i])
+
+        return new_u
+
+    def sort_value2(y, u):
+
+        y = np.asarray(y)
+        u = np.asarray(u)
+
+        idx = np.argsort(y)
+
+        y = np.asarray(y)[idx]
+        u = np.asarray(u)[idx]
+
+        new_y = []
+        new_u = []
+
+        for i in range(len(y)):
+            new_y.append(y[i])
+            new_u.append(u[i])
+
+        return new_y, new_u
+
+    for i in range(len(x)):
+        if x[i] < x_min + 0.0000001 and x[i] > x_min - 0.0000001:
+            x_inlet.append(x[i])
+            y_inlet.append(y[i])
+        if x[i] < x_max + 0.0000001 and x[i] > x_max - 0.0000001:
+            x_outlet.append(x[i])
+            y_outlet.append(y[i])
+        if x[i] < x_max and x[i] > x_min:
+            x_peri.append(x[i])
+            y_peri.append(y[i])
+
+    y_inlet, x_inlet = sort_value2(y_inlet, x_inlet)
+
+    y_outlet, x_outlet = sort_value2(y_outlet, x_outlet)
+
+    x_max_upper = x_outlet[-1]
+    x_max_lower = x_outlet[0]
+
+    x_peri.append(x_outlet[-1])
+    y_peri.append(y_outlet[-1])
+    x_peri.append(x_outlet[0])
+    y_peri.append(y_outlet[0])
+
+    x_upper_peri = []
+    y_upper_peri = []
+
+    x_upper_peri.append(x_inlet[-1])
+    y_upper_peri.append(y_inlet[-1])
+
+    x_lower_peri = []
+    y_lower_peri = []
+
+    x_lower_peri.append(x_inlet[0])
+    y_lower_peri.append(y_inlet[0])
+
+    x_start = -99999
+
+    while x_start != x_max_upper:
+
+        dists = []
+
+        for i in range(len(x_peri)):
+            dist = np.sqrt((x_upper_peri[-1] - x_peri[i]) ** 2 + (y_upper_peri[-1] - y_peri[i]) ** 2)
+            dists.append(dist)
+
+        x_peri = sort_value(dists, x_peri)
+        y_peri = sort_value(dists, y_peri)
+
+        x_upper_peri.append(x_peri[0])
+        y_upper_peri.append(y_peri[0])
+
+        x_start = x_upper_peri[-1]
+
+        del x_peri[0]
+        del y_peri[0]
+
+    x_upper_peri.append(x_outlet[-1])
+    y_upper_peri.append(y_outlet[-1])
+
+    x_start = -99999
+
+    while x_start != x_max_lower:
+
+        dists = []
+
+        for i in range(len(x_peri)):
+            dist = np.sqrt((x_lower_peri[-1] - x_peri[i]) ** 2 + (y_lower_peri[-1] - y_peri[i]) ** 2)
+            dists.append(dist)
+
+        x_peri = sort_value(dists, x_peri)
+        y_peri = sort_value(dists, y_peri)
+
+        x_lower_peri.append(x_peri[0])
+        y_lower_peri.append(y_peri[0])
+
+        x_start = x_lower_peri[-1]
+
+        del x_peri[0]
+        del y_peri[0]
+
+    x_lower_peri.append(x_outlet[0])
+    y_lower_peri.append(y_outlet[0])
+
+    return y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri
+
+
+def getGeom2DVTUSLice2(path_midspan_slice):
+    reader = vtk.vtkXMLUnstructuredGridReader()
+    reader.SetFileName(path_midspan_slice)
+    reader.Update()
+    data_complete = reader.GetOutput()
+    data_complete.BuildLinks()
+
+    mapper = vtk.vtkPointDataToCellData()
+    if vtk.VTK_MAJOR_VERSION <= 5:
+        mapper.AddInput(data_complete)
+    else:
+        mapper.AddInputData(data_complete)
+    mapper.Update()
+    data_bounds = mapper.GetOutput()
+    data_bounds.BuildLinks()
+
+    surfaceFilter = vtk.vtkDataSetSurfaceFilter()
+    if vtk.VTK_MAJOR_VERSION <= 5:
+        surfaceFilter.SetInput(data_bounds);
+    else:
+        surfaceFilter.SetInputData(data_bounds);
+    surfaceFilter.Update();
+    data_bounds = surfaceFilter.GetOutput()
+    data_bounds.BuildLinks()
+
+    # Slice von unstrukturiert zu PolyData umwandeln
+    appendFilter = vtk.vtkDataSetSurfaceFilter()
+    if vtk.VTK_MAJOR_VERSION <= 5:
+        appendFilter.SetInput(data_bounds)
+    else:
+        appendFilter.SetInputData(data_bounds)
+    appendFilter.Update()
+
+    data_bounds = appendFilter.GetOutput()
+    data_bounds.BuildLinks()
+
+    mapper = vtk.vtkCellDataToPointData()
+    if vtk.VTK_MAJOR_VERSION <= 5:
+        mapper.AddInput(data_bounds)
+    else:
+        mapper.AddInputData(data_bounds)
+    mapper.Update()
+    data_bounds = mapper.GetOutput()
+    data_bounds.BuildLinks()
+
+    polyData = vtk.vtkPolyData()
+    polyData.ShallowCopy(data_bounds)
+
+    # Boundary Edges / Zellen extrahieren
+    featureEdges = vtk.vtkFeatureEdges()
+    if vtk.VTK_MAJOR_VERSION <= 5:
+        featureEdges.SetInput(polyData)
+    else:
+        featureEdges.SetInputData(polyData)
+    featureEdges.BoundaryEdgesOn()
+    featureEdges.FeatureEdgesOff()
+    featureEdges.ManifoldEdgesOff()
+    featureEdges.NonManifoldEdgesOff()
+    featureEdges.Update()
+
+    data_bounds = featureEdges.GetOutput()
+    data_bounds.BuildLinks()
+
+    points_complete = vtk_to_numpy(data_complete.GetPoints().GetData())
+    points_bounds = vtk_to_numpy(data_bounds.GetPoints().GetData())
+
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1])
+    points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
+
+    x_profil = []
+    y_profil = []
+
+    indexes_profil_points = []
+
+    for i in range(len(points_bounds)):
+        if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
+            # print('yes')
+            indexes_profil_points.append(i)
+            x_profil.append(points_bounds[i][0])
+            y_profil.append(points_bounds[i][1])
+
+    # profile_points=np.unique(np.stack((np.array(x_profil), np.array(y_profil)), axis=-1) , axis=0)
+    # profile_points=np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
+
+    return x_outer_bounds, y_outer_bounds, x_profil, y_profil

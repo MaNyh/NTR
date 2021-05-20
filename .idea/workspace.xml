@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="introducing new meshing-coefficients. now o-grid at LE and TE can be shifted independently on pressure- and suctionside.&#10;&#10;the igg-meshscript still needs better coefficients, especially for stronger curved profiles">
+    <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="delete double settings-key">
+      <change afterPath="$PROJECT_DIR$/NTR/preprocessing/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NTR/preprocessing/create_probes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/gwk_verdichterprofil_lesmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/gwk_verdichterprofil_lesmesh/settings.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NTR/utils/geom_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/utils/geom_functions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="d4f33c5257773a971d5590aca564031c05496790" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -272,7 +281,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621454147893</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="delete double settings-key">
+      <created>1621498452944</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1621498452944</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -297,6 +313,7 @@
     <MESSAGE value="cleanup" />
     <MESSAGE value="workspace.xml leftover" />
     <MESSAGE value="introducing new meshing-coefficients. now o-grid at LE and TE can be shifted independently on pressure- and suctionside.&#10;&#10;the igg-meshscript still needs better coefficients, especially for stronger curved profiles" />
-    <option name="LAST_COMMIT_MESSAGE" value="introducing new meshing-coefficients. now o-grid at LE and TE can be shifted independently on pressure- and suctionside.&#10;&#10;the igg-meshscript still needs better coefficients, especially for stronger curved profiles" />
+    <MESSAGE value="delete double settings-key" />
+    <option name="LAST_COMMIT_MESSAGE" value="delete double settings-key" />
   </component>
 </project>
