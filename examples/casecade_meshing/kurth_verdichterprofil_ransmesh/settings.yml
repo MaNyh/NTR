@@ -21,7 +21,6 @@ mesh:
     te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 2                                     #fixed cells in boundary layer
-    extrudeNodes                    : 6                                    #nodes along span (extrudeLength) when factor=1
     extrudeLength                   : 0.006                                  #length of extruded span
     blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
     hk_ps_shift                     : 1                                #LE and TE-Block Meshing

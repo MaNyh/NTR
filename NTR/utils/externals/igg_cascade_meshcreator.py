@@ -51,7 +51,7 @@ layers = args["layers"]
 layers = int(layers * factor)
 
 extrudeLength = args["extrudeLength"]
-extrudeNodes = int(factor * args["extrudeNodes"])
+extrudeNodes = int(extrudeLength/delta_i)#int(factor * args["extrudeNodes"])
 
 smoothing_iterations = args["smoothing"]
 
