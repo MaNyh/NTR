@@ -179,18 +179,14 @@ def smooth_2d_mesh():
     create_segment_group("solid")
     segment_group("solid").add_segment(segment("Block_11", 1, 2, 1))
     segment_group("solid").add_segment(segment("Block_12", 1, 1, 1))
-    #segment_group("solid").add_segment(segment("Block_9", 1, 4, 1))
-    #segment_group("solid").add_segment(segment("Block_10", 1, 2, 1))
     segment_group("solid").smoother_bc(0, first_cell_width, exp_ratio, layers)
 
 
     create_segment_group("trailing")
-    #segment_group("solid").remove_segment(segment("Block_10", 1, 2, 1))
     segment_group("trailing").add_segment(segment("Block_10", 1, 2, 1))
     segment_group("trailing").smoother_bc(0, first_cell_width*te_firstcellheight_coeff, exp_ratio, layers)
 
     create_segment_group("leading")
-    #segment_group("solid").remove_segment(segment("Block_9", 1, 4, 1))
     segment_group("leading").add_segment(segment("Block_9", 1, 4, 1))
 
     segment_group("leading").smoother_bc(0, first_cell_width * le_firstcellheight_coeff, exp_ratio, layers)

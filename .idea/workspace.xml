@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,7 +17,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="leading_trailing_edge_bc_refinment" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -295,7 +293,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621510072154</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="stuff">
+      <created>1621593469062</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1621593469062</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -325,6 +330,7 @@
     <MESSAGE value="initial implementation of createProbesProfileDict" />
     <MESSAGE value="change README.rst" />
     <MESSAGE value="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista" />
-    <option name="LAST_COMMIT_MESSAGE" value="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista" />
+    <MESSAGE value="stuff" />
+    <option name="LAST_COMMIT_MESSAGE" value="stuff" />
   </component>
 </project>
