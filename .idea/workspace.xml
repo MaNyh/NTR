@@ -3,11 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="4efa05d8-11bc-4d4a-99c5-39e1b9191f6b" name="Default Changelist" comment="restructuring&#10;updating README&#10;fixing createProbesProfileDict with pyvista">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NTR/utils/externals/igg_cascade_meshcreator.py" beforeDir="false" afterPath="$PROJECT_DIR$/NTR/utils/externals/igg_cascade_meshcreator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_lesmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_lesmesh/settings.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_ransmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/gwk_verdichterprofil_ransmesh/settings.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/casecade_meshing/kurth_verdichterprofil_ransmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/kurth_verdichterprofil_ransmesh/settings.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/casecade_meshing/seehausen_turbinenprofil_ransmesh/settings.yml" beforeDir="false" afterPath="$PROJECT_DIR$/examples/casecade_meshing/seehausen_turbinenprofil_ransmesh/settings.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
