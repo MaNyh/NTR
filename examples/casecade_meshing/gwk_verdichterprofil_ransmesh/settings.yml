@@ -13,10 +13,12 @@ geom:
     pitch                           : 0.0765                                #Pitch [m]
 
 mesh:
-    factor                          : 1.3                                   #Mesh-density factor
+    factor                          : 1.8                                   #Mesh-density factor
     ogrid_factor                    : 1                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.000015                              #first cell height when factor=1
+    le_firstcellheight_coeff        : 1
+    te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 2                                     #fixed cells in boundary layer
     extrudeNodes                    : 4                                    #nodes along span (extrudeLength) when factor=1
