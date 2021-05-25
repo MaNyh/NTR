@@ -35,10 +35,19 @@ Or install via
 As a developer, install development-requirements via
 'pip install -r requirements_dev.txt'
 
-Usage
+Features
 -------------
 
-Meshing:
+preprocessing
+    -meshing
+        -igg_cascademeshing
+    -openfoam
+        -create_probes
+
+
+Usage igg_cascademeshing
+---------------------------
+
 See ./examples/"meshing-case"
 Create a case-directory
 
@@ -53,14 +62,21 @@ Run run.py
 
 This structure is not final and must be optimized in the future. Set up settings.yml for your specific case. Right now, also the path to igg has to be set here
 
-Features
--------------
 
-preprocessing
-    -meshing
-        -igg_cascademeshing
-    -openfoam
-        -create_probes
+Usage create_probes
+---------------------------
+
+For an OpenFOAM cascade-case, a probe-dictionary can be created with this algorithm. You will need the profile-surface as a vtk (PolyData). The Algorithm will calculate the surface-normals and will then cut a slice along the midspan. From there, probes will be calculated using the surface-normals and the points in the cutplane.
+
+The function can be called using
+
+from NTR.preprocessing.openfoam import createProbesProfileDict
+
+createProbesProfileDict("pathtovtk",pden_Probes_Profile_SS, pden_Probes_Profile_PS,
+                            interval_time_steps_probes, output_path, tolerance=1e-6
+
+The dictionary will be written out in the working directory
+
 
 Credits
 -------
