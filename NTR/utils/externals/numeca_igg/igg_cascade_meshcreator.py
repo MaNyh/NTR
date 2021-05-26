@@ -11,7 +11,7 @@ def read_pickle_args(path):
 
 
 script_path = os.path.dirname(os.path.abspath(__file__))
-package_path = os.path.join(script_path, "..", "..")
+package_path = os.path.join(script_path, "../../..", "..")
 tmp_path = os.path.join(script_path)
 args = read_pickle_args(tmp_path)
 
@@ -20,7 +20,7 @@ case_path = args["case_path"]
 add_path = args["add_path"]
 
 sys.path.append(add_path)
-from NTR.utils.externals.tecplot_functions import openTecplotFile
+from NTR.utils.externals.tecplot.tecplot_functions import openTecplotFile
 
 
 
@@ -310,6 +310,11 @@ def set_blocks():
     pt20 = CurvePointNorm(Curve("cspline_peri_upper"), 1.0)
     pt21 = CurvePointNorm(Curve("cspline_peri_upper"), Curve("cspline_peri_upper").calc_normalize(Curve("cspline_peri_upper").project_point(Point(p2.x, p2.y + pitch, 0))))
 
+    """
+    print(pt1, pt2, pt3, pt4, pt5, pt6, pt7, pt8, pt9, pt10, pt11,
+          pt12, pt13, pt14, pt15, pt16, pt17, pt18, pt19, pt20, pt21, p1, p2, p3 )
+    """
+
     new_block_face(pt9, pt10, pt4, pt11)
     new_block_face(pt11, pt4, pt1, pt12)
     new_block_face(pt12, pt1, p1, pt13)
@@ -352,5 +357,3 @@ extrude_to_3d()
 set_patches()
 
 os.chdir(case_path)
-save_project("mesh.igg")
-export_FLUENT("fluent.msh")
