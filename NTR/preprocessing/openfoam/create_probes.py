@@ -37,7 +37,6 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
 
     # Mittelschnitt erstellen
 
-
     points = cut_plane.points
     surface_normals = cut_plane.cell_normals
     # Punkte extrahieren
@@ -51,10 +50,9 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
         x_values.append(point[0] - tolerance * normal[0])
         y_values.append(point[1] - tolerance * normal[1])
 
-    # print(z_values)
 
     # Nach Durck und Saugseite sortieren
-    x_ss, y_ss, x_ps, y_ps = NTR.utils.geom_functions.sortProfilePoints(x_values, y_values)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values)
 
     plt.plot(x_ss, y_ss)
     plt.plot(x_ps, y_ps)
@@ -74,7 +72,7 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     for i in range(len(x_bl_ps)):
         z_bl_ps.append(midspan_z)
 
-    data_file = open(os.path.join(output_path, 'Probes_Profile_Dict'), 'w')
+    data_file = open(os.path.join(output_path, 'Probes_Profile_Dict.txt'), 'w')
 
     data_file.write("""    Probes_Profile
     {
