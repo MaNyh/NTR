@@ -54,7 +54,7 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     # print(z_values)
 
     # Nach Durck und Saugseite sortieren
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values)
+    x_ss, y_ss, x_ps, y_ps = NTR.utils.geom_functions.sortProfilePoints(x_values, y_values)
 
     plt.plot(x_ss, y_ss)
     plt.plot(x_ps, y_ps)
