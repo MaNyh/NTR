@@ -6,7 +6,7 @@ Created on Mon Feb 18 20:33:27 2019
 """
 
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 import numpy as np
 import pyvista as pv
@@ -31,7 +31,7 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     blade_surface = blade_surface.compute_normals()
 
     bladebounds =blade_surface.bounds
-    midspan_z = (bladebounds[5]-bladebounds[2])/2
+    midspan_z = (bladebounds[5]-bladebounds[4])/2
 
     cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
 
@@ -54,8 +54,8 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     # Nach Durck und Saugseite sortieren
     x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values)
 
-    plt.plot(x_ss, y_ss)
-    plt.plot(x_ps, y_ps)
+    #plt.plot(x_ss, y_ss)
+    #plt.plot(x_ps, y_ps)
 
     x_bl_ss = x_ss[::int(pden_Probes_Profile_SS)]
     y_bl_ss = y_ss[::int(pden_Probes_Profile_SS)]
@@ -111,13 +111,17 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     data_file.close()
 
 
-def createProbesStreamlineDict(path_midspan_slice_vtu, nop_Probes_Streamline, midspan_z, save_dir,
+def createProbesStreamlineDict(path_to_vtk_cascademesh, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung):
 
+    x_bounds, y_bounds, x_profil, y_profil = getGeom2DVTUSLice2(path_to_vtk_cascademesh)
 
-    x_bounds, y_bounds, x_profil, y_profil = getGeom2DVTUSLice2(path_midspan_slice_vtu)
+
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
+
+
+
     x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil, beta_01,
                                                                                         beta_02)
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
@@ -127,7 +131,7 @@ def createProbesStreamlineDict(path_midspan_slice_vtu, nop_Probes_Streamline, mi
     z_probes = []
 
     nop = int(nop_Probes_Streamline)
-
+    print("FUCKINGDONE")
     def equi_points(x, y, nop):
 
         M = 10000
@@ -182,7 +186,7 @@ def createProbesStreamlineDict(path_midspan_slice_vtu, nop_Probes_Streamline, mi
     x_probes[0] = x_probes[0] + 0.00001 * dist
     x_probes[-1] = x_probes[-1] - 0.00001 * dist
 
-    data_file = open(os.path.join(save_dir, 'Probes_Streamline_Dict'), 'w')
+    data_file = open(os.path.join(save_dir, 'Probes_Streamline_Dict.txt'), 'w')
 
     data_file.write("""
 Probes_Streamline
@@ -213,7 +217,7 @@ probeLocations
     data_file.write("""        );
 }""")
     data_file.close()
-
+    """
     plt.close('all')
     plt.figure(figsize=(8, 8))
     plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
@@ -224,6 +228,6 @@ probeLocations
     plt.legend(loc='best')
     plt.savefig(os.path.join(save_dir, 'kontrollplot_probes_streamline.pdf'))
     plt.close('all')
-
+    """
 
 

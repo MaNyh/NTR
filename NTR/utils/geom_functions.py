@@ -1,5 +1,7 @@
 import math
 import numpy as np
+import pyvista as pv
+
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
 
@@ -40,7 +42,7 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
 
 
     Input:
-    x_mcl, y_mcl = Touple
+    x_mcl, y_mcl = Tuple
     beta1, beta2 = Angle in deg - Beta = Anströmwinkel
     x_inlet, x_outlet = scalar - representing position x-component of in/outlet
     t = scalar pitch
@@ -96,8 +98,6 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
 
 def calcConcaveHull(x, y, alpha=0.007):
     """
-    DOCUMENTATION INCOMPLETE
-
     origin: https://stackoverflow.com/questions/50549128/boundary-enclosing-a-given-set-of-points/50714300#50714300
     """
     points = []
@@ -116,6 +116,7 @@ def calcConcaveHull(x, y, alpha=0.007):
         :return: set of (i,j) pairs representing edges of the alpha-shape. (i,j) are
         the indices in the points array.
         """
+
         assert points.shape[0] > 3, "Need at least four points"
 
         def add_edge(edges, i, j):
@@ -276,6 +277,49 @@ def rotate_points(origin, x, y, angle):
     return new_x, new_y
 
 
+def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
+    # Vorderkante
+
+    # Punkt bestimmen deutlich unterhalt der Vorderkante liegt
+    p01 = [min(x_koords) - (max(x_koords) - min(x_koords)), min(y_koords) - (max(x_koords) - min(x_koords))]
+
+    # Vektor bestimmen der Richtung des vorgegebenen Winkels der Vorderkante besitzt
+    vec_01 = [np.sin(np.deg2rad(180.0 - beta_01)) * 0.01, np.cos(np.deg2rad(180.0 - beta_01)) * 0.01]
+
+    # Vektor bestimmen der orthogonal dazu ist
+    vec_02 = [1, -vec_01[0] * 1 / vec_01[1]]
+
+    # alle Koords durchgehen
+    dists = []
+
+    betrag_vec_02 = np.sqrt(vec_02[0] ** 2 + vec_02[1] ** 2)
+    for i in range(len(y_koords)):
+        delta_x = x_koords[i] - p01[0]
+        delta_y = y_koords[i] - p01[1]
+        d = np.sqrt((vec_02[0] * delta_y - delta_x * vec_02[1]) ** 2) / betrag_vec_02
+        dists.append(d)
+
+    index_vk = np.argmin(dists)
+
+    # Hinterkante
+    p01 = [max(x_koords) + (max(x_koords) - min(x_koords)), min(y_koords) - (max(x_koords) - min(x_koords))]
+    vec_01 = [-np.sin(np.deg2rad(beta_02)) * 0.01, np.cos(np.deg2rad(beta_02)) * 0.01]
+    vec_02 = [1, -vec_01[0] * 1 / vec_01[1]]
+    dists = []
+
+    betrag_vec_02 = np.sqrt(vec_02[0] ** 2 + vec_02[1] ** 2)
+    for i in range(len(y_koords)):
+        delta_x = x_koords[i] - p01[0]
+        delta_y = y_koords[i] - p01[1]
+        d = np.sqrt((vec_02[0] * delta_y - delta_x * vec_02[1]) ** 2) / betrag_vec_02
+        dists.append(d)
+
+    index_hk = np.argmin(dists)
+
+    return index_vk, index_hk
+
+
+
 def calcMeanCamberLine(x, y, beta1, beta2):
     # vk und hk bestimmen
 
@@ -305,7 +349,7 @@ def calcMeanCamberLine(x, y, beta1, beta2):
 
         ind_ss_p2 = indizes[dists.index(min(dists))]
 
-        indizes = range(len(x))
+        indizes = list(range(len(x)))
 
         indizes.remove(ind_vk)
         indizes.remove(ind_ss_p2)
@@ -536,70 +580,23 @@ def getBoundaryValues(x_bounds, y_bounds):
 
 
 def getGeom2DVTUSLice2(path_midspan_slice):
-    reader = vtk.vtkXMLUnstructuredGridReader()
-    reader.SetFileName(path_midspan_slice)
-    reader.Update()
-    data_complete = reader.GetOutput()
-    data_complete.BuildLinks()
 
-    mapper = vtk.vtkPointDataToCellData()
-    if vtk.VTK_MAJOR_VERSION <= 5:
-        mapper.AddInput(data_complete)
-    else:
-        mapper.AddInputData(data_complete)
-    mapper.Update()
-    data_bounds = mapper.GetOutput()
-    data_bounds.BuildLinks()
+    mesh = pv.UnstructuredGrid(path_midspan_slice)
 
-    surfaceFilter = vtk.vtkDataSetSurfaceFilter()
-    if vtk.VTK_MAJOR_VERSION <= 5:
-        surfaceFilter.SetInput(data_bounds);
-    else:
-        surfaceFilter.SetInputData(data_bounds);
-    surfaceFilter.Update();
-    data_bounds = surfaceFilter.GetOutput()
-    data_bounds.BuildLinks()
+    bounds = mesh.bounds
+    midspan_z = (bounds[5] - bounds[4]) / 2
 
-    # Slice von unstrukturiert zu PolyData umwandeln
-    appendFilter = vtk.vtkDataSetSurfaceFilter()
-    if vtk.VTK_MAJOR_VERSION <= 5:
-        appendFilter.SetInput(data_bounds)
-    else:
-        appendFilter.SetInputData(data_bounds)
-    appendFilter.Update()
+    cut_plane_polydata = mesh.slice(normal="z", origin=(0, 0, midspan_z))
 
-    data_bounds = appendFilter.GetOutput()
-    data_bounds.BuildLinks()
 
-    mapper = vtk.vtkCellDataToPointData()
-    if vtk.VTK_MAJOR_VERSION <= 5:
-        mapper.AddInput(data_bounds)
-    else:
-        mapper.AddInputData(data_bounds)
-    mapper.Update()
-    data_bounds = mapper.GetOutput()
-    data_bounds.BuildLinks()
-
-    polyData = vtk.vtkPolyData()
-    polyData.ShallowCopy(data_bounds)
-
+    polyData = cut_plane_polydata
     # Boundary Edges / Zellen extrahieren
-    featureEdges = vtk.vtkFeatureEdges()
-    if vtk.VTK_MAJOR_VERSION <= 5:
-        featureEdges.SetInput(polyData)
-    else:
-        featureEdges.SetInputData(polyData)
-    featureEdges.BoundaryEdgesOn()
-    featureEdges.FeatureEdgesOff()
-    featureEdges.ManifoldEdgesOff()
-    featureEdges.NonManifoldEdgesOff()
-    featureEdges.Update()
+    featureEdges = polyData.extract_all_edges()
 
-    data_bounds = featureEdges.GetOutput()
-    data_bounds.BuildLinks()
 
-    points_complete = vtk_to_numpy(data_complete.GetPoints().GetData())
-    points_bounds = vtk_to_numpy(data_bounds.GetPoints().GetData())
+
+    points_complete = featureEdges.points
+    points_bounds = np.array([featureEdges.extract_cells(i).bounds for i in range(len(featureEdges.points))])
 
     x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1])
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
@@ -611,12 +608,10 @@ def getGeom2DVTUSLice2(path_midspan_slice):
 
     for i in range(len(points_bounds)):
         if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
-            # print('yes')
+
             indexes_profil_points.append(i)
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-    # profile_points=np.unique(np.stack((np.array(x_profil), np.array(y_profil)), axis=-1) , axis=0)
-    # profile_points=np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
 
     return x_outer_bounds, y_outer_bounds, x_profil, y_profil
