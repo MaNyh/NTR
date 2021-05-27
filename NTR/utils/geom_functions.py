@@ -5,7 +5,6 @@ import pyvista as pv
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
 
-
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
     y_mid_ss = []
@@ -561,7 +560,7 @@ def getGeom2DVTUSLice2(path_to_mesh):
     polyData = cut_plane_polydata
 
     # Boundary Edges / Zellen extrahieren
-    featureEdges = polyData.extract_all_edges()
+    featureEdges = polyData.extract_feature_edges()
     points_complete = featureEdges.points
     points_bounds = np.array([featureEdges.extract_cells(i).bounds for i in range(len(featureEdges.points))])
 
@@ -581,4 +580,4 @@ def getGeom2DVTUSLice2(path_to_mesh):
             y_profil.append(points_bounds[i][1])
 
 
-    return x_outer_bounds, y_outer_bounds, x_profil, y_profil
+    return x_outer_bounds, y_outer_bounds, x_profil, y_profil, midspan_z

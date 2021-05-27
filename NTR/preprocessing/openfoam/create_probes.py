@@ -114,14 +114,14 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
 def createProbesStreamlineDict(path_to_vtk_cascademesh, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung):
 
-    x_bounds, y_bounds, x_profil, y_profil = getGeom2DVTUSLice2(path_to_vtk_cascademesh)
+    x_bounds, y_bounds, x_profil, y_profil , midspan_z = getGeom2DVTUSLice2(path_to_vtk_cascademesh)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
 
-
     x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil, beta_01,
                                                                                         beta_02)
+
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
     x_probes = []
     y_probes = []
