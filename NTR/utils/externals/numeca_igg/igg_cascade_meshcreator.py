@@ -51,7 +51,7 @@ layers = args["layers"]
 layers = int(layers * factor)
 
 extrudeLength = args["extrudeLength"]
-extrudeNodes = int(extrudeLength/delta_i)#int(factor * args["extrudeNodes"])
+extrudeNodes = int(extrudeLength/delta_i*factor)#int(factor * args["extrudeNodes"])
 
 smoothing_iterations = args["smoothing"]
 
@@ -110,7 +110,7 @@ def extrude_to_3d():
         block_by_face_extrusion(face(b, 1), Vector(0, 0, extrudeLength), 1, 1)
 
     for b in blocks:
-        segment(b, 3, 3, 1).set_number_of_points(int(extrudeNodes * factor), 0)
+        segment(b, 3, 3, 1).set_number_of_points(extrudeNodes, 0)
 
 
 def set_patches():
@@ -357,3 +357,5 @@ extrude_to_3d()
 set_patches()
 
 os.chdir(case_path)
+save_project("mesh.igg")
+export_FLUENT("fluent.msh")
