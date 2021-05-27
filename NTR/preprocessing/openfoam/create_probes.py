@@ -116,65 +116,20 @@ def createProbesStreamlineDict(path_to_vtk_cascademesh, nop_Probes_Streamline, s
 
     x_bounds, y_bounds, x_profil, y_profil = getGeom2DVTUSLice2(path_to_vtk_cascademesh)
 
-
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
-
 
 
     x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil, beta_01,
                                                                                         beta_02)
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
-
     x_probes = []
     y_probes = []
     z_probes = []
 
     nop = int(nop_Probes_Streamline)
-    print("FUCKINGDONE")
-    def equi_points(x, y, nop):
-
-        M = 10000
-
-        x_new = np.linspace(min(x), max(x), M)
-        y_new = np.interp(x_new, x, y)
-
-        # berechnet die laenge der Stromlinie
-
-        l_sl = 0
-
-        for i in range(len(x_new)):
-            if i > 0:
-                l_sl = l_sl + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
-
-        xn = []
-        yn = []
-
-        dist = l_sl / (nop - 1)
-
-        l_p = 0
-
-        for i in range(len(x_new)):
-            if i > 0:
-                l_p = l_p + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
-
-                if l_p >= dist and i != nop - 1:
-                    xn.append(x_new[i])
-                    yn.append(y_new[i])
-                    l_p = 0
-
-            if i == 0:
-                xn.append(x_new[i])
-                yn.append(y_new[i])
-
-            if i == len(x_new) - 1:
-                xn.append(x_new[-1])
-                yn.append(y_new[-1])
-
-        return xn, yn
 
     xn, yn = equi_points(x_mpsl, y_mpsl, nop)
-
     for i in range(nop):
         z_probes.append(midspan_z)
 
@@ -229,5 +184,47 @@ probeLocations
     plt.savefig(os.path.join(save_dir, 'kontrollplot_probes_streamline.pdf'))
     plt.close('all')
     """
+
+
+def equi_points(x, y, nop):
+
+    M = 10000
+
+    x_new = np.linspace(min(x), max(x), M)
+    y_new = np.interp(x_new, x, y)
+
+    # berechnet die laenge der Stromlinie
+
+    l_sl = 0
+
+    for i in range(len(x_new)):
+        if i > 0:
+            l_sl = l_sl + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
+
+    xn = []
+    yn = []
+
+    dist = l_sl / (nop - 1)
+
+    l_p = 0
+
+    for i in range(len(x_new)):
+        if i > 0:
+            l_p = l_p + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
+
+            if l_p >= dist and i != nop - 1:
+                xn.append(x_new[i])
+                yn.append(y_new[i])
+                l_p = 0
+
+        if i == 0:
+            xn.append(x_new[i])
+            yn.append(y_new[i])
+
+        if i == len(x_new) - 1:
+            xn.append(x_new[-1])
+            yn.append(y_new[-1])
+
+    return xn, yn
 
 

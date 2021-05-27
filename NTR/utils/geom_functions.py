@@ -333,111 +333,84 @@ def calcMeanCamberLine(x, y, beta1, beta2):
     x_hk = x[ind_hk]
     y_hk = y[ind_hk]
 
-    def sortPoints(x, y, ind_vk, ind_hk):
-
-        # Punkte der Saugseite bestimmen
-
-        # ersten Punkt nach der Vorderkante bestimmen
-
-        dists = []
-        indizes = []
-
-        for i in range(len(x)):
-            if i != ind_vk and y[i] > y[ind_vk]:
-                dists.append(((x[i] - x[ind_vk]) ** 2 + (y[i] - y[ind_vk]) ** 2) * (0.5))
-                indizes.append(i)
-
-        ind_ss_p2 = indizes[dists.index(min(dists))]
-
-        indizes = list(range(len(x)))
-
-        indizes.remove(ind_vk)
-        indizes.remove(ind_ss_p2)
-
-        indizes_ss = []
-
-        indizes_ss.append(ind_vk)
-        indizes_ss.append(ind_ss_p2)
-
-        ind = ind_ss_p2
-
-        while ind != ind_hk:
-
-            dists = []
-            inds = []
-
-            point = (x[ind], y[ind])
-            for i in range(len(indizes)):
-                point2 = (x[indizes[i]], y[indizes[i]])
-                dist = ((point2[0] - point[0]) ** 2 + (point2[1] - point[1]) ** 2) * (0.5)
-
-                if indizes[i] not in indizes_ss:
-                    dists.append(dist)
-                    inds.append(indizes[i])
-
-            indizes_ss.append(inds[dists.index(min(dists))])
-            indizes.remove(inds[dists.index(min(dists))])
-            ind = inds[dists.index(min(dists))]
-
-            indizes_ps = list(indizes)
-            indizes_ps.insert(0, ind_vk)
-            indizes_ps.append(ind_hk)
-
-        x_ss = []
-        y_ss = []
-
-        for i in range(len(indizes_ss)):
-            x_ss.append(x[indizes_ss[i]])
-            y_ss.append(y[indizes_ss[i]])
-
-        x_ps = []
-        y_ps = []
-
-        for i in range(len(indizes_ps)):
-            x_ps.append(x[indizes_ps[i]])
-            y_ps.append(y[indizes_ps[i]])
-
-        return x_ss, y_ss, x_ps, y_ps
-
     x_ss, y_ss, x_ps, y_ps = sortPoints(x, y, ind_vk, ind_hk)
 
     x_mid_ss = []
     y_mid_ss = []
 
-    def calcMidPoints(x1, y1, x2, y2):
-
-        x_mid_ss = []
-        y_mid_ss = []
-
-        for i in range(len(x1)):
-
-            dists = []
-
-            for j in range(len(x2)):
-                dist = ((x1[i] - x2[j]) ** 2 + (y1[i] - y2[j]) ** 2) ** (0.5)
-
-                dists.append(dist)
-
-            index_p = np.argmin(dists)
-
-            p_x = x2[index_p]
-            p_y = y2[index_p]
-
-            def midpoint(x1, y1, x2, y2):
-                return ((x1 + x2) / 2, (y1 + y2) / 2)
-
-            x_mid, y_mid = midpoint(p_x, p_y, x1[i], y1[i])
-
-            x_mid_ss.append(x_mid)
-            y_mid_ss.append(y_mid)
-
-        return x_mid_ss, y_mid_ss
 
     x_mid_ss, y_mid_ss = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
     x_mid_ps, y_mid_ps = calcMidPoints(x_ps, y_ps, x_ss, y_ss)
     x_mids, y_mids = calcMidPoints(x_mid_ps, y_mid_ps, x_mid_ss, y_mid_ss)
 
     return x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk
+
+
+def sortPoints(x, y, ind_vk, ind_hk):
+
+    # Punkte der Saugseite bestimmen
+
+    # ersten Punkt nach der Vorderkante bestimmen
+
+    dists = []
+    indizes = []
+
+    for i in range(len(x)):
+        if i != ind_vk and y[i] > y[ind_vk]:
+            dists.append(((x[i] - x[ind_vk]) ** 2 + (y[i] - y[ind_vk]) ** 2) * (0.5))
+            indizes.append(i)
+
+    ind_ss_p2 = indizes[dists.index(min(dists))]
+
+    indizes = list(range(len(x)))
+
+    indizes.remove(ind_vk)
+    indizes.remove(ind_ss_p2)
+
+    indizes_ss = []
+
+    indizes_ss.append(ind_vk)
+    indizes_ss.append(ind_ss_p2)
+
+    ind = ind_ss_p2
+
+    while ind != ind_hk:
+
+        dists = []
+        inds = []
+
+        point = (x[ind], y[ind])
+        for i in range(len(indizes)):
+            point2 = (x[indizes[i]], y[indizes[i]])
+            dist = ((point2[0] - point[0]) ** 2 + (point2[1] - point[1]) ** 2) * (0.5)
+
+            if indizes[i] not in indizes_ss:
+                dists.append(dist)
+                inds.append(indizes[i])
+
+        indizes_ss.append(inds[dists.index(min(dists))])
+        indizes.remove(inds[dists.index(min(dists))])
+        ind = inds[dists.index(min(dists))]
+
+        indizes_ps = list(indizes)
+        indizes_ps.insert(0, ind_vk)
+        indizes_ps.append(ind_hk)
+
+    x_ss = []
+    y_ss = []
+
+    for i in range(len(indizes_ss)):
+        x_ss.append(x[indizes_ss[i]])
+        y_ss.append(y[indizes_ss[i]])
+
+    x_ps = []
+    y_ps = []
+
+    for i in range(len(indizes_ps)):
+        x_ps.append(x[indizes_ps[i]])
+        y_ps.append(y[indizes_ps[i]])
+
+    return x_ss, y_ss, x_ps, y_ps
 
 
 def getBoundaryValues(x_bounds, y_bounds):
@@ -579,22 +552,16 @@ def getBoundaryValues(x_bounds, y_bounds):
     return y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri
 
 
-def getGeom2DVTUSLice2(path_midspan_slice):
+def getGeom2DVTUSLice2(path_to_mesh):
 
-    mesh = pv.UnstructuredGrid(path_midspan_slice)
-
+    mesh = pv.UnstructuredGrid(path_to_mesh)
     bounds = mesh.bounds
     midspan_z = (bounds[5] - bounds[4]) / 2
-
     cut_plane_polydata = mesh.slice(normal="z", origin=(0, 0, midspan_z))
-
-
     polyData = cut_plane_polydata
+
     # Boundary Edges / Zellen extrahieren
     featureEdges = polyData.extract_all_edges()
-
-
-
     points_complete = featureEdges.points
     points_bounds = np.array([featureEdges.extract_cells(i).bounds for i in range(len(featureEdges.points))])
 
