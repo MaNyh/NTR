@@ -19,7 +19,6 @@ __pycache__/
 *.xmt_txt
 *.config
 *.geom
-*.txt
 
 # project files
 .idea/

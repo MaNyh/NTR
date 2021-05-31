@@ -6,7 +6,7 @@ Created on Mon Feb 18 20:33:27 2019
 """
 
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 import numpy as np
 import pyvista as pv
@@ -31,12 +31,11 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     blade_surface = blade_surface.compute_normals()
 
     bladebounds =blade_surface.bounds
-    midspan_z = (bladebounds[5]-bladebounds[2])/2
+    midspan_z = (bladebounds[5]-bladebounds[4])/2
 
     cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
 
     # Mittelschnitt erstellen
-
 
     points = cut_plane.points
     surface_normals = cut_plane.cell_normals
@@ -51,13 +50,12 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
         x_values.append(point[0] - tolerance * normal[0])
         y_values.append(point[1] - tolerance * normal[1])
 
-    # print(z_values)
 
     # Nach Durck und Saugseite sortieren
     x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values)
 
-    plt.plot(x_ss, y_ss)
-    plt.plot(x_ps, y_ps)
+    #plt.plot(x_ss, y_ss)
+    #plt.plot(x_ps, y_ps)
 
     x_bl_ss = x_ss[::int(pden_Probes_Profile_SS)]
     y_bl_ss = y_ss[::int(pden_Probes_Profile_SS)]
@@ -74,7 +72,7 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     for i in range(len(x_bl_ps)):
         z_bl_ps.append(midspan_z)
 
-    data_file = open(os.path.join(output_path, 'Probes_Profile_Dict'), 'w')
+    data_file = open(os.path.join(output_path, 'Probes_Profile_Dict.txt'), 'w')
 
     data_file.write("""    Probes_Profile
     {
@@ -113,66 +111,25 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     data_file.close()
 
 
-def createProbesStreamlineDict(path_midspan_slice_vtu, nop_Probes_Streamline, midspan_z, save_dir,
+def createProbesStreamlineDict(path_to_vtk_cascademesh, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung):
 
+    x_bounds, y_bounds, x_profil, y_profil , midspan_z = getGeom2DVTUSLice2(path_to_vtk_cascademesh)
 
-    x_bounds, y_bounds, x_profil, y_profil = getGeom2DVTUSLice2(path_midspan_slice_vtu)
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
+
     x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil, beta_01,
                                                                                         beta_02)
-    x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
 
+    x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
     x_probes = []
     y_probes = []
     z_probes = []
 
     nop = int(nop_Probes_Streamline)
 
-    def equi_points(x, y, nop):
-
-        M = 10000
-
-        x_new = np.linspace(min(x), max(x), M)
-        y_new = np.interp(x_new, x, y)
-
-        # berechnet die laenge der Stromlinie
-
-        l_sl = 0
-
-        for i in range(len(x_new)):
-            if i > 0:
-                l_sl = l_sl + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
-
-        xn = []
-        yn = []
-
-        dist = l_sl / (nop - 1)
-
-        l_p = 0
-
-        for i in range(len(x_new)):
-            if i > 0:
-                l_p = l_p + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
-
-                if l_p >= dist and i != nop - 1:
-                    xn.append(x_new[i])
-                    yn.append(y_new[i])
-                    l_p = 0
-
-            if i == 0:
-                xn.append(x_new[i])
-                yn.append(y_new[i])
-
-            if i == len(x_new) - 1:
-                xn.append(x_new[-1])
-                yn.append(y_new[-1])
-
-        return xn, yn
-
     xn, yn = equi_points(x_mpsl, y_mpsl, nop)
-
     for i in range(nop):
         z_probes.append(midspan_z)
 
@@ -184,7 +141,7 @@ def createProbesStreamlineDict(path_midspan_slice_vtu, nop_Probes_Streamline, mi
     x_probes[0] = x_probes[0] + 0.00001 * dist
     x_probes[-1] = x_probes[-1] - 0.00001 * dist
 
-    data_file = open(os.path.join(save_dir, 'Probes_Streamline_Dict'), 'w')
+    data_file = open(os.path.join(save_dir, 'Probes_Streamline_Dict.txt'), 'w')
 
     data_file.write("""
 Probes_Streamline
@@ -215,7 +172,7 @@ probeLocations
     data_file.write("""        );
 }""")
     data_file.close()
-
+    """
     plt.close('all')
     plt.figure(figsize=(8, 8))
     plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
@@ -226,6 +183,48 @@ probeLocations
     plt.legend(loc='best')
     plt.savefig(os.path.join(save_dir, 'kontrollplot_probes_streamline.pdf'))
     plt.close('all')
+    """
 
+
+def equi_points(x, y, nop):
+
+    M = 10000
+
+    x_new = np.linspace(min(x), max(x), M)
+    y_new = np.interp(x_new, x, y)
+
+    # berechnet die laenge der Stromlinie
+
+    l_sl = 0
+
+    for i in range(len(x_new)):
+        if i > 0:
+            l_sl = l_sl + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
+
+    xn = []
+    yn = []
+
+    dist = l_sl / (nop - 1)
+
+    l_p = 0
+
+    for i in range(len(x_new)):
+        if i > 0:
+            l_p = l_p + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
+
+            if l_p >= dist and i != nop - 1:
+                xn.append(x_new[i])
+                yn.append(y_new[i])
+                l_p = 0
+
+        if i == 0:
+            xn.append(x_new[i])
+            yn.append(y_new[i])
+
+        if i == len(x_new) - 1:
+            xn.append(x_new[-1])
+            yn.append(y_new[-1])
+
+    return xn, yn
 
 

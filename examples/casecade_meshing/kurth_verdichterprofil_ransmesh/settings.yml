@@ -29,8 +29,8 @@ mesh:
     vk_ss_shift                     : 1
     cellwidthcoeff                  : 0.0005                                #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
-    yPerLowHGridBlockPitchStart     : 0.3                                   #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.75                                  #move high-y-per-block along y-pitch
+    yPerLowHGridBlockPitchStart     : 0.35                                   #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.8                                  #move high-y-per-block along y-pitch
     shift_vk_block_xaxiscoeff       : 0.26                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.15                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
