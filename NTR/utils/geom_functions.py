@@ -5,6 +5,9 @@ import pyvista as pv
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
 
+from NTR.utils.pyvista_utils import mesh_scalar_gradients, slice_midspan_z
+
+
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
     y_mid_ss = []
@@ -554,9 +557,7 @@ def getBoundaryValues(x_bounds, y_bounds):
 def getGeom2DVTUSLice2(path_to_mesh):
 
     mesh = pv.UnstructuredGrid(path_to_mesh)
-    bounds = mesh.bounds
-    midspan_z = (bounds[5] - bounds[4]) / 2
-    cut_plane_polydata = mesh.slice(normal="z", origin=(0, 0, midspan_z))
+    cut_plane_polydata = slice_midspan_z(mesh)
     polyData = cut_plane_polydata
 
     # Boundary Edges / Zellen extrahieren
@@ -581,3 +582,59 @@ def getGeom2DVTUSLice2(path_to_mesh):
 
 
     return x_outer_bounds, y_outer_bounds, x_profil, y_profil, midspan_z
+
+def GetProfileValuesMidspan(path_to_mesh):
+
+    mesh = pv.UnstructuredGrid(path_to_mesh)
+    mesh = mesh_scalar_gradients(mesh, "U")
+    geo = mesh.extract_geometry()
+    geo = geo.compute_normals()
+    midspan_slice = slice_midspan_z(geo)
+
+    points_complete = midspan_slice.points
+    points_bounds = np.array([midspan_slice.extract_cells(i).bounds for i in range(len(midspan_slice.points))])
+
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1])
+
+    points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
+
+
+    x_profil = []
+    y_profil = []
+
+    indexes_profil_points = []
+
+    for i in range(len(points_bounds)):
+        if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
+            # print('yes')
+            indexes_profil_points.append(i)
+            x_profil.append(points_bounds[i][0])
+            y_profil.append(points_bounds[i][1])
+
+        # profile_points=np.unique(np.stack((np.array(x_profil), np.array(y_profil)), axis=-1) , axis=0)
+        profile_points = np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
+
+        # Sortiere nach Druck und Saugseite
+        x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=0.007)
+
+        indexes_ss = []
+        indexes_ps = []
+
+        x_l_ax_ss = []
+        x_l_ax_ps = []
+
+        for i in range(len(x_ss)):
+            x_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
+            indexes_ss.append(indexes_profil_points[profile_points.tolist().index([x_ss[i], y_ss[i]])])
+
+        for i in range(len(x_ps)):
+            x_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
+            indexes_ps.append(indexes_profil_points[profile_points.tolist().index([x_ps[i], y_ps[i]])])
+
+        values_ss = []
+        values_ps = []
+        value_names = []
+        wall_shear_stress_ss = []
+        wall_shear_stress_ps = []
+        wall_shear_stress_explike_ss = []
+        wall_shear_stress_explike_ps = []
