@@ -213,64 +213,18 @@ def sortProfilePoints(x, y, alpha=0.007):
         a = n % len(seq)
         return seq[-a:] + seq[:-a]
 
-    x = shift(x,ind_vk)
-    y = shift(y,ind_vk)
+    #x = shift(x,ind_vk)
+    #y = shift(y,ind_vk)
 
-    ind_vk = x.index(min(x))
-    ind_hk = x.index(max(x))
+    #ind_vk = x.index(min(x))
+    #ind_hk = x.index(max(x))
 
-    x_ss = x[ind_hk:]
-    y_ss = y[ind_hk:]
+    x_ss = x[ind_hk:ind_vk]
+    y_ss = y[ind_hk:ind_vk]
 
-    y_ps = x[:ind_hk]
-    x_ps = y[:ind_hk]
-    """
-    x_by_vk = None
-    y_by_vk = None
+    y_ps = y[:ind_hk] + y[ind_vk:]
+    x_ps = x[:ind_hk] + x[ind_vk:]
 
-    if ind_vk != 0:
-
-        if y[ind_vk] < y[ind_vk - 1]:
-            x_by_vk = x[ind_vk:] + x[:ind_vk + 1]
-            y_by_vk = y[ind_vk:] + y[:ind_vk + 1]
-
-        else:
-            x_by_vk = x[ind_vk:] + x[:ind_vk + 1]
-            y_by_vk = y[ind_vk:] + y[:ind_vk + 1]
-
-    else:
-
-        if y[ind_vk] > y[ind_vk + 1]:
-            x_by_vk = x_by_vk[::-1]
-            y_by_vk = y_by_vk[::-1]
-
-    ind_hk = x_by_vk.index(max(x_by_vk))
-
-    x_ss = []
-    y_ss = []
-
-    x_ps = []
-    y_ps = []
-
-    for i in range(len(x_by_vk)):
-
-        if i <= ind_hk:
-            x_ss.append(x_by_vk[i])
-            y_ss.append(y_by_vk[i])
-        else:
-            x_ps.append(x_by_vk[i])
-            y_ps.append(y_by_vk[i])
-
-    if y_ss[1] < y_ss[0]:
-        x = list(x_ss)
-        y = list(y_ss)
-
-        x_ss = list(x_ps)
-        y_ss = list(y_ps)
-
-        x_ps = x
-        y_ps = y
-    """
     return x_ss, y_ss, x_ps, y_ps
 
 
@@ -664,7 +618,7 @@ def GetProfileValuesMidspan(path_to_mesh):
 
     for i in range(len(x_ps)):
         x_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
-        indexes_ps.append(indexes_profil_points[profile_points.tolist().index([y_ps[i], x_ps[i]])])
+        indexes_ps.append(indexes_profil_points[profile_points.tolist().index([x_ps[i], y_ps[i]])])
 
     values_ss = []
     values_ps = []
