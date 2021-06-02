@@ -5,7 +5,7 @@ import pyvista as pv
 
 from NTR.utils.geom_functions import GetProfileValuesMidspan
 from NTR.utils.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is
-from NTR.utils.pyvista_utils import absvec_array
+from NTR.utils.functions import absvec_array
 from NTR.utils.simFunctions import sort_value2, sort_value3
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 

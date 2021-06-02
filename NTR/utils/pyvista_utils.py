@@ -18,8 +18,3 @@ def slice_midspan_z(mesh):
     return slice
 
 
-def absVec(vec):
-    return (vec[0]**2+vec[1]**2+vec[2]**2)**0.5
-
-def absvec_array(array):
-    return [absVec(vec) for vec in array]
