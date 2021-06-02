@@ -4,9 +4,9 @@ import pyvista as pv
 import numpy as np
 from NTR.utils.geom_functions import GetProfileValuesMidspan
 
+
 def createProfileData(path_to_mesh):
     [value_names, [values_ss, values_ps]] = GetProfileValuesMidspan(path_to_mesh)
-
 
     x_ss = list(values_ss[value_names.index('X')])[::-1]
     y_ss = list(values_ss[value_names.index('Y')])[::-1]
@@ -19,7 +19,6 @@ def createProfileData(path_to_mesh):
     plt.figure(figsize=(8, 8))
     plt.plot(x_ss, y_ss, '-r', lw=1)
     plt.plot(x_ps, y_ps, '-b', lw=1)
-
 
     plt.axis('equal')
     output_path = os.path.dirname(os.path.abspath(path_to_mesh))

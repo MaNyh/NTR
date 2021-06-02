@@ -208,16 +208,6 @@ def sortProfilePoints(x, y, alpha=0.007):
 
     ind_vk = x.index(min(x))
     ind_hk = x.index(max(x))
-#################
-    def shift(seq, n=0):
-        a = n % len(seq)
-        return seq[-a:] + seq[:-a]
-
-    #x = shift(x,ind_vk)
-    #y = shift(y,ind_vk)
-
-    #ind_vk = x.index(min(x))
-    #ind_hk = x.index(max(x))
 
     x_ss = x[ind_hk:ind_vk]
     y_ss = y[ind_hk:ind_vk]
@@ -225,6 +215,15 @@ def sortProfilePoints(x, y, alpha=0.007):
     y_ps = y[:ind_hk] + y[ind_vk:]
     x_ps = x[:ind_hk] + x[ind_vk:]
 
+    idx = np.argsort(x_ss)
+    x_ss = np.array(x_ss)[idx]
+    y_ss = np.array(y_ss)[idx]
+
+    idx = np.argsort(x_ps)
+    x_ps = np.array(x_ps)[idx]
+    y_ps = np.array(y_ps)[idx]
+
+    x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
     return x_ss, y_ss, x_ps, y_ps
 
 
