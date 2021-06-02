@@ -3,7 +3,7 @@ import numpy as np
 
 def mesh_scalar_gradients(mesh,array_name):
     gradients_mesh = mesh.compute_derivative(scalars=array_name)
-    keys = np.array(["du/dx", "du/dy", "du/dz", "dv/dx", "dv/dy", "dv/dz", "dw/dx", "dw/dy", "dw/dz"])
+    keys = np.array(["dudx", "dudy", "dudz", "dvdx", "dvdy", "dvdz", "dwdx", "dwdy", "dwdz"])
     keys = keys.reshape((3, 3))[:, :gradients_mesh["gradient"].shape[1]].ravel()
     gradients = dict(zip(keys, gradients_mesh["gradient"].T))
     for k, v in gradients.items():

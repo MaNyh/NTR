@@ -30,7 +30,7 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     blade_surface = pv.PolyData(path_blade_surface)
     blade_surface = blade_surface.compute_normals()
 
-    bladebounds =blade_surface.bounds
+    bladebounds = blade_surface.bounds
     midspan_z = (bladebounds[5]-bladebounds[4])/2
 
     cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
@@ -53,9 +53,6 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
 
     # Nach Durck und Saugseite sortieren
     x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values)
-
-    #plt.plot(x_ss, y_ss)
-    #plt.plot(x_ps, y_ps)
 
     x_bl_ss = x_ss[::int(pden_Probes_Profile_SS)]
     y_bl_ss = y_ss[::int(pden_Probes_Profile_SS)]

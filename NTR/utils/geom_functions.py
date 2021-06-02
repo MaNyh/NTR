@@ -6,7 +6,8 @@ from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
 
 from NTR.utils.pyvista_utils import mesh_scalar_gradients, slice_midspan_z
-
+from NTR.utils.thermoFunctions import Sutherland_Law
+from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
@@ -203,11 +204,27 @@ def calcConcaveHull(x, y, alpha=0.007):
 
 
 def sortProfilePoints(x, y, alpha=0.007):
-
     x, y = calcConcaveHull(x, y, alpha=alpha)
 
     ind_vk = x.index(min(x))
+    ind_hk = x.index(max(x))
+#################
+    def shift(seq, n=0):
+        a = n % len(seq)
+        return seq[-a:] + seq[:-a]
 
+    x = shift(x,ind_vk)
+    y = shift(y,ind_vk)
+
+    ind_vk = x.index(min(x))
+    ind_hk = x.index(max(x))
+
+    x_ss = x[ind_hk:]
+    y_ss = y[ind_hk:]
+
+    y_ps = x[:ind_hk]
+    x_ps = y[:ind_hk]
+    """
     x_by_vk = None
     y_by_vk = None
 
@@ -253,7 +270,7 @@ def sortProfilePoints(x, y, alpha=0.007):
 
         x_ps = x
         y_ps = y
-
+    """
     return x_ss, y_ss, x_ps, y_ps
 
 
@@ -321,7 +338,6 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
     return index_vk, index_hk
 
 
-
 def calcMeanCamberLine(x, y, beta1, beta2):
     # vk und hk bestimmen
 
@@ -340,7 +356,6 @@ def calcMeanCamberLine(x, y, beta1, beta2):
     x_mid_ss = []
     y_mid_ss = []
 
-
     x_mid_ss, y_mid_ss = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
     x_mid_ps, y_mid_ps = calcMidPoints(x_ps, y_ps, x_ss, y_ss)
     x_mids, y_mids = calcMidPoints(x_mid_ps, y_mid_ps, x_mid_ss, y_mid_ss)
@@ -349,7 +364,6 @@ def calcMeanCamberLine(x, y, beta1, beta2):
 
 
 def sortPoints(x, y, ind_vk, ind_hk):
-
     # Punkte der Saugseite bestimmen
 
     # ersten Punkt nach der Vorderkante bestimmen
@@ -555,7 +569,6 @@ def getBoundaryValues(x_bounds, y_bounds):
 
 
 def getGeom2DVTUSLice2(path_to_mesh):
-
     mesh = pv.UnstructuredGrid(path_to_mesh)
     cut_plane_polydata = slice_midspan_z(mesh)
     polyData = cut_plane_polydata
@@ -575,29 +588,52 @@ def getGeom2DVTUSLice2(path_to_mesh):
 
     for i in range(len(points_bounds)):
         if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
-
             indexes_profil_points.append(i)
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-
     return x_outer_bounds, y_outer_bounds, x_profil, y_profil, midspan_z
 
+
+def rotatePoints(origin, x, y, angle):
+    """
+    Rotate a point counterclockwise by a given angle around a given origin.
+    """
+
+    angle = angle * (math.pi / 180.0)
+
+    ox, oy = origin
+
+    new_x = []
+    new_y = []
+
+    for i in range(len(x)):
+        qx = ox + math.cos(angle) * (x[i] - ox) - math.sin(angle) * (y[i] - oy)
+        qy = oy + math.sin(angle) * (x[i] - ox) + math.cos(angle) * (y[i] - oy)
+
+        new_x.append(qx)
+        new_y.append(qy)
+
+    return new_x, new_y
+
+
 def GetProfileValuesMidspan(path_to_mesh):
-
     mesh = pv.UnstructuredGrid(path_to_mesh)
-    mesh = mesh_scalar_gradients(mesh, "U")
-    geo = mesh.extract_geometry()
-    geo = geo.compute_normals()
-    midspan_slice = slice_midspan_z(geo)
+    mesh = mesh_scalar_gradients(mesh, "UMean")
+    #mesh = mesh.compute_normals()
+    midspan_slice = slice_midspan_z(mesh)
+    midspan_slice = midspan_slice.compute_normals()
+    geo = midspan_slice.extract_feature_edges()
+    #geo = geo.compute_normals()
 
+    #points_complete = alle punkte auf dem mittelschnitt mit domain
     points_complete = midspan_slice.points
-    points_bounds = np.array([midspan_slice.extract_cells(i).bounds for i in range(len(midspan_slice.points))])
 
-    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1])
+    points_bounds = geo.points
+    #alpha ~ 0.007 / 0.29 m
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], alpha=0.01)
 
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
-
 
     x_profil = []
     y_profil = []
@@ -606,35 +642,143 @@ def GetProfileValuesMidspan(path_to_mesh):
 
     for i in range(len(points_bounds)):
         if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
-            # print('yes')
             indexes_profil_points.append(i)
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-        # profile_points=np.unique(np.stack((np.array(x_profil), np.array(y_profil)), axis=-1) , axis=0)
-        profile_points = np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
+    #x_profil = points_outer_bounds[::,0]
+    #y_profil = points_outer_bounds[::,1]
+    profile_points = np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
 
-        # Sortiere nach Druck und Saugseite
-        x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=0.007)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=0.01)
 
-        indexes_ss = []
-        indexes_ps = []
+    indexes_ss = []
+    indexes_ps = []
 
-        x_l_ax_ss = []
-        x_l_ax_ps = []
+    x_l_ax_ss = []
+    x_l_ax_ps = []
 
-        for i in range(len(x_ss)):
-            x_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
-            indexes_ss.append(indexes_profil_points[profile_points.tolist().index([x_ss[i], y_ss[i]])])
+    for i in range(len(x_ss)):
+        x_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
+        indexes_ss.append(indexes_profil_points[profile_points.tolist().index([x_ss[i], y_ss[i]])])
 
-        for i in range(len(x_ps)):
-            x_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
-            indexes_ps.append(indexes_profil_points[profile_points.tolist().index([x_ps[i], y_ps[i]])])
+    for i in range(len(x_ps)):
+        x_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
+        indexes_ps.append(indexes_profil_points[profile_points.tolist().index([y_ps[i], x_ps[i]])])
 
-        values_ss = []
-        values_ps = []
-        value_names = []
-        wall_shear_stress_ss = []
-        wall_shear_stress_ps = []
-        wall_shear_stress_explike_ss = []
-        wall_shear_stress_explike_ps = []
+    values_ss = []
+    values_ps = []
+    value_names = []
+
+    wall_shear_stress_ss = []
+    wall_shear_stress_ps = []
+    wall_shear_stress_explike_ss = []
+    wall_shear_stress_explike_ps = []
+
+    normals_ss = np.asarray([midspan_slice.cell_normals[i] for i in indexes_ss])
+    normals_ps = np.asarray([midspan_slice.cell_normals[i] for i in indexes_ps])
+
+    cells_ps = midspan_slice.extract_cells(indexes_ps)
+    cells_ss = midspan_slice.extract_cells(indexes_ss)
+
+    for i in midspan_slice.array_names:
+        values_ss.append(cells_ss[i])
+        values_ps.append(cells_ps[i])
+        value_names.append(i)
+
+    for i in range(len(indexes_ss)):
+
+        dudx = values_ss[value_names.index('dudx')][i]
+        dudy = values_ss[value_names.index('dudy')][i]
+        dudz = values_ss[value_names.index('dudz')][i]
+        dvdx = values_ss[value_names.index('dvdx')][i]
+        dvdy = values_ss[value_names.index('dvdy')][i]
+        dvdz = values_ss[value_names.index('dvdz')][i]
+        dwdx = values_ss[value_names.index('dwdx')][i]
+        dwdy = values_ss[value_names.index('dwdy')][i]
+        dwdz = values_ss[value_names.index('dwdz')][i]
+
+        if i > 0:
+
+            face_normal_delta_x = x_ss[i] - x_ss[i - 1]
+            face_normal_delta_y = y_ss[i] - y_ss[i - 1]
+
+        else:
+
+            face_normal_delta_x = x_ss[i + 1] - x_ss[i]
+            face_normal_delta_y = y_ss[i + 1] - y_ss[i]
+
+        [face_normal_delta_x], [face_normal_delta_y] = rotatePoints([0, 0], [face_normal_delta_x],
+                                                                    [face_normal_delta_y], -90.0)
+        face_normal = np.array([face_normal_delta_x, face_normal_delta_y, 0])
+        face_normal = face_normal / np.linalg.norm(face_normal)
+        rho = values_ss[value_names.index('rhoMean')][i]
+
+        if 'nu' not in value_names:
+            nu=Sutherland_Law(values_ss[value_names.index('TMean')][i])
+        else:
+            nu=values_ss[value_names.index('nuMean')][i]
+        p=values_ss[value_names.index('pMean')][i]
+
+
+        wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal, rho, nu, p)
+        wall_shear_stress_abs = np.linalg.norm(wall_shear_stress_vec)
+        if wall_shear_stress_vec[0] < 0 and face_normal[0] > 0:  # hier ist noch ein fehler.
+                                                                 # Auch der normalen Vektor des faces muss mit einbezogen werden
+            wall_shear_stress_abs = -wall_shear_stress_abs
+        elif wall_shear_stress_vec[0] > 0 and face_normal[0] < 0:
+            wall_shear_stress_abs = -wall_shear_stress_abs
+
+        wall_shear_stress_explike_ss.append(np.sqrt(wall_shear_stress_vec[0] ** 2 + wall_shear_stress_vec[1] ** 2))
+        wall_shear_stress_ss.append(wall_shear_stress_abs)
+
+    for i in range(len(indexes_ps)):
+        dudx = values_ps[value_names.index('dudx')][i]
+        dudy = values_ps[value_names.index('dudy')][i]
+        dudz = values_ps[value_names.index('dudz')][i]
+        dvdx = values_ps[value_names.index('dvdx')][i]
+        dvdy = values_ps[value_names.index('dvdy')][i]
+        dvdz = values_ps[value_names.index('dvdz')][i]
+        dwdx = values_ps[value_names.index('dwdx')][i]
+        dwdy = values_ps[value_names.index('dwdy')][i]
+        dwdz = values_ps[value_names.index('dwdz')][i]
+        face_normal = -normals_ps[i]
+        rho = values_ps[value_names.index('rho')][i]
+
+        if 'nu' not in value_names:
+            nu = Sutherland_Law(values_ps[value_names.index('TMean')][i])
+        else:
+            nu = values_ps[value_names.index('nuMean')][i]
+        p = values_ps[value_names.index('pMean')][i]
+
+        wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal,
+                                                    rho, nu, p)
+        wall_shear_stress_abs = np.linalg.norm(wall_shear_stress_vec)
+        if wall_shear_stress_vec[0] < 0 and face_normal[0] > 0:  # hier ist noch ein fehler. Auch der normalen Vektor des faces muss mit einbezogen werden
+            wall_shear_stress_abs = -wall_shear_stress_abs
+        elif wall_shear_stress_vec[0] > 0 and face_normal[0] < 0:
+            wall_shear_stress_abs = -wall_shear_stress_abs
+
+        # wall_shear_stress_ss.append(wall_shear_stress_abs)
+
+        wall_shear_stress_ps.append(wall_shear_stress_abs)
+        wall_shear_stress_explike_ps.append(np.sqrt(wall_shear_stress_vec[0] ** 2 + wall_shear_stress_vec[1] ** 2))
+
+    values_ss.insert(0, x_l_ax_ss)
+    values_ps.insert(0, x_l_ax_ps)
+    values_ss.insert(0, y_ss)
+    values_ps.insert(0, y_ps)
+    values_ss.insert(0, x_ss)
+    values_ps.insert(0, x_ps)
+    values_ss.append(wall_shear_stress_ss)
+    values_ss.append(wall_shear_stress_explike_ss)
+    values_ps.append(wall_shear_stress_ps)
+    values_ps.append(wall_shear_stress_explike_ps)
+
+    value_names.insert(0, "x<sub>Ax</sub> / l<sub>Ax</sub>")
+    value_names.insert(0, 'Y')
+    value_names.insert(0, 'X')
+    value_names.append('wall shear stress')
+    value_names.append('wall shear stress exp like')
+
+    return [value_names, [values_ss, values_ps]]
