@@ -94,3 +94,16 @@ class FluidCoeffs:
         """
         assert type(Ts) == float, "Ts needs to be a float"
         self.Ts = Ts
+
+class CascadeCoeffs:
+    def __init__(self):
+        self.alpha = None
+
+    def set_alpha(self, alpha):
+        """
+        :param alpha: dimensionless coefficient for the method 'calcConcaveHull(). typically [0.001-0.01]'
+        :return: None
+        saves value to object (self)
+        """
+        assert type(alpha) == float, "alpha needs to be a float"
+        self.alpha = alpha

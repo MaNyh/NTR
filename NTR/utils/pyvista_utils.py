@@ -1,5 +1,15 @@
 import numpy as np
+import pyvista as pv
 
+def load_mesh(path_to_mesh):
+    try:
+        mesh = pv.UnstructuredGrid(path_to_mesh)
+    except:
+        try:
+            mesh = pv.PolyData(path_to_mesh)
+        except:
+            print("error loading ", path_to_mesh)
+    return mesh
 
 def mesh_scalar_gradients(mesh,array_name):
     gradients_mesh = mesh.compute_derivative(scalars=array_name)

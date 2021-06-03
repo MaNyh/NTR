@@ -100,7 +100,7 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     return x_mpsl, y_mpsl
 
 
-def calcConcaveHull(x, y, alpha=0.007):
+def calcConcaveHull(x, y, alpha):
     """
     origin: https://stackoverflow.com/questions/50549128/boundary-enclosing-a-given-set-of-points/50714300#50714300
     """
@@ -216,15 +216,15 @@ def sortProfilePoints(x, y, alpha=0.007):
     y_ps = y[:ind_hk] + y[ind_vk:]
     x_ps = x[:ind_hk] + x[ind_vk:]
 
-    idx = np.argsort(x_ss)
-    x_ss = np.array(x_ss)[idx]
-    y_ss = np.array(y_ss)[idx]
+    #idx = np.argsort(x_ss)
+    #x_ss = np.array(x_ss)[idx]
+    #y_ss = np.array(y_ss)[idx]
 
-    idx = np.argsort(x_ps)
-    x_ps = np.array(x_ps)[idx]
-    y_ps = np.array(y_ps)[idx]
+    #idx = np.argsort(x_ps)
+    #x_ps = np.array(x_ps)[idx]
+    #y_ps = np.array(y_ps)[idx]
 
-    x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
+    #x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
     return x_ss, y_ss, x_ps, y_ps
 
 
@@ -522,17 +522,19 @@ def getBoundaryValues(x_bounds, y_bounds):
     return y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri
 
 
-def getGeom2DVTUSLice2(path_to_mesh):
-    mesh = pv.UnstructuredGrid(path_to_mesh)
-    cut_plane_polydata = slice_midspan_z(mesh)
-    polyData = cut_plane_polydata
+def getGeom2DVTUSLice2(case):
+    #mesh = pv.UnstructuredGrid(path_to_mesh)
+    #cut_plane_polydata = slice_midspan_z(mesh)
+    polyData = case.get_midspan_z()#cut_plane_polydata
+    bounds = case.mesh_loaded_dict["fluid"].bounds
+    midspan_z = (bounds[5]-bounds[4])/2
 
     # Boundary Edges / Zellen extrahieren
     featureEdges = polyData.extract_feature_edges()
     points_complete = featureEdges.points
     points_bounds = np.array([featureEdges.extract_cells(i).bounds for i in range(len(featureEdges.points))])
 
-    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1])
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], case.CascadeCoeffs.alpha)
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
 
     x_profil = []
@@ -571,21 +573,17 @@ def rotatePoints(origin, x, y, angle):
     return new_x, new_y
 
 
-def GetProfileValuesMidspan(path_to_mesh):
-    mesh = pv.UnstructuredGrid(path_to_mesh)
-    mesh = mesh_scalar_gradients(mesh, "UMean")
-    #mesh = mesh.compute_normals()
-    midspan_slice = slice_midspan_z(mesh)
+def GetProfileValuesMidspan(case):
+
+    midspan_slice = case.get_midspan_z()
     midspan_slice = midspan_slice.compute_normals()
     geo = midspan_slice.extract_feature_edges()
-    #geo = geo.compute_normals()
 
     #points_complete = alle punkte auf dem mittelschnitt mit domain
     points_complete = midspan_slice.points
 
     points_bounds = geo.points
-    #alpha ~ 0.007 / 0.29 m
-    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], alpha=0.01)
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], alpha=case.CascadeCoeffs.alpha)
 
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
 
@@ -604,7 +602,7 @@ def GetProfileValuesMidspan(path_to_mesh):
     #y_profil = points_outer_bounds[::,1]
     profile_points = np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
 
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=0.01)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=case.CascadeCoeffs.alpha)
 
     indexes_ss = []
     indexes_ps = []
@@ -620,6 +618,10 @@ def GetProfileValuesMidspan(path_to_mesh):
         x_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
         indexes_ps.append(indexes_profil_points[profile_points.tolist().index([x_ps[i], y_ps[i]])])
 
+    assert len(indexes_ps) > 0, "sortProfilePoints did not detect a pressureside. Maybe adjust case.CascadeCoeffs.alpha ? "
+    assert len(indexes_ss) > 0, "sortProfilePoints did not detect a suctionside. Maybe adjust case.CascadeCoeffs.alpha ? "
+
+
     values_ss = []
     values_ps = []
     value_names = []
@@ -629,7 +631,7 @@ def GetProfileValuesMidspan(path_to_mesh):
     wall_shear_stress_explike_ss = []
     wall_shear_stress_explike_ps = []
 
-    normals_ss = np.asarray([midspan_slice.cell_normals[i] for i in indexes_ss])
+    #normals_ss = np.asarray([midspan_slice.cell_normals[i] for i in indexes_ss])
     normals_ps = np.asarray([midspan_slice.cell_normals[i] for i in indexes_ps])
 
     cells_ps = midspan_slice.extract_cells(indexes_ps)
@@ -669,10 +671,10 @@ def GetProfileValuesMidspan(path_to_mesh):
         rho = values_ss[value_names.index('rhoMean')][i]
 
         if 'nu' not in value_names:
-            nu=Sutherland_Law(values_ss[value_names.index('TMean')][i])
+            nu = Sutherland_Law(values_ss[value_names.index('TMean')][i])
         else:
-            nu=values_ss[value_names.index('nuMean')][i]
-        p=values_ss[value_names.index('pMean')][i]
+            nu = values_ss[value_names.index('nuMean')][i]
+        p = values_ss[value_names.index('pMean')][i]
 
 
         wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal, rho, nu, p)
@@ -738,8 +740,8 @@ def GetProfileValuesMidspan(path_to_mesh):
     return [value_names, [values_ss, values_ps]]
 
 
-def getPitchValuesB2BSliceComplete(path_to_mesh, x):
-    mesh = pv.UnstructuredGrid(path_to_mesh)
+def getPitchValuesB2BSliceComplete(case, x):
+    mesh = case.mesh_loaded_dict["fluid"]
 
     cut_plane = mesh.slice(normal="x",origin=(x,0,0))
 

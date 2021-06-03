@@ -13,11 +13,10 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 
 def createProfileData(case):
 
-    path_to_mesh = case.mesh_dict["fluid"]
     post_slice_1_x = case.x_pos["x_pos1"]
     post_slice_2_x = case.x_pos["x_pos2"]
 
-    [value_names, [values_ss, values_ps]] = GetProfileValuesMidspan(path_to_mesh)
+    [value_names, [values_ss, values_ps]] = GetProfileValuesMidspan(case)
 
     x_ss = list(values_ss[value_names.index('X')])[::-1]
     y_ss = list(values_ss[value_names.index('Y')])[::-1]
@@ -32,7 +31,7 @@ def createProfileData(case):
     plt.plot(x_ps, y_ps, '-b', lw=1)
 
     plt.axis('equal')
-    output_path = os.path.dirname(os.path.abspath(path_to_mesh))
+    output_path = case.casedir# os.path.dirname(os.path.abspath(path_to_mesh))
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_profil.pdf'))
 
@@ -63,7 +62,7 @@ def createProfileData(case):
     delta_beta = beta1 - beta2
     delta_p_static = (inte_p1 - inte_p2) / (inte_p_tot1 - case.FluidCoeffs.p_k)
 
-    y, array_names, values = getPitchValuesB2BSliceComplete(path_to_mesh, post_slice_2_x)
+    y, array_names, values = getPitchValuesB2BSliceComplete(case, post_slice_2_x)
 
     # brechnung der amecke werte
     p_2_y = values[array_names.index('p')]
@@ -153,12 +152,12 @@ def createProfileData(case):
         data_output.close()
 
 
-    writeOutput(os.path.dirname(path_to_mesh))
+    writeOutput(case.casedir)
 
 
 def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
 
-    path_to_mesh = case.mesh_dict["fluid"]
+    output_path = case.casedir
 
     p = p_ss + p_ps[::-1]
     p_max = max(p)
@@ -204,7 +203,6 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
     ax1 = plt.gca()
     ax1.set_xlim([0, 1])
     ax1.set_ylim([-1, 1])
-    output_path = os.path.dirname(os.path.abspath(path_to_mesh))
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_cp.pdf'))
     plt.close('all')
@@ -215,7 +213,6 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
     ax1 = plt.gca()
     ax1.set_xlim([0, 1])
     ax1.set_ylim([0, 1])
-    output_path = os.path.dirname(os.path.abspath(path_to_mesh))
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_ma_is_x.pdf'))
     plt.close('all')
@@ -224,8 +221,8 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
 
 
 def calcPostSliceValues(case, x, ind):
-    path_to_mesh = case.mesh_dict["fluid"]
-    mesh = pv.UnstructuredGrid(path_to_mesh)
+    output_path = case.casedir
+    mesh = case.mesh_loaded_dict["fluid"]
     cut_plane = mesh.slice(normal="x", origin=(x, 0, 0))
     points = cut_plane.points
     npts = cut_plane.number_of_points
@@ -332,7 +329,6 @@ def calcPostSliceValues(case, x, ind):
 
     plt.grid()
     plt.tight_layout()
-    output_path = os.path.dirname(os.path.abspath(path_to_mesh))
     plt.savefig(os.path.join(output_path, 'kontrollplot_auswerteebene_' + str(ind) + '.pdf'))
 
     values = [[xx, y, zz, mag_u, ux, uy, uz, p, rho, T, ma, T_tot, p_tot]]

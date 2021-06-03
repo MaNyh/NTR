@@ -6,7 +6,7 @@ Created on Mon Feb 18 20:33:27 2019
 """
 
 
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import os
 import numpy as np
 import pyvista as pv
@@ -14,7 +14,7 @@ import pyvista as pv
 from NTR.utils.geom_functions import sortProfilePoints, calcMidPassageStreamLine, calcMeanCamberLine, getBoundaryValues, getGeom2DVTUSLice2
 
 
-def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
+def createProbesProfileDict(case, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
                             interval_time_steps_probes, output_path, tolerance=1e-6):
 
     """
@@ -27,7 +27,7 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     :return: openFoamDict
     """
     # blade_surface einlesen und Normalenvektor bestimmen der
-    blade_surface = pv.PolyData(path_blade_surface)
+    blade_surface = case.mesh_loaded_dict["blade"]
     blade_surface = blade_surface.compute_normals()
 
     bladebounds = blade_surface.bounds
@@ -52,7 +52,7 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
 
 
     # Nach Durck und Saugseite sortieren
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values, case.CascadeCoeffs.alpha)
 
     x_bl_ss = x_ss[::int(pden_Probes_Profile_SS)]
     y_bl_ss = y_ss[::int(pden_Probes_Profile_SS)]
@@ -108,10 +108,10 @@ def createProbesProfileDict(path_blade_surface, pden_Probes_Profile_SS, pden_Pro
     data_file.close()
 
 
-def createProbesStreamlineDict(path_to_vtk_cascademesh, nop_Probes_Streamline, save_dir,
+def createProbesStreamlineDict(case, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung):
 
-    x_bounds, y_bounds, x_profil, y_profil , midspan_z = getGeom2DVTUSLice2(path_to_vtk_cascademesh)
+    x_bounds, y_bounds, x_profil, y_profil , midspan_z = getGeom2DVTUSLice2(case)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
@@ -120,8 +120,9 @@ def createProbesStreamlineDict(path_to_vtk_cascademesh, nop_Probes_Streamline, s
                                                                                         beta_02)
 
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
-    x_probes = []
-    y_probes = []
+
+    #x_probes = []
+    #y_probes = []
     z_probes = []
 
     nop = int(nop_Probes_Streamline)
@@ -169,7 +170,7 @@ probeLocations
     data_file.write("""        );
 }""")
     data_file.close()
-    """
+
     plt.close('all')
     plt.figure(figsize=(8, 8))
     plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
@@ -180,7 +181,7 @@ probeLocations
     plt.legend(loc='best')
     plt.savefig(os.path.join(save_dir, 'kontrollplot_probes_streamline.pdf'))
     plt.close('all')
-    """
+
 
 
 def equi_points(x, y, nop):
