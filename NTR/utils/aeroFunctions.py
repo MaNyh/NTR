@@ -184,15 +184,15 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
 
     def calcTheta(kappa, p_zu_pt):
         theta = np.sqrt(2.0 / (kappa - 1.0)) * np.sqrt(((kappa + 1.0) / 2.0) ** ((kappa + 1.0) / (kappa - 1.0))) * \
-                (p_zu_pt) ** (1 / kappa) * \
-                np.sqrt(1 - (p_zu_pt) ** ((kappa - 1.0) / kappa))
+                p_zu_pt ** (1 / kappa) * \
+                np.sqrt(1 - p_zu_pt ** ((kappa - 1.0) / kappa))
 
         return theta
 
     y_rel = []
 
     for i in range(len(y)):
-        y_rel.append((y[i] - min(y)) / ((max(y) - min(y))))
+        y_rel.append((y[i] - min(y)) / (max(y) - min(y)))
 
     def calcI1(pt_2_y, beta_2_y, p_2_y, y_rel, pt_1, kappa):
 
@@ -212,7 +212,7 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
 
         for i in range(len(pt_2_y)):
             q_zu_p = calcQ(kappa, p_2_y[i] / pt_2_y[i])
-            values.append((pt_2_y[i] / pt_1) * \
+            values.append((pt_2_y[i] / pt_1) *
                           (2 * q_zu_p * np.sin(np.deg2rad(beta_2_y[i])) * np.sin(np.deg2rad(beta_2_y[i])) + p_2_y[i] /
                            pt_2_y[i]))
 
@@ -226,8 +226,8 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
 
         for i in range(len(pt_2_y)):
             q_zu_p = calcQ(kappa, p_2_y[i] / pt_2_y[i])
-            values.append(2 * (pt_2_y[i] / pt_1) * q_zu_p * \
-                          np.sin(np.deg2rad(beta_2_y[i])) * \
+            values.append(2 * (pt_2_y[i] / pt_1) * q_zu_p *
+                          np.sin(np.deg2rad(beta_2_y[i])) *
                           np.cos(np.deg2rad(beta_2_y[i])))
 
         I3 = np.trapz(values, x=y_rel)
@@ -238,7 +238,7 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
 
         ma = np.sqrt(((kappa + 1.0) / 2.0) ** (2.0 / (kappa - 1.0)) * (I2 ** 2.0 / I1 ** 2) * (
                 0.5 - (2.0 / (kappa + 1.0)) ** (2.0 / (kappa - 1)) * (I1 ** 2 / I2 ** 2) + (
-                    (kappa + 1.0) / (2.0 * kappa)) * (I3 ** 2 / I2 ** 2) - \
+                    (kappa + 1.0) / (2.0 * kappa)) * (I3 ** 2 / I2 ** 2) -
                 np.sqrt(0.25 - (2.0 / (kappa + 1.0)) ** (2.0 / (kappa - 1)) * (I1 ** 2 / I2 ** 2) + (
                         (kappa ** 2 - 1.0) / (4.0 * kappa ** 2)) * (I3 ** 2 / I2 ** 2))))
 
