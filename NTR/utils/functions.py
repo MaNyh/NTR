@@ -5,6 +5,7 @@ import pickle
 import NTR
 from NTR.utils.create_geom import create
 
+
 def yaml_dict_read(yml_file):
     args_from_yaml = {}
 
@@ -14,6 +15,7 @@ def yaml_dict_read(yml_file):
             for key, value in settings.items():
                 args_from_yaml[key] = value
     return args_from_yaml
+
 
 def write_igg_config(file, args):
     with open(file, "wb") as Fobj:
@@ -25,15 +27,14 @@ def run_igg_meshfuncs(case_path):
     print(os.path.abspath(case_path))
 
     print("create_geometry")
-    ptstxtfile = os.path.join(os.path.abspath(case_path),settings["geom"]["ptcloud_profile"])
+    ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
     create(ptstxtfile,
            settings["geom"]["beta_meta_01"],
            settings["geom"]["beta_meta_02"],
            settings["geom"]["x_inlet"],
            settings["geom"]["x_outlet"],
            settings["geom"]["pitch"],
-           settings["geom"]["ptcloud_profile_unit"] )
-
+           settings["geom"]["ptcloud_profile_unit"])
 
     print("create_mesh")
     cwd = os.getcwd()
@@ -47,28 +48,25 @@ def run_igg_meshfuncs(case_path):
 
     point_cloud_path = os.path.join(case_path, "geom.dat")
 
-    args = {}
+    args = {"pointcloudfile": point_cloud_path,
+            "add_path": ntrpath,
+            "case_path": case_path,
+            "save_project": os.path.join(case_path, 'mesh.igg'),
+            "save_fluent": os.path.join(case_path, "fluent.msh")}
 
-    args["pointcloudfile"] = point_cloud_path
-    args["add_path"] = ntrpath
-    args["case_path"] = case_path
     for i in settings["mesh"]:
         args[i] = settings["mesh"][i]
-
-    args["save_project"] = os.path.join(case_path, 'mesh.igg')
-    args["save_fluent"] = os.path.join(case_path, "fluent.msh")
 
     write_igg_config(args_dict_path, args)
     os.system(igg_exe + " -batch -print -script " + script_path)
     os.chdir(cwd)
 
 
-
 def read_pickle_args(path):
     filepath = os.path.join(path, "args.pkl")
-    with open(filepath,"rb") as Fobj:
-        dict = pickle.load(Fobj)
-    return dict
+    with open(filepath, "rb") as Fobj:
+        pargs = pickle.load(Fobj)
+    return pargs
 
 
 def absVec(vec):
