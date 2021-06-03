@@ -5,7 +5,7 @@ import pyvista as pv
 import math
 
 from NTR.utils.geom_functions import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
-from NTR.utils.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR
+from NTR.utils.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, calcPos2ValuesByAmecke, calcCp
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.functions import absvec_array
 from NTR.utils.simFunctions import sort_value2, sort_value3
@@ -69,22 +69,16 @@ def createProfileData(case):
     p_2_y = values[array_names.index('p')]
     pt_2_y = []
 
-    if 'U' not in array_names:
 
-        Ux_2_y = values[array_names.index('Ux')]
-        Uy_2_y = values[array_names.index('Uy')]
 
-    else:
 
-        Ux_2_y = values[array_names.index('U')]
-        Uy_2_y = values[array_names.index('V')]
+    Ux_2_y = np.asarray(values[array_names.index('U')])[::, 0]
+    Uy_2_y = np.asarray(values[array_names.index('U')])[::, 1]
 
-    if 'mag_U' not in array_names:
 
-        Mag_U_2_y = values[array_names.index('Mag_U')]
-    else:
+    Mag_U_2_y = absvec_array(values[array_names.index("U")])#values[array_names.index('Mag_U')]
 
-        Mag_U_2_y = values[array_names.index('mag_U')]
+
     T_2_y = values[array_names.index('T')]
     beta_2_y = []
     for i in range(len(p_2_y)):
@@ -92,7 +86,7 @@ def createProfileData(case):
         pt_2_y.append(p_t_is(case.FluidCoeffs.kappa, Ma(Mag_U_2_y[i], case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, T_2_y[i]), p_2_y[i]))
 
     Ma2_amecke, beta2_amecke, pt2_amecke, p2_amecke = calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, inte_p_tot1,
-                                                                             kappa=case.kappa)
+                                                                             kappa=case.FluidCoeffs.kappa)
 
     zeta_amecke = (inte_p_tot1 - pt2_amecke) / (inte_p_tot1 - case.FluidCoeffs.p_k)
     ma_is_amecke = Ma_is_x(case.FluidCoeffs.kappa, p2_amecke, pt2_amecke)
@@ -100,15 +94,15 @@ def createProfileData(case):
     x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps = calcProfileValues(
         p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps)
 
-    def writeOutput():
+    def writeOutput(outpath):
 
-        output_path = os.path.join(os.path.dirname(os.path.abspath(path_midspan_slice)), 'profile_data.dat')
+        output_path = os.path.join(outpath, 'profile_data.dat')
         values = [[x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss],
                   [x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps]]
         writeTecplot1DFile(output_path, ['X', 'Y', 'x<sub>Ax</sub> / l<sub>Ax</sub>', 'p', 'cp', 'cp_max', 'ma_is_x'],
                            ['Saugseite', 'Druckseite'], values, 'Profildaten')
 
-        output_path = os.path.join(os.path.dirname(os.path.abspath(path_midspan_slice)), 'postSlicesValues.py')
+        output_path = os.path.join(outpath, 'postSlicesValues.py')
         data_output = open(output_path, 'w')
         data_output.write('#!/usr/bin/env python2\n')
         data_output.write('# -*- coding: utf-8 -*-\n')
@@ -158,10 +152,13 @@ def createProfileData(case):
         data_output.write('\tgV.Ma_is_2_amecke=' + str(ma_is_amecke) + '\n')
         data_output.close()
 
-    writeOutput()
+
+    writeOutput(os.path.dirname(path_to_mesh))
 
 
 def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
+
+    path_to_mesh = case.mesh_dict["fluid"]
 
     p = p_ss + p_ps[::-1]
     p_max = max(p)
@@ -178,10 +175,10 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
         #                cp=(px-p2)/(pt1-p2)
         #                return cp
 
-        cp_ss.append(calcCp(p_ss[i], inte_p_tot1, case.p_k))
+        cp_ss.append(calcCp(p_ss[i], inte_p_tot1, case.FluidCoeffs.p_k))
         cp_max_ss.append((p_ss[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
-        ma_is_x_ss.append(Ma_is_x(case.kappa, p_ss[i], inte_p_tot1))
+        ma_is_x_ss.append(Ma_is_x(case.FluidCoeffs.kappa, p_ss[i], inte_p_tot1))
 
     cp_ps = []
     cp_max_ps = []
@@ -190,10 +187,10 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
     x_zu_l_ax_ps = []
 
     for i in range(len(x_ps)):
-        cp_ps.append(calcCp(p_ps[i], inte_p_tot1, case.p_k))
+        cp_ps.append(calcCp(p_ps[i], inte_p_tot1, case.FluidCoeffs.p_k))
         cp_max_ps.append((p_ps[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
-        ma_is_x_ps.append(Ma_is_x(case.kappa, p_ps[i], inte_p_tot1))
+        ma_is_x_ps.append(Ma_is_x(case.FluidCoeffs.kappa, p_ps[i], inte_p_tot1))
 
     cp = cp_ss + cp_ps[::-1]
     cp_max = cp_max_ss + cp_max_ps[::-1]
@@ -207,7 +204,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
     ax1 = plt.gca()
     ax1.set_xlim([0, 1])
     ax1.set_ylim([-1, 1])
-    output_path = os.path.dirname(os.path.abspath(path_midspan_slice))
+    output_path = os.path.dirname(os.path.abspath(path_to_mesh))
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_cp.pdf'))
     plt.close('all')
@@ -218,7 +215,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
     ax1 = plt.gca()
     ax1.set_xlim([0, 1])
     ax1.set_ylim([0, 1])
-    output_path = os.path.dirname(os.path.abspath(path_midspan_slice))
+    output_path = os.path.dirname(os.path.abspath(path_to_mesh))
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_ma_is_x.pdf'))
     plt.close('all')
