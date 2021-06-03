@@ -8,7 +8,7 @@ def create(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, p
     # Daten Einlesen
     # =============================================================================
     coords_df = np.loadtxt(path_profile_coords)
-
+    unitcoeff = 0
     if unit == "m":
         unitcoeff = 1
     elif unit == "mm":
@@ -39,5 +39,3 @@ def create(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, p
     writeTecplot1DFile('geom.dat', ['x', 'z'], ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
                        [[x_ss, y_ss], [x_ps, y_ps], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mids, y_mids]],
                        'obere Kurvenverlauf des Kanals')
-
-
