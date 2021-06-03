@@ -4,7 +4,6 @@ import numpy as np
 import pyvista as pv
 import math
 
-import NTR.utils.coefficients
 from NTR.utils.geom_functions import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
 from NTR.utils.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR
 from NTR.utils.thermoFunctions import Sutherland_Law
@@ -40,29 +39,29 @@ def createProfileData(case):
     inte_mag_u1, inte_ux1, inte_uy1, inte_uz1, inte_rho1, inte_T1, inte_p1, inte_p_tot1, inte_T_tot1 = calcPostSliceValues(case, post_slice_1_x, 1)
     inte_mag_u2, inte_ux2, inte_uy2, inte_uz2, inte_rho2, inte_T2, inte_p2, inte_p_tot2, inte_T_tot2 = calcPostSliceValues(case, post_slice_2_x, 2)
 
-    zeta = (inte_p_tot1 - inte_p_tot2) / (inte_p_tot1 - NTR.utils.coefficients.fluid_coeffs.p_k)
+    zeta = (inte_p_tot1 - inte_p_tot2) / (inte_p_tot1 - case.FluidCoeffs.p_k)
 
-    Ma1 = Ma(inte_mag_u1, NTR.utils.coefficients.fluid_coeffs.kappa, NTR.utils.coefficients.fluid_coeffs.R_L, inte_T1)
-    Ma2 = Ma(inte_mag_u2, NTR.utils.coefficients.fluid_coeffs.kappa, NTR.utils.coefficients.fluid_coeffs.R_L, inte_T2)
+    Ma1 = Ma(inte_mag_u1, case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, inte_T1)
+    Ma2 = Ma(inte_mag_u2, case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, inte_T2)
 
-    Ma_is_2 = Ma_is(NTR.utils.coefficients.fluid_coeffs.p_k, NTR.utils.coefficients.fluid_coeffs.kappa, inte_p1, inte_rho1, inte_mag_u1, NTR.utils.coefficients.fluid_coeffs.R_L, inte_T_tot1)
+    Ma_is_2 = Ma_is(case.FluidCoeffs.p_k, case.FluidCoeffs.kappa, inte_p1, inte_rho1, inte_mag_u1, case.FluidCoeffs.R_L, inte_T_tot1)
 
-    Re_is_2 = Re_is(NTR.utils.coefficients.fluid_coeffs.kappa, NTR.utils.coefficients.fluid_coeffs.R_L, NTR.utils.coefficients.fluid_coeffs.l,
-                    NTR.utils.coefficients.fluid_coeffs.As, Ma_is_2, NTR.utils.coefficients.fluid_coeffs.p_k, inte_T_tot1,
-                    inte_mag_u1, NTR.utils.coefficients.fluid_coeffs.cp, NTR.utils.coefficients.fluid_coeffs.Ts)
+    Re_is_2 = Re_is(case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, case.FluidCoeffs.l,
+                    case.FluidCoeffs.As, Ma_is_2, case.FluidCoeffs.p_k, inte_T_tot1,
+                    inte_mag_u1, case.FluidCoeffs.cp, case.FluidCoeffs.Ts)
 
     beta1 = 90.0 + math.atan(inte_uy1 / inte_ux1) / 2.0 / math.pi * 360.0
     beta2 = 90.0 + math.atan(inte_uy2 / inte_ux2) / 2.0 / math.pi * 360.0
 
-    nu1 = Sutherland_Law(inte_T1, NTR.utils.coefficients.fluid_coeffs.As, NTR.utils.coefficients.fluid_coeffs.Ts)
-    nu2 = Sutherland_Law(inte_T2, NTR.utils.coefficients.fluid_coeffs.As, NTR.utils.coefficients.fluid_coeffs.Ts)
+    nu1 = Sutherland_Law(inte_T1, case.FluidCoeffs.As, case.FluidCoeffs.Ts)
+    nu2 = Sutherland_Law(inte_T2, case.FluidCoeffs.As, case.FluidCoeffs.Ts)
 
-    Re1 = Re(inte_rho1, inte_mag_u1, NTR.utils.coefficients.fluid_coeffs.l, nu1)
-    Re2 = Re(inte_rho2, inte_mag_u2, NTR.utils.coefficients.fluid_coeffs.l, nu2)
+    Re1 = Re(inte_rho1, inte_mag_u1, case.FluidCoeffs.l, nu1)
+    Re2 = Re(inte_rho2, inte_mag_u2, case.FluidCoeffs.l, nu2)
 
     AVDR_value = AVDR(inte_rho1, inte_mag_u1, beta1, inte_rho2, inte_mag_u2, beta2)
     delta_beta = beta1 - beta2
-    delta_p_static = (inte_p1 - inte_p2) / (inte_p_tot1 - NTR.utils.coefficients.fluid_coeffs.p_k)
+    delta_p_static = (inte_p1 - inte_p2) / (inte_p_tot1 - case.FluidCoeffs.p_k)
 
     y, array_names, values = getPitchValuesB2BSliceComplete(path_to_mesh, post_slice_2_x)
 
@@ -90,13 +89,13 @@ def createProfileData(case):
     beta_2_y = []
     for i in range(len(p_2_y)):
         beta_2_y.append(Beta(Ux_2_y[i], Uy_2_y[i]))
-        pt_2_y.append(p_t_is(case.kappa, Ma(Mag_U_2_y[i], case.kappa, case.R_L, T_2_y[i]), p_2_y[i]))
+        pt_2_y.append(p_t_is(case.FluidCoeffs.kappa, Ma(Mag_U_2_y[i], case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, T_2_y[i]), p_2_y[i]))
 
     Ma2_amecke, beta2_amecke, pt2_amecke, p2_amecke = calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, inte_p_tot1,
                                                                              kappa=case.kappa)
 
-    zeta_amecke = (inte_p_tot1 - pt2_amecke) / (inte_p_tot1 - case.p_k)
-    ma_is_amecke = Ma_is_x(case.kappa, p2_amecke, pt2_amecke)
+    zeta_amecke = (inte_p_tot1 - pt2_amecke) / (inte_p_tot1 - case.FluidCoeffs.p_k)
+    ma_is_amecke = Ma_is_x(case.FluidCoeffs.kappa, p2_amecke, pt2_amecke)
 
     x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps = calcProfileValues(
         p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps)
@@ -275,7 +274,7 @@ def calcPostSliceValues(case, x, ind):
         rho.append(rho_array[i])
         T.append(T_array[i])
         p.append(p_array[i])
-        ma.append(Ma(mag_u[-1], NTR.utils.coefficients.fluid_coeffs.kappa, NTR.utils.coefficients.fluid_coeffs.R_L, T[-1]))
+        ma.append(Ma(mag_u[-1], case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, T[-1]))
 
     xx = sort_value3(y, xx)
     zz = sort_value3(y, zz)
@@ -294,8 +293,8 @@ def calcPostSliceValues(case, x, ind):
     T_tot = []
     for i in range(len(p)):
         # kappa ma
-        p_tot.append(p_t_is(NTR.utils.coefficients.fluid_coeffs.kappa, ma[i], p[i]))
-        T_tot.append(T_t_is(NTR.utils.coefficients.fluid_coeffs.kappa, ma[i], T[i]))
+        p_tot.append(p_t_is(case.FluidCoeffs.kappa, ma[i], p[i]))
+        T_tot.append(T_t_is(case.FluidCoeffs.kappa, ma[i], T[i]))
 
 
     inte_ux = mass_average(y, ux, rho, ux)

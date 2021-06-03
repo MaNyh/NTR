@@ -7,7 +7,7 @@ class AbstractCase:
     def __init__(self, name):
         self.name = name
         self.mesh_dict = {}
-        self.fluid_coeffs = FluidCoeffs()
+        self.FluidCoeffs = FluidCoeffs()
 
     def set_mesh(self, name, path_to_mesh):
         abspath = os.path.abspath(path_to_mesh)
