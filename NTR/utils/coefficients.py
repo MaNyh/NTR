@@ -1,5 +1,5 @@
-class fluid_coeffs:
-    #https://www.chemie.de/lexikon/Universelle_Gaskonstante.html
+class FluidCoeffs:
+    # https://www.chemie.de/lexikon/Universelle_Gaskonstante.html
     R = 8.314472
 
     def __init__(self):
@@ -68,7 +68,6 @@ class fluid_coeffs:
         assert type(p_k) == float, "p_k needs to be a float"
         self.p_k = p_k
 
-
     def set_As(self, As):
         """
         :param As:??? [ ]
@@ -89,7 +88,7 @@ class fluid_coeffs:
 
     def set_Ts(self, Ts):
         """
-        :param l:??? [ ]
+        :param Ts:??? [ ]
         :return: None
         saves value to object (self)
         """
