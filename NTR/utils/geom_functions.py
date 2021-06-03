@@ -8,6 +8,7 @@ from scipy.spatial import Delaunay
 from NTR.utils.pyvista_utils import mesh_scalar_gradients, slice_midspan_z
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
+from NTR.utils.simFunctions import sort_values_by_pitch
 
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
@@ -735,3 +736,39 @@ def GetProfileValuesMidspan(path_to_mesh):
     value_names.append('wall shear stress exp like')
 
     return [value_names, [values_ss, values_ps]]
+
+
+def getPitchValuesB2BSliceComplete(path_to_mesh, x):
+    mesh = pv.UnstructuredGrid(path_to_mesh)
+
+    cut_plane = mesh.slice(normal="x",origin=(x,0,0))
+
+    points = cut_plane.points
+
+    npts = len(points)
+    xx = np.zeros(npts)
+    y = np.zeros(npts)
+    zz = np.zeros(npts)
+
+    for i in range(npts):
+        pt = points[i]
+        y[i] = pt[1]
+        xx[i] = pt[0]
+        zz[i] = pt[2]
+
+    #noa = len(cut_plane.array_names)
+    array_names = cut_plane.point_arrays.keys()
+    values = []
+
+    for arrname in array_names:
+
+
+        array_values = cut_plane.point_arrays[arrname]
+
+
+        y2, [array_values] = sort_values_by_pitch(y, [array_values])
+        values.append(array_values)
+
+        # daten nach y sortieren
+
+    return y2, array_names, values

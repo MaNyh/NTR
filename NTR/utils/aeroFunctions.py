@@ -29,7 +29,7 @@ def calcCp(px, pt1, p2):
 
 
 # isentrope reynoldszahl
-def Re_is(k, R, l_chord, beta_s, Ma2th, pk, T1, Mag_U, c_p, S):
+def Re_is(k, R, l_chord, beta_s, Ma2th, pk, T1, Mag_U, cp, S):
     Tt1 = T_t_is(k, Ma(Mag_U, k, R, T1), T1)
     t_iso = Tt1 / (1.0 + ((k - 1.0) / 2.0) * pow(Ma2th, 2))
     y = np.sqrt(k / R) * l_chord / beta_s * (Ma2th * pk * (t_iso + S)) / pow(t_iso, 2)
