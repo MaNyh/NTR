@@ -213,18 +213,13 @@ def sortProfilePoints(x, y, alpha=0.007):
     x_ss = x[ind_hk:ind_vk]
     y_ss = y[ind_hk:ind_vk]
 
-    y_ps = y[:ind_hk] + y[ind_vk:]
-    x_ps = x[:ind_hk] + x[ind_vk:]
+    y_ps = y[:ind_hk-1] + y[ind_vk-1:]
+    x_ps = x[:ind_hk-1] + x[ind_vk-1:]
 
-    #idx = np.argsort(x_ss)
-    #x_ss = np.array(x_ss)[idx]
-    #y_ss = np.array(y_ss)[idx]
 
-    #idx = np.argsort(x_ps)
-    #x_ps = np.array(x_ps)[idx]
-    #y_ps = np.array(y_ps)[idx]
+    x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
 
-    #x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
+    #x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
     return x_ss, y_ss, x_ps, y_ps
 
 

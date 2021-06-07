@@ -13,10 +13,10 @@ geom:
     pitch                           : 0.1524                               #Pitch [m]
 
 mesh:
-    factor                          : 0.9                                   #Mesh-density factor
-    ogrid_factor                    : 1                                   #o-grid-node-ratio
+    factor                          : 1                                   #Mesh-density factor
+    ogrid_factor                    : 1.6                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.000015                              #first cell height when factor=1
+    first_cell_width                : 0.000005                              #first cell height when factor=1
     le_firstcellheight_coeff        : 1
     te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
@@ -27,7 +27,7 @@ mesh:
     hk_ss_shift                     : 1
     vk_ps_shift                     : 1.3                                #LE and TE-Block Meshing
     vk_ss_shift                     : 1
-    cellwidthcoeff                  : 0.0005                                #cell width-coeff at LT and TE (stagnation-point-flow)
+    cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.35                                   #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.8                                  #move high-y-per-block along y-pitch
