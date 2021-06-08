@@ -6,19 +6,19 @@ igg:
 geom:
     ptcloud_profile                 : "PointCloudBladeGeometry.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                   #m vs mm
-    beta_meta_01                    : 140                                   #Inflow angle [deg]
-    beta_meta_02                    : 93                                   #Outflow angle [deg]
+    beta_meta_01                    : 138                                   #Inflow angle [deg]
+    beta_meta_02                    : 91                                    #Outflow angle [deg]
     x_inlet                         : -0.14                                  #Shift Inlet along x [m]
     x_outlet                        : 0.32                                  #Shift Outlet along x [m]
     pitch                           : 0.1524                               #Pitch [m]
 
 mesh:
     factor                          : 1                                   #Mesh-density factor
-    ogrid_factor                    : 1.6                                   #o-grid-node-ratio
+    ogrid_factor                    : 1.2                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.000005                              #first cell height when factor=1
-    le_firstcellheight_coeff        : 1
-    te_firstcellheight_coeff        : 1
+    le_firstcellheight_coeff        : 0.5
+    te_firstcellheight_coeff        : 0.5
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 2                                     #fixed cells in boundary layer
     extrudeLength                   : 0.006                                  #length of extruded span

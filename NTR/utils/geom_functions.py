@@ -216,10 +216,9 @@ def sortProfilePoints(x, y, alpha=0.007):
     y_ps = y[:ind_hk-1] + y[ind_vk-1:]
     x_ps = x[:ind_hk-1] + x[ind_vk-1:]
 
-
     x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
+    x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
 
-    #x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
     return x_ss, y_ss, x_ps, y_ps
 
 
