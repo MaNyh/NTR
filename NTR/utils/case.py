@@ -30,7 +30,7 @@ class AbstractCase:
     def calc_gradients(self, meshname, arr_name):
         assert meshname in self.mesh_loaded_dict.keys(), "can't find mesh in mesh_loaded_dict. run set_mesh and load_mesh_dict"
         mesh = self.mesh_loaded_dict[meshname]
-        self.mesh_loaded_dict[meshname] = mesh_scalar_gradients(mesh,arr_name)
+        self.mesh_loaded_dict[meshname] = mesh_scalar_gradients(mesh, self.var_dict[arr_name])
 
 class CascadeCase(AbstractCase):
     def __init__(self, name, vartype):
@@ -40,6 +40,12 @@ class CascadeCase(AbstractCase):
         self.CascadeCoeffs = CascadeCoeffs()
 
         self.midspan_z = None
+        self.machine_type =None
+
+    def set_machine_type(self, mtype):
+        allowed = ["compressor", "turbine"]
+        assert mtype in allowed, "machine type not allowed. choose between compressor or turbine"
+        self.machine_type = mtype
 
     def set_x_pos(self, x_pos1, x_pos2):
 
@@ -61,6 +67,4 @@ class CascadeCase(AbstractCase):
             mesh = self.mesh_loaded_dict["fluid"]
             self.midspan_z = slice_midspan_z(mesh)
         return self.midspan_z
-
-
 

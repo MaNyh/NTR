@@ -3,6 +3,7 @@ from NTR.postprocessing.createProfileData import createProfileData
 
 
 case = CascadeCase("GWK_Verdichterkaskade_LES", "openfoam_timeaveraged")
+case.set_machine_type("compressor")
 case.set_casedir(".")
 
 case.set_mesh("fluid", "./VTK/06_GWKVD_155000.vtk")

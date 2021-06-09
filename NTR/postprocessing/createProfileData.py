@@ -5,7 +5,7 @@ import pyvista as pv
 import math
 
 from NTR.utils.geom_functions import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
-from NTR.utils.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, calcPos2ValuesByAmecke, calcCp
+from NTR.utils.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, calcPos2ValuesByAmecke, calcCp_casewrap
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.functions import absvec_array
 from NTR.utils.simFunctions import sort_value2, sort_value3
@@ -69,8 +69,6 @@ def createProfileData(case):
     pt_2_y = []
 
 
-
-
     Ux_2_y = np.asarray(values[array_names.index('U')])[::, 0]
     Uy_2_y = np.asarray(values[array_names.index('U')])[::, 1]
 
@@ -91,7 +89,7 @@ def createProfileData(case):
     ma_is_amecke = Ma_is_x(case.FluidCoeffs.kappa, p2_amecke, pt2_amecke)
 
     x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps = calcProfileValues(
-        p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps)
+        p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1)
 
     def writeOutput(outpath):
 
@@ -155,7 +153,7 @@ def createProfileData(case):
     writeOutput(case.casedir)
 
 
-def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
+def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1):
 
     output_path = case.casedir
 
@@ -171,7 +169,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
 
     for i in range(len(x_ss)):
 
-        cp_ss.append(calcCp(p_ss[i], inte_p_tot1, case.FluidCoeffs.p_k))
+        cp_ss.append(calcCp_casewrap(p_ss[i], inte_p_tot1, case.FluidCoeffs.p_k, inte_mag_u1, inte_rho1, inte_p1, case))
         cp_max_ss.append((p_ss[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
         ma_is_x_ss.append(Ma_is_x(case.FluidCoeffs.kappa, p_ss[i], inte_p_tot1))
@@ -183,7 +181,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
     x_zu_l_ax_ps = []
 
     for i in range(len(x_ps)):
-        cp_ps.append(calcCp(p_ps[i], inte_p_tot1, case.FluidCoeffs.p_k))
+        cp_ps.append(calcCp_casewrap(p_ps[i], inte_p_tot1, case.FluidCoeffs.p_k, inte_mag_u1, inte_rho1, inte_p1, case))
         cp_max_ps.append((p_ps[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
         ma_is_x_ps.append(Ma_is_x(case.FluidCoeffs.kappa, p_ps[i], inte_p_tot1))

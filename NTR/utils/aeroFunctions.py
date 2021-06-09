@@ -21,12 +21,30 @@ def Ma_is_x(kappa, p, pt):
         y = 0.0
     return y
 
+# Druckbeiwert Wrapper
+def calcCp_casewrap(px, inte_p_tot1, p_k, inte_mag_u1, inte_rho1, inte_p1, case):
+    if case.machine_type=="compressor":
+        u1 = inte_mag_u1
+        px = px
+        p1 = inte_p1
+        rho1 = inte_rho1
+        return calcCp_compressor(px, p1, rho1, u1)
 
-# Druckbeiwert
-def calcCp(px, pt1, p2):
+    elif case.machine_type=="turbine":
+        px = px
+        p2 = p_k
+        pt1 = inte_p_tot1
+        return calcCp_compressor(px, pt1, p2)
+
+# Druckbeiwert Turbine
+def calcCp_turbine(px, pt1, p2):
     cp = (px - p2) / (pt1 - p2)
     return cp
 
+# Druckbeiwert Verdichter
+def calcCp_compressor(px, p1, rho1,u1):
+    cp = (px - p1) / (0.5*rho1*u1**2)
+    return cp
 
 # isentrope reynoldszahl
 def Re_is(k, R, l_chord, beta_s, Ma2th, pk, T1, Mag_U, cp, S):
