@@ -70,30 +70,30 @@ class FluidCoeffs:
 
     def set_As(self, As):
         """
-        :param As:??? [ ]
+        :param As:Sutherland coefficient [ ]
         :return: None
         saves value to object (self)
         """
         assert type(As) == float, "As needs to be a float"
         self.As = As
 
-    def set_l(self, l):
-        """
-        :param l:??? [ ]
-        :return: None
-        saves value to object (self)
-        """
-        assert type(l) == float, "l needs to be a float"
-        self.l = l
-
     def set_Ts(self, Ts):
         """
-        :param Ts:??? [ ]
+        :param Ts:Sutherland coefficient  [ ]
         :return: None
         saves value to object (self)
         """
         assert type(Ts) == float, "Ts needs to be a float"
         self.Ts = Ts
+
+    def set_l(self, l):
+        """
+        :param l:camber length [m]
+        :return: None
+        saves value to object (self)
+        """
+        assert type(l) == float, "l needs to be a float"
+        self.l = l
 
 class CascadeCoeffs:
     def __init__(self):

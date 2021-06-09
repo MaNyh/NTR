@@ -9,6 +9,8 @@ def load_mesh(path_to_mesh):
             mesh = pv.PolyData(path_to_mesh)
         except:
             print("error loading ", path_to_mesh)
+
+    print(mesh)
     return mesh
 
 def mesh_scalar_gradients(mesh,array_name):

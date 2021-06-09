@@ -18,9 +18,9 @@ def createProfileData(case):
 
     [value_names, [values_ss, values_ps]] = GetProfileValuesMidspan(case)
 
-    x_ss = list(values_ss[value_names.index('X')])[::-1]
-    y_ss = list(values_ss[value_names.index('Y')])[::-1]
-    p_ss = list(values_ss[value_names.index('p')])[::-1]
+    x_ss = list(values_ss[value_names.index('X')])#[::-1]
+    y_ss = list(values_ss[value_names.index('Y')])#[::-1]
+    p_ss = list(values_ss[value_names.index('p')])#[::-1]
 
     x_ps = list(values_ps[value_names.index('X')])
     y_ps = list(values_ps[value_names.index('Y')])
@@ -170,9 +170,6 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
     x_zu_l_ax_ss = []
 
     for i in range(len(x_ss)):
-        #            def calcCp(px,pt1,p2):
-        #                cp=(px-p2)/(pt1-p2)
-        #                return cp
 
         cp_ss.append(calcCp(p_ss[i], inte_p_tot1, case.FluidCoeffs.p_k))
         cp_max_ss.append((p_ss[i] - p_te) / (p_max - p_te))
@@ -191,6 +188,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps):
         x_zu_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
         ma_is_x_ps.append(Ma_is_x(case.FluidCoeffs.kappa, p_ps[i], inte_p_tot1))
 
+    #ACHTUNG, ps wird gedreht, weil calcConcaveHull im mathematischem Drehsinn die
     cp = cp_ss + cp_ps[::-1]
     cp_max = cp_max_ss + cp_max_ps[::-1]
     x_zu_l_ax = x_zu_l_ax_ss + x_zu_l_ax_ps[::-1]
@@ -237,17 +235,17 @@ def calcPostSliceValues(case, x, ind):
         xx[ii] = pt[0]
         zz[ii] = pt[2]
 
-    mag_u_array = absvec_array(cut_plane.point_arrays["U"])
+    mag_u_array = absvec_array(cut_plane.point_arrays[case.var_dict["U"]])
 
     nvls = len(mag_u_array)
 
-    ux_array = cut_plane.point_arrays["U"][::, 0]
-    uy_array = cut_plane.point_arrays["U"][::, 1]
-    uz_array = cut_plane.point_arrays["U"][::, 2]
+    ux_array = cut_plane.point_arrays[case.var_dict["U"]][::, 0]
+    uy_array = cut_plane.point_arrays[case.var_dict["U"]][::, 1]
+    uz_array = cut_plane.point_arrays[case.var_dict["U"]][::, 2]
 
-    rho_array = cut_plane.point_arrays['rho']
-    T_array = cut_plane.point_arrays['T']
-    p_array = cut_plane.point_arrays['p']
+    rho_array = cut_plane.point_arrays[case.var_dict["rho"]]
+    T_array = cut_plane.point_arrays[case.var_dict["T"]]
+    p_array = cut_plane.point_arrays[case.var_dict["p"]]
 
     mag_u = []
 

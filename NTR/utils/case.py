@@ -1,16 +1,19 @@
 import os
-import pyvista as pv
 
 from NTR.utils.coefficients import FluidCoeffs, CascadeCoeffs
 from NTR.utils.pyvista_utils import slice_midspan_z, load_mesh, mesh_scalar_gradients
+from NTR.utils.solver_variable_dicts import solver_var_dicts
+
 
 class AbstractCase:
-    def __init__(self, name):
+    def __init__(self, name, vartype):
         self.name = name
         self.casedir = None
         self.mesh_dict = {}
         self.mesh_loaded_dict = {}
         self.FluidCoeffs = FluidCoeffs()
+
+        self.var_dict = solver_var_dicts[vartype]
 
     def set_casedir(self,directory):
         assert os.path.isdir(directory), "not a directory"
@@ -21,7 +24,7 @@ class AbstractCase:
         self.mesh_dict[name] = abspath
 
     def load_mesh_dict(self):
-        for k,v in self.mesh_dict.items():
+        for k, v in self.mesh_dict.items():
             self.mesh_loaded_dict[k] = load_mesh(v)
 
     def calc_gradients(self, meshname, arr_name):
@@ -30,8 +33,8 @@ class AbstractCase:
         self.mesh_loaded_dict[meshname] = mesh_scalar_gradients(mesh,arr_name)
 
 class CascadeCase(AbstractCase):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, vartype):
+        super().__init__(name, vartype)
         self.x_pos = {"x_pos1": None,
                       "x_pos2": None}
         self.CascadeCoeffs = CascadeCoeffs()
@@ -43,6 +46,13 @@ class CascadeCase(AbstractCase):
         assert type(x_pos1) == float, "x_pos1 needs to be a float"
         assert type(x_pos2) == float, "x_pos2 needs to be a float"
 
+        bounds = self.mesh_loaded_dict["fluid"].bounds
+        x_1 = bounds[0]
+        x_2 = bounds[1]
+
+        assert x_pos1 > x_1, "x_pos1 out of fluid-domain-bounds"
+        assert x_pos2 < x_2, "x_pos1 out of fluid-domain-bounds"
+
         self.x_pos["x_pos1"] = x_pos1
         self.x_pos["x_pos2"] = x_pos2
 
@@ -51,3 +61,6 @@ class CascadeCase(AbstractCase):
             mesh = self.mesh_loaded_dict["fluid"]
             self.midspan_z = slice_midspan_z(mesh)
         return self.midspan_z
+
+
+

@@ -224,7 +224,7 @@ def sortProfilePoints(x, y, alpha=0.007):
 
 def rotate_points(origin, x, y, angle):
     """
-    Rotate a point counterclockwise (rotation around z-axis) by a given angle around a given origin.
+    Rotate points counterclockwise (rotation around z-axis) by a given angle around a given origin.
     """
 
     angle = angle * (math.pi / 180.0)
@@ -625,13 +625,13 @@ def GetProfileValuesMidspan(case):
     wall_shear_stress_explike_ss = []
     wall_shear_stress_explike_ps = []
 
-    #normals_ss = np.asarray([midspan_slice.cell_normals[i] for i in indexes_ss])
-    normals_ps = np.asarray([midspan_slice.cell_normals[i] for i in indexes_ps])
+    normals_ps = np.asarray([geo.cell_normals[i] for i in indexes_ps])
 
-    cells_ps = midspan_slice.extract_cells(indexes_ps)
-    cells_ss = midspan_slice.extract_cells(indexes_ss)
+    ###FEHLER ÜBERPRÜFEN
+    cells_ps = geo.extract_cells(indexes_ps)
+    cells_ss = geo.extract_cells(indexes_ss)
 
-    for i in midspan_slice.array_names:
+    for i in geo.array_names:
         values_ss.append(cells_ss[i])
         values_ps.append(cells_ps[i])
         value_names.append(i)
@@ -662,13 +662,13 @@ def GetProfileValuesMidspan(case):
                                                                     [face_normal_delta_y], -90.0)
         face_normal = np.array([face_normal_delta_x, face_normal_delta_y, 0])
         face_normal = face_normal / np.linalg.norm(face_normal)
-        rho = values_ss[value_names.index('rhoMean')][i]
+        rho = values_ss[value_names.index('rho')][i]
 
         if 'nu' not in value_names:
-            nu = Sutherland_Law(values_ss[value_names.index('TMean')][i])
+            nu = Sutherland_Law(values_ss[value_names.index('T')][i])
         else:
-            nu = values_ss[value_names.index('nuMean')][i]
-        p = values_ss[value_names.index('pMean')][i]
+            nu = values_ss[value_names.index('nu')][i]
+        p = values_ss[value_names.index('p')][i]
 
 
         wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal, rho, nu, p)
@@ -696,10 +696,10 @@ def GetProfileValuesMidspan(case):
         rho = values_ps[value_names.index('rho')][i]
 
         if 'nu' not in value_names:
-            nu = Sutherland_Law(values_ps[value_names.index('TMean')][i])
+            nu = Sutherland_Law(values_ps[value_names.index('T')][i])
         else:
-            nu = values_ps[value_names.index('nuMean')][i]
-        p = values_ps[value_names.index('pMean')][i]
+            nu = values_ps[value_names.index('nu')][i]
+        p = values_ps[value_names.index('p')][i]
 
         wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal,
                                                     rho, nu, p)
