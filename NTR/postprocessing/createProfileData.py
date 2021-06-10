@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-import pyvista as pv
 import math
 
 from NTR.utils.geom_functions import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete

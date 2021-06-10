@@ -21,30 +21,34 @@ def Ma_is_x(kappa, p, pt):
         y = 0.0
     return y
 
+
 # Druckbeiwert Wrapper
 def calcCp_casewrap(px, inte_p_tot1, p_k, inte_mag_u1, inte_rho1, inte_p1, case):
-    if case.machine_type=="compressor":
+    if case.machine_type == "compressor":
         u1 = inte_mag_u1
         px = px
         p1 = inte_p1
         rho1 = inte_rho1
         return calcCp_compressor(px, p1, rho1, u1)
 
-    elif case.machine_type=="turbine":
+    elif case.machine_type == "turbine":
         px = px
         p2 = p_k
         pt1 = inte_p_tot1
         return calcCp_compressor(px, pt1, p2)
+
 
 # Druckbeiwert Turbine
 def calcCp_turbine(px, pt1, p2):
     cp = (px - p2) / (pt1 - p2)
     return cp
 
+
 # Druckbeiwert Verdichter
-def calcCp_compressor(px, p1, rho1,u1):
-    cp = (px - p1) / (0.5*rho1*u1**2)
+def calcCp_compressor(px, p1, rho1, u1):
+    cp = (px - p1) / (0.5 * rho1 * u1 ** 2)
     return cp
+
 
 # isentrope reynoldszahl
 def Re_is(k, R, l_chord, beta_s, Ma2th, pk, T1, Mag_U, cp, S):
@@ -255,10 +259,10 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
     def calcMa2(kappa, I1, I2, I3):
 
         ma = np.sqrt(((kappa + 1.0) / 2.0) ** (2.0 / (kappa - 1.0)) * (I2 ** 2.0 / I1 ** 2) * (
-                0.5 - (2.0 / (kappa + 1.0)) ** (2.0 / (kappa - 1)) * (I1 ** 2 / I2 ** 2) + (
-                    (kappa + 1.0) / (2.0 * kappa)) * (I3 ** 2 / I2 ** 2) -
-                np.sqrt(0.25 - (2.0 / (kappa + 1.0)) ** (2.0 / (kappa - 1)) * (I1 ** 2 / I2 ** 2) + (
-                        (kappa ** 2 - 1.0) / (4.0 * kappa ** 2)) * (I3 ** 2 / I2 ** 2))))
+            0.5 - (2.0 / (kappa + 1.0)) ** (2.0 / (kappa - 1)) * (I1 ** 2 / I2 ** 2) + (
+            (kappa + 1.0) / (2.0 * kappa)) * (I3 ** 2 / I2 ** 2) -
+            np.sqrt(0.25 - (2.0 / (kappa + 1.0)) ** (2.0 / (kappa - 1)) * (I1 ** 2 / I2 ** 2) + (
+                (kappa ** 2 - 1.0) / (4.0 * kappa ** 2)) * (I3 ** 2 / I2 ** 2))))
 
         return ma
 
@@ -320,6 +324,3 @@ def estimateBP(Re_2th_soll, Ma_2th_soll, l_chord, Tt1, pt1, pk, R=287.058, beta_
         q2th *= 1.0 + max(-0.2, min(0.2, 0.5 * (Ma_2th_soll - Ma2th) / Ma_2th_soll))
 
         pt1 = pk + q2th
-
-
-

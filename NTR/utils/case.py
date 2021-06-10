@@ -68,3 +68,4 @@ class CascadeCase(AbstractCase):
             self.midspan_z = slice_midspan_z(mesh)
         return self.midspan_z
 
+case_types = {"CascadeCase" : CascadeCase}
