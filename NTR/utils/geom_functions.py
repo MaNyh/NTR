@@ -203,22 +203,85 @@ def calcConcaveHull(x, y, alpha):
 
     return x_new, y_new
 
+def sortProfilePoints_meshing(x, y, alpha=0.007):
 
-def sortProfilePoints(x, y, alpha=0.007):
     x, y = calcConcaveHull(x, y, alpha=alpha)
+
+    ind_vk = x.index(min(x))
+
+    x_by_vk = None
+    y_by_vk = None
+
+    if ind_vk != 0:
+
+        if y[ind_vk] < y[ind_vk - 1]:
+            x_by_vk = x[ind_vk:] + x[:ind_vk + 1]
+            y_by_vk = y[ind_vk:] + y[:ind_vk + 1]
+
+        else:
+            x_by_vk = x[ind_vk:] + x[:ind_vk + 1]
+            y_by_vk = y[ind_vk:] + y[:ind_vk + 1]
+
+    else:
+
+        if y[ind_vk] > y[ind_vk + 1]:
+            x_by_vk = x_by_vk[::-1]
+            y_by_vk = y_by_vk[::-1]
+
+    ind_hk = x_by_vk.index(max(x_by_vk))
+
+    x_ss = []
+    y_ss = []
+
+    x_ps = []
+    y_ps = []
+
+    for i in range(len(x_by_vk)):
+
+        if i <= ind_hk:
+            x_ss.append(x_by_vk[i])
+            y_ss.append(y_by_vk[i])
+        else:
+            x_ps.append(x_by_vk[i])
+            y_ps.append(y_by_vk[i])
+
+    if y_ss[1] < y_ss[0]:
+        x = list(x_ss)
+        y = list(y_ss)
+
+        x_ss = list(x_ps)
+        y_ss = list(y_ps)
+
+        x_ps = x
+        y_ps = y
+
+    return x_ss, y_ss, x_ps, y_ps
+
+def sortProfilePoints(x, y, alpha):
+    x, y = calcConcaveHull(x, y, alpha=alpha)
+
 
     ind_vk = x.index(min(x))
     ind_hk = x.index(max(x))
 
-    x_ss = x[ind_hk:ind_vk]
-    y_ss = y[ind_hk:ind_vk]
+    begin = min([ind_hk, ind_vk])
+    end = max([ind_hk, ind_vk])
 
-    y_ps = y[:ind_hk-1] + y[ind_vk-1:]
-    x_ps = x[:ind_hk-1] + x[ind_vk-1:]
+    if ind_hk<ind_vk:
+        x_ss = x[begin:end]
+        y_ss = y[begin:end]
+
+        y_ps = y[:begin-1] + y[end-1:]
+        x_ps = x[:begin-1] + x[end-1:]
+    else:
+        x_ps = x[begin:end]
+        y_ps = y[begin:end]
+
+        y_ss = y[:begin - 1] + y[end - 1:]
+        x_ss = x[:begin - 1] + x[end - 1:]
 
     x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
     x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
-
     return x_ss, y_ss, x_ps, y_ps
 
 

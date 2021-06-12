@@ -14,7 +14,7 @@ post_process_settings:
         scalar : "U"
     set_xs:
         set_x1: -0.08
-        set_x2 : 0.02
+        set_x2 : 0.2
     alpha : 0.01
 
 fluid_coeffs:

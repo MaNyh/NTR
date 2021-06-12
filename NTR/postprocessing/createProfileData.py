@@ -151,6 +151,8 @@ def createProfileData(case):
 
     writeOutput(case.casedir)
 
+    return x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps
+
 
 def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1):
 
