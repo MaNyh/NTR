@@ -357,5 +357,5 @@ extrude_to_3d()
 set_patches()
 
 os.chdir(case_path)
-save_project("mesh.igg")
-export_FLUENT("fluent.msh")
+save_project("igg_mesh/mesh.igg")
+export_FLUENT("igg_mesh/fluent.msh")

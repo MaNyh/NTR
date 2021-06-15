@@ -1,0 +1,91 @@
+
+/*--------------------------------*- C++ -*----------------------------------*
+| =========                 |                                                 |
+| \	    /  F ield         | OpenFOAM: The Open Source CFD Toolbox         |
+|  \    /   O peration     | Version:  v1612+                                 |
+|   \  /    A nd           | Web:	www.OpenFOAM.com                      |
+|    \/     M anipulation  |                                                  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format	ascii;
+    class	volVectorField;
+    location    "0";
+    object	U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions	[0 1 -1 0 0 0 0];
+
+internalField   uniform (__UINLET__);
+
+
+boundaryField
+{
+    INLET
+    {
+        type            turbulentDFSEMWaveTransmissiveInletMod;
+        boxScale        1;
+        d               __EDDYDENSITY__;
+        coeffWakeU      (0 0 0);
+        coeffWakeV      (0 0 0);
+        nCellPerEddy    2;
+        lastUPrime      uniform (1.6e-6 1e-06 1e-06);
+        gamma           1.4;
+        lInf            0.01;
+        coeffU          3{0};
+        coeffV          3{0};
+        y_min           0;
+        y_max           1;
+        relax           0.0001;
+        qMean           nonuniform List<vector> 8((1.233578702757433 1.070912719501431 1.097432657292661) (1.019663770579676 1.150581423282862 1.094902837580325) (0.7636538747884688 0.877682703692946 1.134906858344234) (0.8255211472661437 1.099688972707473 0.9082249035783331) (0.8662606049759966 1.125423329440396 1.04526981767918) (0.7520845644378562 0.861554343959908 1.1393895262143) (0.7806366092358478 1.004957456888501 1.065316779053039) (1 1 1));
+        R               uniform (__RINLET__);
+        L               uniform __LINLET__;
+        U               uniform (__UINLET__);
+        mapMethod       nearestCell;
+        value 		    uniform (__UINLET__);
+        fieldInf        uniform (__UINLET__);
+    }
+
+    OUTLET
+    {
+     	type            waveTransmissive;
+        gamma           1.4;
+        value           uniform (35.392445 0   0.   ); //startwert only
+     
+    }
+
+    BLADE
+    {
+     	type            noSlip;
+    }
+ 
+    Z_lower
+    {
+        type            cyclic;
+    }
+
+    Z_upper
+    {
+        type            cyclic;
+    }
+
+    Y_lower
+    {
+        type            cyclic;
+    }
+
+    Y_upper
+    {
+        type            cyclic;
+    }
+
+
+
+
+}
+
+
+// ************************************************************************* //

@@ -3,7 +3,6 @@ import os
 from NTR.utils.case import case_types
 from NTR.utils.functions import yaml_dict_read
 
-
 def case_from_dict(case_yml):
     case_dict = yaml_dict_read(case_yml)
     case_dir = os.path.abspath(os.path.dirname(case_yml))
@@ -12,9 +11,10 @@ def case_from_dict(case_yml):
     if "case_settings" in sets:
         name = case_dict["case_settings"]["name"]
         ctype = case_dict["case_settings"]["case_type"]
+        stype = case_dict["case_settings"]["sim_type"]
         vtype = case_dict["case_settings"]["var_type"]
         mtype = case_dict["case_settings"]["machine_type"]
-        case = case_types[ctype](name, vtype)
+        case = case_types[ctype](name, vtype, stype)
         case.set_casedir(case_dir)
         case.set_machine_type(mtype)
 

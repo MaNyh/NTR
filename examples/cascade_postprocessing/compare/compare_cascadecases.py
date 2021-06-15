@@ -13,7 +13,7 @@ plt.plot(x_zu_l_ax_ps, cp_ps)
 
 os.chdir(thispath)
 
-les_case = case_from_dict("../gwk_verdichterkaskade_les/gwk_verdichtercascade_LES.yml")
+les_case = case_from_dict("../gwk_verdichterkaskade_les_probecreation/gwk_verdichtercascade_LES.yml")
 x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps = createProfileData(les_case)
 plt.plot(x_zu_l_ax_ss, cp_ss)
 plt.plot(x_zu_l_ax_ps, cp_ps)

@@ -6,13 +6,14 @@ from NTR.utils.solver_variable_dicts import solver_var_dicts
 
 
 class AbstractCase:
-    def __init__(self, name, vartype):
+    def __init__(self, name, vartype, simtype):
         self.name = name
         self.casedir = None
         self.mesh_dict = {}
         self.mesh_loaded_dict = {}
         self.FluidCoeffs = FluidCoeffs()
 
+        self.sim_type = simtype
         self.var_dict = solver_var_dicts[vartype]
 
     def set_casedir(self,directory):
@@ -33,14 +34,15 @@ class AbstractCase:
         self.mesh_loaded_dict[meshname] = mesh_scalar_gradients(mesh, self.var_dict[arr_name])
 
 class CascadeCase(AbstractCase):
-    def __init__(self, name, vartype):
-        super().__init__(name, vartype)
+    def __init__(self, name, vartype, simtype):
+        super().__init__(name, vartype, simtype)
         self.x_pos = {"x_pos1": None,
                       "x_pos2": None}
         self.CascadeCoeffs = CascadeCoeffs()
 
         self.midspan_z = None
-        self.machine_type =None
+        self.machine_type = None
+
 
     def set_machine_type(self, mtype):
         allowed = ["compressor", "turbine"]

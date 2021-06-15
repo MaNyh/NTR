@@ -6,8 +6,8 @@ case = CascadeCase("GWK_Verdichterkaskade_LES", "openfoam_timeaveraged")
 case.set_machine_type("compressor")
 case.set_casedir(".")
 
-case.set_mesh("fluid", "./VTK/06_GWKVD_155000.vtk")
-case.set_mesh("blade", "./VTK/BLADE/BLADE_155000.vtk")
+case.set_mesh("fluid", "./VTK/06_GWKVD_317000.vtk")
+case.set_mesh("blade", "./VTK/BLADE/BLADE_317000.vtk")
 case.load_mesh_dict()
 
 case.calc_gradients("fluid", "U")
