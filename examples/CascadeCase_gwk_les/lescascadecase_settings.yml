@@ -14,7 +14,9 @@ case_parameters:
   thermophysicalProperties:
   turbulenceProperties:
   controlDict:
-    DELTAT : "8e-8"
+    WRITEINTERVAL : "2000"
+    DELTAT : "5e-8"
+    ADUSTABLETIMESTEP : "on"
     STARTAVETIME : "0.045"
   createPatchDict:
   decomposeParDict:
@@ -25,4 +27,8 @@ case_parameters:
   SurfaceSampleDict:
   topoSetDict:
 
+  submit_job_hlrn.sh:
+      RUNTIME : "05:00:00"
+      NODES: "4"
+      PROCS: "384"
   monitor.py:

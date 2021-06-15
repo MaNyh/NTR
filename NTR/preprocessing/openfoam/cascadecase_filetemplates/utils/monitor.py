@@ -19,12 +19,13 @@ def get_timeseries(file):
 
 
 def plot():
-    inlet_maindir = os.path.join("postProcessing", 'flowRatePatch(name=INLET)')
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    inlet_maindir = os.path.join(basedir, "..", "postProcessing", 'flowRatePatch(name=INLET)')
     inlet_massflow_dirs = os.listdir(inlet_maindir)
     inlet_dir = os.listdir(os.path.join(inlet_maindir, inlet_massflow_dirs[-1]))
     inlet_file = os.path.join(inlet_maindir, inlet_massflow_dirs[-1], inlet_dir[-1])
 
-    outlet_maindir = os.path.join("postProcessing", 'flowRatePatch(name=OUTLET)')
+    outlet_maindir = os.path.join(basedir, "..", "postProcessing", 'flowRatePatch(name=OUTLET)')
     outlet_massflow_dirs = os.listdir(outlet_maindir)
     outlet_dir = os.listdir(os.path.join(outlet_maindir, outlet_massflow_dirs[-1]))
     outlet_file = os.path.join(outlet_maindir, outlet_massflow_dirs[-1], outlet_dir[-1])
@@ -46,7 +47,7 @@ def plot():
     axs[0].plot(outlet_x, outlet_y, label="outlet")
     axs[0].legend()
 
-    residuals_maindir = os.path.join("postProcessing", "residuals")
+    residuals_maindir = os.path.join(basedir,"..", "postProcessing", "residuals")
     residuals_subdirs = os.listdir(residuals_maindir)
     res_dir = os.listdir(os.path.join(residuals_maindir, residuals_subdirs[-1]))
     res_file = os.path.join(residuals_maindir, residuals_subdirs[-1], res_dir[-1])
@@ -58,19 +59,30 @@ def plot():
     axs[1].set_ylabel('residuals')
     axs[1].legend()
 
-    ypblade_maindir = os.path.join("postProcessing", "yPlusBlade")
-    ypblade_subdirs = os.listdir(ypblade_maindir)
-    ypb_dir = os.listdir(os.path.join(ypblade_maindir, ypblade_subdirs[-1]))
-    ypb_file = os.path.join(ypblade_maindir, ypblade_subdirs[-1], ypb_dir[-1])
+    inlet_turb_maindir = os.path.join(basedir, "..", "postProcessing", 'flowRatePatch(name=INLET)')
+    inlet_turb_massflow_dirs = os.listdir(inlet_turb_maindir)
+    inlet_turb_dir = os.listdir(os.path.join(inlet_turb_maindir, inlet_turb_massflow_dirs[-1]))
+    inlet_turb_file = os.path.join(inlet_turb_maindir, inlet_turb_massflow_dirs[-1], inlet_turb_dir[-1])
 
-    ypb_times, yplusblade = get_timeseries(ypb_file)
-    axs[2].plot(ypb_times, yplusblade,label="yplus blade")
+    outlet_turb_maindir = os.path.join(basedir, "..", "postProcessing", 'flowRatePatch(name=OUTLET)')
+    outlet_turb_massflow_dirs = os.listdir(outlet_turb_maindir)
+    outlet_turb_dir = os.listdir(os.path.join(outlet_turb_maindir, outlet_turb_massflow_dirs[-1]))
+    outlet_turb_file = os.path.join(outlet_turb_maindir, outlet_turb_massflow_dirs[-1], outlet_turb_dir[-1])
 
-    axs[2].set_xlabel('time')
-    axs[2].set_ylabel('yPlus BLADE')
+    inlet_turb_times, inlet_turb_massflows = get_timeseries(inlet_turb_file)
+    outlet_turb_times, outlet_turb_massflows = get_timeseries(outlet_turb_file)
+
+    slicer = 1
+    fig, axs = plt.subplots(3, 1)
+    inlet_x = inlet_turb_times[::slicer]
+    inlet_y = inlet_turb_massflows[::slicer]
+    axs[2].plot(inlet_x, inlet_y, label="inlet")
+    outlet_x = outlet_turb_times[::slicer]
+    outlet_y = outlet_turb_massflows[::slicer]
+    #axs[0].set_xlabel('time')
+    axs[2].set_ylabel('tke')
+    axs[2].plot(outlet_x, outlet_y, label="outlet")
     axs[2].legend()
-
-
 
 
     plt.show()
