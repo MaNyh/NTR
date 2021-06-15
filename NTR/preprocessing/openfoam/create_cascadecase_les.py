@@ -30,13 +30,15 @@ def create_files(casepath,settings):
             if filesettings:
                 for key, value in filesettings.items():
                     template_content = template_content.replace("__"+key+"__", value)
-            with open(os.path.join(casepath, directory, file), "w") as fobj:
+            with open(os.path.join(casepath, directory, file), "w", newline='\n') as fobj:
                 fobj.writelines(template_content)
 
 
 def create_main_directories(casepath, directories):
-    os.mkdir(casepath)
+    if not os.path.isdir(casepath):
+        os.mkdir(casepath)
     for d in directories:
-        os.mkdir(os.path.join(casepath, d))
+        if not os.path.isdir(os.path.join(casepath, d)):
+            os.mkdir(os.path.join(casepath, d))
 
 

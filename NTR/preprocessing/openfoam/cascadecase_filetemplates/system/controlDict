@@ -21,12 +21,11 @@ startFrom       latestTime;
 
 startTime       __DELTAT__;
 
-//stopAt        writeNow;
 stopAt		    endTime;
 
-endTime         0.6;
+endTime         10;
 
-deltaT          __DELTAT__;//
+deltaT          __DELTAT__;
 
 writeControl    timeStep;
 
@@ -34,7 +33,7 @@ writeInterval   __WRITEINTERVAL__;
 
 purgeWrite      3;
 
-writeFormat     binary;
+writeFormat     ascii;
 
 writePrecision  16;
 
@@ -46,7 +45,7 @@ timePrecision   16;
 
 runTimeModifiable true;
 
-adjustTimeStep  off;
+adjustTimeStep  __ADUSTABLETIMESTEP__;
 
 maxCo           0.4; //maximale courant number
 
@@ -66,25 +65,41 @@ functions
     #includeFunc  flowRatePatch(name=OUTLET)
     #includeFunc residuals
 
-    yPlusBlade
+
+    turbulence_inletoutlet_probes
     {
-    type    yPlus;
-    libs ("libfieldFunctionObjects.so");
-    result BLADE;
-    writeControl    timeStep;
-    writeInterval   100;
+
+     	type            probes;
+        libs            ("libsampling.so");
+
+        enabled         true;
+        log             true;
+        timeStart       0;
+        timeEnd         1000;
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields     off;
+        fields (
+                    U
+                );
+
+        probeLocations
+        (
+            ( 0.2187783122062683 0.1199941337108612 0.019999999552965164)
+            ( -0.08754055 -0.08607642  0.01960784)
+        );
     }
 
     outlet_scalarfields
     {
-        type            surfaceRegion;
+        type            surfaceFieldValue;
         libs            ("libfieldFunctionObjects.so");
         enabled         true;
         log             true;
         valueOutput     false;
-        timeStart       1;
+        timeStart       0;
         writeControl    timeStep;
-        writeInterval    1;
+        writeInterval   1;
         writeFields     off;
         regionType      patch;
         name            OUTLET;
@@ -92,22 +107,20 @@ functions
         operation       areaAverage;
         fields
         (
-        total(p)
-        p
-        T
-        total(T)
+            p
+            T
         );
     }
     inlet_scalarfields
     {
-        type            surfaceRegion;
+        type            surfaceFieldValue;
         libs            ("libfieldFunctionObjects.so");
         enabled         true;
         log             true;
         valueOutput     false;
-        timeStart       1;
+        timeStart       0;
         writeControl    timeStep;
-        writeInterval    1;
+        writeInterval   1;
         writeFields     off;
         regionType      patch;
         name            INLET;
@@ -115,10 +128,8 @@ functions
         operation       areaAverage;
         fields
         (
-        total(p)
-        p
-        T
-        total(T)
+            p
+            T
         );
     }
 
@@ -127,7 +138,6 @@ functions
     {
 
         type        			    surfaces;
-        //    writeControl              	writeTime;
         interpolationScheme 		cellPoint;
         functionObjectLibs 			( "libsampling.so" );
         enabled         			false;
@@ -167,12 +177,14 @@ functions
 
         fields
         (
+        /*
           wallShearStress
           {
             mean true;
             prime2Mean false;
             base time;
           }
+         */
           rho
           {
             mean true;
@@ -210,11 +222,8 @@ functions
              prime2Mean	true;
              base 	time;
 	      }
-      
 	    );
     }
-
-
 }
 
 // ************************************************************************* //

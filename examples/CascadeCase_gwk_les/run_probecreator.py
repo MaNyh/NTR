@@ -11,5 +11,5 @@ case.load_mesh_dict()
 
 case.CascadeCoeffs.set_alpha(0.01)
 
-createProbesProfileDict(case, 4, 1, 1, ".", tolerance=1e-6)
+createProbesProfileDict(case, 20, 20, 1, ".", tolerance=1e-6)
 createProbesStreamlineDict(case, 20, ".", 1, 135, 115, 0.0765)

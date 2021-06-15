@@ -8,11 +8,28 @@ def readtxtfile(path_to_file):
     return "".join(content)
 
 
-file_templates = {"0": ["alphat", "nut", "p", "T", "U"],
-                  "constant": ["thermophysicalProperties", "turbulenceProperties"],
-                  "system": ["controlDict", "createPatchDict", "decomposeParDict", "fvSchemes", "fvSolution",
-                             "mapFieldsDict", "SurfaceSampleDict", "topoSetDict"],
-                  "utils": ["monitor.py"]
+file_templates = {"0": ["alphat",
+                        "nut",
+                        "p",
+                        "T",
+                        "U"],
+
+                  "constant": ["thermophysicalProperties",
+                               "turbulenceProperties"],
+
+                  "system": ["controlDict",
+                             "createPatchDict",
+                             "decomposeParDict",
+                             "fvSchemes",
+                             "fvSolution",
+                             "mapFieldsDict",
+                             "SurfaceSampleDict",
+                             "topoSetDict"],
+
+                  "utils": ["monitor.py"],
+
+                  ".": ["submit_job_hlrn.sh"],
+
                   }
 
 
