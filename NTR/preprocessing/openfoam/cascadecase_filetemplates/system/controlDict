@@ -19,10 +19,10 @@ application     rhoPimpleFoam;
 
 startFrom       latestTime;
 
-startTime       1e-06;
+startTime       __DELTAT__;
 
-//stopAt          writeNow;
-stopAt		endTime;
+//stopAt        writeNow;
+stopAt		    endTime;
 
 endTime         0.6;
 
@@ -30,11 +30,11 @@ deltaT          __DELTAT__;//
 
 writeControl    timeStep;
 
-writeInterval   1000;
+writeInterval   __WRITEINTERVAL__;
 
 purgeWrite      3;
 
-writeFormat     ascii;
+writeFormat     binary;
 
 writePrecision  16;
 
@@ -46,7 +46,7 @@ timePrecision   16;
 
 runTimeModifiable true;
 
-adjustTimeStep  on;
+adjustTimeStep  off;
 
 maxCo           0.4; //maximale courant number
 
