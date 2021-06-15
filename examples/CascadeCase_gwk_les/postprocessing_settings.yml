@@ -2,11 +2,12 @@ case_settings:
     name : "GWK_Verdichterkaskade_LES"
     case_type : "CascadeCase"
     var_type : "openfoam_timeaveraged"
+    sim_type : "hahaha"
     machine_type : "compressor"
 
 mesh_dict:
-    fluid : "./VTK/06_GWKVD_317000.vtk"
-    blade : "./VTK/BLADE/BLADE_317000.vtk"
+    fluid : "./vtk_results/VTK/06_GWKVD_317000.vtk"
+    blade : "./vtk_results/VTK/BLADE/BLADE_317000.vtk"
 
 post_process_settings:
     calc_gradients :
