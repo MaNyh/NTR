@@ -26,7 +26,8 @@ def run_igg_meshfuncs(settings_yaml):
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
     meshpath = os.path.join(case_path, "igg_mesh")
-    os.mkdir(meshpath)
+    if not os.path.isdir(meshpath):
+        os.mkdir(meshpath)
     print(os.path.abspath(case_path))
 
     print("create_geometry")

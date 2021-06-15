@@ -4,7 +4,7 @@ igg:
     argument_pickle_dict            : "igg_args.pkl"
 
 geom:
-    ptcloud_profile                 : "profile_pointcloud.txt"              #Name of the pointcloud-file
+    ptcloud_profile                 : "ressources/profile_pointcloud.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "m"                                    #m vs mm
     beta_meta_01                    : 120                                   #Inflow angle [deg]
     beta_meta_02                    : 25                                   #Outflow angle [deg]
