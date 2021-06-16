@@ -13,7 +13,7 @@ geom:
     pitch                           : 0.0765                                #Pitch [m]
 
 mesh:
-    factor                          : 1.4                                   #Mesh-density factor
+    factor                          : 1.45                                   #Mesh-density factor
     ogrid_factor                    : 2                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000035                             #first cell height when factor=1

@@ -65,7 +65,8 @@ functions
     #includeFunc  flowRatePatch(name=OUTLET)
     #includeFunc residuals
 
-    outlet_turbulence_probe
+
+    turbulence_inletoutlet_probes
     {
 
      	type            probes;
@@ -79,41 +80,14 @@ functions
         writeInterval   1;
         writeFields     off;
         fields (
-                    U {
-                        mean on;
-                        prime2Mean on;
-                        base time;
-                    }
+                    U
                 );
+
         probeLocations
         (
-        (0.2187783122062683 0.1199941337108612 0.019999999552965164)
-        )
-    }
-    inlet_turbulence_probe
-    {
-
-     	type            probes;
-        libs            ("libsampling.so");
-
-        enabled         true;
-        log             true;
-        timeStart       0;
-        timeEnd         1000;
-        writeControl    timeStep;
-        writeInterval   1;
-        writeFields     off;
-        fields (
-                    U {
-                        mean on;
-                        prime2Mean on;
-                        base time;
-                    }
-                );
-        probeLocations
-        (
-        (-0.08818254619836807 -0.08679172396659851 0.019999999552965164)
-        )
+            ( 0.2187783122062683 0.1199941337108612 0.019999999552965164)
+            ( -0.08754055 -0.08607642  0.01960784)
+        );
     }
 
     outlet_scalarfields
@@ -124,10 +98,8 @@ functions
         log             true;
         valueOutput     false;
         timeStart       0;
-        timeEnd         1000;
-
         writeControl    timeStep;
-        writeInterval    1;
+        writeInterval   1;
         writeFields     off;
         regionType      patch;
         name            OUTLET;
@@ -250,11 +222,8 @@ functions
              prime2Mean	true;
              base 	time;
 	      }
-
 	    );
     }
-
-
 }
 
 // ************************************************************************* //

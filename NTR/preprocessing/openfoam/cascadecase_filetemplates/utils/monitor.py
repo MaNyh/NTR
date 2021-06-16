@@ -19,6 +19,8 @@ def get_timeseries(file):
 
 
 def plot():
+    fig, axs = plt.subplots(3, 1)
+
     basedir = os.path.abspath(os.path.dirname(__file__))
     inlet_maindir = os.path.join(basedir, "..", "postProcessing", 'flowRatePatch(name=INLET)')
     inlet_massflow_dirs = os.listdir(inlet_maindir)
@@ -36,7 +38,7 @@ def plot():
     inlet_massflows = -inlet_massflows
 
     slicer = 1
-    fig, axs = plt.subplots(3, 1)
+
     inlet_x = inlet_times[::slicer]
     inlet_y = inlet_massflows[::slicer]
     axs[0].plot(inlet_x, inlet_y, label="inlet")
@@ -59,21 +61,19 @@ def plot():
     axs[1].set_ylabel('residuals')
     axs[1].legend()
 
-    inlet_turb_maindir = os.path.join(basedir, "..", "postProcessing", 'flowRatePatch(name=INLET)')
-    inlet_turb_massflow_dirs = os.listdir(inlet_turb_maindir)
-    inlet_turb_dir = os.listdir(os.path.join(inlet_turb_maindir, inlet_turb_massflow_dirs[-1]))
-    inlet_turb_file = os.path.join(inlet_turb_maindir, inlet_turb_massflow_dirs[-1], inlet_turb_dir[-1])
+    inlet_turb_maindir = os.path.join(basedir, "..", "postProcessing", 'inlet_turbulence_probe')
+    inlet_turb_probe_dirs = os.listdir(inlet_turb_maindir)
+    inlet_turb_dir = os.listdir(os.path.join(inlet_turb_maindir, inlet_turb_probe_dirs[-1]))
+    inlet_turb_file = os.path.join(inlet_turb_maindir, inlet_turb_probe_dirs[-1], inlet_turb_dir[-1])
 
-    outlet_turb_maindir = os.path.join(basedir, "..", "postProcessing", 'flowRatePatch(name=OUTLET)')
-    outlet_turb_massflow_dirs = os.listdir(outlet_turb_maindir)
-    outlet_turb_dir = os.listdir(os.path.join(outlet_turb_maindir, outlet_turb_massflow_dirs[-1]))
-    outlet_turb_file = os.path.join(outlet_turb_maindir, outlet_turb_massflow_dirs[-1], outlet_turb_dir[-1])
+    outlet_turb_maindir = os.path.join(basedir, "..", "postProcessing", 'outlet_turbulence_probe')
+    outlet_turb_probe_dirs = os.listdir(outlet_turb_maindir)
+    outlet_turb_dir = os.listdir(os.path.join(outlet_turb_maindir, outlet_turb_probe_dirs[-1]))
+    outlet_turb_file = os.path.join(outlet_turb_maindir, outlet_turb_probe_dirs[-1], outlet_turb_dir[-1])
 
     inlet_turb_times, inlet_turb_massflows = get_timeseries(inlet_turb_file)
     outlet_turb_times, outlet_turb_massflows = get_timeseries(outlet_turb_file)
 
-    slicer = 1
-    fig, axs = plt.subplots(3, 1)
     inlet_x = inlet_turb_times[::slicer]
     inlet_y = inlet_turb_massflows[::slicer]
     axs[2].plot(inlet_x, inlet_y, label="inlet")
