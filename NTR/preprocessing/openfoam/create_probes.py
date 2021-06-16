@@ -107,6 +107,17 @@ def createProbesProfileDict(case, pden_Probes_Profile_SS, pden_Probes_Profile_PS
 \t}""")
     data_file.close()
 
+    plt.close('all')
+    plt.figure(figsize=(8, 8))
+
+    plt.plot(x_bl_ss, y_bl_ss, 'xr', lw = 1, label = 'probes ss_profile')
+    plt.plot(x_bl_ps, y_bl_ps, 'xb', lw = 1, label = 'probes ss_profile')
+
+    plt.legend(loc='best')
+    plt.savefig(os.path.join(os.path.abspath(output_path), 'kontrollplot_probes_profile.pdf'))
+    plt.close('all')
+
+
 
 def createProbesStreamlineDict(case, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung):
