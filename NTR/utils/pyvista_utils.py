@@ -27,6 +27,6 @@ def slice_midspan_z(mesh):
     bounds = mesh.bounds
     midspan_z = (bounds[5]-bounds[4])/2
     slice = mesh.slice(normal="z",origin=(0,0,midspan_z))
-    return slice
+    return slice , midspan_z
 
 

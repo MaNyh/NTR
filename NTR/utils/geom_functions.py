@@ -1,11 +1,9 @@
 import math
 import numpy as np
-import pyvista as pv
 
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
 
-from NTR.utils.pyvista_utils import mesh_scalar_gradients, slice_midspan_z
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
@@ -51,6 +49,11 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     x_inlet, x_outlet = scalar - representing position x-component of in/outlet
     t = scalar pitch
     """
+    check_decreasing = np.diff(x_mcl) < 0
+    last_decreasing = max(np.where(check_decreasing)[0])
+    x_mcl = x_mcl[last_decreasing+1:]
+    y_mcl = y_mcl[last_decreasing+1:]
+
     spl = UnivariateSpline(x_mcl, y_mcl, k=5)
     deri_spl = spl.derivative()
 
@@ -351,10 +354,19 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
 
 def calcMeanCamberLine(x, y, beta1, beta2):
     # vk und hk bestimmen
-
+    """
     x, y = zip(*sorted(zip(x, y)))
 
     ind_vk, ind_hk = calc_vk_hk(x, y, beta1, beta2)
+
+    x_vk = x[ind_vk]
+    y_vk = y[ind_vk]
+
+    x_hk = x[ind_hk]
+    y_hk = y[ind_hk]
+    """
+    ind_vk = x.index(min(x))
+    ind_hk = x.index(max(x))
 
     x_vk = x[ind_vk]
     y_vk = y[ind_vk]
@@ -580,16 +592,14 @@ def getBoundaryValues(x_bounds, y_bounds):
 
 
 def getGeom2DVTUSLice2(case):
-    #mesh = pv.UnstructuredGrid(path_to_mesh)
-    #cut_plane_polydata = slice_midspan_z(mesh)
-    polyData = case.get_midspan_z()#cut_plane_polydata
-    bounds = case.mesh_loaded_dict["fluid"].bounds
-    midspan_z = (bounds[5]-bounds[4])/2
+    midspan_slice, midspan_z = case.get_midspan_z()
+    midspan_slice = midspan_slice.compute_normals()
+    geo = midspan_slice.extract_feature_edges()
 
-    # Boundary Edges / Zellen extrahieren
-    featureEdges = polyData.extract_feature_edges()
-    points_complete = featureEdges.points
-    points_bounds = np.array([featureEdges.extract_cells(i).bounds for i in range(len(featureEdges.points))])
+    #points_complete = alle punkte auf dem mittelschnitt mit domain
+    points_complete = midspan_slice.points
+
+    points_bounds = geo.points
 
     x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], case.CascadeCoeffs.alpha)
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
@@ -605,7 +615,7 @@ def getGeom2DVTUSLice2(case):
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-    return x_outer_bounds, y_outer_bounds, x_profil, y_profil, midspan_z
+    return x_outer_bounds, y_outer_bounds, x_profil, y_profil,  midspan_z
 
 
 def rotatePoints(origin, x, y, angle):
@@ -632,7 +642,7 @@ def rotatePoints(origin, x, y, angle):
 
 def GetProfileValuesMidspan(case):
 
-    midspan_slice = case.get_midspan_z()
+    midspan_slice , midspan_z= case.get_midspan_z()
     midspan_slice = midspan_slice.compute_normals()
     geo = midspan_slice.extract_feature_edges()
 

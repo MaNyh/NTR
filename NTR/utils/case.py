@@ -67,7 +67,7 @@ class CascadeCase(AbstractCase):
     def get_midspan_z(self):
         if not self.midspan_z:
             mesh = self.mesh_loaded_dict["fluid"]
-            self.midspan_z = slice_midspan_z(mesh)
-        return self.midspan_z
+            self.midspan_z, z = slice_midspan_z(mesh)
+        return self.midspan_z, z
 
 case_types = {"CascadeCase" : CascadeCase}
