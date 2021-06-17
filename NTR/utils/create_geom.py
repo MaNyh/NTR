@@ -3,7 +3,7 @@ from NTR.utils.geom_functions import sortProfilePoints_meshing, calcMidPoints, c
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 
 
-def create(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, pitch, unit):
+def create_geometry(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, pitch, unit, blade_shift):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -34,8 +34,8 @@ def create(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, p
     x_ss, y_ss = rotate_points([0, 0], x_ss, y_ss, +stagger_angle)
     x_ps, y_ps = rotate_points([0, 0], x_ps, y_ps, +stagger_angle)
     x_mids, y_mids = rotate_points([0, 0], x_mids, y_mids, +stagger_angle)
-    y_upper = np.array(y_mpsl)  # +0.05*pitch
+    y_upper = np.array(y_mpsl) + blade_shift # +0.05*pitch
     y_lower = y_upper - pitch
-    writeTecplot1DFile('geom.dat', ['x', 'z'], ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
+    writeTecplot1DFile('01_Meshing/geom.dat', ['x', 'z'], ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
                        [[x_ss, y_ss], [x_ps, y_ps], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mids, y_mids]],
                        'obere Kurvenverlauf des Kanals')

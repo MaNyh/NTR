@@ -1,12 +1,15 @@
 import math
 import numpy as np
+import pyvista as pv
 
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
+from scipy.spatial.distance import pdist, squareform
 
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
+from NTR.utils.pyvista_utils import slice_midspan_z
 
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
@@ -50,9 +53,11 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     t = scalar pitch
     """
     check_decreasing = np.diff(x_mcl) < 0
-    last_decreasing = max(np.where(check_decreasing)[0])
-    x_mcl = x_mcl[last_decreasing+1:]
-    y_mcl = y_mcl[last_decreasing+1:]
+    if any(check_decreasing):
+        last_decreasing = max(np.where(check_decreasing)[0])
+
+        x_mcl = x_mcl[last_decreasing+1:]
+        y_mcl = y_mcl[last_decreasing+1:]
 
     spl = UnivariateSpline(x_mcl, y_mcl, k=5)
     deri_spl = spl.derivative()
@@ -263,14 +268,12 @@ def sortProfilePoints_meshing(x, y, alpha=0.007):
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
 
-
-    ind_vk = x.index(min(x))
-    ind_hk = x.index(max(x))
+    ind_vk, ind_hk = calc_vk_hk(x, y)
 
     begin = min([ind_hk, ind_vk])
     end = max([ind_hk, ind_vk])
 
-    if ind_hk<ind_vk:
+    if ind_hk < ind_vk:
         x_ss = x[begin:end]
         y_ss = y[begin:end]
 
@@ -283,8 +286,9 @@ def sortProfilePoints(x, y, alpha):
         y_ss = y[:begin - 1] + y[end - 1:]
         x_ss = x[:begin - 1] + x[end - 1:]
 
-    x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
     x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
+    x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
+
     return x_ss, y_ss, x_ps, y_ps
 
 
@@ -310,63 +314,26 @@ def rotate_points(origin, x, y, angle):
     return new_x, new_y
 
 
-def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
-    # Vorderkante
+def calc_vk_hk(x_koords, y_koords):
+    A = np.dstack((x_koords,y_koords))[0]
+    D = squareform(pdist(A))
+    N = np.max(D)
+    I = np.argmax(D)
+    I_row, I_col = np.unravel_index(I,D.shape)
 
-    # Punkt bestimmen deutlich unterhalt der Vorderkante liegt
-    p01 = [min(x_koords) - (max(x_koords) - min(x_koords)), min(y_koords) - (max(x_koords) - min(x_koords))]
-
-    # Vektor bestimmen der Richtung des vorgegebenen Winkels der Vorderkante besitzt
-    vec_01 = [np.sin(np.deg2rad(180.0 - beta_01)) * 0.01, np.cos(np.deg2rad(180.0 - beta_01)) * 0.01]
-
-    # Vektor bestimmen der orthogonal dazu ist
-    vec_02 = [1, -vec_01[0] * 1 / vec_01[1]]
-
-    # alle Koords durchgehen
-    dists = []
-
-    betrag_vec_02 = np.sqrt(vec_02[0] ** 2 + vec_02[1] ** 2)
-    for i in range(len(y_koords)):
-        delta_x = x_koords[i] - p01[0]
-        delta_y = y_koords[i] - p01[1]
-        d = np.sqrt((vec_02[0] * delta_y - delta_x * vec_02[1]) ** 2) / betrag_vec_02
-        dists.append(d)
-
-    index_vk = np.argmin(dists)
-
-    # Hinterkante
-    p01 = [max(x_koords) + (max(x_koords) - min(x_koords)), min(y_koords) - (max(x_koords) - min(x_koords))]
-    vec_01 = [-np.sin(np.deg2rad(beta_02)) * 0.01, np.cos(np.deg2rad(beta_02)) * 0.01]
-    vec_02 = [1, -vec_01[0] * 1 / vec_01[1]]
-    dists = []
-
-    betrag_vec_02 = np.sqrt(vec_02[0] ** 2 + vec_02[1] ** 2)
-    for i in range(len(y_koords)):
-        delta_x = x_koords[i] - p01[0]
-        delta_y = y_koords[i] - p01[1]
-        d = np.sqrt((vec_02[0] * delta_y - delta_x * vec_02[1]) ** 2) / betrag_vec_02
-        dists.append(d)
-
-    index_hk = np.argmin(dists)
+    index_vk = I_row#x.index(min(x))
+    index_hk = I_col#x.index(max(x))
 
     return index_vk, index_hk
 
 
 def calcMeanCamberLine(x, y, beta1, beta2):
     # vk und hk bestimmen
-    """
-    x, y = zip(*sorted(zip(x, y)))
 
-    ind_vk, ind_hk = calc_vk_hk(x, y, beta1, beta2)
+    #x, y = zip(*sorted(zip(x, y)))
 
-    x_vk = x[ind_vk]
-    y_vk = y[ind_vk]
+    ind_vk, ind_hk = calc_vk_hk(x, y)
 
-    x_hk = x[ind_hk]
-    y_hk = y[ind_hk]
-    """
-    ind_vk = x.index(min(x))
-    ind_hk = x.index(max(x))
 
     x_vk = x[ind_vk]
     y_vk = y[ind_vk]
@@ -374,7 +341,7 @@ def calcMeanCamberLine(x, y, beta1, beta2):
     x_hk = x[ind_hk]
     y_hk = y[ind_hk]
 
-    x_ss, y_ss, x_ps, y_ps = sortPoints(x, y, ind_vk, ind_hk)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x, y, alpha=0.01)
 
     x_mid_ss = []
     y_mid_ss = []
@@ -385,7 +352,7 @@ def calcMeanCamberLine(x, y, beta1, beta2):
 
     return x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk
 
-
+"""
 def sortPoints(x, y, ind_vk, ind_hk):
     # Punkte der Saugseite bestimmen
 
@@ -450,7 +417,7 @@ def sortPoints(x, y, ind_vk, ind_hk):
         y_ps.append(y[indizes_ps[i]])
 
     return x_ss, y_ss, x_ps, y_ps
-
+"""
 
 def getBoundaryValues(x_bounds, y_bounds):
     x = x_bounds
@@ -591,8 +558,8 @@ def getBoundaryValues(x_bounds, y_bounds):
     return y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri
 
 
-def getGeom2DVTUSLice2(case):
-    midspan_slice, midspan_z = case.get_midspan_z()
+def getGeom2DVTUSLice2(mesh, alpha):
+    midspan_slice, midspan_z = slice_midspan_z(mesh)
     midspan_slice = midspan_slice.compute_normals()
     geo = midspan_slice.extract_feature_edges()
 
@@ -601,17 +568,17 @@ def getGeom2DVTUSLice2(case):
 
     points_bounds = geo.points
 
-    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], case.CascadeCoeffs.alpha)
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], alpha)
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
 
     x_profil = []
     y_profil = []
 
-    indexes_profil_points = []
+    #indexes_profil_points = []
 
     for i in range(len(points_bounds)):
         if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
-            indexes_profil_points.append(i)
+            #indexes_profil_points.append(i)
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
@@ -642,7 +609,7 @@ def rotatePoints(origin, x, y, angle):
 
 def GetProfileValuesMidspan(case):
 
-    midspan_slice , midspan_z= case.get_midspan_z()
+    midspan_slice, midspan_z = case.get_midspan_z()
     midspan_slice = midspan_slice.compute_normals()
     geo = midspan_slice.extract_feature_edges()
 
@@ -665,9 +632,7 @@ def GetProfileValuesMidspan(case):
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-    #x_profil = points_outer_bounds[::,0]
-    #y_profil = points_outer_bounds[::,1]
-    profile_points = np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
+    #profile_points = np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
 
     x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=case.CascadeCoeffs.alpha)
 
@@ -679,11 +644,13 @@ def GetProfileValuesMidspan(case):
 
     for i in range(len(x_ss)):
         x_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
-        indexes_ss.append(indexes_profil_points[profile_points.tolist().index([x_ss[i], y_ss[i]])])
+        new_index = np.where(points_bounds == [x_ss[i], y_ss[i], 0])[0][0]
+        indexes_ss.append(new_index)
 
     for i in range(len(x_ps)):
         x_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
-        indexes_ps.append(indexes_profil_points[profile_points.tolist().index([x_ps[i], y_ps[i]])])
+        new_index = np.where(points_bounds == [x_ps[i], y_ps[i], 0])[0][0]
+        indexes_ps.append(new_index)
 
     assert len(indexes_ps) > 0, "sortProfilePoints did not detect a pressureside. Maybe adjust case.CascadeCoeffs.alpha ? "
     assert len(indexes_ss) > 0, "sortProfilePoints did not detect a suctionside. Maybe adjust case.CascadeCoeffs.alpha ? "
@@ -700,9 +667,8 @@ def GetProfileValuesMidspan(case):
 
     normals_ps = np.asarray([geo.cell_normals[i] for i in indexes_ps])
 
-    ###FEHLER ÜBERPRÜFEN
-    cells_ps = geo.extract_cells(indexes_ps)
-    cells_ss = geo.extract_cells(indexes_ss)
+    cells_ps = geo.extract_points(indexes_ps)
+    cells_ss = geo.extract_points(indexes_ss)
 
     for i in geo.array_names:
         values_ss.append(cells_ss[i])

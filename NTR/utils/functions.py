@@ -3,7 +3,7 @@ import yaml
 import pickle
 
 import NTR
-from NTR.utils.create_geom import create
+from NTR.utils.create_geom import create_geometry
 
 
 def yaml_dict_read(yml_file):
@@ -25,20 +25,21 @@ def write_igg_config(file, args):
 def run_igg_meshfuncs(settings_yaml):
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
-    meshpath = os.path.join(case_path, "igg_mesh")
+    meshpath = os.path.join(case_path, "01_Meshing")
     if not os.path.isdir(meshpath):
         os.mkdir(meshpath)
     print(os.path.abspath(case_path))
 
     print("create_geometry")
     ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
-    create(ptstxtfile,
-           settings["geom"]["beta_meta_01"],
-           settings["geom"]["beta_meta_02"],
-           settings["geom"]["x_inlet"],
-           settings["geom"]["x_outlet"],
-           settings["geom"]["pitch"],
-           settings["geom"]["ptcloud_profile_unit"])
+    create_geometry(ptstxtfile,
+                    settings["geom"]["beta_meta_01"],
+                    settings["geom"]["beta_meta_02"],
+                    settings["geom"]["x_inlet"],
+                    settings["geom"]["x_outlet"],
+                    settings["geom"]["pitch"],
+                    settings["geom"]["ptcloud_profile_unit"],
+                    settings["geom"]["shift_domain"])
 
     print("create_mesh")
     cwd = os.getcwd()
@@ -50,7 +51,7 @@ def run_igg_meshfuncs(settings_yaml):
     script_path = os.path.join(ntrpath, "utils", "externals", "numeca_igg", "igg_cascade_meshcreator.py")
     args_dict_path = os.path.join(ntrpath, "utils", "externals", "numeca_igg", settings["igg"]["argument_pickle_dict"])
 
-    point_cloud_path = os.path.join(case_path, "geom.dat")
+    point_cloud_path = os.path.join(case_path,"01_Meshing", "geom.dat")
 
     args = {"pointcloudfile": point_cloud_path,
             "add_path": ntrpath,

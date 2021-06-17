@@ -1,0 +1,3 @@
+from NTR.preprocessing.openfoam.create_cascadecase_les import create_cascadecase_les
+
+create_cascadecase_les("lescascadecase_settings.yml")

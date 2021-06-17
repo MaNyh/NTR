@@ -6,8 +6,8 @@ case_settings:
     machine_type : "compressor"
 
 mesh_dict:
-    fluid : "./vtk_results/VTK/06_GWKVD_317000.vtk"
-    blade : "./vtk_results/VTK/BLADE/BLADE_317000.vtk"
+    fluid : "./vtk_results/VTK/07_GWKVD_52000.vtk"
+    blade : "./vtk_results/VTK/BLADE/BLADE_52000.vtk"
 
 post_process_settings:
     calc_gradients :

@@ -6,15 +6,16 @@ igg:
 geom:
     ptcloud_profile                 : "ressources/profile_pointcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
-    beta_meta_01                    : 135                                   #Inflow angle [deg]
-    beta_meta_02                    : 115                                   #Outflow angle [deg]
-    x_inlet                         : -0.1                                  #Shift Inlet along x [m]
+    beta_meta_01                    : 137                                   #Inflow angle [deg]
+    beta_meta_02                    : 111                                   #Outflow angle [deg]
+    x_inlet                         : -0.13                                  #Shift Inlet along x [m]
     x_outlet                        : 0.27                                  #Shift Outlet along x [m]
     pitch                           : 0.0765                                #Pitch [m]
+    shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.45                                   #Mesh-density factor
-    ogrid_factor                    : 2                                     #o-grid-node-ratio
+    factor                          : 1.4                                   #Mesh-density factor
+    ogrid_factor                    : 3                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000035                             #first cell height when factor=1
     le_firstcellheight_coeff        : 1
@@ -29,8 +30,8 @@ mesh:
     vk_ss_shift                     : 1
     cellwidthcoeff                  : 0.001                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
-    yPerLowHGridBlockPitchStart     : 0.3                                   #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.75                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.26                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : 0.15                                  #move periodic vertices (yPer from TE) along x
+    yPerLowHGridBlockPitchStart     : 0.2                                  #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.7                                  #move high-y-per-block along y-pitch
+    shift_vk_block_xaxiscoeff       : 0.5                                  #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : 0.125                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations

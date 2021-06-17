@@ -15,7 +15,7 @@ package_path = os.path.join(script_path, "../../..", "..")
 tmp_path = os.path.join(script_path)
 args = read_pickle_args(tmp_path)
 
-pointcloudfile = args["pointcloudfile"]
+tecplot_geo = args["pointcloudfile"]
 case_path = args["case_path"]
 add_path = args["add_path"]
 
@@ -66,7 +66,7 @@ print("layers: " + str(layers))
 print("extrudeLength: " + str(extrudeLength))
 print("extrudeNodes: " + str(extrudeNodes))
 
-data = openTecplotFile(pointcloudfile)
+data = openTecplotFile(tecplot_geo)
 
 
 def iggsplines_from_data():
@@ -357,5 +357,5 @@ extrude_to_3d()
 set_patches()
 
 os.chdir(case_path)
-save_project("igg_mesh/mesh.igg")
-export_FLUENT("igg_mesh/fluent.msh")
+save_project("01_Meshing/mesh.igg")
+export_FLUENT("01_Meshing/fluent.msh")
