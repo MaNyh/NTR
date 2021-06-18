@@ -321,8 +321,8 @@ def calc_vk_hk(x_koords, y_koords):
     I = np.argmax(D)
     I_row, I_col = np.unravel_index(I,D.shape)
 
-    index_vk = I_row#x.index(min(x))
-    index_hk = I_col#x.index(max(x))
+    index_vk = I_row
+    index_hk = I_col
 
     return index_vk, index_hk
 

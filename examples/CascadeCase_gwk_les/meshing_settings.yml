@@ -6,7 +6,7 @@ igg:
 geom:
     ptcloud_profile                 : "00_Ressources/01_Geometry/profile_pointcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
-    beta_meta_01                    : 139                                   #Inflow angle [deg]
+    beta_meta_01                    : 136.5                                   #Inflow angle [deg]
     beta_meta_02                    : 111                                   #Outflow angle [deg]
     x_inlet                         : -0.13                                  #Shift Inlet along x [m]
     x_outlet                        : 0.27                                  #Shift Outlet along x [m]
@@ -30,8 +30,8 @@ mesh:
     vk_ss_shift                     : 1
     cellwidthcoeff                  : 0.001                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
-    yPerLowHGridBlockPitchStart     : 0.2                                  #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.65                                  #move high-y-per-block along y-pitch
+    yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.55                                  #move high-y-per-block along y-pitch
     shift_vk_block_xaxiscoeff       : 0.6                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.125                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations

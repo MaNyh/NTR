@@ -1,6 +1,5 @@
 import os
 
-from NTR.utils.functions import yaml_dict_read
 from NTR.preprocessing.openfoam.cascadecase_filetemplates.templates import get_template_contents, file_templates, \
     probe_templates
 

@@ -6,11 +6,10 @@ Created on Mon Feb 18 20:33:27 2019
 """
 
 import matplotlib.pyplot as plt
+from matplotlib import colors as mcolors
 import os
 import numpy as np
-import pyvista as pv
 
-from NTR.utils.functions import yaml_dict_read
 from NTR.utils.geom_functions import sortProfilePoints, calcMidPassageStreamLine, calcMeanCamberLine, getBoundaryValues, \
     getGeom2DVTUSLice2
 from NTR.utils.pyvista_utils import load_mesh
@@ -114,6 +113,12 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
     plt.savefig(os.path.join(os.path.abspath(output_path), 'kontrollplot_probes_profile.pdf'))
     plt.close('all')
 
+    outprobes = {"probes pressure-side": np.stack((x_bl_ss, y_bl_ss)),
+                 "probes suction-side": np.stack((x_bl_ps, y_bl_ps)),
+                 }
+
+    return outprobes
+
 
 def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung):
@@ -188,6 +193,11 @@ probeLocations
     plt.legend(loc='best')
     plt.savefig(os.path.join(save_dir, 'kontrollplot_probes_streamline.pdf'))
     plt.close('all')
+
+    outprobes = {"probes streamline": np.stack((x_probes, y_probes)),
+                 }
+
+    return outprobes
 
 
 def equi_points(x, y, nop):
@@ -269,7 +279,12 @@ def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path
     data_file.write("""        );
     \t}""")
     data_file.close()
-    return 0
+
+    outprobes = {"probes inlet": np.stack((x_probe_inlet, y_probe_inlet)),
+                 "probes outlet": np.stack((x_probe_outlet, y_probe_outlet)),
+                 }
+
+    return outprobes
 
 
 def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_probes, output_path):
@@ -289,8 +304,8 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     y2max = max(ys_2)
     y2min = min(ys_2)
 
-    y1_probes = np.arange(y1min, y1max, (y1max - y1min) / nop)
-    y2_probes = np.arange(y2min, y2max, (y2max - y2min) / nop)
+    y1_probes = np.linspace(y1min, y1max, nop, endpoint=True)
+    y2_probes = np.linspace(y2min, y2max, nop, endpoint=True)
 
     data_file = open(os.path.join(output_path, 'Probes_XSlices_Dict'), 'w')
 
@@ -330,41 +345,97 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     \t}""")
     data_file.close()
 
-    return 0
+    outprobes = {"probes xslice1": np.stack((x_slice_1 * np.ones(len(y1_probes)), y1_probes)),
+                 "probes xslice2": np.stack((x_slice_2 * np.ones(len(y1_probes)), y2_probes)),
+                 }
+
+    return outprobes
 
 
 def create_probe_dicts(probe_settings):
-
     domain = load_mesh(probe_settings["generic"]["domain"])
     blade = load_mesh(probe_settings["generic"]["blade"])
     alpha = probe_settings["generic"]["alpha"]
+
+    output_path = probe_settings["generic"]["output_path"]
+
+    probes = {}
+
     if probe_settings["generic"]["create"]["profile_probes"]:
-        createProbesProfileDict(blade,
-                                probe_settings["profile_probes"]["pden_ps"],
-                                probe_settings["profile_probes"]["pden_ss"],
-                                probe_settings["profile_probes"]["interval_time_steps_probes"],
-                                probe_settings["profile_probes"]["output_path"],
-                                alpha,
-                                probe_settings["profile_probes"]["tolerance"])
+        outprobes = createProbesProfileDict(blade,
+                                            probe_settings["profile_probes"]["pden_ps"],
+                                            probe_settings["profile_probes"]["pden_ss"],
+                                            probe_settings["profile_probes"]["interval_time_steps_probes"],
+                                            output_path,
+                                            alpha,
+                                            probe_settings["profile_probes"]["tolerance"])
+        for k, v in outprobes.items():
+            probes[k] = v
+
     if probe_settings["generic"]["create"]["streamline_probes"]:
-        createProbesStreamlineDict(domain,
+        outprobes = createProbesStreamlineDict(domain,
                                    alpha,
                                    probe_settings["streamline_probes"]["nop_streamline"],
-                                   probe_settings["streamline_probes"]["save_dir"],
+                                   output_path,
                                    probe_settings["streamline_probes"]["interval_time_steps_probes"],
                                    probe_settings["streamline_probes"]["beta_01"],
                                    probe_settings["streamline_probes"]["beta_02"],
                                    probe_settings["streamline_probes"]["teilung"])
+        for k, v in outprobes.items():
+            probes[k] = v
 
     if probe_settings["generic"]["create"]["inletoutlet_probing"]:
-        createProbesInletOutlet(domain, alpha,
+        outprobes = createProbesInletOutlet(domain, alpha,
                                 probe_settings["inletoutlet_probes"]["interval_time_steps_probes"],
-                                probe_settings["profile_probes"]["output_path"], )
+                                output_path, )
+        for k, v in outprobes.items():
+            probes[k] = v
 
     if probe_settings["generic"]["create"]["xsclicing_probes"]:
-        createXSliceProbes(domain,
+        outprobes = createXSliceProbes(domain,
                            probe_settings["xsclicing_probes"]["nop"],
                            probe_settings["xsclicing_probes"]["x_slice_one"],
                            probe_settings["xsclicing_probes"]["x_slice_two"],
                            probe_settings["xsclicing_probes"]["interval_time_steps_probes"],
-                           probe_settings["xsclicing_probes"]["output_path"], )
+                           output_path, )
+        for k, v in outprobes.items():
+            probes[k] = v
+
+    x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(domain, alpha)
+
+    y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
+        x_bounds, y_bounds)
+
+    plt.close('all')
+    plt.figure(figsize=(8, 8))
+    plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
+    plt.plot(x_outlet, y_outlet, '-b', lw=1, label='outlet')
+    plt.plot(x_profil, y_profil, '.k', lw=1, label='profil')
+    plt.plot(x_lower_peri, y_lower_peri, '-y', lw=1, label='lower_peri')
+    plt.plot(x_upper_peri, y_upper_peri, '-c', lw=1, label='upper_peri')
+
+
+    allowed_colors = list(dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS).keys())
+    del allowed_colors[allowed_colors.index("white")]
+    del allowed_colors[allowed_colors.index("whitesmoke")]
+    del allowed_colors[allowed_colors.index("seashell")]
+    del allowed_colors[allowed_colors.index("linen")]
+    del allowed_colors[allowed_colors.index("floralwhite")]
+    del allowed_colors[allowed_colors.index("azure")]
+    del allowed_colors[allowed_colors.index("mintcream")]
+    del allowed_colors[allowed_colors.index("ghostwhite")]
+    del allowed_colors[allowed_colors.index("aliceblue")]
+    del allowed_colors[allowed_colors.index("lavenderblush")]
+    del allowed_colors[allowed_colors.index("lightcyan")]
+    del allowed_colors[allowed_colors.index("oldlace")]
+    del allowed_colors[allowed_colors.index("antiquewhite")]
+    del allowed_colors[allowed_colors.index("mistyrose")]
+
+    for k, v in probes.items():
+        color = allowed_colors.pop(np.random.randint(len(allowed_colors)-1))
+
+        plt.plot(v[0], v[1], color, marker="X", lw=1, markersize=3,  label=k)
+
+    plt.legend(loc='best')
+    plt.savefig(os.path.join('kontrollplot_probes.pdf'))
+    plt.close('all')
