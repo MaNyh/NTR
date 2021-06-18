@@ -5,20 +5,22 @@ case:
     create :
         profile_probes: True
         streamline_probes: True
-        inletoutlet_probes: True
+        inletoutletvelocity_probing: True
+        inletoutletfieldave_probing : True
         xsclicing_probes: True
-
+        midspanslice_probing : True
+        inletoutlet_probing : True
 
 profile_probes:
     pden_ps : 20
     pden_ss : 20
     interval_time_steps_probes : 1
-    output_path : "02_Preprocessing"
+    output_path : "02_Preprocessing/system"
     tolerance : 1e-6
 
 streamline_probes:
     nop_streamline : 20
-    save_dir : "02_Preprocessing"
+    save_dir : "02_Preprocessing/system"
     interval_time_steps_probes : 1
     beta_01 : 137
     beta_02 : 111
@@ -27,7 +29,7 @@ streamline_probes:
 inletoutlet_probes:
     mesh : domain
     interval_time_steps_probes: 1
-    output_path : "02_Preprocessing"
+    output_path : "02_Preprocessing/system"
 
 xsclicing_probes:
     mesh : domain
@@ -35,5 +37,5 @@ xsclicing_probes:
     interval_time_steps_probes: 1
     x_slice_one : -0.08
     x_slice_two : 0.18
-    output_path: "02_Preprocessing"
+    output_path: "02_Preprocessing/system"
 
