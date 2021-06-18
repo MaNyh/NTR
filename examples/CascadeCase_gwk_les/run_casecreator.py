@@ -1,6 +1,4 @@
-from NTR.preprocessing.openfoam.create_cascadecase_les import create_cascadecase_les
-from NTR.preprocessing.openfoam.create_probes import create_probe_dicts
+from NTR.preprocessing.case_creator import create_case
 
 
-create_cascadecase_les("preprocessing_settings.yml")
-create_probe_dicts("probes_settings.yml")
+create_case("preprocessing_settings.yml", "probes_settings.yml")
