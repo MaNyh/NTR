@@ -4,13 +4,14 @@ igg:
     argument_pickle_dict            : "igg_args.pkl"
 
 geom:
-    ptcloud_profile                 : "ressources/profile_pointcloud.txt"              #Name of the pointcloud-file
+    ptcloud_profile                 : "00_Ressources/01_Geometry/profile_pointcloud.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "m"                                    #m vs mm
     beta_meta_01                    : 120                                   #Inflow angle [deg]
     beta_meta_02                    : 25                                   #Outflow angle [deg]
     x_inlet                         : -0.05                                  #Shift Inlet along x [cm]
     x_outlet                        : 0.14                                  #Shift Outlet along x [cm]
     pitch                           : 0.0545                                #Pitch [cm]
+    shift_domain                    : 0.0
 
 mesh:
     factor                          : 1.3                                   #Mesh-density factor
