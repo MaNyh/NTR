@@ -333,12 +333,12 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     return 0
 
 
-def create_probe_dicts(yaml_dict):
-    probe_settings = yaml_dict_read(yaml_dict)
-    domain = load_mesh(probe_settings["case"]["domain"])
-    blade = load_mesh(probe_settings["case"]["blade"])
-    alpha = probe_settings["case"]["alpha"]
-    if probe_settings["case"]["create"]["profile_probes"]:
+def create_probe_dicts(probe_settings):
+
+    domain = load_mesh(probe_settings["generic"]["domain"])
+    blade = load_mesh(probe_settings["generic"]["blade"])
+    alpha = probe_settings["generic"]["alpha"]
+    if probe_settings["generic"]["create"]["profile_probes"]:
         createProbesProfileDict(blade,
                                 probe_settings["profile_probes"]["pden_ps"],
                                 probe_settings["profile_probes"]["pden_ss"],
@@ -346,7 +346,7 @@ def create_probe_dicts(yaml_dict):
                                 probe_settings["profile_probes"]["output_path"],
                                 alpha,
                                 probe_settings["profile_probes"]["tolerance"])
-    if probe_settings["case"]["create"]["streamline_probes"]:
+    if probe_settings["generic"]["create"]["streamline_probes"]:
         createProbesStreamlineDict(domain,
                                    alpha,
                                    probe_settings["streamline_probes"]["nop_streamline"],
@@ -356,12 +356,12 @@ def create_probe_dicts(yaml_dict):
                                    probe_settings["streamline_probes"]["beta_02"],
                                    probe_settings["streamline_probes"]["teilung"])
 
-    if probe_settings["case"]["create"]["inletoutlet_probing"]:
+    if probe_settings["generic"]["create"]["inletoutlet_probing"]:
         createProbesInletOutlet(domain, alpha,
                                 probe_settings["inletoutlet_probes"]["interval_time_steps_probes"],
                                 probe_settings["profile_probes"]["output_path"], )
 
-    if probe_settings["case"]["create"]["xsclicing_probes"]:
+    if probe_settings["generic"]["create"]["xsclicing_probes"]:
         createXSliceProbes(domain,
                            probe_settings["xsclicing_probes"]["nop"],
                            probe_settings["xsclicing_probes"]["x_slice_one"],
