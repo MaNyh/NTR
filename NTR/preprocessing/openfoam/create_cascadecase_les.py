@@ -4,33 +4,39 @@ from NTR.preprocessing.openfoam.cascadecase_filetemplates.templates import get_t
     probe_templates
 
 
-def create_cascadecase_les(settings, mainpath):
+def create_cascadecase_les(settings, mainpath, globalparas):
 
     directories = file_templates.keys()
 
     casepath = os.path.join(mainpath, "02_Preprocessing")
 
     create_main_directories(casepath, directories)
-    create_files(casepath, settings)
+    create_files(casepath, globalparas, settings)
 
 
-def create_files(casepath, settings):
+def create_files(casepath, globalparas, settings):
     files = file_templates
+
+    probing_settings = globalparas["probing"]["probes"]
+    probes_dict = {}
+    for k, v in probing_settings.items():
+        if v == True:
+            probes_dict[k] = probe_templates[k]
 
     templates = get_template_contents()
     for directory, filenames in files.items():
         for file in filenames:
             template_content = templates[directory][file]
+
             filesettings = settings["case_parameters"][file]
             if filesettings:
                 for key, value in filesettings.items():
-                    if key != "probing":
-                        template_content = template_content.replace("__" + key + "__", value)
-                    else:
-                        for probetype, probebools in value.items():
-                            if probebools == True:
-                                template_content = template_content.replace("//__" + probetype + "__//",
-                                                                            probe_templates[probetype])
+                    template_content = template_content.replace("__" + key + "__", value)
+
+            if file == "controlDict":
+                for key, value in probes_dict.items():
+                    template_content = template_content.replace("//__globalsetting__" + key + "__//", value)
+
 
             with open(os.path.join(casepath, directory, file), "w", newline='\n') as fobj:
                 fobj.writelines(template_content)

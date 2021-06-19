@@ -60,15 +60,14 @@ libs (
 
 functions
 {
-
-//__massflow_probing__//
-//__residual_probing__//
-//__inletoutlet_probing__//
-//__xslice_probing__//
-//__fieldave_probing__//
-//__profile_probing__//
-//__streamline_probing__//
-
+//__globalsetting__massflow_probing__//
+//__globalsetting__residual_probing__//
+//__globalsetting__inletoutletfieldave_probing__//
+//__globalsetting__inletoutletvelocity_probing__//
+//__globalsetting__xslice_probing__//
+//__globalsetting__fieldave_probing__//
+//__globalsetting__profile_probing__//
+//__globalsetting__streamline_probing__//
 }
 
 // ************************************************************************* //

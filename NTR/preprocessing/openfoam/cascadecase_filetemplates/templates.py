@@ -23,7 +23,7 @@ file_templates = {"0": ["alphat",
                              "fvSchemes",
                              "fvSolution",
                              "mapFieldsDict",
-                             "Probe_FieldAve_Dict",
+                             "Probes_FieldAve_Dict",
                              "Probe_Slice_Dict",
                              "topoSetDict"],
 
@@ -42,7 +42,7 @@ probe_templates["massflow_probing"] = """
 probe_templates["residual_probing"] = """
     #includeFunc residuals"""
 
-probe_templates["inletoutlet_probing"] = """
+probe_templates["inletoutletvelocity_probing"] = """
     #include "Probes_InletOutlet_Dict" """
 
 probe_templates["xslice_probing"] = """
@@ -52,7 +52,7 @@ probe_templates["midspanslice_probing"] = """
     #include "Probe_Slice_Dict" """
 
 probe_templates["fieldave_probing"] = """
-    #include "Probe_FieldAve_Dict" """
+    #include "Probes_FieldAve_Dict" """
 
 probe_templates["profile_probing"] = """
     #include "Probes_Profile_Dict" """

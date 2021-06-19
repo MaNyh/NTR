@@ -16,7 +16,7 @@ from NTR.utils.pyvista_utils import load_mesh
 
 
 def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
-                            interval_time_steps_probes, output_path, alpha, tolerance=1e-6):
+                            interval_time_steps_probes, output_path, alpha, start_time, end_time):
     """
     :param path_blade_surface: vtk-mesh
     :param pden_Probes_Profile_SS: integer (slicer)
@@ -73,8 +73,10 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
         libs                ("libsampling.so");
         writeControl        timeStep;
         writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        timeStart           """ + str(start_time) + """;
+        timeEnd             """ + str(end_time) + """;
 
-            fields
+        fields
             (
                 U
                 p
@@ -121,7 +123,8 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
 
 
 def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
-                               interval_time_steps_probes, beta_01, beta_02, teilung):
+                               interval_time_steps_probes, beta_01, beta_02, teilung,
+                               start_time, end_time):
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
@@ -159,6 +162,8 @@ type                probes;
 libs                ("libsampling.so");
 writeControl        timeStep;
 writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+timeStart           """ + str(start_time) + """;
+timeEnd             """ + str(end_time) + """;
 
 fields
 (
@@ -241,7 +246,8 @@ def equi_points(x, y, nop):
     return xn, yn
 
 
-def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path):
+def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path, start_time, end_time):
+
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
@@ -261,6 +267,8 @@ def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path
             libs                ("libsampling.so");
             writeControl        timeStep;
             writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+            timeStart           """ + str(start_time) + """;
+            timeEnd             """ + str(end_time) + """;
 
                 fields
                 (
@@ -287,7 +295,7 @@ def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path
     return outprobes
 
 
-def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_probes, output_path):
+def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_probes, output_path, start_time, end_time):
     bounds = mesh.bounds
     midspan_z = (bounds[5] + bounds[4]) / 2
     slice_1 = mesh.slice(origin=(x_slice_1, 0, midspan_z), normal=(1, 0, 0))
@@ -315,6 +323,8 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
             libs                ("libsampling.so");
             writeControl        timeStep;
             writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+            timeStart           """ + str(start_time) + """;
+            timeEnd             """ + str(end_time) + """;
 
                 fields
                 (
@@ -353,51 +363,61 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
 
 
 def create_probe_dicts(probe_settings):
-    domain = load_mesh(probe_settings["generic"]["domain"])
-    blade = load_mesh(probe_settings["generic"]["blade"])
-    alpha = probe_settings["generic"]["alpha"]
+    domain = load_mesh(probe_settings["probing"]["domain"])
+    blade = load_mesh(probe_settings["probing"]["blade"])
+    alpha = probe_settings["geometry"]["alpha"]
+    beta_01 = probe_settings["geometry"]["beta_meta_01"]
+    beta_02 = probe_settings["geometry"]["beta_meta_02"]
+    pitch = probe_settings["geometry"]["pitch"]
 
-    output_path = probe_settings["generic"]["output_path"]
+    output_path = probe_settings["probing"]["output_path"]
 
     probes = {}
 
-    if probe_settings["generic"]["create"]["profile_probes"]:
+    if probe_settings["probing"]["probes"]["profile_probing"]:
         outprobes = createProbesProfileDict(blade,
                                             probe_settings["profile_probes"]["pden_ps"],
                                             probe_settings["profile_probes"]["pden_ss"],
                                             probe_settings["profile_probes"]["interval_time_steps_probes"],
                                             output_path,
                                             alpha,
-                                            probe_settings["profile_probes"]["tolerance"])
+                                            probe_settings["profile_probes"]["start_time"],
+                                            probe_settings["profile_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["generic"]["create"]["streamline_probes"]:
+    if probe_settings["probing"]["probes"]["streamline_probing"]:
         outprobes = createProbesStreamlineDict(domain,
                                    alpha,
                                    probe_settings["streamline_probes"]["nop_streamline"],
                                    output_path,
                                    probe_settings["streamline_probes"]["interval_time_steps_probes"],
-                                   probe_settings["streamline_probes"]["beta_01"],
-                                   probe_settings["streamline_probes"]["beta_02"],
-                                   probe_settings["streamline_probes"]["teilung"])
+                                   beta_01,
+                                   beta_02,
+                                   pitch,
+                                   probe_settings["streamline_probes"]["start_time"],
+                                   probe_settings["streamline_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["generic"]["create"]["inletoutlet_probing"]:
+    if probe_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         outprobes = createProbesInletOutlet(domain, alpha,
                                 probe_settings["inletoutlet_probes"]["interval_time_steps_probes"],
-                                output_path, )
+                                output_path,
+                                probe_settings["inletoutlet_probes"]["start_time"],
+                                probe_settings["inletoutlet_probes"]["end_time"] )
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["generic"]["create"]["xsclicing_probes"]:
+    if probe_settings["probing"]["probes"]["xslice_probing"]:
         outprobes = createXSliceProbes(domain,
                            probe_settings["xsclicing_probes"]["nop"],
                            probe_settings["xsclicing_probes"]["x_slice_one"],
                            probe_settings["xsclicing_probes"]["x_slice_two"],
                            probe_settings["xsclicing_probes"]["interval_time_steps_probes"],
-                           output_path, )
+                           output_path,
+                           probe_settings["xsclicing_probes"]["start_time"],
+                           probe_settings["xsclicing_probes"]["end_time"] )
         for k, v in outprobes.items():
             probes[k] = v
 
