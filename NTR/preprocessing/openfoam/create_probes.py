@@ -353,15 +353,18 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
 
 
 def create_probe_dicts(probe_settings):
-    domain = load_mesh(probe_settings["generic"]["domain"])
-    blade = load_mesh(probe_settings["generic"]["blade"])
-    alpha = probe_settings["generic"]["alpha"]
+    domain = load_mesh(probe_settings["probing"]["domain"])
+    blade = load_mesh(probe_settings["probing"]["blade"])
+    alpha = probe_settings["geometry"]["alpha"]
+    beta_01 = probe_settings["geometry"]["beta_meta_01"]
+    beta_02 = probe_settings["geometry"]["beta_meta_02"]
+    pitch = probe_settings["geometry"]["pitch"]
 
-    output_path = probe_settings["generic"]["output_path"]
+    output_path = probe_settings["probing"]["output_path"]
 
     probes = {}
 
-    if probe_settings["generic"]["create"]["profile_probes"]:
+    if probe_settings["probing"]["probes"]["profile_probing"]:
         outprobes = createProbesProfileDict(blade,
                                             probe_settings["profile_probes"]["pden_ps"],
                                             probe_settings["profile_probes"]["pden_ss"],
@@ -372,26 +375,26 @@ def create_probe_dicts(probe_settings):
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["generic"]["create"]["streamline_probes"]:
+    if probe_settings["probing"]["probes"]["streamline_probing"]:
         outprobes = createProbesStreamlineDict(domain,
                                    alpha,
                                    probe_settings["streamline_probes"]["nop_streamline"],
                                    output_path,
                                    probe_settings["streamline_probes"]["interval_time_steps_probes"],
-                                   probe_settings["streamline_probes"]["beta_01"],
-                                   probe_settings["streamline_probes"]["beta_02"],
-                                   probe_settings["streamline_probes"]["teilung"])
+                                   beta_01,
+                                   beta_02,
+                                   pitch)
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["generic"]["create"]["inletoutlet_probing"]:
+    if probe_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         outprobes = createProbesInletOutlet(domain, alpha,
                                 probe_settings["inletoutlet_probes"]["interval_time_steps_probes"],
                                 output_path, )
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["generic"]["create"]["xsclicing_probes"]:
+    if probe_settings["probing"]["probes"]["xslice_probing"]:
         outprobes = createXSliceProbes(domain,
                            probe_settings["xsclicing_probes"]["nop"],
                            probe_settings["xsclicing_probes"]["x_slice_one"],

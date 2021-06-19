@@ -1,0 +1,19 @@
+geometry:
+    beta_meta_01                    : 136.5                                  #Inflow angle [deg]
+    beta_meta_02                    : 111                                   #Outflow angle [deg]
+    pitch                           : 0.0765                                #Pitch [m]
+    alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+
+probing:
+    domain : "00_Ressources/02_UsedMesh/09_OpenFOAM_compCascade_0.vtk"
+    blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
+    probes:
+        massflow_probing: True
+        residual_probing: True
+        profile_probing: True
+        fieldave_probing: True
+        streamline_probing: True
+        inletoutletvelocity_probing: True
+        xslice_probing: True
+        midspanslice_probing: True
+    output_path : "02_Preprocessing/system"

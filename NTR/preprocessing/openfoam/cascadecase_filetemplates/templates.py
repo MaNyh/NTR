@@ -42,7 +42,7 @@ probe_templates["massflow_probing"] = """
 probe_templates["residual_probing"] = """
     #includeFunc residuals"""
 
-probe_templates["inletoutlet_probing"] = """
+probe_templates["inletoutletvelocity_probing"] = """
     #include "Probes_InletOutlet_Dict" """
 
 probe_templates["xslice_probing"] = """
