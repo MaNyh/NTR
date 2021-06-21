@@ -329,11 +329,6 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
                 fields
                 (
                     U
-                    p
-                    T
-                    gradU
-                    nut
-                    rho
                 );
 
             // number of probes: """ + str(len(y1_probes) + len(y2_probes)) + """

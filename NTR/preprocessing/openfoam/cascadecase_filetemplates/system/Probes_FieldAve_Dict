@@ -4,7 +4,9 @@
        	writeControl    	  writeTime;
         restartOnOutput           false;
         restartOnRestart          false;
-	    enabled			  true;
+	enabled			  true;
+	startTime		  __START__;
+	endTime			  __END__;
 
         fields
         (
