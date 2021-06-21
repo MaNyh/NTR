@@ -327,13 +327,10 @@ def calc_vk_hk(x_koords, y_koords):
     return index_vk, index_hk
 
 
-def calcMeanCamberLine(x, y, beta1, beta2):
+def calcMeanCamberLine(x, y):
     # vk und hk bestimmen
 
-    #x, y = zip(*sorted(zip(x, y)))
-
     ind_vk, ind_hk = calc_vk_hk(x, y)
-
 
     x_vk = x[ind_vk]
     y_vk = y[ind_vk]
@@ -343,81 +340,11 @@ def calcMeanCamberLine(x, y, beta1, beta2):
 
     x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x, y, alpha=0.01)
 
-    x_mid_ss = []
-    y_mid_ss = []
-
     x_mid_ss, y_mid_ss = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
     x_mid_ps, y_mid_ps = calcMidPoints(x_ps, y_ps, x_ss, y_ss)
     x_mids, y_mids = calcMidPoints(x_mid_ps, y_mid_ps, x_mid_ss, y_mid_ss)
 
     return x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk
-
-"""
-def sortPoints(x, y, ind_vk, ind_hk):
-    # Punkte der Saugseite bestimmen
-
-    # ersten Punkt nach der Vorderkante bestimmen
-
-    dists = []
-    indizes = []
-
-    for i in range(len(x)):
-        if i != ind_vk and y[i] > y[ind_vk]:
-            dists.append(((x[i] - x[ind_vk]) ** 2 + (y[i] - y[ind_vk]) ** 2) * (0.5))
-            indizes.append(i)
-
-    ind_ss_p2 = indizes[dists.index(min(dists))]
-
-    indizes = list(range(len(x)))
-
-    indizes.remove(ind_vk)
-    indizes.remove(ind_ss_p2)
-
-    indizes_ss = []
-
-    indizes_ss.append(ind_vk)
-    indizes_ss.append(ind_ss_p2)
-
-    ind = ind_ss_p2
-
-    while ind != ind_hk:
-
-        dists = []
-        inds = []
-
-        point = (x[ind], y[ind])
-        for i in range(len(indizes)):
-            point2 = (x[indizes[i]], y[indizes[i]])
-            dist = ((point2[0] - point[0]) ** 2 + (point2[1] - point[1]) ** 2) * (0.5)
-
-            if indizes[i] not in indizes_ss:
-                dists.append(dist)
-                inds.append(indizes[i])
-
-        indizes_ss.append(inds[dists.index(min(dists))])
-        indizes.remove(inds[dists.index(min(dists))])
-        ind = inds[dists.index(min(dists))]
-
-        indizes_ps = list(indizes)
-        indizes_ps.insert(0, ind_vk)
-        indizes_ps.append(ind_hk)
-
-    x_ss = []
-    y_ss = []
-
-    for i in range(len(indizes_ss)):
-        x_ss.append(x[indizes_ss[i]])
-        y_ss.append(y[indizes_ss[i]])
-
-    x_ps = []
-    y_ps = []
-
-    for i in range(len(indizes_ps)):
-        x_ps.append(x[indizes_ps[i]])
-        y_ps.append(y[indizes_ps[i]])
-
-    return x_ss, y_ss, x_ps, y_ps
-"""
 
 def getBoundaryValues(x_bounds, y_bounds):
     x = x_bounds

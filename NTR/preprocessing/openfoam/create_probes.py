@@ -28,6 +28,9 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
     """
 
     bladebounds = blade_surface.bounds
+    blade_surface = blade_surface.compute_normals()
+    surface_normals = blade_surface.point_arrays["Normals"]
+
     midspan_z = (bladebounds[5] - bladebounds[4]) / 2
 
     cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
@@ -35,17 +38,17 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
     # Mittelschnitt erstellen
 
     points = cut_plane.points
-    # surface_normals = cut_plane.cell_normals
+    #
     # Punkte extrahieren
     x_values = []
     y_values = []
 
     for i in range(len(points)):
         point = points[i]
-        # normal = surface_normals[i]
-
-        x_values.append(point[0])  # - tolerance * normal[0]
-        y_values.append(point[1])  # - tolerance * normal[1]
+        normal = surface_normals[i]
+        tolerance = 0.001
+        x_values.append(point[0] + tolerance * normal[0])
+        y_values.append(point[1] + tolerance * normal[1])
 
     # Nach Durck und Saugseite sortieren
     x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values, alpha)
@@ -125,13 +128,15 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
 def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung,
                                start_time, end_time):
+
+    ## Eige Klasse für Geometrieparameter in Cascaden-Fall?
+
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
 
-    x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil, beta_01,
-                                                                                        beta_02)
+    x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil)
 
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
 
@@ -377,7 +382,8 @@ def create_probe_dicts(probe_settings):
                                             output_path,
                                             alpha,
                                             probe_settings["profile_probes"]["start_time"],
-                                            probe_settings["profile_probes"]["end_time"])
+                                            probe_settings["profile_probes"]["end_time"]
+                                            )
         for k, v in outprobes.items():
             probes[k] = v
 
@@ -418,8 +424,7 @@ def create_probe_dicts(probe_settings):
 
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(domain, alpha)
 
-    y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
-        x_bounds, y_bounds)
+    y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(x_bounds, y_bounds)
 
     plt.close('all')
     plt.figure(figsize=(8, 8))

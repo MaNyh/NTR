@@ -68,6 +68,15 @@ functions
 //__globalsetting__fieldave_probing__//
 //__globalsetting__profile_probing__//
 //__globalsetting__streamline_probing__//
+
+    yPlus
+    {
+    type    yPlus;
+    libs ("fieldFunctionObjects.so");
+    writeControl timeStep;
+    writeInterval 1;
+    }
+}
 }
 
 // ************************************************************************* //
