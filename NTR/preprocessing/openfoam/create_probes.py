@@ -16,7 +16,7 @@ from NTR.utils.pyvista_utils import load_mesh
 
 
 def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
-                            interval_time_steps_probes, output_path, alpha, start_time, end_time):
+                            interval_time_steps_probes, output_path, alpha, start_time, end_time, tolerance):
     """
     :param path_blade_surface: vtk-mesh
     :param pden_Probes_Profile_SS: integer (slicer)
@@ -38,26 +38,41 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
     # Mittelschnitt erstellen
 
     points = cut_plane.points
+    phelp = points[:,[0,1]]
+
     #
     # Punkte extrahieren
-    x_values = []
-    y_values = []
-
-    for i in range(len(points)):
-        point = points[i]
-        normal = surface_normals[i]
-        tolerance = 0.001
-        x_values.append(point[0] + tolerance * normal[0])
-        y_values.append(point[1] + tolerance * normal[1])
 
     # Nach Durck und Saugseite sortieren
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_values, y_values, alpha)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(points[::,0], points[::,1], alpha)
 
-    x_bl_ss = x_ss[::int(pden_Probes_Profile_SS)]
-    y_bl_ss = y_ss[::int(pden_Probes_Profile_SS)]
+    x_ss_shift = []
+    y_ss_shift = []
 
-    x_bl_ps = x_ps[::int(pden_Probes_Profile_PS)]
-    y_bl_ps = y_ps[::int(pden_Probes_Profile_PS)]
+    x_ps_shift = []
+    y_ps_shift = []
+
+    for pt in np.stack([x_ss, y_ss]).T:
+        idx = np.where(pt==phelp)[0][0]
+        point = points[idx]
+        normal = surface_normals[idx]
+
+        x_ss_shift.append(point[0] - tolerance * normal[0])
+        y_ss_shift.append(point[1] - tolerance * normal[1])
+
+    for pt in np.stack([x_ps, y_ps]).T:
+        idx = np.where(pt == phelp)[0][0]
+        point = points[idx]
+        normal = surface_normals[idx]
+
+        x_ps_shift.append(point[0] + tolerance * normal[0])
+        y_ps_shift.append(point[1] + tolerance * normal[1])
+
+    x_bl_ss = x_ss_shift[::int(pden_Probes_Profile_SS)]
+    y_bl_ss = y_ss_shift[::int(pden_Probes_Profile_SS)]
+
+    x_bl_ps = x_ps_shift[::int(pden_Probes_Profile_PS)]
+    y_bl_ps = y_ps_shift[::int(pden_Probes_Profile_PS)]
 
     z_bl_ss = []
     z_bl_ps = []
@@ -382,7 +397,8 @@ def create_probe_dicts(probe_settings):
                                             output_path,
                                             alpha,
                                             probe_settings["profile_probes"]["start_time"],
-                                            probe_settings["profile_probes"]["end_time"]
+                                            probe_settings["profile_probes"]["end_time"],
+                                            probe_settings["profile_probes"]["tolerance"]
                                             )
         for k, v in outprobes.items():
             probes[k] = v
