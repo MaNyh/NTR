@@ -9,7 +9,7 @@ from scipy.spatial.distance import pdist, squareform
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
-from NTR.utils.pyvista_utils import slice_midspan_z
+from NTR.utils.pyvista_utils import slice_midspan_z, mesh_scalar_gradients
 
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
@@ -211,7 +211,7 @@ def calcConcaveHull(x, y, alpha):
 
     return x_new, y_new
 
-def sortProfilePoints_meshing(x, y, alpha=0.007):
+def sortProfilePoints_meshing(x, y, alpha):
 
     x, y = calcConcaveHull(x, y, alpha=alpha)
 
@@ -268,23 +268,19 @@ def sortProfilePoints_meshing(x, y, alpha=0.007):
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
 
-    ind_vk, ind_hk = calc_vk_hk(x, y)
+    #ind_vk, ind_hk = calc_vk_hk(x, y)
+
+    ind_hk = x.index(max(x))
+    ind_vk = x.index(min(x))
 
     begin = min([ind_hk, ind_vk])
     end = max([ind_hk, ind_vk])
 
-    if ind_hk < ind_vk:
-        x_ss = x[begin:end]
-        y_ss = y[begin:end]
+    x_ss = x[begin:end]
+    y_ss = y[begin:end]
 
-        y_ps = y[:begin-1] + y[end-1:]
-        x_ps = x[:begin-1] + x[end-1:]
-    else:
-        x_ps = x[begin:end]
-        y_ps = y[begin:end]
-
-        y_ss = y[:begin - 1] + y[end - 1:]
-        x_ss = x[:begin - 1] + x[end - 1:]
+    y_ps = y[:begin] + y[end:]
+    x_ps = x[:begin] + x[end:]
 
     x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
     x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
@@ -559,8 +555,6 @@ def GetProfileValuesMidspan(case):
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-    #profile_points = np.stack((np.array(x_profil), np.array(y_profil)), axis=-1)
-
     x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=case.CascadeCoeffs.alpha)
 
     indexes_ss = []
@@ -568,6 +562,7 @@ def GetProfileValuesMidspan(case):
 
     x_l_ax_ss = []
     x_l_ax_ps = []
+
 
     for i in range(len(x_ss)):
         x_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
@@ -594,13 +589,14 @@ def GetProfileValuesMidspan(case):
 
     normals_ps = np.asarray([geo.cell_normals[i] for i in indexes_ps])
 
-    cells_ps = geo.extract_points(indexes_ps)
-    cells_ss = geo.extract_points(indexes_ss)
-
-    for i in geo.array_names:
-        values_ss.append(cells_ss[i])
-        values_ps.append(cells_ps[i])
+    for i in geo.point_arrays:
         value_names.append(i)
+        values_ss.append([])
+        values_ps.append([])
+        for idx in indexes_ps:
+            values_ps[-1].append(geo.point_arrays[i][idx])
+        for idx in indexes_ss:
+            values_ss[-1].append(geo.point_arrays[i][idx])
 
     for i in range(len(indexes_ss)):
 
