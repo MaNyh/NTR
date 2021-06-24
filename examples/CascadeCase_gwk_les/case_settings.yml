@@ -1,3 +1,23 @@
+geometry:
+    beta_meta_01                    : 136.5                                  #Inflow angle [deg]
+    beta_meta_02                    : 111                                   #Outflow angle [deg]
+    pitch                           : 0.0765                                #Pitch [m]
+    alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+
+probing:
+    domain : "00_Ressources/02_UsedMesh/09_OpenFOAM_compCascade_0.vtk"
+    blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
+    probes:
+        massflow_probing: True
+        residual_probing: True
+        profile_probing: False
+        fieldave_probing: True
+        streamline_probing: False
+        inletoutletvelocity_probing: False
+        xslice_probing: False
+        midspanslice_probing: False
+    output_path : "02_Preprocessing/system"
+
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
     executable                      : "iggx86_64.exe"
@@ -32,3 +52,77 @@ mesh:
     shift_vk_block_xaxiscoeff       : 0.6                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.125                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
+
+
+case:
+    case_parameters:
+      U :
+        UINLET : "35.392445 58.06355 0"
+        RINLET : "2 0 0 2 0 2"
+        LINLET : "0.01"
+        EDDYDENSITY : "10"
+      T :
+        TINLET : "293.15"
+      p :
+        PINLET : "101325"
+      alphat:
+      nut:
+      thermophysicalProperties:
+      turbulenceProperties:
+      controlDict:
+        WRITEINTERVAL : "2000"
+        DELTAT : "5e-8"
+        ADUSTABLETIMESTEP : "on"
+        STARTAVETIME : "0.045"
+      createPatchDict:
+      decomposeParDict:
+        PROCS: "384"
+      fvSchemes:
+      fvSolution:
+      mapFieldsDict:
+      SurfaceSampleDict:
+      topoSetDict:
+
+      Probes_FieldAve_Dict:
+          START: "0.12"
+          END: "1000"
+      Probe_Slice_Dict:
+          START: "0.12"
+          END: "1000"
+
+      submit_job_hlrn.sh:
+          RUNTIME : "05:00:00"
+          NODES: "4"
+          PROCS: "384"
+      monitor.py:
+
+probes:
+    profile_probes:
+        pden_ps : 20
+        pden_ss : 20
+        interval_time_steps_probes : 1
+        start_time : 0.12
+        end_time : 1000
+        tolerance : 0.0005
+
+    streamline_probes:
+        nop_streamline : 20
+        interval_time_steps_probes : 1
+        start_time: 0.12
+        end_time: 1000
+
+    inletoutlet_probes:
+        mesh : domain
+        interval_time_steps_probes: 1
+        start_time: 0
+        end_time: 1000
+
+    xsclicing_probes:
+        mesh : domain
+        nop: 10
+        interval_time_steps_probes: 1
+        x_slice_one : -0.08
+        x_slice_two : 0.18
+        start_time: 0.12
+        end_time: 1000
+

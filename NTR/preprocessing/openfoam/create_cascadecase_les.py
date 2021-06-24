@@ -4,20 +4,20 @@ from NTR.preprocessing.openfoam.cascadecase_filetemplates.templates import get_t
     probe_templates
 
 
-def create_cascadecase_les(settings, mainpath, globalparas):
+def create_cascadecase_les(settings, mainpath):
 
     directories = file_templates.keys()
 
     casepath = os.path.join(mainpath, "02_Preprocessing")
 
     create_main_directories(casepath, directories)
-    create_files(casepath, globalparas, settings)
+    create_files(casepath,settings)
 
 
-def create_files(casepath, globalparas, settings):
+def create_files(casepath, settings):
     files = file_templates
 
-    probing_settings = globalparas["probing"]["probes"]
+    probing_settings = settings["probing"]["probes"]
     probes_dict = {}
     for k, v in probing_settings.items():
         if v == True:
@@ -28,7 +28,7 @@ def create_files(casepath, globalparas, settings):
         for file in filenames:
             template_content = templates[directory][file]
 
-            filesettings = settings["case_parameters"][file]
+            filesettings = settings["case"]["case_parameters"][file]
             if filesettings:
                 for key, value in filesettings.items():
                     template_content = template_content.replace("__" + key + "__", value)

@@ -1,3 +1,23 @@
+geometry:
+    beta_meta_01                    : 136.5                                  #Inflow angle [deg]
+    beta_meta_02                    : 111                                   #Outflow angle [deg]
+    pitch                           : 0.0765                                #Pitch [m]
+    alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+
+probing:
+    domain : ""
+    blade : ""
+    probes:
+        massflow_probing: True
+        residual_probing: True
+        profile_probing: False
+        fieldave_probing: False
+        streamline_probing: False
+        inletoutletvelocity_probing: False
+        xslice_probing: False
+        midspanslice_probing: False
+    output_path : "02_Preprocessing/system"
+
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
     executable                      : "iggx86_64.exe"
@@ -35,3 +55,36 @@ mesh:
     shift_vk_block_xaxiscoeff       : 0.26                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.15                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
+
+
+case_settings:
+    name : "GWK_Verdichterkaskade_LES"
+    case_type : "CascadeCase"
+    var_type : "openfoam_instantanious"
+    sim_type: "haha"
+    machine_type : "compressor"
+
+mesh_dict:
+    fluid : "./03_Solution/06_GWKVD_RANS_22900.vtk"
+    blade : "./03_Solution/BLADE/BLADE_22900.vtk"
+
+post_process_settings:
+    calc_gradients :
+        mesh : "fluid"
+        scalar : "U"
+    set_xs:
+        set_x1: -0.08
+        set_x2 : 0.2
+    alpha : 0.2
+
+fluid_coeffs:
+    kappa : 1.4
+    M : 28.86e-3
+    mu : 20.0e-6
+    As : 1.458e-06
+    cp : 1004.5
+    Ts : 110.4
+    l : 0.13
+    p_k : 95000.0
+
+

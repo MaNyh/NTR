@@ -1,3 +1,9 @@
+geometry:
+    beta_meta_01                    : 120                                  #Inflow angle [deg]
+    beta_meta_02                    : 25                                   #Outflow angle [deg]
+    pitch                           : 0.0545                                #Pitch [m]
+    alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
     executable                      : "iggx86_64.exe"
@@ -6,11 +12,8 @@ igg:
 geom:
     ptcloud_profile                 : "00_Ressources/01_Geometry/profile_pointcloud.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "m"                                    #m vs mm
-    beta_meta_01                    : 120                                   #Inflow angle [deg]
-    beta_meta_02                    : 25                                   #Outflow angle [deg]
     x_inlet                         : -0.05                                  #Shift Inlet along x [cm]
     x_outlet                        : 0.14                                  #Shift Outlet along x [cm]
-    pitch                           : 0.0545                                #Pitch [cm]
     shift_domain                    : 0.0
 
 mesh:

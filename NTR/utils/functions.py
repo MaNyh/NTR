@@ -22,9 +22,8 @@ def write_igg_config(file, args):
         pickle.dump(args, Fobj, protocol=0)
 
 
-def run_igg_meshfuncs(settings_yaml, global_yml):
+def run_igg_meshfuncs(settings_yaml):
 
-    globalparas = yaml_dict_read(global_yml)
 
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
@@ -36,11 +35,11 @@ def run_igg_meshfuncs(settings_yaml, global_yml):
     print("create_geometry")
     ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
     create_geometry(ptstxtfile,
-                    globalparas["geometry"]["beta_meta_01"],
-                    globalparas["geometry"]["beta_meta_02"],
+                    settings["geometry"]["beta_meta_01"],
+                    settings["geometry"]["beta_meta_02"],
                     settings["geom"]["x_inlet"],
                     settings["geom"]["x_outlet"],
-                    globalparas["geometry"]["pitch"],
+                    settings["geometry"]["pitch"],
                     settings["geom"]["ptcloud_profile_unit"],
                     settings["geom"]["shift_domain"])
 

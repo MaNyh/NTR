@@ -377,64 +377,64 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     return outprobes
 
 
-def create_probe_dicts(probe_settings):
-    domain = load_mesh(probe_settings["probing"]["domain"])
-    blade = load_mesh(probe_settings["probing"]["blade"])
-    alpha = probe_settings["geometry"]["alpha"]
-    beta_01 = probe_settings["geometry"]["beta_meta_01"]
-    beta_02 = probe_settings["geometry"]["beta_meta_02"]
-    pitch = probe_settings["geometry"]["pitch"]
+def create_probe_dicts(case_settings):
+    domain = load_mesh(case_settings["probing"]["domain"])
+    blade = load_mesh(case_settings["probing"]["blade"])
+    alpha = case_settings["geometry"]["alpha"]
+    beta_01 = case_settings["geometry"]["beta_meta_01"]
+    beta_02 = case_settings["geometry"]["beta_meta_02"]
+    pitch = case_settings["geometry"]["pitch"]
 
-    output_path = probe_settings["probing"]["output_path"]
+    output_path = case_settings["probing"]["output_path"]
 
     probes = {}
 
-    if probe_settings["probing"]["probes"]["profile_probing"]:
+    if case_settings["probing"]["probes"]["profile_probing"]:
         outprobes = createProbesProfileDict(blade,
-                                            probe_settings["profile_probes"]["pden_ps"],
-                                            probe_settings["profile_probes"]["pden_ss"],
-                                            probe_settings["profile_probes"]["interval_time_steps_probes"],
+                                            case_settings["profile_probes"]["pden_ps"],
+                                            case_settings["profile_probes"]["pden_ss"],
+                                            case_settings["profile_probes"]["interval_time_steps_probes"],
                                             output_path,
                                             alpha,
-                                            probe_settings["profile_probes"]["start_time"],
-                                            probe_settings["profile_probes"]["end_time"],
-                                            probe_settings["profile_probes"]["tolerance"]
+                                            case_settings["profile_probes"]["start_time"],
+                                            case_settings["profile_probes"]["end_time"],
+                                            case_settings["profile_probes"]["tolerance"]
                                             )
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["probing"]["probes"]["streamline_probing"]:
+    if case_settings["probing"]["probes"]["streamline_probing"]:
         outprobes = createProbesStreamlineDict(domain,
-                                   alpha,
-                                   probe_settings["streamline_probes"]["nop_streamline"],
-                                   output_path,
-                                   probe_settings["streamline_probes"]["interval_time_steps_probes"],
-                                   beta_01,
-                                   beta_02,
-                                   pitch,
-                                   probe_settings["streamline_probes"]["start_time"],
-                                   probe_settings["streamline_probes"]["end_time"])
+                                               alpha,
+                                               case_settings["streamline_probes"]["nop_streamline"],
+                                               output_path,
+                                               case_settings["streamline_probes"]["interval_time_steps_probes"],
+                                               beta_01,
+                                               beta_02,
+                                               pitch,
+                                               case_settings["streamline_probes"]["start_time"],
+                                               case_settings["streamline_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
+    if case_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         outprobes = createProbesInletOutlet(domain, alpha,
-                                probe_settings["inletoutlet_probes"]["interval_time_steps_probes"],
-                                output_path,
-                                probe_settings["inletoutlet_probes"]["start_time"],
-                                probe_settings["inletoutlet_probes"]["end_time"] )
+                                            case_settings["inletoutlet_probes"]["interval_time_steps_probes"],
+                                            output_path,
+                                            case_settings["inletoutlet_probes"]["start_time"],
+                                            case_settings["inletoutlet_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
-    if probe_settings["probing"]["probes"]["xslice_probing"]:
+    if case_settings["probing"]["probes"]["xslice_probing"]:
         outprobes = createXSliceProbes(domain,
-                           probe_settings["xsclicing_probes"]["nop"],
-                           probe_settings["xsclicing_probes"]["x_slice_one"],
-                           probe_settings["xsclicing_probes"]["x_slice_two"],
-                           probe_settings["xsclicing_probes"]["interval_time_steps_probes"],
-                           output_path,
-                           probe_settings["xsclicing_probes"]["start_time"],
-                           probe_settings["xsclicing_probes"]["end_time"] )
+                                       case_settings["xsclicing_probes"]["nop"],
+                                       case_settings["xsclicing_probes"]["x_slice_one"],
+                                       case_settings["xsclicing_probes"]["x_slice_two"],
+                                       case_settings["xsclicing_probes"]["interval_time_steps_probes"],
+                                       output_path,
+                                       case_settings["xsclicing_probes"]["start_time"],
+                                       case_settings["xsclicing_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
