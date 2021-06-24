@@ -50,33 +50,25 @@ adjustTimeStep  __ADUSTABLETIMESTEP__;
 maxCo           0.4; //maximale courant number
 
 libs (
-"libfieldFunctionObjects.so"
-"libsampling.so"
-"libAdvectiveFields.so"
-"libWaveTransmissiveFields.so"
-"libDFSEM_WaveTransmissive_synthWake.so"
-);
+    "libfieldFunctionObjects.so"
+    "libsampling.so"
+    "libAdvectiveFields.so"
+    "libWaveTransmissiveFields.so"
+    "libDFSEM_WaveTransmissive_synthWake.so"
+    );
 
 
-functions
-{
-//__globalsetting__massflow_probing__//
-//__globalsetting__residual_probing__//
-//__globalsetting__inletoutletfieldave_probing__//
-//__globalsetting__inletoutletvelocity_probing__//
-//__globalsetting__xslice_probing__//
-//__globalsetting__fieldave_probing__//
-//__globalsetting__profile_probing__//
-//__globalsetting__streamline_probing__//
-
-    yPlus
+    functions
     {
-    type    yPlus;
-    libs ("fieldFunctionObjects.so");
-    writeControl timeStep;
-    writeInterval 1;
+        //__globalsetting__massflow_probing__//
+        //__globalsetting__residual_probing__//
+        //__globalsetting__inletoutletfieldave_probing__//
+        //__globalsetting__inletoutletvelocity_probing__//
+        //__globalsetting__xslice_probing__//
+        //__globalsetting__fieldave_probing__//
+        //__globalsetting__profile_probing__//
+        //__globalsetting__streamline_probing__//
     }
-}
-}
+//}
 
 // ************************************************************************* //

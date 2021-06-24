@@ -267,11 +267,7 @@ def sortProfilePoints_meshing(x, y, alpha):
 
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
-
-    #ind_vk, ind_hk = calc_vk_hk(x, y)
-
-    ind_hk = x.index(max(x))
-    ind_vk = x.index(min(x))
+    ind_vk, ind_hk = calc_vk_hk(x, y)
 
     begin = min([ind_hk, ind_vk])
     end = max([ind_hk, ind_vk])
@@ -323,7 +319,7 @@ def calc_vk_hk(x_koords, y_koords):
     return index_vk, index_hk
 
 
-def calcMeanCamberLine(x, y):
+def calcMeanCamberLine(x, y, alpha):
     # vk und hk bestimmen
 
     ind_vk, ind_hk = calc_vk_hk(x, y)
@@ -334,7 +330,7 @@ def calcMeanCamberLine(x, y):
     x_hk = x[ind_hk]
     y_hk = y[ind_hk]
 
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x, y, alpha=0.01)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x, y, alpha=alpha)
 
     x_mid_ss, y_mid_ss = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
     x_mid_ps, y_mid_ps = calcMidPoints(x_ps, y_ps, x_ss, y_ss)
