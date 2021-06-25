@@ -32,15 +32,15 @@ geom:
 
 mesh:
     factor                          : 1.7                                   #Mesh-density factor
-    ogrid_factor                    : 1.2                                     #o-grid-node-ratio
+    ogrid_factor                    : 1.8                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                             #first cell height when factor=1
     le_firstcellheight_coeff        : 0.4
     te_firstcellheight_coeff        : 0.8
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 12                                    #fixed cells in boundary layer
-    extrudeLength                   : 0.04                                  #length of extruded span
-    blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
+    extrudeLength                   : 0.03                                  #length of extruded span
+    blockStartFromChord             : 0.010                                 #LE and TE-Block Meshing
     hk_ps_shift                     : 1                                     #LE and TE-Block Meshing
     hk_ss_shift                     : 1
     vk_ps_shift                     : 1                                     #LE and TE-Block Meshing
