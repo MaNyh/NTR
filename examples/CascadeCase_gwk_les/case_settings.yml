@@ -31,7 +31,7 @@ geom:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.7                                   #Mesh-density factor
+    factor                          : 1.5                                   #Mesh-density factor
     ogrid_factor                    : 1.8                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                             #first cell height when factor=1

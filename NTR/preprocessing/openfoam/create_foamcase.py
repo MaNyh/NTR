@@ -1,24 +1,52 @@
 import os
 
-from NTR.preprocessing.openfoam.cascadecase_les_filetemplates.templates import get_template_contents, file_templates, \
-    probe_templates
+import NTR
+from NTR.preprocessing.openfoam.cascadecase_les_filetemplates import les_templates
+from NTR.preprocessing.openfoam.filetemplate_utils import get_template_contents
+from NTR.utils.functions import yaml_dict_read
+#from NTR.preprocessing.openfoam.cascadecase_les_filetemplates.templates import get_template_contents, file_templates, \
+#    probe_templates
 
 
-def create_cascadecase_les(settings, mainpath):
+def create_cascadecase_les(settings, mainpath, file_templates, probe_templates):
 
     directories = file_templates.keys()
 
     casepath = os.path.join(mainpath, "02_Preprocessing")
+    templatepath = os.path.abspath(os.path.dirname(NTR.preprocessing.openfoam.cascadecase_les_filetemplates.__file__))
 
     create_main_directories(casepath, directories)
-    create_files(casepath,settings)
+    create_files(casepath, settings, file_templates, probe_templates, templatepath)
 
-def create_case(settings, mainpath):
-    if settings[]:
-        pass
 
-def create_files(casepath, settings):
-    files = file_templates
+def create_cascadecase_ras(settings, mainpath, file_templates, probe_templates):
+
+    directories = file_templates.keys()
+
+    casepath = os.path.join(mainpath, "02_Preprocessing")
+    templatepath = os.path.abspath(os.path.dirname(NTR.preprocessing.openfoam.cascadecase_les_filetemplates.__file__))
+
+    create_main_directories(casepath, directories)
+    create_files(casepath, settings, file_templates, probe_templates, templatepath)
+
+
+def create_foamcase(setting_file):
+
+    settings = yaml_dict_read(setting_file)
+    mainpath = os.path.abspath(os.path.dirname(setting_file))
+
+    if settings["case_settings"]["sim_type"] == "openfoam_les":
+        file_templates = les_templates.file_templates
+        probe_templates = les_templates.probe_templates
+        create_cascadecase_les(settings, mainpath, file_templates, probe_templates)
+
+    elif settings["case_settings"]["sim_type"] == "openfoam_ras":
+        file_templates = les_templates.file_templates
+        probe_templates = les_templates.probe_templates
+        create_cascadecase_ras(settings, mainpath, file_templates, probe_templates)
+
+
+def create_files(casepath, settings, files, probe_templates, templatepath):
 
     probing_settings = settings["probing"]["probes"]
     probes_dict = {}
@@ -26,7 +54,7 @@ def create_files(casepath, settings):
         if v == True:
             probes_dict[k] = probe_templates[k]
 
-    templates = get_template_contents()
+    templates = get_template_contents(templatepath, files)
     for directory, filenames in files.items():
         for file in filenames:
             template_content = templates[directory][file]

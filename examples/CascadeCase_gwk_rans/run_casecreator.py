@@ -1,4 +1,4 @@
-from NTR.preprocessing.case_creator import create_case
+from NTR.preprocessing.openfoam.create_foamcase import create_foamcase
 
 
-create_case("case_settings.yml")
+create_foamcase("case_settings.yml")
