@@ -20,6 +20,7 @@ __pycache__/
 *.config
 *.geom
 *.txt
+/examples/*/02_Preprocessing
 
 # project files
 .idea/
