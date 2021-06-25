@@ -5,8 +5,8 @@ geometry:
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
 
 probing:
-    domain : ""
-    blade : ""
+    domain : "00_Ressources/02_UsedMesh/10_GWKVD_RANS_0.vtk"
+    blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
     probes:
         massflow_probing: True
         residual_probing: True
@@ -31,11 +31,11 @@ geom:
     x_inlet                         : -0.1                                  #Shift Inlet along x [m]
     x_outlet                        : 0.27                                  #Shift Outlet along x [m]
     pitch                           : 0.0765                                #Pitch [m]
-    shift_domain                    : 0.0
+    shift_domain: 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
     factor                          : 1.7                                   #Mesh-density factor
-    ogrid_factor                    : 1.3                                   #o-grid-node-ratio
+    ogrid_factor                    : 1.2                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                              #first cell height when factor=1
     le_firstcellheight_coeff        : 0.4
@@ -50,18 +50,18 @@ mesh:
     vk_ss_shift                     : 1
     cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
-    yPerLowHGridBlockPitchStart     : 0.3                                   #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.75                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.26                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : 0.15                                  #move periodic vertices (yPer from TE) along x
+    yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.55                                  #move high-y-per-block along y-pitch
+    shift_vk_block_xaxiscoeff       : 0.6                                  #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : 0.125                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
 
 
 case_settings:
-    name : "GWK_Verdichterkaskade_LES"
+    name : "GWK_Verdichterkaskade_RAS"
     case_type : "CascadeCase"
     var_type : "openfoam_instantanious"
-    sim_type: "haha"
+    sim_type: "openfoam_ras"
     machine_type : "compressor"
 
 mesh_dict:
@@ -88,3 +88,44 @@ fluid_coeffs:
     p_k : 95000.0
 
 
+case:
+    case_parameters:
+      U :
+        UINLET : "35.392445 58.06355 0"
+        RINLET : "2 0 0 2 0 2"
+        LINLET : "0.01"
+        EDDYDENSITY : "10"
+      T :
+        TINLET : "293.15"
+      p :
+        PINLET : "101325"
+      alphat:
+      nut:
+      thermophysicalProperties:
+      turbulenceProperties:
+      controlDict:
+        WRITEINTERVAL : "2000"
+        DELTAT : "5e-8"
+        ADUSTABLETIMESTEP : "on"
+        STARTAVETIME : "0.045"
+      createPatchDict:
+      decomposeParDict:
+        PROCS: "384"
+      fvSchemes:
+      fvSolution:
+      mapFieldsDict:
+      SurfaceSampleDict:
+      topoSetDict:
+
+      Probes_FieldAve_Dict:
+          START: "0.12"
+          END: "1000"
+      Probe_Slice_Dict:
+          START: "0.12"
+          END: "1000"
+
+      submit_job_hlrn.sh:
+          RUNTIME : "05:00:00"
+          NODES: "4"
+          PROCS: "384"
+      monitor.py:

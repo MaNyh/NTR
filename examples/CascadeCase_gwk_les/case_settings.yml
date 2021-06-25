@@ -31,12 +31,12 @@ geom:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.3                                   #Mesh-density factor
-    ogrid_factor                    : 2.0                                     #o-grid-node-ratio
+    factor                          : 1.7                                   #Mesh-density factor
+    ogrid_factor                    : 1.2                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                             #first cell height when factor=1
-    le_firstcellheight_coeff        : 1
-    te_firstcellheight_coeff        : 1
+    le_firstcellheight_coeff        : 0.4
+    te_firstcellheight_coeff        : 0.8
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 12                                    #fixed cells in boundary layer
     extrudeLength                   : 0.04                                  #length of extruded span

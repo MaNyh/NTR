@@ -1,6 +1,6 @@
 import os
 
-from NTR.preprocessing.openfoam.cascadecase_filetemplates.templates import get_template_contents, file_templates, \
+from NTR.preprocessing.openfoam.cascadecase_les_filetemplates.templates import get_template_contents, file_templates, \
     probe_templates
 
 
@@ -13,6 +13,9 @@ def create_cascadecase_les(settings, mainpath):
     create_main_directories(casepath, directories)
     create_files(casepath,settings)
 
+def create_case(settings, mainpath):
+    if settings[]:
+        pass
 
 def create_files(casepath, settings):
     files = file_templates
