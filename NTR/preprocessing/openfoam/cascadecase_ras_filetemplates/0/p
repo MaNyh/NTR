@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1612+                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0.042";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 101325;
+
+boundaryField
+{
+    INLET
+    {
+        type            waveTransmissive;
+        gamma           1.4;
+	value		101325;
+	fieldInf  	101325;
+    }
+    OUTLET
+    {
+        type            waveTransmissive;
+	gamma		1.4;
+	value		uniform 101325;
+    }
+    BLADE
+    {
+        type            zeroGradient;
+    }
+
+    Z_lower
+    {
+        type            cyclic;
+    }
+
+    Z_upper
+    {
+        type            cyclic;
+    }
+
+    Y_lower
+    {
+        type            cyclic;
+    }
+
+    Y_upper
+    {
+        type            cyclic;
+    }
+
+
+}
+// ************************************************************************* //
