@@ -151,7 +151,7 @@ def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
 
-    x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil)
+    x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil, alpha)
 
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
 
@@ -391,14 +391,14 @@ def create_probe_dicts(case_settings):
 
     if case_settings["probing"]["probes"]["profile_probing"]:
         outprobes = createProbesProfileDict(blade,
-                                            case_settings["profile_probes"]["pden_ps"],
-                                            case_settings["profile_probes"]["pden_ss"],
-                                            case_settings["profile_probes"]["interval_time_steps_probes"],
+                                            case_settings["probes"]["profile_probes"]["pden_ps"],
+                                            case_settings["probes"]["profile_probes"]["pden_ss"],
+                                            case_settings["probes"]["profile_probes"]["interval_time_steps_probes"],
                                             output_path,
                                             alpha,
-                                            case_settings["profile_probes"]["start_time"],
-                                            case_settings["profile_probes"]["end_time"],
-                                            case_settings["profile_probes"]["tolerance"]
+                                            case_settings["probes"]["profile_probes"]["start_time"],
+                                            case_settings["probes"]["profile_probes"]["end_time"],
+                                            case_settings["probes"]["profile_probes"]["tolerance"]
                                             )
         for k, v in outprobes.items():
             probes[k] = v
@@ -406,35 +406,35 @@ def create_probe_dicts(case_settings):
     if case_settings["probing"]["probes"]["streamline_probing"]:
         outprobes = createProbesStreamlineDict(domain,
                                                alpha,
-                                               case_settings["streamline_probes"]["nop_streamline"],
+                                               case_settings["probes"]["streamline_probes"]["nop_streamline"],
                                                output_path,
-                                               case_settings["streamline_probes"]["interval_time_steps_probes"],
+                                               case_settings["probes"]["streamline_probes"]["interval_time_steps_probes"],
                                                beta_01,
                                                beta_02,
                                                pitch,
-                                               case_settings["streamline_probes"]["start_time"],
-                                               case_settings["streamline_probes"]["end_time"])
+                                               case_settings["probes"]["streamline_probes"]["start_time"],
+                                               case_settings["probes"]["streamline_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
     if case_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         outprobes = createProbesInletOutlet(domain, alpha,
-                                            case_settings["inletoutlet_probes"]["interval_time_steps_probes"],
+                                            case_settings["probes"]["inletoutlet_probes"]["interval_time_steps_probes"],
                                             output_path,
-                                            case_settings["inletoutlet_probes"]["start_time"],
-                                            case_settings["inletoutlet_probes"]["end_time"])
+                                            case_settings["probes"]["inletoutlet_probes"]["start_time"],
+                                            case_settings["probes"]["inletoutlet_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
     if case_settings["probing"]["probes"]["xslice_probing"]:
         outprobes = createXSliceProbes(domain,
-                                       case_settings["xsclicing_probes"]["nop"],
-                                       case_settings["xsclicing_probes"]["x_slice_one"],
-                                       case_settings["xsclicing_probes"]["x_slice_two"],
-                                       case_settings["xsclicing_probes"]["interval_time_steps_probes"],
+                                       case_settings["probes"]["xsclicing_probes"]["nop"],
+                                       case_settings["probes"]["xsclicing_probes"]["x_slice_one"],
+                                       case_settings["probes"]["xsclicing_probes"]["x_slice_two"],
+                                       case_settings["probes"]["xsclicing_probes"]["interval_time_steps_probes"],
                                        output_path,
-                                       case_settings["xsclicing_probes"]["start_time"],
-                                       case_settings["xsclicing_probes"]["end_time"])
+                                       case_settings["probes"]["xsclicing_probes"]["start_time"],
+                                       case_settings["probes"]["xsclicing_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
@@ -475,3 +475,7 @@ def create_probe_dicts(case_settings):
     plt.legend(loc='best')
     plt.savefig(os.path.join('kontrollplot_probes.pdf'))
     plt.close('all')
+
+
+def create_inletoutletave_probe_dict():
+    pass

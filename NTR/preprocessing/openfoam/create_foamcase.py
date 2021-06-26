@@ -4,8 +4,8 @@ import NTR
 from NTR.preprocessing.openfoam.cascadecase_les_filetemplates import les_templates
 from NTR.preprocessing.openfoam.filetemplate_utils import get_template_contents
 from NTR.utils.functions import yaml_dict_read
-#from NTR.preprocessing.openfoam.cascadecase_les_filetemplates.templates import get_template_contents, file_templates, \
-#    probe_templates
+from NTR.preprocessing.openfoam.create_probes import create_probe_dicts
+
 
 
 def create_cascadecase_les(settings, mainpath, file_templates, probe_templates):
@@ -39,6 +39,7 @@ def create_foamcase(setting_file):
         file_templates = les_templates.file_templates
         probe_templates = les_templates.probe_templates
         create_cascadecase_les(settings, mainpath, file_templates, probe_templates)
+        create_probe_dicts(settings)
 
     elif settings["case_settings"]["sim_type"] == "openfoam_ras":
         file_templates = les_templates.file_templates

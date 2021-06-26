@@ -61,7 +61,6 @@ libs (
     functions
     {
         //__globalsetting__massflow_probing__//
-        //__globalsetting__residual_probing__//
         //__globalsetting__inletoutletfieldave_probing__//
         //__globalsetting__inletoutletvelocity_probing__//
         //__globalsetting__xslice_probing__//

@@ -7,15 +7,6 @@ geometry:
 probing:
     domain : "00_Ressources/02_UsedMesh/10_GWKVD_RANS_0.vtk"
     blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
-    probes:
-        massflow_probing: True
-        residual_probing: True
-        profile_probing: False
-        fieldave_probing: False
-        streamline_probing: False
-        inletoutletvelocity_probing: False
-        xslice_probing: False
-        midspanslice_probing: False
     output_path : "02_Preprocessing/system"
 
 igg:
