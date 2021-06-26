@@ -18,7 +18,7 @@ probing:
         profile_probing: True
         fieldave_probing: True
         streamline_probing: True
-        inletoutletave_probing: True
+        inletoutletfieldave_probing: True
         inletoutletvelocity_probing: True
         xslice_probing: True
         midspanslice_probing: True
@@ -119,6 +119,11 @@ probes:
 
     inletoutlet_probes:
         mesh : domain
+        interval_time_steps_probes: 1
+        start_time: 0
+        end_time: 1000
+
+    inletoutletfieldave_probing:
         interval_time_steps_probes: 1
         start_time: 0
         end_time: 1000

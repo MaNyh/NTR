@@ -25,9 +25,8 @@ file_templates = {"0": ["alphat",
 
 probe_templates = {}
 
-probe_templates["inletoutletave_probing"] = """
-    #includeFunc  flowRatePatch(name=INLET)
-    #includeFunc  flowRatePatch(name=OUTLET)"""
+probe_templates["inletoutletfieldave_probing"] = """
+    #include Probes_inletoutletave_Dict"""
 
 
 probe_templates["inletoutletvelocity_probing"] = """

@@ -438,6 +438,12 @@ def create_probe_dicts(case_settings):
         for k, v in outprobes.items():
             probes[k] = v
 
+    if case_settings["probing"]["probes"]["inletoutletfieldave_probing"]:
+        create_inletoutletave_probe_dict(case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
+                                         case_settings["probes"]["inletoutletfieldave_probing"]["end_time"],
+                                         case_settings["probes"]["inletoutletfieldave_probing"]["interval_time_steps_probes"],
+                                         output_path)
+
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(domain, alpha)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(x_bounds, y_bounds)
@@ -477,5 +483,102 @@ def create_probe_dicts(case_settings):
     plt.close('all')
 
 
-def create_inletoutletave_probe_dict():
-    pass
+def create_inletoutletave_probe_dict(start_time, end_time, interval_time_steps_probes, output_path):
+
+    with open(os.path.join(output_path, 'Probes_inletoutletave_Dict'), 'w') as data_file:
+        data_file.write("""
+
+MassflowInlet
+    {
+        type                surfaceFieldValue;
+        libs                ("libfieldFunctionObjects.so");
+        writeControl        timeStep;
+        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        timeStart           """ + str(start_time) + """;
+        timeEnd             """ + str(end_time) + """;
+
+        log                     true;
+        writeFields             false;
+        regionType              patch;
+        name                    INLET;
+        operation               sum;
+
+            fields
+            (
+                phi
+            );
+    }
+
+
+AverValuesInlet
+    {
+        type                    surfaceFieldValue;
+        libs                    ("libfieldFunctionObjects.so");
+        writeControl            timeStep;
+        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        timeStart           """ + str(start_time) + """;
+        timeEnd             """ + str(end_time) + """;
+        log                     true;
+        writeFields             false;
+        regionType              patch;
+        name                    INLET;
+        operation               areaAverage;
+
+            fields
+            (
+                U
+                p
+                rho
+                T
+
+            );
+    }
+
+
+MassflowOutlet
+    {
+        type                surfaceFieldValue;
+        libs                ("libfieldFunctionObjects.so");
+        writeControl        timeStep;
+        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        timeStart           """ + str(start_time) + """;
+        timeEnd             """ + str(end_time) + """;
+
+        log                     true;
+        writeFields             false;
+        regionType              patch;
+        name                    OUTLET;
+        operation               sum;
+
+            fields
+            (
+                phi
+            );
+    }
+
+
+AverValuesInlet
+    {
+        type                    surfaceFieldValue;
+        libs                    ("libfieldFunctionObjects.so");
+        writeControl            timeStep;
+        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        timeStart           """ + str(start_time) + """;
+        timeEnd             """ + str(end_time) + """;
+        log                     true;
+        writeFields             false;
+        regionType              patch;
+        name                    OUTLET;
+        operation               areaAverage;
+
+            fields
+            (
+                U
+                p
+                rho
+                T
+
+            );
+    }
+    """)
+    return 0
