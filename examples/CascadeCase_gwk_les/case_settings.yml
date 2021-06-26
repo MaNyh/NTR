@@ -10,12 +10,12 @@ probing:
     probes:
         massflow_probing: True
         residual_probing: True
-        profile_probing: False
+        profile_probing: True
         fieldave_probing: True
-        streamline_probing: False
-        inletoutletvelocity_probing: False
-        xslice_probing: False
-        midspanslice_probing: False
+        streamline_probing: True
+        inletoutletvelocity_probing: True
+        xslice_probing: True
+        midspanslice_probing: True
     output_path : "02_Preprocessing/system"
 
 igg:
@@ -31,7 +31,7 @@ geom:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.5                                   #Mesh-density factor
+    factor                          : 1.4                                   #Mesh-density factor
     ogrid_factor                    : 1.8                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                             #first cell height when factor=1
@@ -40,12 +40,12 @@ mesh:
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 12                                    #fixed cells in boundary layer
     extrudeLength                   : 0.03                                  #length of extruded span
-    blockStartFromChord             : 0.010                                 #LE and TE-Block Meshing
+    blockStartFromChord             : 0.011                                 #LE and TE-Block Meshing
     hk_ps_shift                     : 1                                     #LE and TE-Block Meshing
     hk_ss_shift                     : 1
     vk_ps_shift                     : 1                                     #LE and TE-Block Meshing
     vk_ss_shift                     : 1
-    cellwidthcoeff                  : 0.001                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    cellwidthcoeff                  : 0.002                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.55                                  #move high-y-per-block along y-pitch
