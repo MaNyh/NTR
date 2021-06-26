@@ -57,16 +57,16 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
         point = points[idx]
         normal = surface_normals[idx]
 
-        x_ss_shift.append(point[0] - tolerance * normal[0])
-        y_ss_shift.append(point[1] - tolerance * normal[1])
+        x_ss_shift.append(point[0] + tolerance * normal[0])
+        y_ss_shift.append(point[1] + tolerance * normal[1])
 
     for pt in np.stack([x_ps, y_ps]).T:
         idx = np.where(pt == phelp)[0][0]
         point = points[idx]
         normal = surface_normals[idx]
 
-        x_ps_shift.append(point[0] + tolerance * normal[0])
-        y_ps_shift.append(point[1] + tolerance * normal[1])
+        x_ps_shift.append(point[0] - tolerance * normal[0])
+        y_ps_shift.append(point[1] - tolerance * normal[1])
 
     x_bl_ss = x_ss_shift[::int(pden_Probes_Profile_SS)]
     y_bl_ss = y_ss_shift[::int(pden_Probes_Profile_SS)]
@@ -525,7 +525,7 @@ AverValuesInlet
         type                    surfaceFieldValue;
         libs                    ("libfieldFunctionObjects.so");
         writeControl            timeStep;
-        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        writeInterval           """ + str(int(interval_time_steps_probes)) + """;
         timeStart           """ + str(start_time) + """;
         timeEnd             """ + str(end_time) + """;
         log                     true;
@@ -567,7 +567,7 @@ MassflowOutlet
     }
 
 
-AverValuesInlet
+AverValuesOutlet
     {
         type                    surfaceFieldValue;
         libs                    ("libfieldFunctionObjects.so");

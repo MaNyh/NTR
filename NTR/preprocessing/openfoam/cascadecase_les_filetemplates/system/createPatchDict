@@ -64,7 +64,7 @@ patches
             neighbourPatch Z_upper;
 
             transform translational;
-            separationVector (0 0 0.04);
+            separationVector (0 0 __ZSPAN__);
             matchTolerance 0.02;
         }
 
@@ -89,7 +89,7 @@ patches
             neighbourPatch Z_lower;
 
             transform translational;
-            separationVector (0 0 -0.04);
+            separationVector (0 0 -__ZSPAN__);
             matchTolerance 0.1;
         }
 
