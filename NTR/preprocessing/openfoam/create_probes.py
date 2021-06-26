@@ -99,7 +99,6 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
                 U
                 p
                 T
-                gradU
                 nut
                 rho
             );
@@ -190,7 +189,6 @@ fields
     U
     p
     T
-    gradU
     nut
     rho
 );
