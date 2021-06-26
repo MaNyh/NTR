@@ -388,10 +388,12 @@ def create_probe_dicts(case_settings):
     probes = {}
 
     if case_settings["probing"]["probes"]["profile_probing"]:
+        sampling_rate = case_settings["probes"]["profile_probes"]["sampling_rate"]
+        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
         outprobes = createProbesProfileDict(blade,
                                             case_settings["probes"]["profile_probes"]["pden_ps"],
                                             case_settings["probes"]["profile_probes"]["pden_ss"],
-                                            case_settings["probes"]["profile_probes"]["interval_time_steps_probes"],
+                                            timestepinterval,
                                             output_path,
                                             alpha,
                                             case_settings["probes"]["profile_probes"]["start_time"],
@@ -402,11 +404,14 @@ def create_probe_dicts(case_settings):
             probes[k] = v
 
     if case_settings["probing"]["probes"]["streamline_probing"]:
+
+        sampling_rate = case_settings["probes"]["streamline_probes"]["sampling_rate"]
+        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
         outprobes = createProbesStreamlineDict(domain,
                                                alpha,
                                                case_settings["probes"]["streamline_probes"]["nop_streamline"],
                                                output_path,
-                                               case_settings["probes"]["streamline_probes"]["interval_time_steps_probes"],
+                                               timestepinterval,
                                                beta_01,
                                                beta_02,
                                                pitch,
@@ -416,8 +421,10 @@ def create_probe_dicts(case_settings):
             probes[k] = v
 
     if case_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
+        sampling_rate = case_settings["probes"]["inletoutlet_probes"]["sampling_rate"]
+        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
         outprobes = createProbesInletOutlet(domain, alpha,
-                                            case_settings["probes"]["inletoutlet_probes"]["interval_time_steps_probes"],
+                                            timestepinterval,
                                             output_path,
                                             case_settings["probes"]["inletoutlet_probes"]["start_time"],
                                             case_settings["probes"]["inletoutlet_probes"]["end_time"])
@@ -425,11 +432,14 @@ def create_probe_dicts(case_settings):
             probes[k] = v
 
     if case_settings["probing"]["probes"]["xslice_probing"]:
+
+        sampling_rate = case_settings["probes"]["xsclicing_probes"]["sampling_rate"]
+        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
         outprobes = createXSliceProbes(domain,
                                        case_settings["probes"]["xsclicing_probes"]["nop"],
                                        case_settings["probes"]["xsclicing_probes"]["x_slice_one"],
                                        case_settings["probes"]["xsclicing_probes"]["x_slice_two"],
-                                       case_settings["probes"]["xsclicing_probes"]["interval_time_steps_probes"],
+                                       timestepinterval,
                                        output_path,
                                        case_settings["probes"]["xsclicing_probes"]["start_time"],
                                        case_settings["probes"]["xsclicing_probes"]["end_time"])
@@ -437,9 +447,11 @@ def create_probe_dicts(case_settings):
             probes[k] = v
 
     if case_settings["probing"]["probes"]["inletoutletfieldave_probing"]:
+        sampling_rate = case_settings["probes"]["inletoutletfieldave_probing"]["sampling_rate"]
+        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
         create_inletoutletave_probe_dict(case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
                                          case_settings["probes"]["inletoutletfieldave_probing"]["end_time"],
-                                         case_settings["probes"]["inletoutletfieldave_probing"]["interval_time_steps_probes"],
+                                         timestepinterval,
                                          output_path)
 
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(domain, alpha)

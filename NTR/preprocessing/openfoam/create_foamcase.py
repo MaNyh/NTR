@@ -68,6 +68,7 @@ def create_files(casepath, settings, files, probe_templates, templatepath):
             if file == "controlDict":
                 for key, value in probes_dict.items():
                     template_content = template_content.replace("//__globalsetting__" + key + "__//", value)
+                template_content =  template_content.replace("__DELTAT__", str(settings["case_settings"]["timestep"]))
 
 
             with open(os.path.join(casepath, directory, file), "w", newline='\n') as fobj:

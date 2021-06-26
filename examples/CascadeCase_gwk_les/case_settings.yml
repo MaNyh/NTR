@@ -4,6 +4,7 @@ case_settings:
     var_type : "openfoam_timeaverage"
     sim_type: "openfoam_les"
     machine_type : "compressor"
+    timestep : "5e-8"
 
 geometry:
     beta_meta_01                    : 136.5                                  #Inflow angle [deg]
@@ -77,7 +78,6 @@ case:
       turbulenceProperties:
       controlDict:
         WRITEINTERVAL : "2000"
-        DELTAT : "5e-8"
         ADUSTABLETIMESTEP : "on"
         STARTAVETIME : "0.045"
       createPatchDict:
@@ -106,32 +106,32 @@ probes:
     profile_probes:
         pden_ps : 20
         pden_ss : 20
-        interval_time_steps_probes : 1
+        sampling_rate : 1e6 #Hz
         start_time : 0.12
         end_time : 1000
         tolerance : 0.0005
 
     streamline_probes:
         nop_streamline : 20
-        interval_time_steps_probes : 1
+        sampling_rate: 1e6 #Hz
         start_time: 0.12
         end_time: 1000
 
     inletoutlet_probes:
         mesh : domain
-        interval_time_steps_probes: 1
+        sampling_rate: 1e4 #Hz
         start_time: 0
         end_time: 1000
 
     inletoutletfieldave_probing:
-        interval_time_steps_probes: 1
+        sampling_rate: 1e4 #Hz
         start_time: 0
         end_time: 1000
 
     xsclicing_probes:
         mesh : domain
         nop: 10
-        interval_time_steps_probes: 1
+        sampling_rate: 1e4 #Hz
         x_slice_one : -0.08
         x_slice_two : 0.18
         start_time: 0.12
