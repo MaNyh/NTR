@@ -1,6 +1,5 @@
 import math
 import numpy as np
-import pyvista as pv
 
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
@@ -9,7 +8,7 @@ from scipy.spatial.distance import pdist, squareform
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
-from NTR.utils.pyvista_utils import slice_midspan_z, mesh_scalar_gradients
+from NTR.utils.pyvista_utils import slice_midspan_z
 
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
@@ -661,6 +660,7 @@ def GetProfileValuesMidspan(case):
 
         wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal,
                                                     rho, nu, p)
+
         wall_shear_stress_abs = np.linalg.norm(wall_shear_stress_vec)
         if wall_shear_stress_vec[0] < 0 and face_normal[0] > 0:  # hier ist noch ein fehler. Auch der normalen Vektor des faces muss mit einbezogen werden
             wall_shear_stress_abs = -wall_shear_stress_abs
@@ -695,7 +695,7 @@ def GetProfileValuesMidspan(case):
 def getPitchValuesB2BSliceComplete(case, x):
     mesh = case.mesh_loaded_dict["fluid"]
 
-    cut_plane = mesh.slice(normal="x",origin=(x,0,0))
+    cut_plane = mesh.slice(normal="x", origin=(x, 0, 0))
 
     points = cut_plane.points
 
