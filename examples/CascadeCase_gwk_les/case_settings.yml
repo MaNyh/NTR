@@ -4,7 +4,7 @@ case_settings:
     var_type : "openfoam_timeaverage"
     sim_type: "openfoam_les"
     machine_type : "compressor"
-    timestep : "5e-8"
+    timestep : "3e-8"
 
 geometry:
     beta_meta_01                    : 136.5                                  #Inflow angle [deg]
@@ -13,11 +13,10 @@ geometry:
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
 
 probing:
-    domain : "00_Ressources/02_UsedMesh/09_OpenFOAM_compCascade_0.vtk"
+    domain : "00_Ressources/02_UsedMesh/12_OpenFOAM_compCascade_0.vtk"
     blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
     probes:
         profile_probing: True
-        fieldave_probing: True
         streamline_probing: True
         inletoutletfieldave_probing: True
         inletoutletvelocity_probing: True
@@ -38,7 +37,7 @@ geom:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.4                                   #Mesh-density factor
+    factor                          : 1.6                                   #Mesh-density factor
     ogrid_factor                    : 1.8                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                             #first cell height when factor=1
@@ -47,12 +46,12 @@ mesh:
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 12                                    #fixed cells in boundary layer
     extrudeLength                   : 0.03                                  #length of extruded span
-    blockStartFromChord             : 0.011                                 #LE and TE-Block Meshing
+    blockStartFromChord             : 0.009                                 #LE and TE-Block Meshing
     hk_ps_shift                     : 1                                     #LE and TE-Block Meshing
     hk_ss_shift                     : 1
     vk_ps_shift                     : 1                                     #LE and TE-Block Meshing
     vk_ss_shift                     : 1
-    cellwidthcoeff                  : 0.002                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    cellwidthcoeff                  : 0.08                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.55                                  #move high-y-per-block along y-pitch
@@ -65,7 +64,7 @@ case:
     case_parameters:
       U :
         UINLET : "35.392445 58.06355 0"
-        RINLET : "2 0 0 2 0 2"
+        RINLET : "6 0 0 6 0 6"
         LINLET : "0.01"
         EDDYDENSITY : "10"
       T :
@@ -77,12 +76,12 @@ case:
       thermophysicalProperties:
       turbulenceProperties:
       controlDict:
-        WRITEINTERVAL : "2000"
-        ADUSTABLETIMESTEP : "on"
-        STARTAVETIME : "0.045"
+        WRITEINTERVAL : "1000"
+        ADUSTABLETIMESTEP : "off"
+        STARTAVETIME : "0.12"
       createPatchDict:
       decomposeParDict:
-        PROCS: "384"
+        PROCS: "480"
       fvSchemes:
       fvSolution:
       mapFieldsDict:
@@ -98,8 +97,8 @@ case:
 
       submit_job_hlrn.sh:
           RUNTIME : "05:00:00"
-          NODES: "4"
-          PROCS: "384"
+          NODES: "5"
+          PROCS: "480"
       monitor.py:
 
 probes:
@@ -107,21 +106,21 @@ probes:
         pden_ps : 20
         pden_ss : 20
         sampling_rate : 1e6 #Hz
-        start_time : 0.12
-        end_time : 1000
-        tolerance : 0.0005
+        start_time : 0.12 #s
+        end_time : 1000 #s
+        tolerance : -0.00005
 
     streamline_probes:
         nop_streamline : 20
         sampling_rate: 1e6 #Hz
-        start_time: 0.12
-        end_time: 1000
+        start_time: 0.12 #s
+        end_time: 1000 #s
 
     inletoutlet_probes:
         mesh : domain
         sampling_rate: 1e4 #Hz
-        start_time: 0
-        end_time: 1000
+        start_time: 0 #s
+        end_time: 1000 #s
 
     inletoutletfieldave_probing:
         sampling_rate: 1e4 #Hz
@@ -134,6 +133,6 @@ probes:
         sampling_rate: 1e4 #Hz
         x_slice_one : -0.08
         x_slice_two : 0.18
-        start_time: 0.12
-        end_time: 1000
+        start_time: 0.12 #s
+        end_time: 1000 #s
 
