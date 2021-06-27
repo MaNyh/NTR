@@ -4,7 +4,7 @@ case_settings:
     var_type : "openfoam_timeaverage"
     sim_type: "openfoam_les"
     machine_type : "compressor"
-    timestep : "3e-8"
+    timestep : "2.5e-8"
 
 geometry:
     beta_meta_01                    : 136.5                                  #Inflow angle [deg]
@@ -65,8 +65,9 @@ case:
       U :
         UINLET : "35.392445 58.06355 0"
         RINLET : "6 0 0 6 0 6"
-        LINLET : "0.01"
+        LINLET : "0.015"
         EDDYDENSITY : "10"
+        UDASHSCALING : "1"
       T :
         TINLET : "293.15"
       p :
@@ -118,19 +119,19 @@ probes:
 
     inletoutlet_probes:
         mesh : domain
-        sampling_rate: 1e4 #Hz
+        sampling_rate: 1e5 #Hz
         start_time: 0 #s
         end_time: 1000 #s
 
     inletoutletfieldave_probing:
-        sampling_rate: 1e4 #Hz
+        sampling_rate: 1e5 #Hz
         start_time: 0
         end_time: 1000
 
     xsclicing_probes:
         mesh : domain
         nop: 10
-        sampling_rate: 1e4 #Hz
+        sampling_rate: 1e5 #Hz
         x_slice_one : -0.08
         x_slice_two : 0.18
         start_time: 0.12 #s
