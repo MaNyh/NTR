@@ -210,7 +210,8 @@ def calcConcaveHull(x, y, alpha):
 
     return x_new, y_new
 
-def sortProfilePoints_meshing(x, y, alpha):
+
+def sortProfilePoints(x, y, alpha):
 
     x, y = calcConcaveHull(x, y, alpha=alpha)
 
@@ -263,7 +264,7 @@ def sortProfilePoints_meshing(x, y, alpha):
         y_ps = y
 
     return x_ss, y_ss, x_ps, y_ps
-
+"""
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
     ind_vk, ind_hk = calc_vk_hk(x, y)
@@ -278,10 +279,10 @@ def sortProfilePoints(x, y, alpha):
     x_ps = x[:begin] + x[end:]
 
     x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
-    x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
+    #x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
 
     return x_ss, y_ss, x_ps, y_ps
-
+"""
 
 def rotate_points(origin, x, y, angle):
     """
