@@ -16,7 +16,7 @@ file_templates = {"0": ["alphat",
                              "Probe_Slice_Dict",
                              "topoSetDict"],
 
-                  "utils": ["monitor.py"],
+                  #"utils": ["monitor.py"],
 
                   ".": ["submit_job_hlrn.sh"],
 
