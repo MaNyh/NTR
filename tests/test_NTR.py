@@ -8,7 +8,6 @@ import pyvista as pv
 
 from NTR.utils.functions import yaml_dict_read
 from NTR.utils.geom_functions import sortProfilePoints
-from NTR.utils.geom_functions import sortProfilePoints_meshing
 from NTR.utils.geom_functions import calcConcaveHull
 
 
@@ -37,7 +36,7 @@ def test_calcConcaveHull():
     xs_raw = boxpoints[:, 0]
     ys_raw = boxpoints[:, 1]
 
-    xs, ys = calcConcaveHull(xs_raw, ys_raw, 1)
+    xs, ys = calcConcaveHull(xs_raw, ys_raw, 10)
 
     assert len(xs) == len(xs_raw)
     assert any([xi in xs_raw for xi in xs])
@@ -51,18 +50,35 @@ def test_calcConcaveHull():
     xs_raw = polypoints[:, 0]
     ys_raw = polypoints[:, 1]
 
-    xs, ys = calcConcaveHull(xs_raw, ys_raw, 1)
+    xs, ys = calcConcaveHull(xs_raw, ys_raw, 10)
 
     assert len(xs) == len(xs_raw)
     assert any([xi in xs_raw for xi in xs])
     assert any([yi in ys_raw for yi in ys])
 
 def test_profilePoints():
-    print("test")
-    coords_df = np.loadtxt(os.path.join("testdata_profilePoints", "profile_pointcloud.txt"))
+    ellipse = pv.ParametricEllipsoid(1, np.random.rand(), np.random.rand())
+    ellipse = ellipse.slice(normal="z", origin=(0, 0, 0))
+    test_area = pv.PolyData(ellipse.points)
+    test_area = test_area.delaunay_2d()
+    test_area = test_area.compute_cell_sizes()
 
-    x_raw = coords_df[:, 0]
-    y_raw = coords_df[:, 1]
+    tarea = sum(test_area["Area"])
 
-    sortProfilePoints_meshing(x_raw, y_raw, 0.1)
-    # sortProfilePoints(x_raw, y_raw, alpha=0.01)
+    ellipse.rotate_z(np.random.randint(0, 360))
+    shape = ellipse.extract_geometry()
+    pts = shape.points
+    xs = pts[:, 0]
+    ys = pts[:, 1]
+
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(xs, ys, 50)
+
+    pts_x = x_ss + x_ps
+    pts_y = y_ss + y_ps
+
+    reconstructed_poly = pv.PolyData(np.stack((pts_x, pts_y, np.zeros(len(pts_x)))).T)
+    reconstructed_face = reconstructed_poly.delaunay_2d()
+    reconstructed_face = reconstructed_face.compute_cell_sizes()
+    reconstructed_area = sum(reconstructed_face["Area"])
+
+    assert np.isclose(reconstructed_area, tarea)
