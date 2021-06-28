@@ -1,6 +1,8 @@
 import os
 import yaml
 import pickle
+import csv
+
 
 import NTR
 from NTR.utils.create_geom import create_geometry
@@ -9,13 +11,20 @@ from NTR.utils.create_geom import create_geometry
 def yaml_dict_read(yml_file):
     args_from_yaml = {}
 
-    with open(yml_file, "r") as Fobj:
+    with open(yml_file, "r", newline='') as Fobj:
         document = yaml.load_all(Fobj, Loader=yaml.FullLoader)
         for settings in document:
             for key, value in settings.items():
                 args_from_yaml[key] = value
     return args_from_yaml
 
+def read_csv(csv_filepath):
+    with open(csv_filepath,"r", newline='') as csvobj:
+        spamreader = csv.reader(csvobj, delimiter='\t', quotechar='|')
+        data = []
+        for row in spamreader:
+            data.append(row)
+    return data
 
 def write_igg_config(file, args):
     with open(file, "wb") as Fobj:

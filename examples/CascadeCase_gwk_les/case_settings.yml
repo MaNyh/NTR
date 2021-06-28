@@ -24,6 +24,12 @@ probing:
         midspanslice_probing: True
     output_path : "02_Preprocessing/system"
 
+monitoring:
+    averagevaluesinlet: "/03_Solution/postProcessing/AverValuesInlet"
+    averagevaluesoutlet: "/03_Solution/postProcessing/AverValuesOutlet"
+    massflowinlet: "/03_Solution/postProcessing/MassflowInlet"
+    massflowoutlet: "/03_Solution/postProcessing/MassflowOutlet"
+
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
     executable                      : "iggx86_64.exe"
