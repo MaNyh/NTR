@@ -22,31 +22,40 @@ def test_yamlDictRead(tmpdir):
     assert yaml_dict_read(test_file) == {"test_key": True}
 
 
-def test_concaveHull_box():
+def test_calcConcaveHull():
+    """
+    in these simple geometries, each point must be found by calcConcaveHull
+    """
     square = pv.Plane()
-    square.rotate_z(45)
     boxedges = square.extract_feature_edges()
+
+    boxedges.rotate_z(np.random.randint(0,360))
     boxpoints = boxedges.points
+
+    np.random.shuffle(boxpoints)
 
     xs_raw = boxpoints[:, 0]
     ys_raw = boxpoints[:, 1]
 
     xs, ys = calcConcaveHull(xs_raw, ys_raw, 1)
-    xs_soll = [-0.56568545, -0.49497476, -0.42426407, -0.35355338, -0.28284273, -0.21213204, -0.14142135,
-               -0.070710674, 0.0, 0.070710674, 0.14142135, 0.21213204, 0.28284273, 0.35355338, 0.42426407,
-               0.49497476, 0.56568545, 0.6363961, 0.70710677, 0.6363961, 0.56568545, 0.49497476, 0.42426407,
-               0.35355338, 0.28284273, 0.21213204, 0.14142135, 0.070710674, 0.0, -0.070710674, -0.14142135,
-               -0.21213204, -0.28284273, -0.35355338, -0.42426407, -0.49497476, -0.56568545, -0.6363961, -0.70710677,
-               -0.6363961]
-    ys_soll = [-0.14142135, -0.21213204, -0.28284273, -0.35355338, -0.42426407, -0.49497476, -0.56568545, -0.6363961,
-               -0.70710677, -0.6363961, -0.56568545, -0.49497476, -0.42426407, -0.35355338, -0.28284273, -0.21213204,
-               -0.14142135, -0.070710674, 0.0, 0.070710674, 0.14142135, 0.21213204, 0.28284273, 0.35355338,
-               0.42426407, 0.49497476, 0.56568545, 0.6363961, 0.70710677, 0.6363961, 0.56568545, 0.49497476,
-               0.42426407, 0.35355338, 0.28284273, 0.21213204, 0.14142135, 0.070710674, 0.0, -0.070710674]
 
-    assert not any(np.isclose(ys, ys_soll) == False)
-    assert not any(np.isclose(xs, xs_soll) == False)
+    assert len(xs) == len(xs_raw)
+    assert any([xi in xs_raw for xi in xs])
+    assert any([yi in ys_raw for yi in ys])
 
+    polygon = pv.Polygon()
+    polygon.rotate_z(np.random.randint(0,360))
+    polyedges = polygon.extract_feature_edges()
+    polypoints = polyedges.points
+    np.random.shuffle(polypoints)
+    xs_raw = polypoints[:, 0]
+    ys_raw = polypoints[:, 1]
+
+    xs, ys = calcConcaveHull(xs_raw, ys_raw, 1)
+
+    assert len(xs) == len(xs_raw)
+    assert any([xi in xs_raw for xi in xs])
+    assert any([yi in ys_raw for yi in ys])
 
 def test_profilePoints():
     print("test")
