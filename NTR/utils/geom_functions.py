@@ -4,6 +4,7 @@ import numpy as np
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
 from scipy.spatial.distance import pdist, squareform
+from scipy.optimize import minimize
 
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
@@ -106,6 +107,16 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
 
     return x_mpsl, y_mpsl
 
+def calcConcaveHull_optimize(xs, ys, alpha):
+    def func(alpha):
+        xss , yss = calcConcaveHull(xs, ys, alpha)
+        return len(xs)-len(xss)
+
+    res = minimize(func, alpha, method='Powell',
+                   options={'xatol': 1e-8, 'disp': True})
+
+    opt_x,opt_y = calcConcaveHull(xs, ys, res.x[0])
+    return opt_x,opt_y
 
 def calcConcaveHull(x, y, alpha):
     """
