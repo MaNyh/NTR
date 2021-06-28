@@ -1,1 +1,1 @@
-"""Unit test package for NTR."""
+"""pytest package for NTR."""
