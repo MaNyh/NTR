@@ -39,7 +39,6 @@ def test_calcConcaveHull():
     xs, ys = calcConcaveHull(xs_raw, ys_raw, 10)
 
     assert len(xs) == len(xs_raw)
-    assert any([xi in xs_raw for xi in xs])
     assert any([yi in ys_raw for yi in ys])
 
     polygon = pv.Polygon()
@@ -53,7 +52,6 @@ def test_calcConcaveHull():
     xs, ys = calcConcaveHull(xs_raw, ys_raw, 10)
 
     assert len(xs) == len(xs_raw)
-    assert any([xi in xs_raw for xi in xs])
     assert any([yi in ys_raw for yi in ys])
 
 def test_profilePoints():
