@@ -33,7 +33,9 @@ boundaryField
         coeffWakeV      (0 0 0);
         nCellPerEddy    2;
         lastUPrime      uniform (1.6e-6 1e-06 1e-06);
-	    uDashScaling    __UDASHSCALING__;
+        cyclicY         __PITCHPER__;
+        cyclicZ         __SPANPER__;
+        uDashScaling    __UDASHSCALING__;
         gamma           1.4;
         lInf            0.01;
         coeffU          3{0};

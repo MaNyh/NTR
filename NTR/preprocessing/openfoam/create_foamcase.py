@@ -71,6 +71,9 @@ def create_files(casepath, settings, files, probe_templates, templatepath):
                 template_content = template_content.replace("__DELTAT__", str(settings["case_settings"]["timestep"]))
             if file == "createPatchDict":
                 template_content = template_content.replace("__ZSPAN__", str(settings["mesh"]["extrudeLength"]))
+            if file == "U" and settings["case_settings"]["sim_type"]=="openfoam_les":
+                template_content = template_content.replace("__PITCHPER__", str(settings["geometry"]["pitch"]))
+                template_content = template_content.replace("__SPANPER__", str(settings["mesh"]["extrudeLength"]))
 
 
             with open(os.path.join(casepath, directory, file), "w", newline='\n') as fobj:
