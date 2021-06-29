@@ -38,13 +38,13 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
     # Mittelschnitt erstellen
 
     points = cut_plane.points
-    phelp = points[:,[0,1]]
+    phelp = points[:, [0, 1]]
 
     #
     # Punkte extrahieren
 
     # Nach Durck und Saugseite sortieren
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(points[::,0], points[::,1], alpha)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(points[::, 0], points[::, 1], alpha)
 
     x_ss_shift = []
     y_ss_shift = []
@@ -53,7 +53,7 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
     y_ps_shift = []
 
     for pt in np.stack([x_ss, y_ss]).T:
-        idx = np.where(pt==phelp)[0][0]
+        idx = np.where(pt == phelp)[0][0]
         point = points[idx]
         normal = surface_normals[idx]
 
@@ -142,7 +142,6 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
 def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, beta_01, beta_02, teilung,
                                start_time, end_time):
-
     ## Eige Klasse für Geometrieparameter in Cascaden-Fall?
 
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
@@ -265,7 +264,6 @@ def equi_points(x, y, nop):
 
 
 def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path, start_time, end_time):
-
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
@@ -389,7 +387,7 @@ def create_probe_dicts(case_settings):
 
     if case_settings["probing"]["probes"]["profile_probing"]:
         sampling_rate = case_settings["probes"]["profile_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
         outprobes = createProbesProfileDict(blade,
                                             case_settings["probes"]["profile_probes"]["pden_ps"],
                                             case_settings["probes"]["profile_probes"]["pden_ss"],
@@ -406,7 +404,7 @@ def create_probe_dicts(case_settings):
     if case_settings["probing"]["probes"]["streamline_probing"]:
 
         sampling_rate = case_settings["probes"]["streamline_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
         outprobes = createProbesStreamlineDict(domain,
                                                alpha,
                                                case_settings["probes"]["streamline_probes"]["nop_streamline"],
@@ -422,7 +420,7 @@ def create_probe_dicts(case_settings):
 
     if case_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         sampling_rate = case_settings["probes"]["inletoutlet_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
         outprobes = createProbesInletOutlet(domain, alpha,
                                             timestepinterval,
                                             output_path,
@@ -434,7 +432,7 @@ def create_probe_dicts(case_settings):
     if case_settings["probing"]["probes"]["xslice_probing"]:
 
         sampling_rate = case_settings["probes"]["xsclicing_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
         outprobes = createXSliceProbes(domain,
                                        case_settings["probes"]["xsclicing_probes"]["nop"],
                                        case_settings["probes"]["xsclicing_probes"]["x_slice_one"],
@@ -448,7 +446,7 @@ def create_probe_dicts(case_settings):
 
     if case_settings["probing"]["probes"]["inletoutletfieldave_probing"]:
         sampling_rate = case_settings["probes"]["inletoutletfieldave_probing"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate)**-1/float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
         create_inletoutletave_probe_dict(case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
                                          case_settings["probes"]["inletoutletfieldave_probing"]["end_time"],
                                          timestepinterval,
@@ -456,7 +454,8 @@ def create_probe_dicts(case_settings):
 
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(domain, alpha)
 
-    y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(x_bounds, y_bounds)
+    y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
+        x_bounds, y_bounds)
 
     plt.close('all')
     plt.figure(figsize=(8, 8))
@@ -465,7 +464,6 @@ def create_probe_dicts(case_settings):
     plt.plot(x_profil, y_profil, '.k', lw=1, label='profil')
     plt.plot(x_lower_peri, y_lower_peri, '-y', lw=1, label='lower_peri')
     plt.plot(x_upper_peri, y_upper_peri, '-c', lw=1, label='upper_peri')
-
 
     allowed_colors = list(dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS).keys())
     del allowed_colors[allowed_colors.index("white")]
@@ -484,9 +482,9 @@ def create_probe_dicts(case_settings):
     del allowed_colors[allowed_colors.index("mistyrose")]
 
     for k, v in probes.items():
-        color = allowed_colors.pop(np.random.randint(len(allowed_colors)-1))
+        color = allowed_colors.pop(np.random.randint(len(allowed_colors) - 1))
 
-        plt.plot(v[0], v[1], color, marker="X", lw=1, markersize=3,  label=k)
+        plt.plot(v[0], v[1], color, marker="X", lw=1, markersize=3, label=k)
 
     plt.legend(loc='best')
     plt.savefig(os.path.join('kontrollplot_probes.pdf'))
@@ -494,7 +492,6 @@ def create_probe_dicts(case_settings):
 
 
 def create_inletoutletave_probe_dict(start_time, end_time, interval_time_steps_probes, output_path):
-
     with open(os.path.join(output_path, 'Probes_inletoutletave_Dict'), 'w') as data_file:
         data_file.write("""
 
