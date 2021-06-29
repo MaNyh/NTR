@@ -71,9 +71,9 @@ case:
       U :
         UINLET : "35.392445 58.06355 0"
         RINLET : "6 0 0 6 0 6"
-        LINLET : "0.015"
+        LINLET : "0.01"
         EDDYDENSITY : "10"
-        UDASHSCALING : "4"
+        UDASHSCALING : "6"
       T :
         TINLET : "293.15"
       p :
