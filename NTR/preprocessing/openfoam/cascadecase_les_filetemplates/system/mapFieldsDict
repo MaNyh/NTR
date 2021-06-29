@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-patchMap        ( INLET INLET );
+patchMap        ();
 
-cuttingPatches  (  );
+cuttingPatches  ( );
 
