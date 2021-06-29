@@ -4,7 +4,7 @@ case_settings:
     var_type : "openfoam_timeaverage"
     sim_type: "openfoam_les"
     machine_type : "compressor"
-    timestep : "2.5e-8"
+    timestep : "3e-8"
 
 geometry:
     beta_meta_01                    : 136.5                                  #Inflow angle [deg]
@@ -43,7 +43,7 @@ geom:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.6                                   #Mesh-density factor
+    factor                          : 1.45                                   #Mesh-density factor
     ogrid_factor                    : 1.8                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                             #first cell height when factor=1
@@ -73,7 +73,7 @@ case:
         RINLET : "6 0 0 6 0 6"
         LINLET : "0.015"
         EDDYDENSITY : "10"
-        UDASHSCALING : "1"
+        UDASHSCALING : "4"
       T :
         TINLET : "293.15"
       p :
@@ -83,7 +83,7 @@ case:
       thermophysicalProperties:
       turbulenceProperties:
       controlDict:
-        WRITEINTERVAL : "1000"
+        WRITEINTERVAL : "2000"
         ADUSTABLETIMESTEP : "off"
         STARTAVETIME : "0.12"
       createPatchDict:
@@ -106,7 +106,6 @@ case:
           RUNTIME : "05:00:00"
           NODES: "5"
           PROCS: "480"
-      monitor.py:
 
 probes:
     profile_probes:
