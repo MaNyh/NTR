@@ -35,15 +35,29 @@ Or install via
 As a developer, install development-requirements via
 'pip install -r requirements_dev.txt'
 
+
+Be aware that this package is in early development. It is not refactored well and functions are not validated or tested correctly
+
 Features
 -------------
-
+postprocessing
+    -openfoam
+    .createProfileData
 preprocessing
-    -meshing
-        -igg_cascademeshing
     -openfoam
         -create_probes
 
+utils
+    .aeroFunctions
+    .boundaryLayerFunctions
+    .case
+    .casereader
+    .coefficients
+    .create_geom
+    .pyvista_utils
+    .simFunctions
+    .solver_variable_dicts
+    .thermoFunctions
 
 Usage igg_cascademeshing
 ---------------------------
@@ -54,11 +68,10 @@ Create a case-directory
 ./case
     -pointcloudfile.txt
 
-    -settings.yml
+    -case_settings.yml
 
-    -run.py
+    -call_stuff.py
 
-Run run.py
 
 This structure is not final and must be optimized in the future. Set up settings.yml for your specific case. Right now, also the path to igg has to be set here
 
