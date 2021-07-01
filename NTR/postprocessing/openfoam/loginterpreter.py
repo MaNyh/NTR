@@ -5,7 +5,7 @@ import os
 from NTR.utils.functions import readtxtfile, yaml_dict_read
 
 class timestep:
-    def __init__(self,raw_lines):
+    def __init__(self, raw_lines):
         pattern_cputime_line = "ExecutionTime"
         pattern_executiontime = "ExecutionTime\s{1,}=\s{1,}\d{,}.\d{1,}\s{1,}s"
         pattern_clocktime = "ClockTime\s{1,}=\s{1,}\d{,}\s{,}s"
@@ -69,15 +69,17 @@ def logfilestats(settings_dict):
 
     timesteps = len(timestepobj_list) - 3
     clocktime = timestepobj_list[-3].clocktime
+    executiontime = timestepobj_list[-3].executiontime
     courant_max = max([i.courant_max for i in timestepobj_list])
     courant = np.mean([i.courant_max for i in timestepobj_list])
     timesteptime_mean = timesteps / clocktime
 
-    print("timesteps :", timesteps)
-    print("clocktime :", clocktime)
-    print("courant_max :", courant_max)
-    print("courant :", courant)
-    print("timesteptime_mean :", timesteptime_mean)
+    print("timesteps :", timesteps, " [ ]")
+    print("cputime :", clocktime, " [s]")
+    print("executiontime :", executiontime, " [s]")
+    print("courant_max :", courant_max, " [ ]")
+    print("courant :", courant, " [ ]")
+    print("timesteprate :", timesteptime_mean, " [s**-1]")
 
     return timesteps, clocktime, courant_max, courant, timesteptime_mean
 
