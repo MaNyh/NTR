@@ -100,8 +100,8 @@ Usage create_probes
 ---------------------------
 
 Create probe-dictionaries with this algorithm. You will need the profile-surface as a vtk (PolyData).
-Set your options in the "case.yml"-file. Try out an example, you need a *.vtk - domain for a case.
-Only cascade-cases implemented!
+Set your options in the "case.yml"-file. Try out an example, you need a \*.vtk - domain for a case.
+Only cascade-cases implemented.
 
 The function can be called using
 
