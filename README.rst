@@ -76,10 +76,32 @@ Create a case-directory
 This structure is not final and must be optimized in the future. Set up settings.yml for your specific case. Right now, also the path to igg has to be set here
 
 
+Usage meshing
+---------------------------
+
+Create meshes using the igg-python-interpreter. Settings from the "case_settings.yml" are transmitted using a pickle-object.
+
+
+
+Usage create_case
+---------------------------
+
+Create cfd-cases with this function. Use an example-case to learn how to set the "case.yml".
+The function will create standardized cases for conducting and monitoring simulations.
+Only OpenFOAM-CascadeCases implemented yet. Large-Eddy-Simulations are running but not validated.
+RAS-cases are not parametrized yet. The RAS-Package is only a dummy-package right now
+
+Based on the settings, the function is calling create_probes (see below)
+
+
+
+
 Usage create_probes
 ---------------------------
 
-For an OpenFOAM cascade-case, a probe-dictionary can be created with this algorithm. You will need the profile-surface as a vtk (PolyData). The Algorithm will calculate the surface-normals and will then cut a slice along the midspan. From there, probes will be calculated using the surface-normals and the points in the cutplane.
+Create probe-dictionaries with this algorithm. You will need the profile-surface as a vtk (PolyData).
+Set your options in the "case.yml"-file. Try out an example, you need a *.vtk - domain for a case.
+Only cascade-cases implemented!
 
 The function can be called using
 
@@ -89,6 +111,14 @@ createProbesProfileDict("pathtovtk",pden_Probes_Profile_SS, pden_Probes_Profile_
                             interval_time_steps_probes, output_path, tolerance=1e-6
 
 The dictionary will be written out in the working directory
+
+Usage testing-module
+---------------------------
+
+The module can be partially tested using pytest and the testing-module in /tests/tesT_NTR.py
+There will be plenty of warnings, because things are not coded correctly.
+The testing will perform tests on the main geometrical functions.
+Further tests are welcome. If things are not working correctly, let me know and I will develop tests.
 
 
 Credits
