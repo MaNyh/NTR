@@ -91,3 +91,10 @@ def absVec(vec):
 
 def absvec_array(array):
     return [absVec(vec) for vec in array]
+
+
+def readtxtfile(path_to_file):
+    basepath = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(basepath,path_to_file), "r") as fobj:
+        content = fobj.readlines()
+    return content

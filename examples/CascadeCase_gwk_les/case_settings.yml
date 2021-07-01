@@ -29,6 +29,7 @@ monitoring:
     averagevaluesoutlet: "/03_Solution/postProcessing/AverValuesOutlet"
     massflowinlet: "/03_Solution/postProcessing/MassflowInlet"
     massflowoutlet: "/03_Solution/postProcessing/MassflowOutlet"
+    logfile: "03_Solution/log.log"
 
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
@@ -70,10 +71,10 @@ case:
     case_parameters:
       U :
         UINLET : "35.392445 58.06355 0"
-        RINLET : "6 0 0 6 0 6"
+        RINLET : "4 0 0 4 0 4"
         LINLET : "0.01"
         EDDYDENSITY : "10"
-        UDASHSCALING : "6"
+        UDASHSCALING : "1"
       T :
         TINLET : "293.15"
       p :
@@ -83,7 +84,7 @@ case:
       thermophysicalProperties:
       turbulenceProperties:
       controlDict:
-        WRITEINTERVAL : "2000"
+        WRITEINTERVAL : "4000"
         ADUSTABLETIMESTEP : "off"
         STARTAVETIME : "0.12"
       createPatchDict:
