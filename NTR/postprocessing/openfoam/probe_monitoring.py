@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 
 from NTR.utils.functions import yaml_dict_read, read_csv
+from NTR.postprocessing.openfoam.loginterpreter import logfilestats
 
 def show_monitors(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
@@ -13,6 +14,8 @@ def show_monitors(casesettings_yml):
     if settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         massflowoutlet(casesettings_yml)
         massflowinlet(casesettings_yml)
+    if settings["monitoring"]["logfile"]:
+        logfilestats("case_settings.yml")
 
 def averagevaluesinlet(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)

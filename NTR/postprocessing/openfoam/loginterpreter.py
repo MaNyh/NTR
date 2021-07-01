@@ -73,5 +73,11 @@ def logfilestats(settings_dict):
     courant = np.mean([i.courant_max for i in timestepobj_list])
     timesteptime_mean = timesteps / clocktime
 
+    print("timesteps :", timesteps)
+    print("clocktime :", clocktime)
+    print("courant_max :", courant_max)
+    print("courant :", courant)
+    print("timesteptime_mean :", timesteptime_mean)
+
     return timesteps, clocktime, courant_max, courant, timesteptime_mean
 
