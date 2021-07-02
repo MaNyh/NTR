@@ -8,13 +8,13 @@ from NTR.postprocessing.openfoam.loginterpreter import logfilestats
 
 def show_monitors(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
-    if settings["probing"]["probes"]["inletoutletfieldave_probing"]:
+    if "inletoutletfieldave_probing" in settings["probing"]["probes"].keys():
         averagevaluesinlet(casesettings_yml)
         averagevaluesoutlet(casesettings_yml)
-    if settings["probing"]["probes"]["inletoutletvelocity_probing"]:
+    if "inletoutletvelocity_probing" in settings["probing"]["probes"].keys():
         massflowoutlet(casesettings_yml)
         massflowinlet(casesettings_yml)
-    if settings["monitoring"]["logfile"]:
+    if "logfile" in settings["monitoring"].keys():
         logfilestats("case_settings.yml")
 
 def averagevaluesinlet(casesettings_yml):
@@ -85,10 +85,13 @@ def make_averagevaluesplot(casepath, datname, monitorpath):
     for idx, vars in enumerate(probe_variables):
         y = timeseries[vars]
         if len(probe_variables)>1:
-            axs[idx].plot(x, y, label=vars)
+            axs[idx].plot(x, y, label=vars, marker="x",linestyle = 'None')
             axs[idx].set_ylabel(vars)
+            axs[idx].legend()
         else:
-            axs.plot(x, y, label=vars)
+            axs.plot(x, y, label=vars, marker="x",linestyle = 'None')
             axs.set_ylabel(vars)
+            axs.legend()
+        plt.title(monitorpath)
         #axs[idx].legend()
     plt.show()
