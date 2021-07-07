@@ -2,7 +2,7 @@
 
 """Tests for `NTR` package."""
 
-import os
+#import os
 import numpy as np
 import pyvista as pv
 
