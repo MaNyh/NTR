@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import pyvista as pv
 
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import Delaunay
@@ -109,7 +110,7 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
 
 def calcConcaveHull_optimize(xs, ys, alpha):
     def func(alpha):
-        xss , yss = calcConcaveHull(xs, ys, alpha)
+        xss, yss = calcConcaveHull(xs, ys, alpha)
         return len(xs)-len(xss)
 
     res = minimize(func, alpha, method='Powell',
@@ -169,7 +170,9 @@ def calcConcaveHull(x, y, alpha):
             b = np.sqrt((pb[0] - pc[0]) ** 2 + (pb[1] - pc[1]) ** 2)
             c = np.sqrt((pc[0] - pa[0]) ** 2 + (pc[1] - pa[1]) ** 2)
             s = (a + b + c) / 2.0
+
             area = np.sqrt(s * (s - a) * (s - b) * (s - c))
+
             circum_r = a * b * c / (4.0 * area)
             if circum_r < alpha:
                 add_edge(edges, ia, ib)
@@ -223,9 +226,25 @@ def calcConcaveHull(x, y, alpha):
 
 
 def sortProfilePoints(x, y, alpha):
-
     x, y = calcConcaveHull(x, y, alpha=alpha)
+    """
+    def vecabs(vec):
+        return (vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2) ** .5
 
+    def vecDir(vec):
+        return vec / vecabs(vec)
+
+    points = np.stack((x,y,np.zeros(len(x)))).T
+    poly = pv.PolyData(points)
+    face = poly.delaunay_2d(alpha = alpha)
+    center = face.center
+    dist = points - center
+    abst = np.asarray([vecabs(i) for i in dist])
+    dirs = np.asarray([vecDir(i) for i in dist])
+
+    max_id = list(abst).index(max(abst))
+    ind_vk = max_id
+    """
     ind_vk = x.index(min(x))
 
     x_by_vk = None
@@ -316,7 +335,7 @@ def rotate_points(origin, x, y, angle):
 
     return new_x, new_y
 
-
+"""
 def calc_vk_hk(x_koords, y_koords):
     A = np.dstack((x_koords,y_koords))[0]
     D = squareform(pdist(A))
@@ -326,6 +345,48 @@ def calc_vk_hk(x_koords, y_koords):
 
     index_vk = I_row
     index_hk = I_col
+
+    return index_vk, index_hk
+"""
+
+def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
+    # Vorderkante
+
+    # Punkt bestimmen deutlich unterhalt der Vorderkante liegt
+    p01 = [min(x_koords) - (max(x_koords) - min(x_koords)), min(y_koords) - (max(x_koords) - min(x_koords))]
+
+    # Vektor bestimmen der Richtung des vorgegebenen Winkels der Vorderkante besitzt
+    vec_01 = [np.sin(np.deg2rad(180.0 - beta_01)) * 0.01, np.cos(np.deg2rad(180.0 - beta_01)) * 0.01]
+
+    # Vektor bestimmen der orthogonal dazu ist
+    vec_02 = [1, -vec_01[0] * 1 / vec_01[1]]
+
+    # alle Koords durchgehen
+    dists = []
+
+    betrag_vec_02 = np.sqrt(vec_02[0] ** 2 + vec_02[1] ** 2)
+    for i in range(len(y_koords)):
+        delta_x = x_koords[i] - p01[0]
+        delta_y = y_koords[i] - p01[1]
+        d = np.sqrt((vec_02[0] * delta_y - delta_x * vec_02[1]) ** 2) / betrag_vec_02
+        dists.append(d)
+
+    index_vk = np.argmin(dists)
+
+    # Hinterkante
+    p01 = [max(x_koords) + (max(x_koords) - min(x_koords)), min(y_koords) - (max(x_koords) - min(x_koords))]
+    vec_01 = [-np.sin(np.deg2rad(beta_02)) * 0.01, np.cos(np.deg2rad(beta_02)) * 0.01]
+    vec_02 = [1, -vec_01[0] * 1 / vec_01[1]]
+    dists = []
+
+    betrag_vec_02 = np.sqrt(vec_02[0] ** 2 + vec_02[1] ** 2)
+    for i in range(len(y_koords)):
+        delta_x = x_koords[i] - p01[0]
+        delta_y = y_koords[i] - p01[1]
+        d = np.sqrt((vec_02[0] * delta_y - delta_x * vec_02[1]) ** 2) / betrag_vec_02
+        dists.append(d)
+
+    index_hk = np.argmin(dists)
 
     return index_vk, index_hk
 

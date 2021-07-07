@@ -5,7 +5,7 @@ import csv
 
 
 import NTR
-from NTR.utils.create_geom import create_geometry
+from NTR.preprocessing.create_geom import create_geometry
 
 
 def yaml_dict_read(yml_file):
