@@ -6,6 +6,7 @@ Created on Sun Oct  4 19:01:50 2020
 """
 
 import numpy as np
+from scipy.spatial import distance
 from scipy.stats import special_ortho_group
 import sys
 import math as m
@@ -214,3 +215,8 @@ def C_barycentric(R):
     CWeights = np.array([C1c, C2c, C3c])
 
     return CWeights
+
+
+def closest_node_index(node, nodes):
+    closest_index = distance.cdist([node], nodes).argmin()
+    return closest_index
