@@ -1,16 +1,20 @@
 import math
 import numpy as np
 import pyvista as pv
+from matplotlib import path as mpltPath
 
-from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import UnivariateSpline, splprep, splev
 from scipy.spatial import Delaunay
 from scipy.spatial.distance import pdist, squareform
 from scipy.optimize import minimize
+from scipy.spatial.qhull import Voronoi
 
+from NTR.utils.mathfunctions import vecDir, closest_node_index, angle_between
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
-from NTR.utils.pyvista_utils import slice_midspan_z
+from NTR.utils.pyvista_utils import slice_midspan_z, polyline_from_points, lines_from_points
+
 
 def calcMidPoints(x1, y1, x2, y2):
     x_mid_ss = []
@@ -799,3 +803,102 @@ def getPitchValuesB2BSliceComplete(case, x):
         # daten nach y sortieren
 
     return y2, array_names, values
+
+
+def extract_profile_paras(points, verbose = False):
+    points2d = points[:, 0:2]
+    #pointsClosed = np.vstack([points2d, [points2d[0]]])
+
+    vor = Voronoi(points2d)
+
+    #origPoly = pv.PolyData(points)
+
+    midline = []
+    path = mpltPath.Path(points2d)
+    for idx, r in enumerate(vor.regions):
+
+        pts = vor.vertices[r]
+        pts3d = np.insert(pts, 2, 0, axis=1)
+        inside = path.contains_points(pts)
+        pts3dclean = [pts3d[idx] for idx, i in enumerate(pts3d) if inside[idx] == True]
+        for p in pts3dclean:
+            if not p[0] in [i[0] for i in midline]:
+                midline.append(p)
+
+    midpoints = pv.PolyData(midline)
+
+    xsortedpoints = midpoints.points[np.argsort(midpoints.points[:, 0])]
+
+    twodpts = xsortedpoints[:, 0:2].T
+
+    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=5, full_output=True)
+    # s = optional parameter (default used here)
+    # #print('Spline score:',fp) #goodness of fit flatlines after a given s value (and higher), which captures the default s-value as well
+    x_new, y_new = splev(u, tck, der=0)
+
+    splineNew = np.stack((x_new, y_new)).T  # np.zeros(len(x_new)
+
+    inside = path.contains_points(splineNew)
+    splinePointsNewClean = [splineNew[idx] for idx, i in enumerate(splineNew) if inside[idx] == True]
+    splineNewClean = np.insert(splinePointsNewClean, 2, 0, axis=1)
+
+    firstBase = splineNewClean[0]
+    firstBaseUp = splineNewClean[1]
+
+    secondBase = splineNewClean[-1]
+    secondBaseUp = splineNewClean[-2]
+
+    firstDir = vecDir(firstBase - firstBaseUp)
+    secondDir = vecDir(secondBase - secondBaseUp)
+
+    extend_first = pv.Line(firstBase, firstBase + firstDir, 100000)
+    extend_second = pv.Line(secondBase, secondBaseUp + secondDir, 100000)
+
+    bladeLine = polyline_from_points(np.vstack([points, [points[0]]]))
+
+
+    firsthitpoint = extend_first.slice_along_line(bladeLine).points[0]
+    secondhitpoint = extend_second.slice_along_line(bladeLine).points[0]
+
+    hitids = [closest_node_index(firsthitpoint, bladeLine.points), closest_node_index(secondhitpoint, bladeLine.points)]
+
+    low_hitid = min(hitids)
+    high_hitid = max(hitids)
+
+    # vk_point_id = closest_node_index(firsthitpoint,bladeLine.points)
+    # hk_point_id = closest_node_index(secondhitpoint,bladeLine.points)
+    hitpoint_lowid = secondhitpoint  # bladeLine.points[low_hitid]
+    hitpoint_highid = firsthitpoint  # bladeLine.points[high_hitid]
+
+    if bladeLine.points[low_hitid][0] < hitpoint_highid[0]:
+        vk_point = hitpoint_lowid  # bladeLine.points[vk_point_id]
+        hk_dir = extend_first
+
+        hk_point = hitpoint_highid  # bladeLine.points[hk_point_id]
+        vk_dir = extend_second
+    else:
+        hk_point = hitpoint_lowid  # bladeLine.points[vk_point_id]
+        vk_dir = extend_first
+        vk_point = hitpoint_highid  # bladeLine.points[hk_point_id]
+        hk_dir = extend_second
+
+    ss_poly = pv.PolyData(bladeLine.points[low_hitid:high_hitid])
+    ps_poly = pv.PolyData(np.append(bladeLine.points[:low_hitid], bladeLine.points[high_hitid:], axis=0))
+
+    beta_01 = angle_between(vk_dir.points[0]-vk_dir.points[-1],np.array([1,0,0])) *360/(2*np.pi)
+    beta_02 = angle_between(hk_dir.points[0]-hk_dir.points[-1],np.array([1,0,0])) *360/(2*np.pi)
+
+    centerline = lines_from_points(
+        np.append(np.append(np.asarray([vk_point]), splineNewClean, axis=0), np.asarray([hk_point]), axis=0))
+
+    if verbose:
+        plotter = pv.Plotter()
+        plotter.add_mesh(ss_poly, color="blue")
+        plotter.add_mesh(ps_poly, color="yellow")
+        plotter.add_mesh(pv.PolyData(vk_point), point_size=20, color="orange")
+        plotter.add_mesh(pv.PolyData(hk_point), point_size=20, color="grey")
+
+        plotter.add_mesh(centerline, point_size=20)
+        plotter.show()
+
+    return ss_poly.points, ps_poly.points, centerline.points, beta_01, beta_02
