@@ -1,36 +1,10 @@
 import os
-import yaml
 import pickle
-import csv
 
 import NTR
 from NTR.preprocessing.create_geom import create_geometry
+from NTR.utils.filehandling import yaml_dict_read, write_igg_config
 
-def yaml_dict_read(yml_file):
-    args_from_yaml = {}
-
-    with open(yml_file, "r", newline='') as Fobj:
-        document = yaml.load_all(Fobj, Loader=yaml.FullLoader)
-        for settings in document:
-            for key, value in settings.items():
-                args_from_yaml[key] = value
-    return args_from_yaml
-
-def read_csv(csv_filepath):
-    with open(csv_filepath,"r", newline='') as csvobj:
-        spamreader = csv.reader(csvobj, delimiter='\t', quotechar='|')
-        data = []
-        for row in spamreader:
-            data.append(row)
-    return data
-
-def write_igg_config(file, args):
-    with open(file, "wb") as Fobj:
-        pickle.dump(args, Fobj, protocol=0)
-
-def write_yaml_dict(fpath,data):
-    with open(fpath, 'w') as outfile:
-        yaml.dump(data, outfile, default_flow_style=False)
 
 def run_igg_meshfuncs(settings_yaml):
 
@@ -44,6 +18,7 @@ def run_igg_meshfuncs(settings_yaml):
 
     print("create_geometry")
     ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
+    outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)),"00_Resources","01_Geometry")
     create_geometry(ptstxtfile,
                     settings["geom"]["x_inlet"],
                     settings["geom"]["x_outlet"],
@@ -51,7 +26,8 @@ def run_igg_meshfuncs(settings_yaml):
                     settings["geom"]["ptcloud_profile_unit"],
                     settings["geom"]["shift_domain"],
                     settings["geometry"]["alpha"],
-                    settings["geometry"]["midline_tolerance"])
+                    settings["geometry"]["midline_tolerance"],
+                    outpath)
 
     print("create_mesh")
     cwd = os.getcwd()
@@ -94,8 +70,3 @@ def absvec_array(array):
     return [absVec(vec) for vec in array]
 
 
-def readtxtfile(path_to_file):
-    basepath = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(basepath,path_to_file), "r") as fobj:
-        content = fobj.readlines()
-    return content

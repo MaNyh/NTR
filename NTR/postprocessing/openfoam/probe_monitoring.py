@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from NTR.utils.functions import yaml_dict_read, read_csv
+from NTR.utils.filehandling import yaml_dict_read, read_csv
 from NTR.postprocessing.openfoam.loginterpreter import logfilestats
 
 

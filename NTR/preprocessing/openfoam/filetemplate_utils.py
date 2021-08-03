@@ -1,6 +1,6 @@
 import os
 
-from NTR.utils.functions import readtxtfile
+from NTR.utils.filehandling import readtxtfile
 
 
 def get_template_contents(templatepath, file_templates):

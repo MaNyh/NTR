@@ -1,7 +1,8 @@
 import os
 
 from NTR.utils.case import case_types
-from NTR.utils.functions import yaml_dict_read
+from NTR.utils.filehandling import yaml_dict_read
+
 
 def case_from_dict(case_yml):
     case_dict = yaml_dict_read(case_yml)

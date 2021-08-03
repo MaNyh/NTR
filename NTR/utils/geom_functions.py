@@ -7,6 +7,7 @@ from scipy.interpolate import UnivariateSpline, splprep, splev, interp1d
 from scipy.spatial import Delaunay, distance
 from scipy.optimize import minimize
 from scipy.spatial.qhull import Voronoi
+from scipy.spatial.distance import squareform, pdist
 
 from NTR.utils.mathfunctions import vecAbs, vecDir, closest_node_index, angle_between
 from NTR.utils.thermoFunctions import Sutherland_Law
@@ -481,19 +482,19 @@ def rotate_points(origin, x, y, angle):
 
     return new_x, new_y
 
-"""
-def calc_vk_hk(x_koords, y_koords):
+
+def calc_largedistant_idx(x_koords, y_koords):
     A = np.dstack((x_koords,y_koords))[0]
     D = squareform(pdist(A))
-    N = np.max(D)
+#    N = np.max(D)
     I = np.argmax(D)
     I_row, I_col = np.unravel_index(I,D.shape)
 
-    index_vk = I_row
-    index_hk = I_col
+    index_1 = I_row
+    index_2 = I_col
 
-    return index_vk, index_hk
-"""
+    return index_1, index_2
+
 
 def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
     # Vorderkante

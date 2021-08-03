@@ -12,7 +12,7 @@ geometry:
     midline_tolerance               : 5                                     #Tolerance coefficient for midline-generation
 
 probing:
-    domain : "00_Ressources/02_UsedMesh/12_OpenFOAM_compCascade_0.vtk"
+    domain : "00_Ressources/02_UsedMesh/13_GWKVD_0.vtk"
     blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
     probes:
         profile_probing: True

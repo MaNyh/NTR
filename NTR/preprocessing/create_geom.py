@@ -1,11 +1,13 @@
 import numpy as np
 import pyvista as pv
+import os
 
-from NTR.utils.geom_functions import extract_geo_paras, calcMidPoints, calcMidPassageStreamLine, rotate_points
+from NTR.utils.geom_functions import extract_geo_paras, calcMidPassageStreamLine
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
+from NTR.utils.filehandling import write_yaml_dict
 
 
-def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha,midline_tol, verbose=False):
+def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha,midline_tol, casepath, verbose=False):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -22,12 +24,8 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
-    #x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_raw, y_raw, alpha=alpha)
     psPoly,ssPoly,ind_vk,ind_hk, midsPoly, beta_meta_01, beta_meta_02 = extract_geo_paras(points,alpha,midline_tol)
 
-
-    #x_mids, y_mids = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
-    #x_mids, y_mids = zip(*sorted(zip(x_mids, y_mids)))
     x_mids = midsPoly.points[::,0]
     y_mids = midsPoly.points[::,1]
     x_ss = ssPoly.points[::,0]
@@ -35,23 +33,32 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
     x_ps = psPoly.points[::,0]
     y_ps = psPoly.points[::,1]
 
-    stagger_angle = 0#np.rad2deg(np.arctan((y_mids[-1] - y_mids[-0]) / (x_mids[-1] - x_mids[-0])))
-    #x_ss, y_ss = rotate_points([0, 0], x_ss, y_ss, - stagger_angle)
-    #x_ps, y_ps = rotate_points([0, 0], x_ps, y_ps, -stagger_angle)
-    #x_mids, y_mids = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
-    #x_mids, y_mids = zip(*sorted(zip(x_mids, y_mids)))
-    x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, (beta_meta_01 - 90) - stagger_angle - 90,
-                                              (beta_meta_02 - 90) - stagger_angle - 90, x_inlet, x_outlet,
+    stagger_angle = np.rad2deg(np.arctan((y_mids[-1] - y_mids[-0]) / (x_mids[-1] - x_mids[-0])))
+
+    x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, (beta_meta_01 - 90) - 90,
+                                              (beta_meta_02 - 90) - 90, x_inlet, x_outlet,
                                               pitch * np.sin(np.deg2rad(beta_meta_01)))
-    #x_mpsl, y_mpsl = rotate_points([0, 0], x_mpsl, y_mpsl, + stagger_angle)
-    #x_ss, y_ss = rotate_points([0, 0], x_ss, y_ss, +stagger_angle)
-    #x_ps, y_ps = rotate_points([0, 0], x_ps, y_ps, +stagger_angle)
-    #x_mids, y_mids = rotate_points([0, 0], x_mids, y_mids, +stagger_angle)
-    y_upper = np.array(y_mpsl) + blade_shift # +0.05*pitch
+
+
+    y_upper = np.array(y_mpsl) + blade_shift
     y_lower = y_upper - pitch
+
     writeTecplot1DFile('01_Meshing/geom.dat', ['x', 'z'], ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
                        [[x_ss, y_ss], [x_ps, y_ps], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mids[::-1], y_mids[::-1]]],
                        'obere Kurvenverlauf des Kanals')
+
+    geo_dict = {"points": points,
+                "sidePolys": [psPoly,ssPoly],
+                "hk_vk_idx": [ind_vk,ind_hk],
+                "skeletal": midsPoly,
+                "metal_angle": [beta_meta_01, beta_meta_02],
+                "stagger_angle": stagger_angle,
+                "midpassagestreamLine": [x_mpsl, y_mpsl],
+                "xpos_in_out": [x_inlet, x_outlet],
+                "pitch": pitch}
+
+    geo_filename = "geometry.yml"
+    write_yaml_dict(os.path.join(casepath,geo_filename),geo_dict)
 
     if verbose:
         plotter = pv.Plotter()

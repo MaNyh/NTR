@@ -6,7 +6,7 @@
 import numpy as np
 import pyvista as pv
 
-from NTR.utils.functions import yaml_dict_read
+from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.geom_functions import sortProfilePoints
 from NTR.utils.geom_functions import calcConcaveHull
 

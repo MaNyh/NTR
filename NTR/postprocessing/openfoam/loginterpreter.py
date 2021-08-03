@@ -2,7 +2,8 @@ import re
 import numpy as np
 import os
 
-from NTR.utils.functions import readtxtfile, yaml_dict_read
+from NTR.utils.filehandling import yaml_dict_read, readtxtfile
+
 
 class timestep:
     def __init__(self, raw_lines):

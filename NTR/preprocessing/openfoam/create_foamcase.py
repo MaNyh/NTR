@@ -3,7 +3,7 @@ import os
 import NTR
 from NTR.preprocessing.openfoam.cascadecase_les_filetemplates import les_templates
 from NTR.preprocessing.openfoam.filetemplate_utils import get_template_contents
-from NTR.utils.functions import yaml_dict_read
+from NTR.utils.filehandling import yaml_dict_read
 from NTR.preprocessing.openfoam.create_probes import create_probe_dicts
 
 
