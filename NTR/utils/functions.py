@@ -2,11 +2,9 @@ import os
 import yaml
 import pickle
 import csv
-
+import matplotlib.path as mpltPath
 
 import NTR
-from NTR.preprocessing.create_geom import create_geometry
-
 
 def yaml_dict_read(yml_file):
     args_from_yaml = {}
@@ -30,6 +28,8 @@ def write_igg_config(file, args):
     with open(file, "wb") as Fobj:
         pickle.dump(args, Fobj, protocol=0)
 
+def all_equal(iterable):
+    return iterable.count(iterable[0]) == len(iterable)
 
 def run_igg_meshfuncs(settings_yaml):
 
@@ -50,7 +50,8 @@ def run_igg_meshfuncs(settings_yaml):
                     settings["geom"]["x_outlet"],
                     settings["geometry"]["pitch"],
                     settings["geom"]["ptcloud_profile_unit"],
-                    settings["geom"]["shift_domain"])
+                    settings["geom"]["shift_domain"],
+                    settings["geom"]["alpha"])
 
     print("create_mesh")
     cwd = os.getcwd()
@@ -92,6 +93,15 @@ def absVec(vec):
 def absvec_array(array):
     return [absVec(vec) for vec in array]
 
+def inside_poly(polygon, points):
+    """
+    :param polygon: (x,y)
+    :param points: (x,y)
+    :return: list of True or False for indicating weather inside or not
+    """
+    path = mpltPath.Path(polygon)
+    inside = path.contains_points(points)
+    return inside
 
 def readtxtfile(path_to_file):
     basepath = os.path.abspath(os.path.dirname(__file__))

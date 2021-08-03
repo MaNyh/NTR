@@ -3,7 +3,7 @@ from NTR.utils.geom_functions import sortProfilePoints, calcMidPoints, calcMidPa
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 
 
-def create_geometry(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, pitch, unit, blade_shift):
+def create_geometry(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_outlet, pitch, unit, blade_shift, alpha):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -19,7 +19,10 @@ def create_geometry(path_profile_coords, beta_meta_01, beta_meta_02, x_inlet, x_
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_raw, y_raw, alpha=0.01)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_raw, y_raw, alpha=alpha)
+
+
+
     x_mids, y_mids = calcMidPoints(x_ss, y_ss, x_ps, y_ps)
     x_mids, y_mids = zip(*sorted(zip(x_mids, y_mids)))
     stagger_angle = np.rad2deg(np.arctan((y_mids[-1] - y_mids[-0]) / (x_mids[-1] - x_mids[-0])))

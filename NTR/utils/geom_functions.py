@@ -3,46 +3,131 @@ import numpy as np
 import pyvista as pv
 from matplotlib import path as mpltPath
 
-from scipy.interpolate import UnivariateSpline, splprep, splev
-from scipy.spatial import Delaunay
-from scipy.spatial.distance import pdist, squareform
+from scipy.interpolate import UnivariateSpline, splprep, splev, interp1d
+from scipy.spatial import Delaunay, distance
 from scipy.optimize import minimize
 from scipy.spatial.qhull import Voronoi
 
-from NTR.utils.mathfunctions import vecDir, closest_node_index, angle_between
+from NTR.utils.mathfunctions import vecAbs, vecDir, closest_node_index, angle_between
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
 from NTR.utils.pyvista_utils import slice_midspan_z, polyline_from_points, lines_from_points
+from NTR.utils.functions import inside_poly, all_equal
+
+def refine_spline(x,y,res):
+    """
+    https://stackoverflow.com/questions/51512197/python-equidistant-points-along-a-line-joining-set-of-points/51515357
+
+    :param x:
+    :param y:
+    :param res:
+    :return: x,y
+    """
+
+    distance = np.cumsum(np.sqrt(np.ediff1d(x, to_begin=0) ** 2 + np.ediff1d(y, to_begin=0) ** 2))
+    distance = distance / distance[-1]
+
+    fx, fy = interp1d(distance, x), interp1d(distance, y)
+
+    alpha_ = np.linspace(0, 1, res)
+    x, y = fx(alpha_), fy(alpha_)
+    return x, y
 
 
-def calcMidPoints(x1, y1, x2, y2):
+def midpoint(x1, y1, x2, y2):
+    return ((x1 + x2) / 2, (y1 + y2) / 2)
+
+def calcMidPoints(x1, y1, x2, y2, tolerance):
+    res = 100
+    res_oppposit = 10000
+    #x1, y1 = zip(*sorted(zip(x1, y1)))
+    #x2, y2 = zip(*sorted(zip(x2, y2)))
+
+    x1_one, y1_one = refine_spline(x1,y1,res)
+    x1_one = x1_one[1:-1]
+    y1_one = y1_one[1:-1]
+    x2_one, y2_one = refine_spline(x2,y2,res_oppposit)
+
     x_mid_ss = []
     y_mid_ss = []
 
-    for i in range(len(x1)):
+    for i in range(len(x1_one)):
 
         dists = []
 
-        for j in range(len(x2)):
-            dist = ((x1[i] - x2[j]) ** 2 + (y1[i] - y2[j]) ** 2) ** (0.5)
+        for j in range(len(x2_one)):
+            dist = ((x1_one[i] - x2_one[j]) ** 2 + (y1_one[i] - y2_one[j]) ** 2) ** (0.5)
 
             dists.append(dist)
 
         index_p = np.argmin(dists)
 
-        p_x = x2[index_p]
-        p_y = y2[index_p]
+        p_x = x2_one[index_p]
+        p_y = y2_one[index_p]
 
-        def midpoint(x1, y1, x2, y2):
-            return ((x1 + x2) / 2, (y1 + y2) / 2)
 
-        x_mid, y_mid = midpoint(p_x, p_y, x1[i], y1[i])
+        x_mid, y_mid = midpoint(p_x, p_y, x1_one[i], y1_one[i])
 
-        x_mid_ss.append(x_mid)
-        y_mid_ss.append(y_mid)
+        dists_ss = []
+        dists_ps = []
 
-    return x_mid_ss, y_mid_ss
+        for j in range(len(x2_one)):
+            dists_ss.append(((x_mid - x2_one[j]) ** 2 + (x_mid - y2_one[j]) ** 2) ** (0.5))
+
+        for j in range(len(x1_one)):
+            dists_ps.append(((x_mid - x1_one[j]) ** 2 + (x_mid - y1_one[j]) ** 2) ** (0.5))
+
+        dist_1 = dists_ss[np.argmin(dists_ss)]
+        dist_2 = dists_ps[np.argmin(dists_ps)]
+        if np.isclose(dist_1,dist_2,rtol=tolerance):
+            x_mid_ss.append(x_mid)
+            y_mid_ss.append(y_mid)
+
+
+    x1_two, y1_two = refine_spline(x1,y1,res_oppposit)
+    x1_two = x1_two[1:-1]
+    y1_two = y1_two[1:-1]
+    x2_two, y2_two = refine_spline(x2,y2,res)
+
+    x_mid_ss = []
+    y_mid_ss = []
+
+    for i in range(len(x2_two)):
+
+        dists = []
+
+        for j in range(len(x1_two)):
+            dist = ((x2_two[i] - x1_two[j]) ** 2 + (y2_two[i] - y1_two[j]) ** 2) ** (0.5)
+
+            dists.append(dist)
+
+        index_p = np.argmin(dists)
+
+        p_x = x1_two[index_p]
+        p_y = y1_two[index_p]
+
+
+        x_mid, y_mid = midpoint(p_x, p_y, x2_two[i], y2_two[i])
+
+        dists_ss = []
+        dists_ps = []
+
+        for j in range(len(x2_two)):
+            dists_ss.append(((x_mid - x2_two[j]) ** 2 + (x_mid - y2_two[j]) ** 2) ** (0.5))
+        for j in range(len(x1_two)):
+            dists_ps.append(((x_mid - x1_two[j]) ** 2 + (x_mid - y1_two[j]) ** 2) ** (0.5))
+
+
+        dist_1 = dists_ss[np.argmin(dists_ss)]
+        dist_2 = dists_ps[np.argmin(dists_ps)]
+        if np.isclose(dist_1,dist_2,rtol=tolerance):
+            x_mid_ss.append(x_mid)
+            y_mid_ss.append(y_mid)
+
+    x_mid_ss,y_mid_ss =zip(*sorted(zip(x_mid_ss, y_mid_ss)))
+
+    return np.array(x_mid_ss), np.array(y_mid_ss)
 
 
 def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
@@ -228,6 +313,63 @@ def calcConcaveHull(x, y, alpha):
 
     return x_new, y_new
 
+def veronoi_midline(points):
+
+    points2d = points[::, 0:2]
+    vor = Voronoi(points2d)
+    midline = []
+    for idx, r in enumerate(vor.regions):
+
+        pts = vor.vertices[r]
+        pts3d = np.insert(pts, 2, 0, axis=1)
+
+        inside = inside_poly(points2d, pts3d[::, 0:2])
+        pts3dclean = [i for idx, i in enumerate(pts3d) if inside[idx] == True]
+        for p in pts3dclean:
+            if not p[0] in [i[0] for i in midline]:
+                midline.append(p)
+
+    midpoints = pv.PolyData(midline)
+
+    xsortedpoints = midpoints.points[np.argsort(midpoints.points[:, 0])]
+
+    twodpts = xsortedpoints[:, 0:2].T
+
+    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=5, full_output=True)
+
+    x_new, y_new = splev(u, tck, der=0)
+
+    x_new,y_new = refine_spline(x_new, y_new, 1000)
+    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
+
+    inside = inside_poly(points2d, splineNew[::, 0:2])
+    splineNewclean = [i for idx, i in enumerate(splineNew) if inside[idx] == True]
+    splines = []
+    for p in splineNewclean:
+        if not p[0] in [i[0] for i in splines]:
+            splines.append(p)
+
+    splines = lines_from_points(np.array(splines))
+
+    return splines
+
+def line_intersection(point_a1, point_a2,
+                      point_b1,point_b2):
+
+    def det_2d(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    xdiff = (point_a1[0] - point_a2[0], point_b1[0] - point_b2[0])
+    ydiff = (point_a1[1] - point_a2[1], point_b1[1] - point_b2[1])
+
+    div = det_2d(xdiff, ydiff)
+    if div == 0:
+       return None
+
+    d = (det_2d(point_a1,point_a2), det_2d(point_b1,point_b2))
+    x = det_2d(d, xdiff) / div
+    y = det_2d(d, ydiff) / div
+    return x, y
 
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
@@ -394,6 +536,249 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
 
     return index_vk, index_hk
 
+def extract_geo_paras(points,alpha,midline_tol):
+    origPoly = pv.PolyData(points)
+    xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
+    points = np.stack((xs, ys, np.zeros(len(xs)))).T
+
+    x_new, y_new = refine_spline(xs, ys, 6000)
+    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
+    linePoly = lines_from_points(splineNew)
+    veronoi_mid = veronoi_midline(points)
+
+    midpts = veronoi_mid.points.copy()
+    midpts = midpts[np.argsort(midpts[:, 0])]
+
+
+
+    circles = []
+    quads = []
+    smashs = []
+    edges = []
+    farpts = []
+    farptsids = []
+    attempts = 0
+
+    def extract_edge_poi(mids, direction):
+        mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
+        mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
+
+        mids_tangent = mids_minx - mids_maxx
+
+        splitBoxLength = vecAbs(try_center - origPoly.points[distant_node_index(try_center, origPoly.points)]) / 3
+        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius, j_size=splitBoxLength,
+                            i_resolution=100, j_resolution=100)
+
+        rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
+
+        if direction == "low":
+            splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] <= 0]))
+        elif direction == "high":
+            splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] >= 0]))
+        splitBox = splitBox.delaunay_2d()
+        splitBox = splitBox.extrude((0, 0, 0.1))
+        splitBox.translate((0, 0, -0.05))
+
+        if direction == "low":
+            splitBox.rotate_z(-rotate)
+        elif direction == "high":
+            splitBox.rotate_z(-rotate)
+
+        splitBox.points += try_center
+        enclosedBoxPoints = origPoly.select_enclosed_points(splitBox)
+        checkPoints = [i for idx, i in enumerate(enclosedBoxPoints.points) if
+                       enclosedBoxPoints["SelectedPoints"][idx] == 1]
+
+        return checkPoints
+
+    found_limits = {"low": False,
+                    "high": False}
+
+    for limit in found_limits.keys():
+
+        while found_limits[limit] == False:
+            attempts += 1
+
+            if limit == "low":
+                random_idx = np.random.randint(-int(0.02 * len(veronoi_mid.points)), -1)
+            elif limit == "high":
+                random_idx = np.random.randint(0, int(0.02 * len(veronoi_mid.points)))
+
+            trypt = midpts[random_idx]
+
+            closest = closest_node_index(np.array([trypt[0], trypt[1], 0]), origPoly.points)
+            closest_dist = vecAbs(np.array([trypt[0], trypt[1], 0]) - origPoly.points[closest])
+
+            count_pos_try = 0
+            while (found_limits[limit] != True and count_pos_try < 4):
+                count_pos_try += 1
+
+                add = (attempts / 100) * closest_dist * np.array(
+                    [2 * (-0.5 + np.random.rand()), 2 * (-0.5 + 1 * np.random.rand()), 0])
+
+                shift_Try = trypt + add
+
+                up = veronoi_mid.points[random_idx - 1][:]
+                down = veronoi_mid.points[random_idx + 1][:]
+
+                if up[0] > down[0]:
+                    mid_tangent = (up - down)
+                elif up[0] <= down[0]:
+                    mid_tangent = (down - up)
+
+                mid_angle = -angle_between(mid_tangent, np.array([0, 1, 0])) / np.pi * 180
+
+                count_ang = 0
+                while (found_limits[limit] != True and count_ang <= 10):
+                    mid_angle += np.random.randint(-15.5, 15.5)
+                    count_ang += 1
+
+                    try_center = np.array([shift_Try[0], shift_Try[1], 0])
+                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.075
+                    try_circle = pv.Cylinder(try_center,  # center
+                                             (0, 0, 1),  # direction
+                                             try_radius,  # radius
+                                             closest_dist,  # height
+                                             1000, # resolution
+                                             )
+
+                    smash = linePoly.slice_along_line(polyline_from_points(try_circle.slice(normal="z").points))
+
+                    try_quad = pv.Plane(center=try_center,
+                                        i_size=2 * try_radius,
+                                        j_size=2 * try_radius,
+                                        direction=(0, 0, 1),
+                                        i_resolution=1,
+                                        j_resolution=1)
+                    try_quad = try_quad.extract_feature_edges()
+                    try_quad.translate(-try_center)
+                    try_quad.rotate_z(mid_angle)
+                    try_quad.translate(try_center)
+
+                    if len(smash.points) == 4:
+
+
+                        first_edge = pv.Line(try_quad.points[1], try_quad.points[2], 100)
+                        second_edge = pv.Line(try_quad.points[3], try_quad.points[0], 100)
+                        first_no = pv.Line(try_quad.points[0], try_quad.points[1], 100)
+                        second_no = pv.Line(try_quad.points[2], try_quad.points[3], 100)
+
+                        counter = np.zeros(4)
+
+                        for smashpt in smash.points:
+                            first_edge_dist = vecAbs(
+                                first_edge.points[closest_node_index(smashpt, first_edge.points)] - smashpt)
+                            second_edge_dist = vecAbs(
+                                second_edge.points[closest_node_index(smashpt, second_edge.points)] - smashpt)
+                            first_no_dist = vecAbs(
+                                first_no.points[closest_node_index(smashpt, first_no.points)] - smashpt)
+                            second_no_dist = vecAbs(
+                                second_no.points[closest_node_index(smashpt, second_no.points)] - smashpt)
+
+                            counter[
+                                np.argmin([first_edge_dist, second_edge_dist, first_no_dist, second_no_dist])] += 1
+
+                        if counter[0] == 2 and counter[1] == 2:
+
+                            smashquad = smash.delaunay_2d()
+                            smashquad = smashquad.extract_feature_edges()
+                            smashquad_dist_first_edge = [
+                                vecAbs(first_edge.points[closest_node_index(i, first_edge.points)] - i) for i in
+                                smashquad.points]
+                            smashquad_dist_second_edge = [
+                                vecAbs(second_edge.points[closest_node_index(i, second_edge.points)] - i) for i in
+                                smashquad.points]
+                            smash_firstpts = []
+                            smash_secpts = []
+                            for idx, pt in enumerate(smashquad.points):
+                                if smashquad_dist_first_edge[idx] > smashquad_dist_second_edge[idx]:
+                                    smash_firstpts.append(pt)
+                                else:
+                                    smash_secpts.append(pt)
+                            crosslines = [pv.Line(smash_firstpts[0], smash_secpts[0], 10),
+                                          pv.Line(smash_firstpts[0], smash_secpts[1], 10),
+                                          pv.Line(smash_firstpts[1], smash_secpts[0], 10),
+                                          pv.Line(smash_firstpts[1], smash_secpts[1], 10)]
+
+                            deletelines = []
+
+                            for idx, cl in enumerate(crosslines):
+                                if idx < 2:
+                                    rg = (2, 4)
+                                elif idx >= 2:
+                                    rg = (0, 2)
+                                for test_cl_idx in range(*rg):
+                                    test_cl = crosslines[test_cl_idx]
+                                    tester = pv.Line(test_cl.points[1], test_cl.points[-2])
+                                    cross = tester.slice_along_line(cl)
+                                    if cross.number_of_points > 0:
+                                        deletelines.append(idx)
+
+                            crosslines = [i for j, i in enumerate(crosslines) if j not in deletelines]
+
+                            mids = [crosslines[0].points[5], crosslines[1].points[5]]
+
+                            checkPoints = extract_edge_poi(mids, limit)
+                            if len(checkPoints) == 0:
+                                break
+                            edges.append(first_no)
+                            edges.append(second_no)
+                            edges.append(first_edge)
+                            edges.append(second_edge)
+
+                            farpt = [distant_node_index(i, np.array(checkPoints)) for i in mids]
+
+                            if all_equal(farpt):
+                                farpts.append(checkPoints[farpt[-1]])
+
+                                oids = np.where((points[::, 0] == checkPoints[farpt[-1]][0]) & (
+                                        points[::, 1] == checkPoints[farpt[-1]][1]))[0]
+                                farptsids.append(oids)
+                                found_limits[limit] = True
+                                smashs.append(smash)
+                                quads.append(try_quad)
+                                circles.append(try_circle)
+
+    ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))][0]
+    ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))][0]
+
+    begin = min([ind_hk, ind_vk])
+    end = max([ind_hk, ind_vk])
+
+    if ind_hk < ind_vk:
+        #TODO: bei ps_seite muss eventuell die Reihenfolge umgekehrt werden. PRÜFE. Gemacht bereits bei else-schleife
+        x_ss = xs[begin:end]
+        y_ss = ys[begin:end]
+
+        y_ps = ys[:begin - 1] + ys[end - 1:]
+        x_ps = xs[:begin - 1] + xs[end - 1:]
+    else:
+        x_ps = xs[begin:end]
+        y_ps = ys[begin:end]
+
+        y_ss = ys[end - 1:] + ys[:begin - 1]
+        x_ss = xs[end - 1:] + xs[:begin - 1]
+
+    psPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
+    ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
+
+    xmids, ymids = calcMidPoints(x_ps, y_ps,
+                                 x_ss, y_ss,midline_tol)
+    xmids[0] = points[ind_vk][0]
+    ymids[0] = points[ind_vk][1]
+
+    xmids[-1] = points[ind_hk][0]
+    ymids[-1] = points[ind_hk][1]
+
+    midsPoly = lines_from_points(np.stack((xmids, ymids, np.zeros(len(ymids)))).T)
+
+    vk_tangent = np.stack((xmids[0]-xmids[1],ymids[0]-ymids[1],0)).T
+    hk_tangent = np.stack((xmids[-2]-xmids[-1],ymids[-2]-ymids[-1],0)).T
+
+    camber_angle_vk = -angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
+    camber_angle_hk = -angle_between(hk_tangent, np.array([0, 1, 0])) / np.pi * 180
+
+    return psPoly,ssPoly,ind_vk,ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
 
 def calcMeanCamberLine(x, y, alpha):
     # vk und hk bestimmen
@@ -805,7 +1190,7 @@ def getPitchValuesB2BSliceComplete(case, x):
     return y2, array_names, values
 
 
-def extract_profile_paras(points, verbose = False):
+def extract_profile_paras(points, verbose=False):
     points2d = points[:, 0:2]
     #pointsClosed = np.vstack([points2d, [points2d[0]]])
 
@@ -865,8 +1250,6 @@ def extract_profile_paras(points, verbose = False):
     low_hitid = min(hitids)
     high_hitid = max(hitids)
 
-    # vk_point_id = closest_node_index(firsthitpoint,bladeLine.points)
-    # hk_point_id = closest_node_index(secondhitpoint,bladeLine.points)
     hitpoint_lowid = secondhitpoint  # bladeLine.points[low_hitid]
     hitpoint_highid = firsthitpoint  # bladeLine.points[high_hitid]
 
@@ -902,3 +1285,13 @@ def extract_profile_paras(points, verbose = False):
         plotter.show()
 
     return ss_poly.points, ps_poly.points, centerline.points, beta_01, beta_02
+
+
+
+def closest_node_index(node, nodes):
+    closest_index = distance.cdist([node], nodes).argmin()
+    return closest_index
+
+def distant_node_index(node, nodes):
+    closest_index = distance.cdist([node], nodes).argmax()
+    return closest_index
