@@ -40,10 +40,6 @@ te_firstcellheight_coeff = args["te_firstcellheight_coeff"]
 shift_vk_block_xaxiscoeff = args["shift_vk_block_xaxiscoeff"]
 shift_hk_block_xaxiscoeff = args["shift_hk_block_xaxiscoeff"]
 
-hk_ps_shift = args["hk_ps_shift"]
-hk_ss_shift = args["hk_ss_shift"]
-vk_ps_shift = args["vk_ps_shift"]
-vk_ss_shift = args["vk_ss_shift"]
 
 exp_ratio = args["exp_ratio"]
 
@@ -268,7 +264,7 @@ def set_blocks():
                         Curve("cspline_peri_upper").calc_normalize(
                             Curve("cspline_peri_upper").project_point(Point(CurvePointNorm(Curve("cspline_ps"), 0.0).x,
                                                                             CurvePointNorm(Curve("cspline_ps"),
-                                                                                           0.0).y + shift_vk_block_xaxiscoeff * pitch,
+                                                                                           0.0).y + shift_vk_block_xaxiscoeff ,
                                                                             0))))
 
     # HK-Blockgrenze
@@ -276,21 +272,21 @@ def set_blocks():
                         Curve("cspline_peri_lower").calc_normalize(
                             Curve("cspline_peri_lower").project_point(Point(CurvePointNorm(Curve("cspline_ps"), 1.0).x,
                                                                             CurvePointNorm(Curve("cspline_ps"),
-                                                                                           0.0).y + shift_hk_block_xaxiscoeff * pitch,
+                                                                                           0.0).y + shift_hk_block_xaxiscoeff ,
                                                                             1.0))) + 0.05)
     p3 = Point(CurvePointNorm(Curve("cspline_ss"), 0.5).x,
                CurvePointNorm(Curve("cspline_ss"), 0.5).y + yPerLowHGridBlockPitchStart * pitch, 0)
 
     #VK
     pt1 = Point(p1.x, p1.y + yPerHighHGridBlockPitchStart * pitch - pitch, 0)  # vk_ss
-    pt2 = CurvePointNorm(Curve("cspline_ss"), (1-blockStartFromChord)*vk_ss_shift)  # vk_ssBOUNDARY
-    pt3 = CurvePointNorm(Curve("cspline_ps"), blockStartFromChord*vk_ps_shift)  # vk_psBOUNDARY
+    pt2 = CurvePointNorm(Curve("cspline_ss"), (1-blockStartFromChord))  # vk_ssBOUNDARY
+    pt3 = CurvePointNorm(Curve("cspline_ps"), blockStartFromChord)  # vk_psBOUNDARY
     pt4 = Point(p1.x, p1.y + yPerLowHGridBlockPitchStart * pitch - pitch, 0) # vk_ss
     #HK
     pt5 = Point(p2.x, p2.y + yPerLowHGridBlockPitchStart * pitch, 0)
     pt6 = Point(p2.x, p2.y + yPerHighHGridBlockPitchStart * pitch, 0)
-    pt7 = CurvePointNorm(Curve("cspline_ss"), blockStartFromChord*hk_ss_shift )
-    pt8 = CurvePointNorm(Curve("cspline_ps"), (1-blockStartFromChord)*hk_ps_shift)
+    pt7 = CurvePointNorm(Curve("cspline_ss"), blockStartFromChord )
+    pt8 = CurvePointNorm(Curve("cspline_ps"), (1-blockStartFromChord))
 
     pt9 = CurvePointNorm(Curve("cspline_peri_lower"), 0.0)
     pt10 = CurvePointNorm(Curve("cspline_peri_lower"),Curve("cspline_peri_lower").calc_normalize(Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))
