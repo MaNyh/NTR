@@ -11,6 +11,7 @@ geometry:
     beta_meta_02                    : 111                                   #Outflow angle [deg]
     pitch                           : 0.0765                                #Pitch [m]
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+    midline_tolerance               : 5                                     #Tolerance coefficient for midline-generation
 
 probing:
     domain : "00_Ressources/02_UsedMesh/12_OpenFOAM_compCascade_0.vtk"

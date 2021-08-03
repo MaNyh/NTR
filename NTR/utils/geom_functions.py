@@ -13,7 +13,7 @@ from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
 from NTR.utils.pyvista_utils import slice_midspan_z, polyline_from_points, lines_from_points
-from NTR.utils.functions import inside_poly, all_equal
+
 
 def refine_spline(x,y,res):
     """
@@ -775,8 +775,8 @@ def extract_geo_paras(points,alpha,midline_tol):
     vk_tangent = np.stack((xmids[0]-xmids[1],ymids[0]-ymids[1],0)).T
     hk_tangent = np.stack((xmids[-2]-xmids[-1],ymids[-2]-ymids[-1],0)).T
 
-    camber_angle_vk = -angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
-    camber_angle_hk = -angle_between(hk_tangent, np.array([0, 1, 0])) / np.pi * 180
+    camber_angle_vk = angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
+    camber_angle_hk = angle_between(hk_tangent, np.array([0, 1, 0])) / np.pi * 180
 
     return psPoly,ssPoly,ind_vk,ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
 
@@ -1295,3 +1295,18 @@ def closest_node_index(node, nodes):
 def distant_node_index(node, nodes):
     closest_index = distance.cdist([node], nodes).argmax()
     return closest_index
+
+
+def inside_poly(polygon, points):
+    """
+    :param polygon: (x,y)
+    :param points: (x,y)
+    :return: list of True or False for indicating weather inside or not
+    """
+    path = mpltPath.Path(polygon)
+    inside = path.contains_points(points)
+    return inside
+
+
+def all_equal(iterable):
+    return iterable.count(iterable[0]) == len(iterable)
