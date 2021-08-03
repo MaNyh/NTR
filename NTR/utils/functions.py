@@ -28,6 +28,9 @@ def write_igg_config(file, args):
     with open(file, "wb") as Fobj:
         pickle.dump(args, Fobj, protocol=0)
 
+def write_yaml_dict(fpath,data):
+    with open(fpath, 'w') as outfile:
+        yaml.dump(data, outfile, default_flow_style=False)
 
 def run_igg_meshfuncs(settings_yaml):
 
