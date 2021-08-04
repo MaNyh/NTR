@@ -143,12 +143,6 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     x_inlet, x_outlet = scalar - representing position x-component of in/outlet
     t = scalar pitch
     """
-    check_decreasing = np.diff(x_mcl) < 0
-    if any(check_decreasing):
-        last_decreasing = max(np.where(check_decreasing)[0])
-
-        x_mcl = x_mcl[last_decreasing+1:]
-        y_mcl = y_mcl[last_decreasing+1:]
 
     spl = UnivariateSpline(x_mcl, y_mcl, k=5)
     deri_spl = spl.derivative()
@@ -178,6 +172,7 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
             x_values.append(x_mcl[i])
             y_values.append(y_mcl[i])
 
+
     delta_x_vk = x_values[0] - x_inlet
     delta_y_vk = np.tan(np.deg2rad(beta1 - 90.0)) * delta_x_vk
 
@@ -193,6 +188,7 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     x_mpsl = [p_inlet_x] + x_values + [p_outlet_x]
     y_mpsl = [p_inlet_y] + y_values + [p_outlet_y]
 
+    # TODO Fehler?
     for i in range(len(x_mpsl)):
         y_mpsl[i] = y_mpsl[i] + 0.5 * t
 
