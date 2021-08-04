@@ -54,7 +54,8 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
                 "stagger_angle": stagger_angle,
                 "midpassagestreamLine": [x_mpsl, y_mpsl],
                 "xpos_in_out": [x_inlet, x_outlet],
-                "pitch": pitch}
+                "pitch": pitch,
+                }
 
     geo_filename = "geometry.pkl"
     write_pickle(os.path.join(casepath, geo_filename), geo_dict)

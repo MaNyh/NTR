@@ -10,12 +10,12 @@ from matplotlib import colors as mcolors
 import os
 import numpy as np
 
-from NTR.utils.geom_functions import sortProfilePoints, calcMidPassageStreamLine, calcMeanCamberLine, getBoundaryValues, \
-    getGeom2DVTUSLice2
-from NTR.utils.pyvista_utils import load_mesh
+from NTR.utils.geom_functions import sortProfilePoints, getBoundaryValues, getGeom2DVTUSLice2, refine_spline, \
+    equi_points
+from NTR.utils.pyvista_utils import load_mesh, polyline_from_points
 
 
-def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
+def createProbesProfileDict(geoparas_dict,midspan_z, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
                             interval_time_steps_probes, output_path, alpha, start_time, end_time, tolerance):
     """
     :param path_blade_surface: vtk-mesh
@@ -26,12 +26,16 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
     :param tolerance: float
     :return: openFoamDict
     """
+    #TODO ersetze zahlen mit keys --> anstatt liste, übergebe dict
+    ssPoly = geoparas_dict["sidePolys"][0]
+    psPoly = geoparas_dict["sidePolys"][1]
+    ssPolyLine = polyline_from_points(ssPoly.points)
+    psPolyLine = polyline_from_points(psPoly.points)
+    ssFace = ssPolyLine.extrude((0,0,midspan_z*2))
+    psFace = psPolyLine.extrude((0,0,midspan_z*2))
+    blade_surface = ssFace.merge(psFace).extract_surface()
 
-    bladebounds = blade_surface.bounds
-    blade_surface = blade_surface.compute_normals()
-    surface_normals = blade_surface.point_arrays["Normals"]
-
-    midspan_z = (bladebounds[5] - bladebounds[4]) / 2
+    surface_normals = blade_surface.face_normals
 
     cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
 
@@ -65,14 +69,12 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
         point = points[idx]
         normal = surface_normals[idx]
 
-        x_ps_shift.append(point[0] - tolerance * normal[0])
-        y_ps_shift.append(point[1] - tolerance * normal[1])
+        x_ps_shift.append(point[0] + tolerance * normal[0])
+        y_ps_shift.append(point[1] + tolerance * normal[1])
 
-    x_bl_ss = x_ss_shift[::int(pden_Probes_Profile_SS)]
-    y_bl_ss = y_ss_shift[::int(pden_Probes_Profile_SS)]
+    x_bl_ss, y_bl_ss = refine_spline(x_ss_shift, y_ss_shift, pden_Probes_Profile_SS)
 
-    x_bl_ps = x_ps_shift[::int(pden_Probes_Profile_PS)]
-    y_bl_ps = y_ps_shift[::int(pden_Probes_Profile_PS)]
+    x_bl_ps, y_bl_ps = refine_spline(x_ps_shift, y_ps_shift, pden_Probes_Profile_PS)
 
     z_bl_ss = []
     z_bl_ps = []
@@ -147,8 +149,8 @@ def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
 
-    x_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::,0]
-    y_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::,1]
+    x_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::, 0]
+    y_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::, 1]
 
     # x_probes = []
     # y_probes = []
@@ -219,47 +221,6 @@ probeLocations
     return outprobes
 
 
-def equi_points(x, y, nop):
-    M = 10000
-
-    x_new = np.linspace(min(x), max(x), M)
-    y_new = np.interp(x_new, x, y)
-
-    # berechnet die laenge der Stromlinie
-
-    l_sl = 0
-
-    for i in range(len(x_new)):
-        if i > 0:
-            l_sl = l_sl + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
-
-    xn = []
-    yn = []
-
-    dist = l_sl / (nop - 1)
-
-    l_p = 0
-
-    for i in range(len(x_new)):
-        if i > 0:
-            l_p = l_p + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
-
-            if l_p >= dist and i != nop - 1:
-                xn.append(x_new[i])
-                yn.append(y_new[i])
-                l_p = 0
-
-        if i == 0:
-            xn.append(x_new[i])
-            yn.append(y_new[i])
-
-        if i == len(x_new) - 1:
-            xn.append(x_new[-1])
-            yn.append(y_new[-1])
-
-    return xn, yn
-
-
 def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path, start_time, end_time):
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
 
@@ -325,12 +286,15 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     y2max = max(ys_2)
     y2min = min(ys_2)
 
-    y1_probes = np.linspace(y1min, y1max, nop, endpoint=True)
-    y2_probes = np.linspace(y2min, y2max, nop, endpoint=True)
+    dy_shift = (y2max - y2min) / nop / 2
+    y1_probes = np.linspace(y1min, y1max, nop, endpoint=False)+dy_shift
+    y2_probes = np.linspace(y2min, y2max, nop, endpoint=False)+dy_shift
+
+
 
     data_file = open(os.path.join(output_path, 'Probes_XSlices_Dict'), 'w')
 
-    data_file.write("""    Probes_Profile
+    data_file.write("""    Probes_XSlices
         {
             type                probes;
             libs                ("libsampling.so");
@@ -342,6 +306,12 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
                 fields
                 (
                     U
+                    {
+                        mean on;
+                        prime2Mean on;
+                        base time;
+                    }
+                    p
                 );
 
             // number of probes: """ + str(len(y1_probes) + len(y2_probes)) + """
@@ -370,14 +340,15 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     return outprobes
 
 
-def create_probe_dicts(case_settings,geo_ressources):
+def create_probe_dicts(case_settings, geo_ressources):
 
     domain = load_mesh(case_settings["probing"]["domain"])
-    blade = load_mesh(case_settings["probing"]["blade"])
+    #blade = load_mesh(case_settings["probing"]["blade"])
     alpha = case_settings["geometry"]["alpha"]
-    beta_01 = geo_ressources["beta_metas"][0]
-    beta_02 = geo_ressources["beta_metas"][1]
-    pitch = case_settings["geometry"]["pitch"]
+    #beta_01 = geo_ressources["beta_metas"][0]
+    #beta_02 = geo_ressources["beta_metas"][1]
+    #pitch = case_settings["geometry"]["pitch"]
+    midspan_z = case_settings["mesh"]["extrudeLength"]/2
 
     output_path = case_settings["probing"]["output_path"]
 
@@ -386,7 +357,8 @@ def create_probe_dicts(case_settings,geo_ressources):
     if case_settings["probing"]["probes"]["profile_probing"]:
         sampling_rate = case_settings["probes"]["profile_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
-        outprobes = createProbesProfileDict(blade,
+        outprobes = createProbesProfileDict(geo_ressources,
+                                            midspan_z,
                                             case_settings["probes"]["profile_probes"]["pden_ps"],
                                             case_settings["probes"]["profile_probes"]["pden_ss"],
                                             timestepinterval,

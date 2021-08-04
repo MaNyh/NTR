@@ -16,7 +16,7 @@ from NTR.utils.simFunctions import sort_values_by_pitch
 from NTR.utils.pyvista_utils import slice_midspan_z, polyline_from_points, lines_from_points
 
 
-def refine_spline(x,y,res):
+def refine_spline(x, y, res):
     """
     https://stackoverflow.com/questions/51512197/python-equidistant-points-along-a-line-joining-set-of-points/51515357
 
@@ -1307,3 +1307,44 @@ def inside_poly(polygon, points):
 
 def all_equal(iterable):
     return iterable.count(iterable[0]) == len(iterable)
+
+
+def equi_points(x, y, nop):
+    M = 10000
+
+    x_new = np.linspace(min(x), max(x), M)
+    y_new = np.interp(x_new, x, y)
+
+    # berechnet die laenge der Stromlinie
+
+    l_sl = 0
+
+    for i in range(len(x_new)):
+        if i > 0:
+            l_sl = l_sl + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
+
+    xn = []
+    yn = []
+
+    dist = l_sl / (nop - 1)
+
+    l_p = 0
+
+    for i in range(len(x_new)):
+        if i > 0:
+            l_p = l_p + np.sqrt((x_new[i] - x_new[i - 1]) ** 2 + (y_new[i] - y_new[i - 1]) ** 2)
+
+            if l_p >= dist and i != nop - 1:
+                xn.append(x_new[i])
+                yn.append(y_new[i])
+                l_p = 0
+
+        if i == 0:
+            xn.append(x_new[i])
+            yn.append(y_new[i])
+
+        if i == len(x_new) - 1:
+            xn.append(x_new[-1])
+            yn.append(y_new[-1])
+
+    return xn, yn
