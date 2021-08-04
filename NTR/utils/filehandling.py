@@ -25,10 +25,18 @@ def read_csv(csv_filepath):
     return data
 
 
-def write_pickle(file, args):
+def write_pickle_protocolzero(file, args):
     with open(file, "wb") as Fobj:
         pickle.dump(args, Fobj, protocol=0)
 
+def write_pickle(file, args):
+    with open(file, "wb") as Fobj:
+        pickle.dump(args, Fobj)
+
+def read_pickle(file):
+    with open(file, 'rb') as f:
+        args = pickle.load(f)
+    return args
 
 def write_yaml_dict(fpath,data):
     with open(fpath, 'w') as outfile:

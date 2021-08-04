@@ -3,7 +3,7 @@ import pickle
 
 import NTR
 from NTR.preprocessing.create_geom import create_geometry
-from NTR.utils.filehandling import yaml_dict_read, write_pickle
+from NTR.utils.filehandling import yaml_dict_read, write_pickle_protocolzero
 
 
 def run_igg_meshfuncs(settings_yaml):
@@ -50,7 +50,7 @@ def run_igg_meshfuncs(settings_yaml):
     for i in settings["mesh"]:
         args[i] = settings["mesh"][i]
 
-    write_pickle(args_dict_path, args)
+    write_pickle_protocolzero(args_dict_path, args)
     os.system(igg_exe + " -batch -print -script " + script_path)
     os.chdir(cwd)
 

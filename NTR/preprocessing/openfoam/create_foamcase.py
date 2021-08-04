@@ -3,7 +3,7 @@ import os
 import NTR
 from NTR.preprocessing.openfoam.cascadecase_les_filetemplates import les_templates
 from NTR.preprocessing.openfoam.filetemplate_utils import get_template_contents
-from NTR.utils.filehandling import yaml_dict_read
+from NTR.utils.filehandling import yaml_dict_read, read_pickle
 from NTR.preprocessing.openfoam.create_probes import create_probe_dicts
 
 
@@ -34,12 +34,13 @@ def create_foamcase(setting_file):
 
     settings = yaml_dict_read(setting_file)
     mainpath = os.path.abspath(os.path.dirname(setting_file))
+    geo_ressources = read_pickle(os.path.join(mainpath, "00_Ressources", "01_Geometry", "geometry.pkl"))
 
     if settings["case_settings"]["sim_type"] == "openfoam_les":
         file_templates = les_templates.file_templates
         probe_templates = les_templates.probe_templates
         create_cascadecase_les(settings, mainpath, file_templates, probe_templates)
-        create_probe_dicts(settings)
+        create_probe_dicts(settings, geo_ressources)
 
     elif settings["case_settings"]["sim_type"] == "openfoam_ras":
         file_templates = les_templates.file_templates

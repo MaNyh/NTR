@@ -140,18 +140,15 @@ def createProbesProfileDict(blade_surface, pden_Probes_Profile_SS, pden_Probes_P
 
 
 def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
-                               interval_time_steps_probes, beta_01, beta_02, teilung,
-                               start_time, end_time):
-    ## Eige Klasse für Geometrieparameter in Cascaden-Fall?
+                               interval_time_steps_probes,start_time, end_time, geoparas_dict):
 
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
 
-    x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk = calcMeanCamberLine(x_profil, y_profil, alpha)
-
-    x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_01, beta_02, max(x_inlet), min(x_outlet), teilung)
+    x_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::,0]
+    y_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::,1]
 
     # x_probes = []
     # y_probes = []
@@ -373,12 +370,13 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     return outprobes
 
 
-def create_probe_dicts(case_settings):
+def create_probe_dicts(case_settings,geo_ressources):
+
     domain = load_mesh(case_settings["probing"]["domain"])
     blade = load_mesh(case_settings["probing"]["blade"])
     alpha = case_settings["geometry"]["alpha"]
-    beta_01 = case_settings["geometry"]["beta_meta_01"]
-    beta_02 = case_settings["geometry"]["beta_meta_02"]
+    beta_01 = geo_ressources["beta_metas"][0]
+    beta_02 = geo_ressources["beta_metas"][1]
     pitch = case_settings["geometry"]["pitch"]
 
     output_path = case_settings["probing"]["output_path"]
@@ -410,11 +408,10 @@ def create_probe_dicts(case_settings):
                                                case_settings["probes"]["streamline_probes"]["nop_streamline"],
                                                output_path,
                                                timestepinterval,
-                                               beta_01,
-                                               beta_02,
-                                               pitch,
                                                case_settings["probes"]["streamline_probes"]["start_time"],
-                                               case_settings["probes"]["streamline_probes"]["end_time"])
+                                               case_settings["probes"]["streamline_probes"]["end_time"],
+                                               geo_ressources)
+
         for k, v in outprobes.items():
             probes[k] = v
 
