@@ -355,7 +355,7 @@ def create_vk_stagflow_probes(geom_paras, nop, length, angle, interval_time_step
     data_file = open(os.path.join(output_path, 'Probes_VKstagnation_Dict'), 'w')
 
     data_file.write("""
-
+Probes_VKstagnation
 {
 type                probes;
 libs                ("libsampling.so");
