@@ -4,7 +4,7 @@ case_settings:
     var_type : "openfoam_timeaverage"
     sim_type: "openfoam_les"
     machine_type : "compressor"
-    timestep : "3e-8"
+    timestep : "1e-7"
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
@@ -105,12 +105,12 @@ case:
 
 probes:
     profile_probes:
-        pden_ps : 20
-        pden_ss : 20
+        pden_ps : 10
+        pden_ss : 10
         sampling_rate : 1e6 #Hz
         start_time : 0.12 #s
         end_time : 1000 #s
-        tolerance : 0.00005
+        tolerance : 0.00001
 
     streamline_probes:
         nop_streamline : 20
@@ -131,7 +131,7 @@ probes:
 
     xsclicing_probes:
         mesh : domain
-        nop: 10
+        nop: 6
         sampling_rate: 1e5 #Hz
         x_slice_one : -0.08
         x_slice_two : 0.18
