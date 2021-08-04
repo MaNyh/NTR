@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
 import os
 import numpy as np
+import pyvista as pv
 
 from NTR.utils.geom_functions import sortProfilePoints, getBoundaryValues, getGeom2DVTUSLice2, refine_spline, \
     equi_points
@@ -306,11 +307,12 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
                 fields
                 (
                     U
-                    {
-                        mean on;
-                        prime2Mean on;
-                        base time;
-                    }
+                    //{
+                    //    mean on;
+                    //    prime2Mean on;
+                    //    base time;
+                    //}
+
                     p
                 );
 
@@ -339,15 +341,59 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
 
     return outprobes
 
+def create_vk_stagflow_probes(geom_paras, nop, length, angle, interval_time_steps_probes,
+                              output_path, start_time, end_time):
+
+    vk_point = geom_paras["points"][geom_paras["hk_vk_idx"]][1]
+    stagnationLine = pv.Line((0,0,0),(-length,0,0),nop-1)
+    stagnationLine.rotate_z(angle)
+    stagnationLine.translate(vk_point)
+
+    x_probes = stagnationLine.points[::, 0]
+    y_probes = stagnationLine.points[::, 1]
+    z_probes = stagnationLine.points[::, 2]
+    data_file = open(os.path.join(output_path, 'Probes_VKstagnation_Dict'), 'w')
+
+    data_file.write("""
+
+{
+type                probes;
+libs                ("libsampling.so");
+writeControl        timeStep;
+writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+timeStart           """ + str(start_time) + """;
+timeEnd             """ + str(end_time) + """;
+
+fields
+(
+    U
+    p
+    T
+    nut
+    rho
+);
+
+// number of probes: """ + str(nop) + """
+
+probeLocations
+(\n""")
+
+    for i in range(len(x_probes)):
+        data_file.write('\t(' + str(x_probes[i]) + '\t\t' + str(y_probes[i]) + '\t\t' + str(z_probes[i]) + ')\n')
+
+    data_file.write("""        );
+    }""")
+    data_file.close()
+
+    outprobes = {"Probes_VK_StagnationLine": np.stack((x_probes, y_probes)),
+                 }
+
+    return outprobes
 
 def create_probe_dicts(case_settings, geo_ressources):
-
+    #TODO replace domain with geo data
     domain = load_mesh(case_settings["probing"]["domain"])
-    #blade = load_mesh(case_settings["probing"]["blade"])
     alpha = case_settings["geometry"]["alpha"]
-    #beta_01 = geo_ressources["beta_metas"][0]
-    #beta_02 = geo_ressources["beta_metas"][1]
-    #pitch = case_settings["geometry"]["pitch"]
     midspan_z = case_settings["mesh"]["extrudeLength"]/2
 
     output_path = case_settings["probing"]["output_path"]
@@ -420,6 +466,25 @@ def create_probe_dicts(case_settings, geo_ressources):
                                          case_settings["probes"]["inletoutletfieldave_probing"]["end_time"],
                                          timestepinterval,
                                          output_path)
+
+    if case_settings["probing"]["probes"]["vk_stagnationflow_probing"]:
+        sampling_rate = case_settings["probes"]["inletoutletfieldave_probing"]["sampling_rate"]
+
+        U = [float(i) for i in case_settings["case"]["case_parameters"]["U"]["UINLET"].split(" ")]
+        angle = np.arccos(U[0]/U[1])*180/np.pi
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
+
+        outprobes = create_vk_stagflow_probes(geo_ressources,
+                                  case_settings["probes"]["vk_stagnationflow_probing"]["nop"],
+                                  case_settings["probes"]["vk_stagnationflow_probing"]["length"],
+                                  angle,
+                                  timestepinterval,
+                                  output_path,
+                                  case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
+                                  case_settings["probes"]["inletoutletfieldave_probing"]["end_time"]
+                                  )
+        for k, v in outprobes.items():
+            probes[k] = v
 
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(domain, alpha)
 

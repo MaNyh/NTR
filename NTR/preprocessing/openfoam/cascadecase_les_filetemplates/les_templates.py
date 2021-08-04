@@ -42,4 +42,5 @@ probe_templates["profile_probing"] = """
 probe_templates["streamline_probing"] = """
     #include "Probes_Streamline_Dict" """
 
-
+probe_templates["vk_stagnationflow_probing"] = """
+    #include "Probes_VKstagnation_Dict" """

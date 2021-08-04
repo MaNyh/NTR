@@ -63,8 +63,10 @@ libs (
         //__globalsetting__inletoutletfieldave_probing__//
         //__globalsetting__inletoutletvelocity_probing__//
         //__globalsetting__xslice_probing__//
+        //__globalsetting__midspanslice_probing__//
         //__globalsetting__profile_probing__//
         //__globalsetting__streamline_probing__//
+        //__globalsetting__vk_stagnationflow_probing__//
     }
 //}
 

@@ -21,6 +21,7 @@ probing:
         inletoutletvelocity_probing: True
         xslice_probing: True
         midspanslice_probing: True
+        vk_stagnationflow_probing : True
     output_path : "02_Preprocessing/system"
 
 monitoring:
@@ -138,3 +139,9 @@ probes:
         start_time: 0.12 #s
         end_time: 1000 #s
 
+    vk_stagnationflow_probing:
+        nop : 6
+        sampling_rate: 1e5 #Hz
+        length : 0.03 #m
+        start_time: 0.12 #s
+        end_time: 1000 #s
