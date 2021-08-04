@@ -25,7 +25,7 @@ def read_csv(csv_filepath):
     return data
 
 
-def write_igg_config(file, args):
+def write_pickle(file, args):
     with open(file, "wb") as Fobj:
         pickle.dump(args, Fobj, protocol=0)
 

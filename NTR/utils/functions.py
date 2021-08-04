@@ -3,7 +3,7 @@ import pickle
 
 import NTR
 from NTR.preprocessing.create_geom import create_geometry
-from NTR.utils.filehandling import yaml_dict_read, write_igg_config
+from NTR.utils.filehandling import yaml_dict_read, write_pickle
 
 
 def run_igg_meshfuncs(settings_yaml):
@@ -18,7 +18,7 @@ def run_igg_meshfuncs(settings_yaml):
 
     print("create_geometry")
     ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
-    outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)),"00_Resources","01_Geometry")
+    outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)),"00_Ressources","01_Geometry")
     create_geometry(ptstxtfile,
                     settings["geom"]["x_inlet"],
                     settings["geom"]["x_outlet"],
@@ -50,7 +50,7 @@ def run_igg_meshfuncs(settings_yaml):
     for i in settings["mesh"]:
         args[i] = settings["mesh"][i]
 
-    write_igg_config(args_dict_path, args)
+    write_pickle(args_dict_path, args)
     os.system(igg_exe + " -batch -print -script " + script_path)
     os.chdir(cwd)
 

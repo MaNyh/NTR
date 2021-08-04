@@ -4,7 +4,7 @@ import os
 
 from NTR.utils.geom_functions import extract_geo_paras, calcMidPassageStreamLine
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
-from NTR.utils.filehandling import write_yaml_dict
+from NTR.utils.filehandling import write_pickle
 
 
 def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha,midline_tol, casepath, verbose=False):
@@ -51,14 +51,14 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
                 "sidePolys": [psPoly,ssPoly],
                 "hk_vk_idx": [ind_vk,ind_hk],
                 "skeletal": midsPoly,
-                "metal_angle": [beta_meta_01, beta_meta_02],
+                "beta_metas": [beta_meta_01, beta_meta_02],
                 "stagger_angle": stagger_angle,
                 "midpassagestreamLine": [x_mpsl, y_mpsl],
                 "xpos_in_out": [x_inlet, x_outlet],
                 "pitch": pitch}
 
-    geo_filename = "geometry.yml"
-    write_yaml_dict(os.path.join(casepath,geo_filename),geo_dict)
+    geo_filename = "geometry.pkl"
+    write_pickle(os.path.join(casepath,geo_filename),geo_dict)
 
     if verbose:
         plotter = pv.Plotter()
