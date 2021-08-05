@@ -11,12 +11,11 @@ import os
 import numpy as np
 import pyvista as pv
 
-from NTR.utils.geom_functions import sortProfilePoints, getBoundaryValues, getGeom2DVTUSLice2, refine_spline, \
-    equi_points
+from NTR.utils.geom_functions import  getBoundaryValues, getGeom2DVTUSLice2, refine_spline, equi_points
 from NTR.utils.pyvista_utils import load_mesh, polyline_from_points
 
 
-def createProbesProfileDict(geoparas_dict,midspan_z, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
+def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
                             interval_time_steps_probes, output_path, alpha, start_time, end_time, tolerance):
     """
     :param path_blade_surface: vtk-mesh
@@ -27,64 +26,39 @@ def createProbesProfileDict(geoparas_dict,midspan_z, pden_Probes_Profile_SS, pde
     :param tolerance: float
     :return: openFoamDict
     """
-    #TODO ersetze zahlen mit keys --> anstatt liste, übergebe dict
+    # TODO ersetze zahlen mit keys --> anstatt liste, übergebe dict
     ssPoly = geoparas_dict["sidePolys"][0]
+    ref_ss_x, ref_ss_y = refine_spline(ssPoly.points[::, 0], ssPoly.points[::, 1], 4000)
+    ref_ss_points = np.stack((ref_ss_x, ref_ss_y, np.zeros(len(ref_ss_y)))).T
+    ref_ssPoly = pv.PolyData(ref_ss_points)
+    ref_ss_poly = polyline_from_points(ref_ssPoly.points)
+    ref_ss_face = ref_ss_poly.extrude((0, 0, midspan_z * 2)).compute_normals()
+    ref_ss_face_shift = ref_ss_face.copy()
+    ref_ss_face_shift.points += tolerance * ref_ss_face_shift.point_arrays["Normals"]
+    ref_ss_cut = ref_ss_face_shift.slice(normal="z", origin=(0, 0, midspan_z))
+
     psPoly = geoparas_dict["sidePolys"][1]
-    ssPolyLine = polyline_from_points(ssPoly.points)
-    psPolyLine = polyline_from_points(psPoly.points)
-    ssFace = ssPolyLine.extrude((0,0,midspan_z*2))
-    psFace = psPolyLine.extrude((0,0,midspan_z*2))
-    blade_surface = ssFace.merge(psFace).extract_surface()
+    ref_ps_x, ref_ps_y = refine_spline(psPoly.points[::, 0], psPoly.points[::, 1], 4000)
+    ref_ps_points = np.stack((ref_ps_x, ref_ps_y, np.zeros(len(ref_ps_y)))).T
+    ref_psPoly = pv.PolyData(ref_ps_points)
+    ref_ps_poly = polyline_from_points(ref_psPoly.points)
+    ref_ps_face = ref_ps_poly.extrude((0, 0, midspan_z * 2)).compute_normals()
+    ref_ps_face_shift = ref_ps_face.copy()
+    ref_ps_face_shift.points += tolerance * ref_ps_face_shift.point_arrays["Normals"]
+    ref_ps_cut = ref_ps_face_shift.slice(normal="z", origin=(0, 0, midspan_z))
 
-    surface_normals = blade_surface.face_normals
+    x_ss_shift = ref_ss_cut.points[::,0]
+    y_ss_shift = ref_ss_cut.points[::,1]
+    z_bl_ss = ref_ps_cut.points[::,2]
 
-    cut_plane = blade_surface.slice(normal="z", origin=(0, 0, midspan_z))
-
-    # Mittelschnitt erstellen
-
-    points = cut_plane.points
-    phelp = points[:, [0, 1]]
-
-    #
-    # Punkte extrahieren
-
-    # Nach Durck und Saugseite sortieren
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(points[::, 0], points[::, 1], alpha)
-
-    x_ss_shift = []
-    y_ss_shift = []
-
-    x_ps_shift = []
-    y_ps_shift = []
-
-    for pt in np.stack([x_ss, y_ss]).T:
-        idx = np.where(pt == phelp)[0][0]
-        point = points[idx]
-        normal = surface_normals[idx]
-
-        x_ss_shift.append(point[0] + tolerance * normal[0])
-        y_ss_shift.append(point[1] + tolerance * normal[1])
-
-    for pt in np.stack([x_ps, y_ps]).T:
-        idx = np.where(pt == phelp)[0][0]
-        point = points[idx]
-        normal = surface_normals[idx]
-
-        x_ps_shift.append(point[0] + tolerance * normal[0])
-        y_ps_shift.append(point[1] + tolerance * normal[1])
+    x_ps_shift = ref_ps_cut.points[::,0]
+    y_ps_shift = ref_ps_cut.points[::,1]
+    z_bl_ps = ref_ps_cut.points[::,2]
 
     x_bl_ss, y_bl_ss = refine_spline(x_ss_shift, y_ss_shift, pden_Probes_Profile_SS)
-
     x_bl_ps, y_bl_ps = refine_spline(x_ps_shift, y_ps_shift, pden_Probes_Profile_PS)
 
-    z_bl_ss = []
-    z_bl_ps = []
 
-    for i in range(len(x_bl_ss)):
-        z_bl_ss.append(midspan_z)
-
-    for i in range(len(x_bl_ps)):
-        z_bl_ps.append(midspan_z)
 
     data_file = open(os.path.join(output_path, 'Probes_Profile_Dict'), 'w')
 
@@ -129,7 +103,7 @@ def createProbesProfileDict(geoparas_dict,midspan_z, pden_Probes_Profile_SS, pde
     plt.figure(figsize=(8, 8))
 
     plt.plot(x_bl_ss, y_bl_ss, 'xr', lw=1, label='probes ss_profile')
-    plt.plot(x_bl_ps, y_bl_ps, 'xb', lw=1, label='probes ss_profile')
+    plt.plot(x_bl_ps, y_bl_ps, 'xb', lw=1, label='probes ps_profile')
 
     plt.legend(loc='best')
     plt.savefig(os.path.join(os.path.abspath(output_path), 'kontrollplot_probes_profile.pdf'))
@@ -143,8 +117,7 @@ def createProbesProfileDict(geoparas_dict,midspan_z, pden_Probes_Profile_SS, pde
 
 
 def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
-                               interval_time_steps_probes,start_time, end_time, geoparas_dict):
-
+                               interval_time_steps_probes, start_time, end_time, geoparas_dict):
     x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
@@ -288,10 +261,8 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
     y2min = min(ys_2)
 
     dy_shift = (y2max - y2min) / nop / 2
-    y1_probes = np.linspace(y1min, y1max, nop, endpoint=False)+dy_shift
-    y2_probes = np.linspace(y2min, y2max, nop, endpoint=False)+dy_shift
-
-
+    y1_probes = np.linspace(y1min, y1max, nop, endpoint=False) + dy_shift
+    y2_probes = np.linspace(y2min, y2max, nop, endpoint=False) + dy_shift
 
     data_file = open(os.path.join(output_path, 'Probes_XSlices_Dict'), 'w')
 
@@ -341,17 +312,17 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
 
     return outprobes
 
+
 def create_vk_stagflow_probes(geom_paras, nop, length, angle, interval_time_steps_probes,
                               output_path, start_time, end_time):
-
     vk_point = geom_paras["points"][geom_paras["hk_vk_idx"]][1]
-    stagnationLine = pv.Line((0,0,0),(-length,0,0),nop-1)
+    stagnationLine = pv.Line((0, 0, 0), (-length, 0, 0), nop - 1)
     stagnationLine.rotate_z(angle)
     stagnationLine.translate(vk_point)
-
+    midspan_z = geom_paras["span_z"] / 2
     x_probes = stagnationLine.points[::, 0]
     y_probes = stagnationLine.points[::, 1]
-    z_probes = stagnationLine.points[::, 2]
+    z_probes = stagnationLine.points[::, 2] + midspan_z
     data_file = open(os.path.join(output_path, 'Probes_VKstagnation_Dict'), 'w')
 
     data_file.write("""
@@ -390,11 +361,12 @@ probeLocations
 
     return outprobes
 
+
 def create_probe_dicts(case_settings, geo_ressources):
-    #TODO replace domain with geo data
+    # TODO replace domain with geo data
     domain = load_mesh(case_settings["probing"]["domain"])
     alpha = case_settings["geometry"]["alpha"]
-    midspan_z = case_settings["mesh"]["extrudeLength"]/2
+    midspan_z = case_settings["mesh"]["extrudeLength"] / 2
 
     output_path = case_settings["probing"]["output_path"]
 
@@ -471,18 +443,18 @@ def create_probe_dicts(case_settings, geo_ressources):
         sampling_rate = case_settings["probes"]["inletoutletfieldave_probing"]["sampling_rate"]
 
         U = [float(i) for i in case_settings["case"]["case_parameters"]["U"]["UINLET"].split(" ")]
-        angle = np.arccos(U[0]/U[1])*180/np.pi
+        angle = np.arccos(U[0] / U[1]) * 180 / np.pi
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
 
         outprobes = create_vk_stagflow_probes(geo_ressources,
-                                  case_settings["probes"]["vk_stagnationflow_probing"]["nop"],
-                                  case_settings["probes"]["vk_stagnationflow_probing"]["length"],
-                                  angle,
-                                  timestepinterval,
-                                  output_path,
-                                  case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
-                                  case_settings["probes"]["inletoutletfieldave_probing"]["end_time"]
-                                  )
+                                              case_settings["probes"]["vk_stagnationflow_probing"]["nop"],
+                                              case_settings["probes"]["vk_stagnationflow_probing"]["length"],
+                                              angle,
+                                              timestepinterval,
+                                              output_path,
+                                              case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
+                                              case_settings["probes"]["inletoutletfieldave_probing"]["end_time"]
+                                              )
         for k, v in outprobes.items():
             probes[k] = v
 

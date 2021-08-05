@@ -111,7 +111,7 @@ probes:
         sampling_rate : 1e6 #Hz
         start_time : 0.12 #s
         end_time : 1000 #s
-        tolerance : 0.00001
+        tolerance : 0.0005 #0
 
     streamline_probes:
         nop_streamline : 20

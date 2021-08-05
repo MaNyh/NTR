@@ -7,7 +7,7 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle
 
 
-def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, midline_tol, casepath,
+def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, midline_tol, span_z, casepath,
                     verbose=False):
     # =============================================================================
     # Daten Einlesen
@@ -55,6 +55,7 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
                 "midpassagestreamLine": [x_mpsl, y_mpsl],
                 "xpos_in_out": [x_inlet, x_outlet],
                 "pitch": pitch,
+                "span_z" : span_z
                 }
 
     geo_filename = "geometry.pkl"
