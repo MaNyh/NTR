@@ -39,16 +39,17 @@ def refine_spline(x, y, res):
 def midpoint(x1, y1, x2, y2):
     return ((x1 + x2) / 2, (y1 + y2) / 2)
 
+
 def calcMidPoints(x1, y1, x2, y2, tolerance):
     res = 100
     res_oppposit = 10000
-    #x1, y1 = zip(*sorted(zip(x1, y1)))
-    #x2, y2 = zip(*sorted(zip(x2, y2)))
+    # x1, y1 = zip(*sorted(zip(x1, y1)))
+    # x2, y2 = zip(*sorted(zip(x2, y2)))
 
-    x1_one, y1_one = refine_spline(x1,y1,res)
+    x1_one, y1_one = refine_spline(x1, y1, res)
     x1_one = x1_one[1:-1]
     y1_one = y1_one[1:-1]
-    x2_one, y2_one = refine_spline(x2,y2,res_oppposit)
+    x2_one, y2_one = refine_spline(x2, y2, res_oppposit)
 
     x_mid_ss = []
     y_mid_ss = []
@@ -67,7 +68,6 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
         p_x = x2_one[index_p]
         p_y = y2_one[index_p]
 
-
         x_mid, y_mid = midpoint(p_x, p_y, x1_one[i], y1_one[i])
 
         dists_ss = []
@@ -81,15 +81,14 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
 
         dist_1 = dists_ss[np.argmin(dists_ss)]
         dist_2 = dists_ps[np.argmin(dists_ps)]
-        if np.isclose(dist_1,dist_2,rtol=tolerance):
+        if np.isclose(dist_1, dist_2, rtol=tolerance):
             x_mid_ss.append(x_mid)
             y_mid_ss.append(y_mid)
 
-
-    x1_two, y1_two = refine_spline(x1,y1,res_oppposit)
+    x1_two, y1_two = refine_spline(x1, y1, res_oppposit)
     x1_two = x1_two[1:-1]
     y1_two = y1_two[1:-1]
-    x2_two, y2_two = refine_spline(x2,y2,res)
+    x2_two, y2_two = refine_spline(x2, y2, res)
 
     x_mid_ss = []
     y_mid_ss = []
@@ -108,7 +107,6 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
         p_x = x1_two[index_p]
         p_y = y1_two[index_p]
 
-
         x_mid, y_mid = midpoint(p_x, p_y, x2_two[i], y2_two[i])
 
         dists_ss = []
@@ -119,14 +117,13 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
         for j in range(len(x1_two)):
             dists_ps.append(((x_mid - x1_two[j]) ** 2 + (x_mid - y1_two[j]) ** 2) ** (0.5))
 
-
         dist_1 = dists_ss[np.argmin(dists_ss)]
         dist_2 = dists_ps[np.argmin(dists_ps)]
-        if np.isclose(dist_1,dist_2,rtol=tolerance):
+        if np.isclose(dist_1, dist_2, rtol=tolerance):
             x_mid_ss.append(x_mid)
             y_mid_ss.append(y_mid)
 
-    x_mid_ss,y_mid_ss =zip(*sorted(zip(x_mid_ss, y_mid_ss)))
+    x_mid_ss, y_mid_ss = zip(*sorted(zip(x_mid_ss, y_mid_ss)))
 
     return np.array(x_mid_ss), np.array(y_mid_ss)
 
@@ -172,7 +169,6 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
             x_values.append(x_mcl[i])
             y_values.append(y_mcl[i])
 
-
     delta_x_vk = x_values[0] - x_inlet
     delta_y_vk = np.tan(np.deg2rad(beta1 - 90.0)) * delta_x_vk
 
@@ -188,22 +184,23 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     x_mpsl = [p_inlet_x] + x_values + [p_outlet_x]
     y_mpsl = [p_inlet_y] + y_values + [p_outlet_y]
 
-    # TODO Fehler?
     for i in range(len(x_mpsl)):
         y_mpsl[i] = y_mpsl[i] + 0.5 * t
 
     return x_mpsl, y_mpsl
 
+
 def calcConcaveHull_optimize(xs, ys, alpha):
     def func(alpha):
         xss, yss = calcConcaveHull(xs, ys, alpha)
-        return len(xs)-len(xss)
+        return len(xs) - len(xss)
 
     res = minimize(func, alpha, method='Powell',
                    options={'xatol': 1e-8, 'disp': True})
 
-    opt_x,opt_y = calcConcaveHull(xs, ys, res.x[0])
-    return opt_x,opt_y
+    opt_x, opt_y = calcConcaveHull(xs, ys, res.x[0])
+    return opt_x, opt_y
+
 
 def calcConcaveHull(x, y, alpha):
     """
@@ -310,8 +307,8 @@ def calcConcaveHull(x, y, alpha):
 
     return x_new, y_new
 
-def veronoi_midline(points):
 
+def veronoi_midline(points):
     points2d = points[::, 0:2]
     vor = Voronoi(points2d)
     midline = []
@@ -336,7 +333,7 @@ def veronoi_midline(points):
 
     x_new, y_new = splev(u, tck, der=0)
 
-    x_new,y_new = refine_spline(x_new, y_new, 1000)
+    x_new, y_new = refine_spline(x_new, y_new, 1000)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
 
     inside = inside_poly(points2d, splineNew[::, 0:2])
@@ -350,9 +347,9 @@ def veronoi_midline(points):
 
     return splines
 
-def line_intersection(point_a1, point_a2,
-                      point_b1,point_b2):
 
+def line_intersection(point_a1, point_a2,
+                      point_b1, point_b2):
     def det_2d(a, b):
         return a[0] * b[1] - a[1] * b[0]
 
@@ -361,12 +358,13 @@ def line_intersection(point_a1, point_a2,
 
     div = det_2d(xdiff, ydiff)
     if div == 0:
-       return None
+        return None
 
-    d = (det_2d(point_a1,point_a2), det_2d(point_b1,point_b2))
+    d = (det_2d(point_a1, point_a2), det_2d(point_b1, point_b2))
     x = det_2d(d, xdiff) / div
     y = det_2d(d, ydiff) / div
     return x, y
+
 
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
@@ -437,6 +435,8 @@ def sortProfilePoints(x, y, alpha):
         y_ps = y
 
     return x_ss, y_ss, x_ps, y_ps
+
+
 """
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
@@ -456,6 +456,7 @@ def sortProfilePoints(x, y, alpha):
 
     return x_ss, y_ss, x_ps, y_ps
 """
+
 
 def rotate_points(origin, x, y, angle):
     """
@@ -480,11 +481,11 @@ def rotate_points(origin, x, y, angle):
 
 
 def calc_largedistant_idx(x_koords, y_koords):
-    A = np.dstack((x_koords,y_koords))[0]
+    A = np.dstack((x_koords, y_koords))[0]
     D = squareform(pdist(A))
-#    N = np.max(D)
+    #    N = np.max(D)
     I = np.argmax(D)
-    I_row, I_col = np.unravel_index(I,D.shape)
+    I_row, I_col = np.unravel_index(I, D.shape)
 
     index_1 = I_row
     index_2 = I_col
@@ -533,20 +534,20 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
 
     return index_vk, index_hk
 
-def extract_geo_paras(points,alpha,midline_tol):
+
+def extract_geo_paras(points, alpha, midline_tol):
     origPoly = pv.PolyData(points)
     xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
+    sortedPoly = pv.PolyData(points)
 
     x_new, y_new = refine_spline(xs, ys, 6000)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
     linePoly = lines_from_points(splineNew)
-    veronoi_mid = veronoi_midline(points)
+    veronoi_mid = veronoi_midline(origPoly.points)
 
     midpts = veronoi_mid.points.copy()
     midpts = midpts[np.argsort(midpts[:, 0])]
-
-
 
     circles = []
     quads = []
@@ -556,13 +557,13 @@ def extract_geo_paras(points,alpha,midline_tol):
     farptsids = []
     attempts = 0
 
-    def extract_edge_poi(mids, direction):
+    def extract_edge_poi(mids, direction, sortedPoly):
         mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
         mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
 
         mids_tangent = mids_minx - mids_maxx
 
-        splitBoxLength = vecAbs(try_center - origPoly.points[distant_node_index(try_center, origPoly.points)]) / 3
+        splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) / 3
         splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius, j_size=splitBoxLength,
                             i_resolution=100, j_resolution=100)
 
@@ -582,7 +583,7 @@ def extract_geo_paras(points,alpha,midline_tol):
             splitBox.rotate_z(-rotate)
 
         splitBox.points += try_center
-        enclosedBoxPoints = origPoly.select_enclosed_points(splitBox)
+        enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
         checkPoints = [i for idx, i in enumerate(enclosedBoxPoints.points) if
                        enclosedBoxPoints["SelectedPoints"][idx] == 1]
 
@@ -603,8 +604,8 @@ def extract_geo_paras(points,alpha,midline_tol):
 
             trypt = midpts[random_idx]
 
-            closest = closest_node_index(np.array([trypt[0], trypt[1], 0]), origPoly.points)
-            closest_dist = vecAbs(np.array([trypt[0], trypt[1], 0]) - origPoly.points[closest])
+            closest = closest_node_index(np.array([trypt[0], trypt[1], 0]), sortedPoly.points)
+            closest_dist = vecAbs(np.array([trypt[0], trypt[1], 0]) - sortedPoly.points[closest])
 
             count_pos_try = 0
             while (found_limits[limit] != True and count_pos_try < 4):
@@ -627,7 +628,7 @@ def extract_geo_paras(points,alpha,midline_tol):
 
                 count_ang = 0
                 while (found_limits[limit] != True and count_ang <= 10):
-                    mid_angle += np.random.randint(-15.5, 15.5)
+                    mid_angle += (attempts / 100) * np.random.randint(-15.5, 15.5)
                     count_ang += 1
 
                     try_center = np.array([shift_Try[0], shift_Try[1], 0])
@@ -636,7 +637,7 @@ def extract_geo_paras(points,alpha,midline_tol):
                                              (0, 0, 1),  # direction
                                              try_radius,  # radius
                                              closest_dist,  # height
-                                             1000, # resolution
+                                             1000,  # resolution
                                              )
 
                     smash = linePoly.slice_along_line(polyline_from_points(try_circle.slice(normal="z").points))
@@ -653,7 +654,6 @@ def extract_geo_paras(points,alpha,midline_tol):
                     try_quad.translate(try_center)
 
                     if len(smash.points) == 4:
-
 
                         first_edge = pv.Line(try_quad.points[1], try_quad.points[2], 100)
                         second_edge = pv.Line(try_quad.points[3], try_quad.points[0], 100)
@@ -715,7 +715,7 @@ def extract_geo_paras(points,alpha,midline_tol):
 
                             mids = [crosslines[0].points[5], crosslines[1].points[5]]
 
-                            checkPoints = extract_edge_poi(mids, limit)
+                            checkPoints = extract_edge_poi(mids, limit, origPoly)
                             if len(checkPoints) == 0:
                                 break
                             edges.append(first_no)
@@ -728,8 +728,8 @@ def extract_geo_paras(points,alpha,midline_tol):
                             if all_equal(farpt):
                                 farpts.append(checkPoints[farpt[-1]])
 
-                                oids = np.where((points[::, 0] == checkPoints[farpt[-1]][0]) & (
-                                        points[::, 1] == checkPoints[farpt[-1]][1]))[0]
+                                oids = np.where((sortedPoly.points[::, 0] == checkPoints[farpt[-1]][0]) & (
+                                    sortedPoly.points[::, 1] == checkPoints[farpt[-1]][1]))[0]
                                 farptsids.append(oids)
                                 found_limits[limit] = True
                                 smashs.append(smash)
@@ -743,7 +743,7 @@ def extract_geo_paras(points,alpha,midline_tol):
     end = max([ind_hk, ind_vk])
 
     if ind_hk < ind_vk:
-        #TODO: bei ps_seite muss eventuell die Reihenfolge umgekehrt werden. PRÜFE. Gemacht bereits bei else-schleife
+        # TODO: bei ps_seite muss eventuell die Reihenfolge umgekehrt werden. PRÜFE. Gemacht bereits bei else-schleife
         x_ss = xs[begin:end]
         y_ss = ys[begin:end]
 
@@ -760,7 +760,7 @@ def extract_geo_paras(points,alpha,midline_tol):
     ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
 
     xmids, ymids = calcMidPoints(x_ps, y_ps,
-                                 x_ss, y_ss,midline_tol)
+                                 x_ss, y_ss, midline_tol)
     xmids[0] = points[ind_vk][0]
     ymids[0] = points[ind_vk][1]
 
@@ -769,13 +769,14 @@ def extract_geo_paras(points,alpha,midline_tol):
 
     midsPoly = lines_from_points(np.stack((xmids, ymids, np.zeros(len(ymids)))).T)
 
-    vk_tangent = np.stack((xmids[0]-xmids[1],ymids[0]-ymids[1],0)).T
-    hk_tangent = np.stack((xmids[-2]-xmids[-1],ymids[-2]-ymids[-1],0)).T
+    vk_tangent = np.stack((xmids[0] - xmids[1], ymids[0] - ymids[1], 0)).T
+    hk_tangent = np.stack((xmids[-2] - xmids[-1], ymids[-2] - ymids[-1], 0)).T
 
     camber_angle_vk = angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
     camber_angle_hk = angle_between(hk_tangent, np.array([0, 1, 0])) / np.pi * 180
 
-    return psPoly,ssPoly,ind_vk,ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+
 
 def calcMeanCamberLine(x, y, alpha):
     # vk und hk bestimmen
@@ -795,6 +796,7 @@ def calcMeanCamberLine(x, y, alpha):
     x_mids, y_mids = calcMidPoints(x_mid_ps, y_mid_ps, x_mid_ss, y_mid_ss)
 
     return x_mids, y_mids, x_ss, y_ss, x_ps, y_ps, x_vk, y_vk, x_hk, y_hk
+
 
 def getBoundaryValues(x_bounds, y_bounds):
     x = x_bounds
@@ -940,7 +942,7 @@ def getGeom2DVTUSLice2(mesh, alpha):
     midspan_slice = midspan_slice.compute_normals()
     geo = midspan_slice.extract_feature_edges()
 
-    #points_complete = alle punkte auf dem mittelschnitt mit domain
+    # points_complete = alle punkte auf dem mittelschnitt mit domain
     points_complete = midspan_slice.points
 
     points_bounds = geo.points
@@ -951,15 +953,15 @@ def getGeom2DVTUSLice2(mesh, alpha):
     x_profil = []
     y_profil = []
 
-    #indexes_profil_points = []
+    # indexes_profil_points = []
 
     for i in range(len(points_bounds)):
         if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
-            #indexes_profil_points.append(i)
+            # indexes_profil_points.append(i)
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-    return x_outer_bounds, y_outer_bounds, x_profil, y_profil,  midspan_z
+    return x_outer_bounds, y_outer_bounds, x_profil, y_profil, midspan_z
 
 
 def rotatePoints(origin, x, y, angle):
@@ -985,16 +987,16 @@ def rotatePoints(origin, x, y, angle):
 
 
 def GetProfileValuesMidspan(case):
-
     midspan_slice, midspan_z = case.get_midspan_z()
     midspan_slice = midspan_slice.compute_normals()
     geo = midspan_slice.extract_feature_edges()
 
-    #points_complete = alle punkte auf dem mittelschnitt mit domain
+    # points_complete = alle punkte auf dem mittelschnitt mit domain
     points_complete = midspan_slice.points
 
     points_bounds = geo.points
-    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], alpha=case.CascadeCoeffs.alpha)
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1],
+                                                     alpha=case.CascadeCoeffs.alpha)
 
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
 
@@ -1017,7 +1019,6 @@ def GetProfileValuesMidspan(case):
     x_l_ax_ss = []
     x_l_ax_ps = []
 
-
     for i in range(len(x_ss)):
         x_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
         new_index = np.where(points_bounds == [x_ss[i], y_ss[i], 0])[0][0]
@@ -1028,9 +1029,10 @@ def GetProfileValuesMidspan(case):
         new_index = np.where(points_bounds == [x_ps[i], y_ps[i], 0])[0][0]
         indexes_ps.append(new_index)
 
-    assert len(indexes_ps) > 0, "sortProfilePoints did not detect a pressureside. Maybe adjust case.CascadeCoeffs.alpha ? "
-    assert len(indexes_ss) > 0, "sortProfilePoints did not detect a suctionside. Maybe adjust case.CascadeCoeffs.alpha ? "
-
+    assert len(
+        indexes_ps) > 0, "sortProfilePoints did not detect a pressureside. Maybe adjust case.CascadeCoeffs.alpha ? "
+    assert len(
+        indexes_ss) > 0, "sortProfilePoints did not detect a suctionside. Maybe adjust case.CascadeCoeffs.alpha ? "
 
     values_ss = []
     values_ps = []
@@ -1086,11 +1088,11 @@ def GetProfileValuesMidspan(case):
             nu = values_ss[value_names.index('nu')][i]
         p = values_ss[value_names.index('p')][i]
 
-
-        wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal, rho, nu, p)
+        wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal,
+                                                    rho, nu, p)
         wall_shear_stress_abs = np.linalg.norm(wall_shear_stress_vec)
         if wall_shear_stress_vec[0] < 0 and face_normal[0] > 0:  # hier ist noch ein fehler.
-                                                                 # Auch der normalen Vektor des faces muss mit einbezogen werden
+            # Auch der normalen Vektor des faces muss mit einbezogen werden
             wall_shear_stress_abs = -wall_shear_stress_abs
         elif wall_shear_stress_vec[0] > 0 and face_normal[0] < 0:
             wall_shear_stress_abs = -wall_shear_stress_abs
@@ -1121,7 +1123,8 @@ def GetProfileValuesMidspan(case):
                                                     rho, nu, p)
 
         wall_shear_stress_abs = np.linalg.norm(wall_shear_stress_vec)
-        if wall_shear_stress_vec[0] < 0 and face_normal[0] > 0:  # hier ist noch ein fehler. Auch der normalen Vektor des faces muss mit einbezogen werden
+        if wall_shear_stress_vec[0] < 0 and face_normal[
+            0] > 0:  # hier ist noch ein fehler. Auch der normalen Vektor des faces muss mit einbezogen werden
             wall_shear_stress_abs = -wall_shear_stress_abs
         elif wall_shear_stress_vec[0] > 0 and face_normal[0] < 0:
             wall_shear_stress_abs = -wall_shear_stress_abs
@@ -1169,15 +1172,12 @@ def getPitchValuesB2BSliceComplete(case, x):
         xx[i] = pt[0]
         zz[i] = pt[2]
 
-    #noa = len(cut_plane.array_names)
+    # noa = len(cut_plane.array_names)
     array_names = cut_plane.point_arrays.keys()
     values = []
 
     for arrname in array_names:
-
-
         array_values = cut_plane.point_arrays[arrname]
-
 
         y2, [array_values] = sort_values_by_pitch(y, [array_values])
         values.append(array_values)
@@ -1189,11 +1189,11 @@ def getPitchValuesB2BSliceComplete(case, x):
 
 def extract_profile_paras(points, verbose=False):
     points2d = points[:, 0:2]
-    #pointsClosed = np.vstack([points2d, [points2d[0]]])
+    # pointsClosed = np.vstack([points2d, [points2d[0]]])
 
     vor = Voronoi(points2d)
 
-    #origPoly = pv.PolyData(points)
+    # origPoly = pv.PolyData(points)
 
     midline = []
     path = mpltPath.Path(points2d)
@@ -1238,7 +1238,6 @@ def extract_profile_paras(points, verbose=False):
 
     bladeLine = polyline_from_points(np.vstack([points, [points[0]]]))
 
-
     firsthitpoint = extend_first.slice_along_line(bladeLine).points[0]
     secondhitpoint = extend_second.slice_along_line(bladeLine).points[0]
 
@@ -1265,8 +1264,8 @@ def extract_profile_paras(points, verbose=False):
     ss_poly = pv.PolyData(bladeLine.points[low_hitid:high_hitid])
     ps_poly = pv.PolyData(np.append(bladeLine.points[:low_hitid], bladeLine.points[high_hitid:], axis=0))
 
-    beta_01 = angle_between(vk_dir.points[0]-vk_dir.points[-1],np.array([1,0,0])) *360/(2*np.pi)
-    beta_02 = angle_between(hk_dir.points[0]-hk_dir.points[-1],np.array([1,0,0])) *360/(2*np.pi)
+    beta_01 = angle_between(vk_dir.points[0] - vk_dir.points[-1], np.array([1, 0, 0])) * 360 / (2 * np.pi)
+    beta_02 = angle_between(hk_dir.points[0] - hk_dir.points[-1], np.array([1, 0, 0])) * 360 / (2 * np.pi)
 
     centerline = lines_from_points(
         np.append(np.append(np.asarray([vk_point]), splineNewClean, axis=0), np.asarray([hk_point]), axis=0))
@@ -1284,10 +1283,10 @@ def extract_profile_paras(points, verbose=False):
     return ss_poly.points, ps_poly.points, centerline.points, beta_01, beta_02
 
 
-
 def closest_node_index(node, nodes):
     closest_index = distance.cdist([node], nodes).argmin()
     return closest_index
+
 
 def distant_node_index(node, nodes):
     closest_index = distance.cdist([node], nodes).argmax()

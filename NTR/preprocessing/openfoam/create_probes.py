@@ -11,12 +11,12 @@ import os
 import numpy as np
 import pyvista as pv
 
-from NTR.utils.geom_functions import  getBoundaryValues, getGeom2DVTUSLice2, refine_spline, equi_points
+from NTR.utils.geom_functions import getBoundaryValues, getGeom2DVTUSLice2, refine_spline, equi_points
 from NTR.utils.pyvista_utils import load_mesh, polyline_from_points
 
 
 def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
-                            interval_time_steps_probes, output_path, alpha, start_time, end_time, tolerance):
+                            interval_time_steps_probes, output_path,  start_time, end_time, tolerance):
     """
     :param path_blade_surface: vtk-mesh
     :param pden_Probes_Profile_SS: integer (slicer)
@@ -26,8 +26,7 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     :param tolerance: float
     :return: openFoamDict
     """
-    # TODO ersetze zahlen mit keys --> anstatt liste, übergebe dict
-    ssPoly = geoparas_dict["sidePolys"][0]
+    ssPoly = geoparas_dict["sidePolys"]["ssPoly"]
     ref_ss_x, ref_ss_y = refine_spline(ssPoly.points[::, 0], ssPoly.points[::, 1], 4000)
     ref_ss_points = np.stack((ref_ss_x, ref_ss_y, np.zeros(len(ref_ss_y)))).T
     ref_ssPoly = pv.PolyData(ref_ss_points)
@@ -37,7 +36,7 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     ref_ss_face_shift.points += tolerance * ref_ss_face_shift.point_arrays["Normals"]
     ref_ss_cut = ref_ss_face_shift.slice(normal="z", origin=(0, 0, midspan_z))
 
-    psPoly = geoparas_dict["sidePolys"][1]
+    psPoly = geoparas_dict["sidePolys"]["psPoly"]
     ref_ps_x, ref_ps_y = refine_spline(psPoly.points[::, 0], psPoly.points[::, 1], 4000)
     ref_ps_points = np.stack((ref_ps_x, ref_ps_y, np.zeros(len(ref_ps_y)))).T
     ref_psPoly = pv.PolyData(ref_ps_points)
@@ -116,15 +115,24 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     return outprobes
 
 
-def createProbesStreamlineDict(mesh, alpha, nop_Probes_Streamline, save_dir,
+def createProbesStreamlineDict(nop_Probes_Streamline, save_dir,
                                interval_time_steps_probes, start_time, end_time, geoparas_dict):
-    x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
+
+
+    midspan_z = geoparas_dict["span_z"]/2
+    y_lower = geoparas_dict["periodics"]["ylower"]
+    y_upper = geoparas_dict["periodics"]["yupper"]
+
+    outer = y_lower.merge(y_upper)
+
+    x_bounds = outer.points[::,0]
+    y_bounds = outer.points[::,1]
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
 
-    x_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::, 0]
-    y_mpsl = np.array(geoparas_dict["midpassagestreamLine"]).T[::, 1]
+    x_mpsl = np.array(geoparas_dict["midpassagestreamLine"]["x_mpsl"])
+    y_mpsl = np.array(geoparas_dict["midpassagestreamLine"]["y_mpsl"])
 
     # x_probes = []
     # y_probes = []
@@ -181,7 +189,7 @@ probeLocations
     plt.figure(figsize=(8, 8))
     plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
     plt.plot(x_outlet, y_outlet, '-b', lw=1, label='outlet')
-    plt.plot(x_profil, y_profil, '.k', lw=1, label='profil')
+    plt.plot(*geoparas_dict["points"][::,0:2], '.k', lw=1, label='profil')
     plt.plot(x_lower_peri, y_lower_peri, '-y', lw=1, label='lower_peri')
     plt.plot(x_upper_peri, y_upper_peri, '-c', lw=1, label='upper_peri')
     plt.plot(x_probes, y_probes, 'x', label='Probes_Streamline', color="darkorange")
@@ -195,8 +203,16 @@ probeLocations
     return outprobes
 
 
-def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path, start_time, end_time):
-    x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(mesh, alpha)
+def createProbesInletOutlet(geodat_dict, interval_time_steps_probes, output_path, start_time, end_time):
+
+    midspan_z = geodat_dict["span_z"]/2
+    y_lower = geodat_dict["periodics"]["ylower"]
+    y_upper = geodat_dict["periodics"]["yupper"]
+
+    outer = y_lower.merge(y_upper)
+
+    x_bounds = outer.points[::,0]
+    y_bounds = outer.points[::,1]
 
     y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
         x_bounds, y_bounds)
@@ -243,16 +259,20 @@ def createProbesInletOutlet(mesh, alpha, interval_time_steps_probes, output_path
     return outprobes
 
 
-def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_probes, output_path, start_time, end_time):
-    bounds = mesh.bounds
-    midspan_z = (bounds[5] + bounds[4]) / 2
-    slice_1 = mesh.slice(origin=(x_slice_1, 0, midspan_z), normal=(1, 0, 0))
-    line_1 = slice_1.slice(normal=(0, 0, 1))
-    slice_2 = mesh.slice(origin=(x_slice_2, 0, midspan_z), normal=(1, 0, 0))
-    line_2 = slice_2.slice(normal=(0, 0, 1))
+def createXSliceProbes(geodat_dict, nop, x_slice_1, x_slice_2, interval_time_steps_probes,
+                       output_path, start_time, end_time):
 
-    ys_1 = line_1.points[::, 1]
-    ys_2 = line_2.points[::, 1]
+    midspan_z = geodat_dict["span_z"]/2
+    y_lower = geodat_dict["periodics"]["ylower"]
+    y_upper = geodat_dict["periodics"]["yupper"]
+
+    perbounds = y_lower.merge(y_upper)
+
+    slice_1 = perbounds.slice(origin=(x_slice_1, 0, 0), normal=(1, 0, 0))
+    slice_2 = perbounds.slice(origin=(x_slice_2, 0, 0), normal=(1, 0, 0))
+
+    ys_1 = slice_1.points[::, 1]
+    ys_2 = slice_2.points[::, 1]
 
     y1max = max(ys_1)
     y1min = min(ys_1)
@@ -315,7 +335,8 @@ def createXSliceProbes(mesh, nop, x_slice_1, x_slice_2, interval_time_steps_prob
 
 def create_vk_stagflow_probes(geom_paras, nop, length, angle, interval_time_steps_probes,
                               output_path, start_time, end_time):
-    vk_point = geom_paras["points"][geom_paras["hk_vk_idx"]][1]
+
+    vk_point = geom_paras["sortedPoly"][geom_paras["hk_vk_idx"]["ind_vk"]]
     stagnationLine = pv.Line((0, 0, 0), (-length, 0, 0), nop - 1)
     stagnationLine.rotate_z(angle)
     stagnationLine.translate(vk_point)
@@ -363,9 +384,7 @@ probeLocations
 
 
 def create_probe_dicts(case_settings, geo_ressources):
-    # TODO replace domain with geo data
-    domain = load_mesh(case_settings["probing"]["domain"])
-    alpha = case_settings["geometry"]["alpha"]
+
     midspan_z = case_settings["mesh"]["extrudeLength"] / 2
 
     output_path = case_settings["probing"]["output_path"]
@@ -381,7 +400,6 @@ def create_probe_dicts(case_settings, geo_ressources):
                                             case_settings["probes"]["profile_probes"]["pden_ss"],
                                             timestepinterval,
                                             output_path,
-                                            alpha,
                                             case_settings["probes"]["profile_probes"]["start_time"],
                                             case_settings["probes"]["profile_probes"]["end_time"],
                                             case_settings["probes"]["profile_probes"]["tolerance"]
@@ -393,9 +411,7 @@ def create_probe_dicts(case_settings, geo_ressources):
 
         sampling_rate = case_settings["probes"]["streamline_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
-        outprobes = createProbesStreamlineDict(domain,
-                                               alpha,
-                                               case_settings["probes"]["streamline_probes"]["nop_streamline"],
+        outprobes = createProbesStreamlineDict(case_settings["probes"]["streamline_probes"]["nop_streamline"],
                                                output_path,
                                                timestepinterval,
                                                case_settings["probes"]["streamline_probes"]["start_time"],
@@ -408,7 +424,7 @@ def create_probe_dicts(case_settings, geo_ressources):
     if case_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         sampling_rate = case_settings["probes"]["inletoutlet_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
-        outprobes = createProbesInletOutlet(domain, alpha,
+        outprobes = createProbesInletOutlet(geo_ressources,
                                             timestepinterval,
                                             output_path,
                                             case_settings["probes"]["inletoutlet_probes"]["start_time"],
@@ -420,7 +436,7 @@ def create_probe_dicts(case_settings, geo_ressources):
 
         sampling_rate = case_settings["probes"]["xsclicing_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
-        outprobes = createXSliceProbes(domain,
+        outprobes = createXSliceProbes(geo_ressources,
                                        case_settings["probes"]["xsclicing_probes"]["nop"],
                                        case_settings["probes"]["xsclicing_probes"]["x_slice_one"],
                                        case_settings["probes"]["xsclicing_probes"]["x_slice_two"],
@@ -458,18 +474,22 @@ def create_probe_dicts(case_settings, geo_ressources):
         for k, v in outprobes.items():
             probes[k] = v
 
-    x_bounds, y_bounds, x_profil, y_profil, midspan_z = getGeom2DVTUSLice2(domain, alpha)
-
-    y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
-        x_bounds, y_bounds)
+    #midspan_z = geo_ressources["span_z"]/2
+    y_lower = geo_ressources["periodics"]["ylower"]
+    y_upper = geo_ressources["periodics"]["yupper"]
+    ssPoly = geo_ressources["sidePolys"]["ssPoly"]
+    psPoly = geo_ressources["sidePolys"]["psPoly"]
+    inlet = geo_ressources["flowbounds"]["inletPoly"]
+    outlet = geo_ressources["flowbounds"]["outletPoly"]
 
     plt.close('all')
     plt.figure(figsize=(8, 8))
-    plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
-    plt.plot(x_outlet, y_outlet, '-b', lw=1, label='outlet')
-    plt.plot(x_profil, y_profil, '.k', lw=1, label='profil')
-    plt.plot(x_lower_peri, y_lower_peri, '-y', lw=1, label='lower_peri')
-    plt.plot(x_upper_peri, y_upper_peri, '-c', lw=1, label='upper_peri')
+    plt.plot(inlet.points[::,0],inlet.points[::,1], '-r', lw=1, label='inlet')
+    plt.plot(outlet.points[::,0],outlet.points[::,1], '-b', lw=1, label='outlet')
+    plt.plot(ssPoly.points[::,0],ssPoly.points[::,1], '-k', lw=1, label='ss_profil')
+    plt.plot(psPoly.points[::,0],psPoly.points[::,1], '-k', lw=1, label='ps_profil')
+    plt.plot(y_lower.points[::,0],y_lower.points[::,1], '-y', lw=1, label='lower_peri')
+    plt.plot(y_upper.points[::,0],y_upper.points[::,1], '-c', lw=1, label='upper_peri')
 
     allowed_colors = list(dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS).keys())
     del allowed_colors[allowed_colors.index("white")]
