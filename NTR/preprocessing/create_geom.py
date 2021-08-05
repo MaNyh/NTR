@@ -7,7 +7,8 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle
 
 
-def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, midline_tol, span_z, casepath,
+def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, midline_tol, span_z,
+                    casepath,
                     verbose=False):
     # =============================================================================
     # Daten Einlesen
@@ -23,7 +24,9 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
-    sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02 = extract_geo_paras(points, alpha, midline_tol)
+    sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02 = extract_geo_paras(points,
+                                                                                                           alpha,
+                                                                                                           midline_tol)
 
     x_mids = midsPoly.points[::, 0]
     y_mids = midsPoly.points[::, 1]
@@ -35,23 +38,23 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
     stagger_angle = np.rad2deg(np.arctan((y_mids[-1] - y_mids[-0]) / (x_mids[-1] - x_mids[-0])))
 
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_meta_01, beta_meta_02,
-                                              x_inlet, x_outlet, pitch )
+                                              x_inlet, x_outlet, pitch)
 
     y_upper = np.array(y_mpsl) + blade_shift
     per_y_upper = pv.lines_from_points(np.stack((np.array(x_mpsl),
-                                             np.array(y_upper),
-                                             np.zeros(len(x_mpsl)))).T)
+                                                 np.array(y_upper),
+                                                 np.zeros(len(x_mpsl)))).T)
     y_lower = y_upper - pitch
     per_y_lower = pv.lines_from_points(np.stack((np.array(x_mpsl),
-                                             np.array(y_lower),
-                                             np.zeros(len(x_mpsl)))).T)
+                                                 np.array(y_lower),
+                                                 np.zeros(len(x_mpsl)))).T)
 
     inlet_pts = np.array([per_y_lower.points[np.lexsort(per_y_lower.points.T[::-1])[0]],
                           per_y_upper.points[np.lexsort(per_y_upper.points.T[::-1])[0]]])
 
     inletPoly = pv.Line(*inlet_pts)
     outlet_pts = np.array([per_y_lower.points[np.lexsort(per_y_lower.points.T)[-1]],
-                          per_y_upper.points[np.lexsort(per_y_upper.points.T)[-1]]])
+                           per_y_upper.points[np.lexsort(per_y_upper.points.T)[-1]]])
 
     outletPoly = pv.Line(*outlet_pts)
 
@@ -64,15 +67,15 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
                 "sortedPoly": sortedPoints,
                 "sidePolys": {"psPoly": psPoly, "ssPoly": ssPoly},
                 "hk_vk_idx": {"ind_vk": ind_vk, "ind_hk": ind_hk},
-                "periodics": {"ylower":per_y_lower, "yupper":per_y_upper},
-                "flowbounds": {"inletPoly":inletPoly, "outletPoly":outletPoly},
+                "periodics": {"ylower": per_y_lower, "yupper": per_y_upper},
+                "flowbounds": {"inletPoly": inletPoly, "outletPoly": outletPoly},
                 "midsPoly": midsPoly,
-                "beta_metas": {"beta_meta_01":beta_meta_01, "beta_meta_02":beta_meta_02},
+                "beta_metas": {"beta_meta_01": beta_meta_01, "beta_meta_02": beta_meta_02},
                 "stagger_angle": stagger_angle,
-                "midpassagestreamLine": {"x_mpsl":x_mpsl, "y_mpsl":y_mpsl},
-                "xpos_in_out": {"x_inlet":x_inlet, "x_outlet":x_outlet},
+                "midpassagestreamLine": {"x_mpsl": x_mpsl, "y_mpsl": y_mpsl},
+                "xpos_in_out": {"x_inlet": x_inlet, "x_outlet": x_outlet},
                 "pitch": pitch,
-                "span_z" : span_z
+                "span_z": span_z
                 }
 
     geo_filename = "geometry.pkl"
