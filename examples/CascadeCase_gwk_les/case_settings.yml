@@ -12,8 +12,6 @@ geometry:
     midline_tolerance               : 5                                     #Tolerance coefficient for midline-generation
 
 probing:
-    domain : "00_Ressources/02_UsedMesh/13_GWKVD_0.vtk"
-    blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
     probes:
         profile_probing: True
         streamline_probing: True
@@ -100,7 +98,7 @@ case:
           END: "1000"
 
       submit_job_hlrn.sh:
-          RUNTIME : "05:00:00"
+          RUNTIME : "10:00:00"
           NODES: "5"
           PROCS: "480"
 
@@ -136,8 +134,8 @@ probes:
         sampling_rate: 1e5 #Hz
         x_slice_one : -0.08
         x_slice_two : 0.18
-        start_time: 0.12 #s
-        end_time: 1000 #s
+        start_time: 0 #s
+        end_time: 0.12 #s
 
     vk_stagnationflow_probing:
         nop : 6

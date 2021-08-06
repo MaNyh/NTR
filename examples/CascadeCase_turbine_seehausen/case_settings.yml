@@ -1,8 +1,7 @@
 geometry:
-    beta_meta_01                    : 120                                  #Inflow angle [deg]
-    beta_meta_02                    : 25                                   #Outflow angle [deg]
     pitch                           : 0.0545                                #Pitch [m]
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+    midline_tolerance               : 5
 
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
