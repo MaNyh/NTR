@@ -9,7 +9,7 @@ from NTR.utils.filehandling import write_pickle
 
 def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, midline_tol, span_z,
                     casepath,
-                    verbose=False):
+                    verbose=True):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================

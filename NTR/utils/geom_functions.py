@@ -41,10 +41,10 @@ def midpoint(x1, y1, x2, y2):
 
 
 def calcMidPoints(x1, y1, x2, y2, tolerance):
+    # The reason is the tolerance which needs to be low enough for a reasonable realiability
+    # but on the same side this is an approximation and the tolerance cant be too low
     res = 100
-    res_oppposit = 10000
-    # x1, y1 = zip(*sorted(zip(x1, y1)))
-    # x2, y2 = zip(*sorted(zip(x2, y2)))
+    res_oppposit = 50000
 
     x1_one, y1_one = refine_spline(x1, y1, res)
     x1_one = x1_one[1:-1]
@@ -141,53 +141,25 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     t = scalar pitch
     """
 
-    spl = UnivariateSpline(x_mcl, y_mcl, k=5)
-    deri_spl = spl.derivative()
+    delta_x_vk = x_mcl[0] - x_inlet
+    delta_y_vk = np.tan(np.deg2rad(beta1-90)) * delta_x_vk
 
-    deri_values = []
+    p_inlet_x = x_mcl[0] - delta_x_vk
+    p_inlet_y = y_mcl[0] - delta_y_vk
 
-    deri_vk = np.sin(np.deg2rad(beta1 - 90.0)) / np.cos(np.deg2rad(beta1 - 90.0))
-    deri_hk = -np.cos(np.deg2rad(beta2)) / np.sin(np.deg2rad(beta2))
+    delta_x_hk = x_outlet - x_mcl[-1]
+    delta_y_hk = delta_x_hk * np.tan(np.deg2rad(beta2-90))
 
-    deri_diff_vk = []
-    deri_diff_hk = []
+    p_outlet_x = x_mcl[-1] + delta_x_hk
+    p_outlet_y = y_mcl[-1] + delta_y_hk
 
-    for i in range(len(x_mcl)):
-        deri_values.append(deri_spl(x_mcl[i]))
-        deri_diff_vk.append(((deri_vk - deri_values[-1]) ** 2) ** 0.5)
-        deri_diff_hk.append(((deri_hk - deri_values[-1]) ** 2) ** 0.5)
-
-    index_deri_vk = np.argmin(deri_diff_vk)
-    index_deri_hk = np.argmin(deri_diff_hk)
-
-    x_values = []
-    y_values = []
-
-    for i in range(len(x_mcl)):
-
-        if index_deri_vk <= i <= index_deri_hk:
-            x_values.append(x_mcl[i])
-            y_values.append(y_mcl[i])
-
-    delta_x_vk = x_values[0] - x_inlet
-    delta_y_vk = np.tan(np.deg2rad(beta1 - 90.0)) * delta_x_vk
-
-    p_inlet_x = x_values[0] - delta_x_vk
-    p_inlet_y = y_values[0] - delta_y_vk
-
-    delta_x_hk = x_outlet - x_values[-1]
-    delta_y_hk = -delta_x_hk / np.tan(np.deg2rad(beta2))
-
-    p_outlet_x = x_values[-1] + delta_x_hk
-    p_outlet_y = y_values[-1] + delta_y_hk
-
-    x_mpsl = [p_inlet_x] + x_values + [p_outlet_x]
-    y_mpsl = [p_inlet_y] + y_values + [p_outlet_y]
+    x_mpsl = [p_inlet_x] + list(x_mcl) + [p_outlet_x]
+    y_mpsl = [p_inlet_y] + list(y_mcl) + [p_outlet_y]
 
     for i in range(len(x_mpsl)):
         y_mpsl[i] = y_mpsl[i] + 0.5 * t
 
-    return x_mpsl, y_mpsl
+    return refine_spline(x_mpsl, y_mpsl,1000)
 
 
 def calcConcaveHull_optimize(xs, ys, alpha):
@@ -541,7 +513,7 @@ def extract_geo_paras(points, alpha, midline_tol):
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
     sortedPoly = pv.PolyData(points)
 
-    x_new, y_new = refine_spline(xs, ys, 6000)
+    x_new, y_new = refine_spline(xs, ys, 10000)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
     linePoly = lines_from_points(splineNew)
     veronoi_mid = veronoi_midline(origPoly.points)
@@ -556,6 +528,7 @@ def extract_geo_paras(points, alpha, midline_tol):
     farpts = []
     farptsids = []
     attempts = 0
+    valid_checkPoints = []
 
     def extract_edge_poi(mids, direction, sortedPoly):
         mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
@@ -735,6 +708,7 @@ def extract_geo_paras(points, alpha, midline_tol):
                                 smashs.append(smash)
                                 quads.append(try_quad)
                                 circles.append(try_circle)
+                                valid_checkPoints.append(checkPoints)
 
     ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))][0]
     ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))][0]
@@ -742,25 +716,40 @@ def extract_geo_paras(points, alpha, midline_tol):
     begin = min([ind_hk, ind_vk])
     end = max([ind_hk, ind_vk])
 
-    if ind_hk < ind_vk:
-        # TODO: bei ps_seite muss eventuell die Reihenfolge umgekehrt werden. PRÜFE. Gemacht bereits bei else-schleife
-        x_ss = xs[begin:end]
-        y_ss = ys[begin:end]
+    if begin < end:
+        x_ss = xs[ind_hk:ind_vk]
+        y_ss = ys[ind_hk:ind_vk]
 
-        y_ps = ys[:begin - 1] + ys[end - 1:]
-        x_ps = xs[:begin - 1] + xs[end - 1:]
+        y_ps = ys[ind_vk - 1:] + ys[:ind_hk - 1]
+        x_ps = xs[ind_vk - 1:] + xs[:ind_hk - 1]
     else:
-        x_ps = xs[begin:end]
-        y_ps = ys[begin:end]
+        x_ss = xs[ind_vk:ind_hk]
+        y_ss = ys[ind_vk:ind_hk]
 
-        y_ss = ys[end - 1:] + ys[:begin - 1]
-        x_ss = xs[end - 1:] + xs[:begin - 1]
+        y_ps = ys[ind_hk - 1:] + ys[:ind_vk - 1]
+        x_ps = xs[ind_hk - 1:] + xs[:ind_vk - 1]
 
     psPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
     ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
 
-    xmids, ymids = calcMidPoints(x_ps, y_ps,
-                                 x_ss, y_ss, midline_tol)
+    ssPolySidspts = []
+    for i in psPoly.points:
+        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in valid_checkPoints[0]]:
+            ssPolySidspts.append(i)
+    psPolySidspts = []
+    for i in ssPoly.points:
+        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in valid_checkPoints[0]]:
+            psPolySidspts.append(i)
+
+    psPolySides = np.array(psPolySidspts)
+    ssPolySides = np.array(ssPolySidspts)
+
+    x_ssSides,y_ssSides = psPolySides[::, 0], psPolySides[::, 1]
+    x_psSides,y_psSides = ssPolySides[::, 0], ssPolySides[::, 1]
+
+    xmids, ymids = calcMidPoints(x_ssSides,y_ssSides,
+                                 x_psSides,y_psSides, midline_tol)
+
     xmids[0] = points[ind_vk][0]
     ymids[0] = points[ind_vk][1]
 

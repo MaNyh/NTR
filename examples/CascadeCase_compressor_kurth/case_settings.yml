@@ -1,7 +1,7 @@
 geometry:
     pitch                           : 0.1524                                #Pitch [m]
-    alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
-    midline_tolerance               : 5
+    alpha                           : 0.03                                  #Geometric parameter used for hull-calculations
+    midline_tolerance               : 20
 
 igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
