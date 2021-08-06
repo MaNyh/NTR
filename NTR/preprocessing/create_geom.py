@@ -49,12 +49,12 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
                                                  np.array(y_lower),
                                                  np.zeros(len(x_mpsl)))).T)
 
-    inlet_pts = np.array([per_y_lower.points[np.lexsort(per_y_lower.points.T[::-1])[0]],
-                          per_y_upper.points[np.lexsort(per_y_upper.points.T[::-1])[0]]])
+    inlet_pts = np.array([per_y_lower.points[per_y_lower.points[::,0].argmin()],
+                          per_y_upper.points[per_y_upper.points[::,0].argmin()]])
 
     inletPoly = pv.Line(*inlet_pts)
-    outlet_pts = np.array([per_y_lower.points[np.lexsort(per_y_lower.points.T)[-1]],
-                           per_y_upper.points[np.lexsort(per_y_upper.points.T)[-1]]])
+    outlet_pts = np.array([per_y_lower.points[per_y_lower.points[::,0].argmax()],
+                          per_y_upper.points[per_y_upper.points[::,0].argmax()]])
 
     outletPoly = pv.Line(*outlet_pts)
 
