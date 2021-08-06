@@ -298,12 +298,6 @@ def createXSliceProbes(geodat_dict, nop, x_slice_1, x_slice_2, interval_time_ste
                 fields
                 (
                     U
-                    //{
-                    //    mean on;
-                    //    prime2Mean on;
-                    //    base time;
-                    //}
-
                     p
                 );
 

@@ -7,7 +7,7 @@ from NTR.utils.filehandling import yaml_dict_read, write_pickle_protocolzero
 
 
 def run_igg_meshfuncs(settings_yaml):
-
+    # TODO: function is not running with all geometries. check why!
 
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
