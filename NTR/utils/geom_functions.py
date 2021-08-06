@@ -3,7 +3,7 @@ import numpy as np
 import pyvista as pv
 from matplotlib import path as mpltPath
 
-from scipy.interpolate import UnivariateSpline, splprep, splev, interp1d
+from scipy.interpolate import splprep, splev, interp1d
 from scipy.spatial import Delaunay, distance
 from scipy.optimize import minimize
 from scipy.spatial.qhull import Voronoi
