@@ -6,8 +6,7 @@ from NTR.preprocessing.create_geom import create_geometry
 from NTR.utils.filehandling import yaml_dict_read, write_pickle_protocolzero
 
 
-def run_igg_meshfuncs(settings_yaml):
-
+def run_create_geometry(settings_yaml):
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
     meshpath = os.path.join(case_path, "01_Meshing")
@@ -28,6 +27,16 @@ def run_igg_meshfuncs(settings_yaml):
                     settings["geometry"]["midline_tolerance"],
                     settings["mesh"]["extrudeLength"],
                     outpath)
+    return 0
+
+def run_igg_meshfuncs(settings_yaml):
+
+    case_path = os.path.abspath(os.path.dirname(settings_yaml))
+    settings = yaml_dict_read(settings_yaml)
+    meshpath = os.path.join(case_path, "01_Meshing")
+    if not os.path.isdir(meshpath):
+        os.mkdir(meshpath)
+    print(os.path.abspath(case_path))
 
     print("create_mesh")
     cwd = os.getcwd()

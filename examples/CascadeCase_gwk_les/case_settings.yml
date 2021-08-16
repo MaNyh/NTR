@@ -4,7 +4,7 @@ case_settings:
     var_type : "openfoam_timeaverage"
     sim_type: "openfoam_les"
     machine_type : "compressor"
-    timestep : "5e-8"
+    timestep : "10e-8"
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
@@ -42,8 +42,8 @@ geom:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.40                                   #Mesh-density factor
-    ogrid_factor                    : 4.5                                     #o-grid-node-ratio
+    factor                          : 1.04                                   #Mesh-density factor
+    ogrid_factor                    : 5.5                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000070                             #first cell height when factor=1
     le_firstcellheight_coeff        : 0.8
@@ -56,8 +56,8 @@ mesh:
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.5                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.04                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : 0                                 #move periodic vertices (yPer from TE) along x
+    shift_vk_block_xaxiscoeff       : 0.045                                 #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : 0.005                                 #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
 
 
@@ -66,7 +66,7 @@ case:
       U :
         UINLET : "35.392445 58.06355 0"
         RINLET : "4 0 0 4 0 4"
-        LINLET : "0.01"
+        LINLET : "0.02"
         EDDYDENSITY : "10"
         UDASHSCALING : "1"
       T :
@@ -78,14 +78,15 @@ case:
       thermophysicalProperties:
       turbulenceProperties:
       controlDict:
-        WRITEINTERVAL : "4000"
+        WRITEINTERVAL : "2000"
         ADUSTABLETIMESTEP : "off"
         STARTAVETIME : "0.12"
       createPatchDict:
       decomposeParDict:
-        PROCS: "480"
+        PROCS: "192"
       fvSchemes:
       fvSolution:
+          NOUTERCORRECTORS : "2"
       mapFieldsDict:
       SurfaceSampleDict:
       topoSetDict:
@@ -99,8 +100,8 @@ case:
 
       submit_job_hlrn.sh:
           RUNTIME : "10:00:00"
-          NODES: "5"
-          PROCS: "480"
+          NODES: "2"
+          PROCS: "192"
 
 probes:
     profile_probes:

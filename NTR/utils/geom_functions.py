@@ -47,8 +47,8 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
     res_oppposit = 50000
 
     x1_one, y1_one = refine_spline(x1, y1, res)
-    x1_one = x1_one[1:-1]
-    y1_one = y1_one[1:-1]
+    #x1_one = x1_one[1:-1]
+    #y1_one = y1_one[1:-1]
     x2_one, y2_one = refine_spline(x2, y2, res_oppposit)
 
     x_mid_ss = []
@@ -81,10 +81,10 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
 
         dist_1 = dists_ss[np.argmin(dists_ss)]
         dist_2 = dists_ps[np.argmin(dists_ps)]
-        if np.isclose(dist_1, dist_2, rtol=tolerance):
+        if abs(dist_1-dist_2)/(dist_1+dist_2) < 0.1:#, rtol=tolerance
             x_mid_ss.append(x_mid)
             y_mid_ss.append(y_mid)
-
+    """
     x1_two, y1_two = refine_spline(x1, y1, res_oppposit)
     x1_two = x1_two[1:-1]
     y1_two = y1_two[1:-1]
@@ -122,7 +122,7 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
         if np.isclose(dist_1, dist_2, rtol=tolerance):
             x_mid_ss.append(x_mid)
             y_mid_ss.append(y_mid)
-
+    """
     x_mid_ss, y_mid_ss = zip(*sorted(zip(x_mid_ss, y_mid_ss)))
 
     return np.array(x_mid_ss), np.array(y_mid_ss)
@@ -142,13 +142,13 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     """
 
     delta_x_vk = x_mcl[0] - x_inlet
-    delta_y_vk = np.tan(np.deg2rad(beta1-90)) * delta_x_vk
+    delta_y_vk = np.tan(np.deg2rad(beta1 - 90)) * delta_x_vk
 
     p_inlet_x = x_mcl[0] - delta_x_vk
     p_inlet_y = y_mcl[0] - delta_y_vk
 
     delta_x_hk = x_outlet - x_mcl[-1]
-    delta_y_hk = delta_x_hk * np.tan(np.deg2rad(beta2-90))
+    delta_y_hk = delta_x_hk * np.tan(np.deg2rad(beta2 - 90))
 
     p_outlet_x = x_mcl[-1] + delta_x_hk
     p_outlet_y = y_mcl[-1] + delta_y_hk
@@ -159,7 +159,7 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     for i in range(len(x_mpsl)):
         y_mpsl[i] = y_mpsl[i] + 0.5 * t
 
-    return refine_spline(x_mpsl, y_mpsl,1000)
+    return refine_spline(x_mpsl, y_mpsl, 1000)
 
 
 def calcConcaveHull_optimize(xs, ys, alpha):
@@ -605,7 +605,7 @@ def extract_geo_paras(points, alpha, midline_tol):
                     count_ang += 1
 
                     try_center = np.array([shift_Try[0], shift_Try[1], 0])
-                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.075
+                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.15
                     try_circle = pv.Cylinder(try_center,  # center
                                              (0, 0, 1),  # direction
                                              try_radius,  # radius
@@ -713,42 +713,38 @@ def extract_geo_paras(points, alpha, midline_tol):
     ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))][0]
     ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))][0]
 
-    begin = min([ind_hk, ind_vk])
-    end = max([ind_hk, ind_vk])
-
-    if begin < end:
-        x_ss = xs[ind_hk:ind_vk]
-        y_ss = ys[ind_hk:ind_vk]
-
-        y_ps = ys[ind_vk - 1:] + ys[:ind_hk - 1]
-        x_ps = xs[ind_vk - 1:] + xs[:ind_hk - 1]
-    else:
+    if ind_vk < ind_hk:
         x_ss = xs[ind_vk:ind_hk]
         y_ss = ys[ind_vk:ind_hk]
 
         y_ps = ys[ind_hk - 1:] + ys[:ind_vk - 1]
         x_ps = xs[ind_hk - 1:] + xs[:ind_vk - 1]
 
+    else:
+        x_ss = xs[ind_hk:ind_vk]
+        y_ss = ys[ind_hk:ind_vk]
+
+        y_ps = ys[ind_vk - 1:] + ys[:ind_hk - 1]
+        x_ps = xs[ind_vk - 1:] + xs[:ind_hk - 1]
+
     psPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
     ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
 
-    ssPolySidspts = []
-    for i in psPoly.points:
-        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in valid_checkPoints[0]]:
-            ssPolySidspts.append(i)
-    psPolySidspts = []
-    for i in ssPoly.points:
-        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in valid_checkPoints[0]]:
-            psPolySidspts.append(i)
+    midsres = 100
 
-    psPolySides = np.array(psPolySidspts)
-    ssPolySides = np.array(ssPolySidspts)
+    if x_ps[0] < x_ps[-1]:
+        ax, ay = refine_spline(x_ps[::-1], y_ps[::-1], midsres)
+    else:
+        ax, ay = refine_spline(x_ps, y_ps, midsres)
 
-    x_ssSides,y_ssSides = psPolySides[::, 0], psPolySides[::, 1]
-    x_psSides,y_psSides = ssPolySides[::, 0], ssPolySides[::, 1]
+    if x_ss[0] < x_ss[-1]:
+        bx, by = refine_spline(x_ss[::-1], y_ss[::-1], midsres)
+    else:
+        bx, by = refine_spline(x_ss, y_ss, midsres)
+    xmids, ymids = ((ax + bx) / 2, (ay + by) / 2)
 
-    xmids, ymids = calcMidPoints(x_ssSides,y_ssSides,
-                                 x_psSides,y_psSides, midline_tol)
+    xmids = np.array(xmids)[::-1][1:-1]
+    ymids = np.array(ymids)[::-1][1:-1]
 
     xmids[0] = points[ind_vk][0]
     ymids[0] = points[ind_vk][1]
