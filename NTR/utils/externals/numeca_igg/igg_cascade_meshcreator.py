@@ -2,6 +2,7 @@ import sys
 import os
 import pickle
 
+
 def read_pickle_args(path):
     print("reading yaml-dictionary ", path)
     filepath = os.path.join(path, "igg_args.pkl")
@@ -22,8 +23,6 @@ add_path = args["add_path"]
 sys.path.append(add_path)
 from NTR.utils.externals.tecplot.tecplot_functions import openTecplotFile
 
-
-
 yPerLowHGridBlockPitchStart = args["yPerLowHGridBlockPitchStart"]
 yPerHighHGridBlockPitchStart = args["yPerHighHGridBlockPitchStart"]
 blockStartFromChord = args["blockStartFromChord"]
@@ -40,14 +39,13 @@ te_firstcellheight_coeff = args["te_firstcellheight_coeff"]
 shift_vk_block_xaxiscoeff = args["shift_vk_block_xaxiscoeff"]
 shift_hk_block_xaxiscoeff = args["shift_hk_block_xaxiscoeff"]
 
-
 exp_ratio = args["exp_ratio"]
 
 layers = args["layers"]
 layers = int(layers * factor)
 
 extrudeLength = args["extrudeLength"]
-extrudeNodes = int(extrudeLength/delta_i*factor)#int(factor * args["extrudeNodes"])
+extrudeNodes = int(extrudeLength / delta_i * factor)  # int(factor * args["extrudeNodes"])
 
 smoothing_iterations = args["smoothing"]
 
@@ -92,6 +90,8 @@ def iggsplines_from_data():
     cspline_outlet.insert_point(1, Point(x_lower[-1], y_lower[-1], 0))
     cspline_outlet.insert_point(2, Point(x_upper[-1], y_upper[-1], 0))
 
+    # print_as("png", os.path.join(case_path,"01_Meshing/splines.png"))
+
 
 blocks = ["Block_1", "Block_2", "Block_3", "Block_4",
           "Block_5", "Block_6", "Block_7", "Block_8",
@@ -107,6 +107,9 @@ def extrude_to_3d():
 
     for b in blocks:
         segment(b, 3, 3, 1).set_number_of_points(extrudeNodes, 0)
+
+    # print_as("png", os.path.join(case_path,"01_Meshing/extrude3d.png"))
+    return 0
 
 
 def set_patches():
@@ -163,6 +166,8 @@ def set_patches():
     patch("Block_12", 3, 1).set_type("SOL")
     connect_whole_grid("PATCHES", 1E-06)
 
+    # print_as("png", os.path.join(case_path,"01_Meshing/patches.png"))
+
 
 def smooth_2d_mesh():
     # =============================================================================
@@ -177,10 +182,9 @@ def smooth_2d_mesh():
     segment_group("solid").add_segment(segment("Block_12", 1, 1, 1))
     segment_group("solid").smoother_bc(0, first_cell_width, exp_ratio, layers)
 
-
     create_segment_group("trailing")
     segment_group("trailing").add_segment(segment("Block_10", 1, 2, 1))
-    segment_group("trailing").smoother_bc(0, first_cell_width*te_firstcellheight_coeff, exp_ratio, layers)
+    segment_group("trailing").smoother_bc(0, first_cell_width * te_firstcellheight_coeff, exp_ratio, layers)
 
     create_segment_group("leading")
     segment_group("leading").add_segment(segment("Block_9", 1, 4, 1))
@@ -207,6 +211,9 @@ def smooth_2d_mesh():
     smooth_runs = int(smoothing_iterations / interval)
     for i in range(smooth_runs):
         face_group("midspan").planar_smoothing(interval)
+
+    # print_as("png", os.path.join(case_path,"01_Meshing/smooth2d.png"))
+    return 0
 
 
 def set_nodedistribution():
@@ -248,10 +255,14 @@ def set_nodedistribution():
     segment("Block_2", 1, 3, 1).cluster_uniform()
     segment("Block_1", 1, 3, 1).cluster_uniform()
 
-    segment("Block_10", 1, 2, 1).cluster_tanh(cellwidthcoeff / factor**2, cellwidthcoeff / factor**2)
-    segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff / factor**2, cellwidthcoeff / factor**2)
-    segment("Block_12", 1, 1,1).cluster_uniform()
-    segment("Block_11", 1, 2,1).cluster_uniform()
+    segment("Block_10", 1, 2, 1).cluster_tanh(cellwidthcoeff / factor ** 2, cellwidthcoeff / factor ** 2)
+    segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff / factor ** 2, cellwidthcoeff / factor ** 2)
+    segment("Block_12", 1, 1, 1).cluster_uniform()
+    segment("Block_11", 1, 2, 1).cluster_uniform()
+
+    # print_as("png", os.path.join(case_path,"01_Meshing/nodedistribution.png"))
+
+    return 0
 
 
 def set_blocks():
@@ -264,7 +275,7 @@ def set_blocks():
                         Curve("cspline_peri_upper").calc_normalize(
                             Curve("cspline_peri_upper").project_point(Point(CurvePointNorm(Curve("cspline_ps"), 0.0).x,
                                                                             CurvePointNorm(Curve("cspline_ps"),
-                                                                                           0.0).y + shift_vk_block_xaxiscoeff ,
+                                                                                           0.0).y + shift_vk_block_xaxiscoeff,
                                                                             0))))
 
     # HK-Blockgrenze
@@ -272,39 +283,44 @@ def set_blocks():
                         Curve("cspline_peri_lower").calc_normalize(
                             Curve("cspline_peri_lower").project_point(Point(CurvePointNorm(Curve("cspline_ps"), 1.0).x,
                                                                             CurvePointNorm(Curve("cspline_ps"),
-                                                                                           0.0).y + shift_hk_block_xaxiscoeff ,
+                                                                                           0.0).y + shift_hk_block_xaxiscoeff,
                                                                             1.0))) + 0.05)
     p3 = Point(CurvePointNorm(Curve("cspline_ss"), 0.5).x,
                CurvePointNorm(Curve("cspline_ss"), 0.5).y + yPerLowHGridBlockPitchStart * pitch, 0)
 
-    #VK
+    # VK
     pt1 = Point(p1.x, p1.y + yPerHighHGridBlockPitchStart * pitch - pitch, 0)  # vk_ss
-    pt2 = CurvePointNorm(Curve("cspline_ss"), (1-blockStartFromChord))  # vk_ssBOUNDARY
+    pt2 = CurvePointNorm(Curve("cspline_ss"), (1 - blockStartFromChord))  # vk_ssBOUNDARY
     pt3 = CurvePointNorm(Curve("cspline_ps"), blockStartFromChord)  # vk_psBOUNDARY
-    pt4 = Point(p1.x, p1.y + yPerLowHGridBlockPitchStart * pitch - pitch, 0) # vk_ss
-    #HK
+    pt4 = Point(p1.x, p1.y + yPerLowHGridBlockPitchStart * pitch - pitch, 0)  # vk_ss
+    # HK
     pt5 = Point(p2.x, p2.y + yPerLowHGridBlockPitchStart * pitch, 0)
     pt6 = Point(p2.x, p2.y + yPerHighHGridBlockPitchStart * pitch, 0)
-    pt7 = CurvePointNorm(Curve("cspline_ss"), blockStartFromChord )
-    pt8 = CurvePointNorm(Curve("cspline_ps"), (1-blockStartFromChord))
+    pt7 = CurvePointNorm(Curve("cspline_ss"), blockStartFromChord)
+    pt8 = CurvePointNorm(Curve("cspline_ps"), (1 - blockStartFromChord))
 
     pt9 = CurvePointNorm(Curve("cspline_peri_lower"), 0.0)
-    pt10 = CurvePointNorm(Curve("cspline_peri_lower"),Curve("cspline_peri_lower").calc_normalize(Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))
+    pt10 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
+        Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))
     pt11 = CurvePointNorm(Curve("cspline_inlet"), yPerLowHGridBlockPitchStart)
 
     pt12 = CurvePointNorm(Curve("cspline_inlet"), yPerHighHGridBlockPitchStart)
 
     pt13 = CurvePointNorm(Curve("cspline_peri_upper"), 0.0)
 
-    pt14 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))
-    pt15 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(Curve("cspline_peri_lower").project_point(Point(p2.x, p2.y, 0))))
+    pt14 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
+        Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))
+    pt15 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
+        Curve("cspline_peri_lower").project_point(Point(p2.x, p2.y, 0))))
 
-    pt16 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(Curve("cspline_peri_lower").project_point(Point(p2.x, p2.y, 0))))
+    pt16 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
+        Curve("cspline_peri_lower").project_point(Point(p2.x, p2.y, 0))))
     pt17 = CurvePointNorm(Curve("cspline_peri_lower"), 1.0)
     pt18 = CurvePointNorm(Curve("cspline_outlet"), yPerLowHGridBlockPitchStart)
     pt19 = CurvePointNorm(Curve("cspline_outlet"), yPerHighHGridBlockPitchStart)
     pt20 = CurvePointNorm(Curve("cspline_peri_upper"), 1.0)
-    pt21 = CurvePointNorm(Curve("cspline_peri_upper"), Curve("cspline_peri_upper").calc_normalize(Curve("cspline_peri_upper").project_point(Point(p2.x, p2.y + pitch, 0))))
+    pt21 = CurvePointNorm(Curve("cspline_peri_upper"), Curve("cspline_peri_upper").calc_normalize(
+        Curve("cspline_peri_upper").project_point(Point(p2.x, p2.y + pitch, 0))))
 
     """
     print(pt1, pt2, pt3, pt4, pt5, pt6, pt7, pt8, pt9, pt10, pt11,
@@ -316,7 +332,7 @@ def set_blocks():
     new_block_face(pt12, pt1, p1, pt13)
     new_block_face(pt14, pt15, pt5, pt4)
     new_block_face(pt16, pt17, pt18, pt5)
-    new_block_face(pt5,pt18, pt19, pt6)
+    new_block_face(pt5, pt18, pt19, pt6)
     new_block_face(pt6, pt19, pt20, pt21)
     new_block_face(pt1, pt6, pt21, p1)
 
@@ -343,6 +359,9 @@ def set_blocks():
     edge("Block_10", 1, 2).insert_vertex(0.5)
     move_vertex(vertex("Block_10", 1, 2, 2), CurvePointNorm(Curve("cspline_ss"), 0))
     connect_whole_grid("ALL", 1E-06)
+
+    # print_as("png", os.path.join(case_path,"01_Meshing/blocks.png"))
+    return 0
 
 
 iggsplines_from_data()

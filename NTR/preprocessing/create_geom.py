@@ -5,6 +5,7 @@ import os
 from NTR.utils.geom_functions import extract_geo_paras, calcMidPassageStreamLine
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle
+from NTR.utils.pyvista_utils import lines_from_points
 
 
 def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, midline_tol, span_z,
@@ -49,18 +50,18 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
                                                  np.array(y_lower),
                                                  np.zeros(len(x_mpsl)))).T)
 
-    inlet_pts = np.array([per_y_lower.points[per_y_lower.points[::,0].argmin()],
-                          per_y_upper.points[per_y_upper.points[::,0].argmin()]])
+    inlet_pts = np.array([per_y_lower.points[per_y_lower.points[::, 0].argmin()],
+                          per_y_upper.points[per_y_upper.points[::, 0].argmin()]])
 
     inletPoly = pv.Line(*inlet_pts)
-    outlet_pts = np.array([per_y_lower.points[per_y_lower.points[::,0].argmax()],
-                          per_y_upper.points[per_y_upper.points[::,0].argmax()]])
+    outlet_pts = np.array([per_y_lower.points[per_y_lower.points[::, 0].argmax()],
+                           per_y_upper.points[per_y_upper.points[::, 0].argmax()]])
 
     outletPoly = pv.Line(*outlet_pts)
 
     writeTecplot1DFile('01_Meshing/geom.dat', ['x', 'z'],
                        ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
-                       [[x_ss, y_ss], [x_ps, y_ps], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mpsl[::-1], y_mpsl[::-1]]],
+                       [[x_ps, y_ps], [x_ss, y_ss], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mpsl[::-1], y_mpsl[::-1]]],
                        'obere Kurvenverlauf des Kanals')
 
     geo_dict = {"points": points,
@@ -89,10 +90,23 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
         mpslPolyUpper = pv.PolyData(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
         midsPoly = pv.PolyData(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
 
+        psPoly_asline = lines_from_points(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
+        ssPoly_asline = lines_from_points(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
+        mpslPolyLow_asline = lines_from_points(np.stack((x_mpsl, y_lower, np.zeros(len(x_mpsl)))).T)
+        mpslPolyUpper_asline = lines_from_points(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
+        midsPoly_asline = lines_from_points(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
+
         plotter.add_mesh(psPoly)
         plotter.add_mesh(ssPoly)
         plotter.add_mesh(mpslPolyLow)
         plotter.add_mesh(mpslPolyUpper)
         plotter.add_mesh(midsPoly)
+
+        plotter.add_mesh(psPoly_asline)
+        plotter.add_mesh(ssPoly_asline)
+        plotter.add_mesh(mpslPolyLow_asline)
+        plotter.add_mesh(mpslPolyUpper_asline)
+        plotter.add_mesh(midsPoly_asline)
+
         plotter.show_axes()
         plotter.show()

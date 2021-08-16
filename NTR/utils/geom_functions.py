@@ -142,13 +142,13 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     """
 
     delta_x_vk = x_mcl[0] - x_inlet
-    delta_y_vk = np.tan(np.deg2rad(beta1-90)) * delta_x_vk
+    delta_y_vk = np.tan(np.deg2rad(beta1 - 90)) * delta_x_vk
 
     p_inlet_x = x_mcl[0] - delta_x_vk
     p_inlet_y = y_mcl[0] - delta_y_vk
 
     delta_x_hk = x_outlet - x_mcl[-1]
-    delta_y_hk = delta_x_hk * np.tan(np.deg2rad(beta2-90))
+    delta_y_hk = delta_x_hk * np.tan(np.deg2rad(beta2 - 90))
 
     p_outlet_x = x_mcl[-1] + delta_x_hk
     p_outlet_y = y_mcl[-1] + delta_y_hk
@@ -159,7 +159,7 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     for i in range(len(x_mpsl)):
         y_mpsl[i] = y_mpsl[i] + 0.5 * t
 
-    return refine_spline(x_mpsl, y_mpsl,1000)
+    return refine_spline(x_mpsl, y_mpsl, 1000)
 
 
 def calcConcaveHull_optimize(xs, ys, alpha):
@@ -713,42 +713,42 @@ def extract_geo_paras(points, alpha, midline_tol):
     ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))][0]
     ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))][0]
 
-    begin = min([ind_hk, ind_vk])
-    end = max([ind_hk, ind_vk])
-
-    if begin < end:
-        x_ss = xs[ind_hk:ind_vk]
-        y_ss = ys[ind_hk:ind_vk]
-
-        y_ps = ys[ind_vk - 1:] + ys[:ind_hk - 1]
-        x_ps = xs[ind_vk - 1:] + xs[:ind_hk - 1]
-    else:
+    if ind_vk < ind_hk:
         x_ss = xs[ind_vk:ind_hk]
         y_ss = ys[ind_vk:ind_hk]
 
         y_ps = ys[ind_hk - 1:] + ys[:ind_vk - 1]
         x_ps = xs[ind_hk - 1:] + xs[:ind_vk - 1]
 
+    else:
+        x_ss = xs[ind_hk:ind_vk]
+        y_ss = ys[ind_hk:ind_vk]
+
+        y_ps = ys[ind_vk - 1:] + ys[:ind_hk - 1]
+        x_ps = xs[ind_vk - 1:] + xs[:ind_hk - 1]
+
     psPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
     ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
 
     ssPolySidspts = []
     for i in psPoly.points:
-        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in valid_checkPoints[0]]:
+        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in
+                                                                                      valid_checkPoints[0]]:
             ssPolySidspts.append(i)
     psPolySidspts = []
     for i in ssPoly.points:
-        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in valid_checkPoints[0]]:
+        if not list(i) in [list(y) for y in valid_checkPoints[0]] and not list(i) in [list(y) for y in
+                                                                                      valid_checkPoints[0]]:
             psPolySidspts.append(i)
 
     psPolySides = np.array(psPolySidspts)
     ssPolySides = np.array(ssPolySidspts)
 
-    x_ssSides,y_ssSides = psPolySides[::, 0], psPolySides[::, 1]
-    x_psSides,y_psSides = ssPolySides[::, 0], ssPolySides[::, 1]
+    x_ssSides, y_ssSides = psPolySides[::, 0], psPolySides[::, 1]
+    x_psSides, y_psSides = ssPolySides[::, 0], ssPolySides[::, 1]
 
-    xmids, ymids = calcMidPoints(x_ssSides,y_ssSides,
-                                 x_psSides,y_psSides, midline_tol)
+    xmids, ymids = calcMidPoints(x_ssSides, y_ssSides,
+                                 x_psSides, y_psSides, midline_tol)
 
     xmids[0] = points[ind_vk][0]
     ymids[0] = points[ind_vk][1]

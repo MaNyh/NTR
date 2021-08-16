@@ -8,7 +8,7 @@ from NTR.utils.filehandling import yaml_dict_read, readtxtfile
 class timestep:
     def __init__(self, raw_lines):
         pattern_cputime_line = "ExecutionTime"
-        pattern_executiontime = "ExecutionTime\s{1,}=\s{1,}\d{,}.\d{1,}\s{1,}s"
+        pattern_executiontime = "ExecutionTime\s{1,}=\s{1,}\d{,}\.{,}\d{,}\s{,}s"
         pattern_clocktime = "ClockTime\s{1,}=\s{1,}\d{,}\s{,}s"
 
         pattern_courant_line = "Courant Number"
