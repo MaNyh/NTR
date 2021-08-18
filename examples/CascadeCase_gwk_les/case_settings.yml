@@ -81,6 +81,7 @@ case:
         WRITEINTERVAL : "2000"
         ADUSTABLETIMESTEP : "off"
         STARTAVETIME : "0.12"
+        PURGEWRITE : "2"
       createPatchDict:
       decomposeParDict:
         PROCS: "192"

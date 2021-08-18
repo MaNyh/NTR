@@ -31,7 +31,7 @@ writeControl    timeStep;
 
 writeInterval   __WRITEINTERVAL__;
 
-purgeWrite      3;
+purgeWrite      __PURGEWRITE__;
 
 writeFormat     ascii;
 
