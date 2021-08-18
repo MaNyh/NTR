@@ -24,7 +24,6 @@ def run_create_geometry(settings_yaml):
                     settings["geom"]["ptcloud_profile_unit"],
                     settings["geom"]["shift_domain"],
                     settings["geometry"]["alpha"],
-                    settings["geometry"]["midline_tolerance"],
                     settings["mesh"]["extrudeLength"],
                     outpath)
     return 0

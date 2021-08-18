@@ -8,8 +8,7 @@ from NTR.utils.filehandling import write_pickle
 from NTR.utils.pyvista_utils import lines_from_points
 
 
-def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, midline_tol, span_z,
-                    casepath,
+def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z, casepath,
                     verbose=True):
     # =============================================================================
     # Daten Einlesen
@@ -26,8 +25,8 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
     # Bestimmung Profilparameter
     # =============================================================================
     sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02 = extract_geo_paras(points,
-                                                                                                           alpha,
-                                                                                                           midline_tol)
+                                                                                                           alpha
+                                                                                                           )
 
     x_mids = midsPoly.points[::, 0]
     y_mids = midsPoly.points[::, 1]

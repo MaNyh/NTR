@@ -507,7 +507,7 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
     return index_vk, index_hk
 
 
-def extract_geo_paras(points, alpha, midline_tol):
+def extract_geo_paras(points, alpha):
     origPoly = pv.PolyData(points)
     xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
