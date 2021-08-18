@@ -507,7 +507,7 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
     return index_vk, index_hk
 
 
-def extract_geo_paras(points, alpha):
+def extract_geo_paras(points, alpha, verbose):
     origPoly = pv.PolyData(points)
     xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
@@ -520,6 +520,15 @@ def extract_geo_paras(points, alpha):
 
     midpts = veronoi_mid.points.copy()
     midpts = midpts[np.argsort(midpts[:, 0])]
+
+    if verbose:
+        p=pv.Plotter()
+        p.add_mesh(origPoly,color="black",opacity=0.1,label="origPoly")
+        p.add_mesh(sortedPoly,color="orange",label="sortedPoly")
+        p.add_mesh(veronoi_mid,color="green",label="veronoi_mid")
+        p.add_legend()
+        p.set_background("white")
+        p.show()
 
     circles = []
     quads = []
@@ -571,9 +580,9 @@ def extract_geo_paras(points, alpha):
             attempts += 1
 
             if limit == "low":
-                random_idx = np.random.randint(-int(0.02 * len(veronoi_mid.points)), -1)
+                random_idx = np.random.randint(-int(0.03 * len(veronoi_mid.points)), -1)
             elif limit == "high":
-                random_idx = np.random.randint(0, int(0.02 * len(veronoi_mid.points)))
+                random_idx = np.random.randint(0, int(0.03 * len(veronoi_mid.points)))
 
             trypt = midpts[random_idx]
 
@@ -581,6 +590,15 @@ def extract_geo_paras(points, alpha):
             closest_dist = vecAbs(np.array([trypt[0], trypt[1], 0]) - sortedPoly.points[closest])
 
             count_pos_try = 0
+
+            if verbose:
+                p=pv.Plotter()
+                p.add_mesh(sortedPoly,color="orange",label="sortedPoly")
+                p.add_mesh(pv.PolyData(trypt),color="green",label="trypt")
+                p.add_legend()
+                p.set_background("white")
+                p.show()
+
             while (found_limits[limit] != True and count_pos_try < 4):
                 count_pos_try += 1
 
@@ -605,7 +623,7 @@ def extract_geo_paras(points, alpha):
                     count_ang += 1
 
                     try_center = np.array([shift_Try[0], shift_Try[1], 0])
-                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.15
+                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.2
                     try_circle = pv.Cylinder(try_center,  # center
                                              (0, 0, 1),  # direction
                                              try_radius,  # radius
@@ -626,7 +644,19 @@ def extract_geo_paras(points, alpha):
                     try_quad.rotate_z(mid_angle)
                     try_quad.translate(try_center)
 
+
                     if len(smash.points) == 4:
+
+                        if verbose:
+                            p = pv.Plotter()
+                            p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
+                            p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
+                            p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
+                            p.add_mesh(try_quad, color="black", label="try_quad")
+                            p.add_mesh(smash, color="red", label="smash")
+                            p.add_legend()
+                            p.set_background("white")
+                            p.show()
 
                         first_edge = pv.Line(try_quad.points[1], try_quad.points[2], 100)
                         second_edge = pv.Line(try_quad.points[3], try_quad.points[0], 100)
@@ -684,7 +714,10 @@ def extract_geo_paras(points, alpha):
                                     if cross.number_of_points > 0:
                                         deletelines.append(idx)
 
+
                             crosslines = [i for j, i in enumerate(crosslines) if j not in deletelines]
+                            otherlines = [pv.Line(crosslines[0].points[0], crosslines[1].points[0], 2),
+                                          pv.Line(crosslines[0].points[1], crosslines[1].points[1], 2)]
 
                             mids = [crosslines[0].points[5], crosslines[1].points[5]]
 
@@ -696,7 +729,24 @@ def extract_geo_paras(points, alpha):
                             edges.append(first_edge)
                             edges.append(second_edge)
 
+                            if any([i.length<try_radius/2 for i in otherlines]):
+                                break
+
                             farpt = [distant_node_index(i, np.array(checkPoints)) for i in mids]
+
+                            if verbose:
+                                p = pv.Plotter()
+                                p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
+                                p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
+                                p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
+                                p.add_mesh(try_quad, color="black", label="try_quad")
+                                p.add_mesh(smash, color="red", label="smash")
+                                p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow",point_size=15,label="farpt")
+                                p.add_mesh(np.array(mids),color="black",label="mids")
+                                p.add_mesh(veronoi_mid,color="yellow",label="veronoi_mid")
+                                p.add_legend()
+                                p.set_background("white")
+                                p.show()
 
                             if all_equal(farpt):
                                 farpts.append(checkPoints[farpt[-1]])

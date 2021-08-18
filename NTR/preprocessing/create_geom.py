@@ -9,7 +9,7 @@ from NTR.utils.pyvista_utils import lines_from_points
 
 
 def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z, casepath,
-                    verbose=True):
+                    verbose=False):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -25,8 +25,8 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
     # Bestimmung Profilparameter
     # =============================================================================
     sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02 = extract_geo_paras(points,
-                                                                                                           alpha
-                                                                                                           )
+                                                                                                           alpha,
+                                                                                                           verbose)
 
     x_mids = midsPoly.points[::, 0]
     y_mids = midsPoly.points[::, 1]
@@ -81,7 +81,7 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
     geo_filename = "geometry.pkl"
     write_pickle(os.path.join(casepath, geo_filename), geo_dict)
 
-    if verbose:
+    if True:
         plotter = pv.Plotter()
         psPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
         ssPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
@@ -95,8 +95,8 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
         mpslPolyUpper_asline = lines_from_points(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
         midsPoly_asline = lines_from_points(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
 
-        plotter.add_mesh(psPoly)
-        plotter.add_mesh(ssPoly)
+        plotter.add_mesh(psPoly,color="red")
+        plotter.add_mesh(ssPoly,color="blue")
         plotter.add_mesh(mpslPolyLow)
         plotter.add_mesh(mpslPolyUpper)
         plotter.add_mesh(midsPoly)

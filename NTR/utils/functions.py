@@ -25,7 +25,7 @@ def run_create_geometry(settings_yaml):
                     settings["geom"]["shift_domain"],
                     settings["geometry"]["alpha"],
                     settings["mesh"]["extrudeLength"],
-                    outpath)
+                    outpath,)
     return 0
 
 def run_igg_meshfuncs(settings_yaml):
