@@ -96,11 +96,11 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
         mpslPolyUpper_asline = lines_from_points(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
         midsPoly_asline = lines_from_points(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
 
-        plotter.add_mesh(psPoly)
-        plotter.add_mesh(ssPoly)
+        plotter.add_mesh(psPoly,color="red")
+        plotter.add_mesh(ssPoly,color="blue")
         plotter.add_mesh(mpslPolyLow)
         plotter.add_mesh(mpslPolyUpper)
-        plotter.add_mesh(midsPoly)
+        plotter.add_mesh(midsPoly,point_size=5)
 
         plotter.add_mesh(psPoly_asline)
         plotter.add_mesh(ssPoly_asline)

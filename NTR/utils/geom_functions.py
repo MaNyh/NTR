@@ -537,7 +537,7 @@ def extract_geo_paras(points, alpha, midline_tol):
         mids_tangent = mids_minx - mids_maxx
 
         splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) / 3
-        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius, j_size=splitBoxLength,
+        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius/2, j_size=splitBoxLength,
                             i_resolution=100, j_resolution=100)
 
         rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
@@ -605,7 +605,7 @@ def extract_geo_paras(points, alpha, midline_tol):
                     count_ang += 1
 
                     try_center = np.array([shift_Try[0], shift_Try[1], 0])
-                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.15
+                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.1
                     try_circle = pv.Cylinder(try_center,  # center
                                              (0, 0, 1),  # direction
                                              try_radius,  # radius
@@ -717,15 +717,15 @@ def extract_geo_paras(points, alpha, midline_tol):
         x_ss = xs[ind_vk:ind_hk]
         y_ss = ys[ind_vk:ind_hk]
 
-        y_ps = ys[ind_hk - 1:] + ys[:ind_vk - 1]
-        x_ps = xs[ind_hk - 1:] + xs[:ind_vk - 1]
+        y_ps = ys[ind_hk :] + ys[:ind_vk ]
+        x_ps = xs[ind_hk :] + xs[:ind_vk ]
 
     else:
         x_ss = xs[ind_hk:ind_vk]
         y_ss = ys[ind_hk:ind_vk]
 
-        y_ps = ys[ind_vk - 1:] + ys[:ind_hk - 1]
-        x_ps = xs[ind_vk - 1:] + xs[:ind_hk - 1]
+        y_ps = ys[ind_vk :] + ys[:ind_hk ]
+        x_ps = xs[ind_vk :] + xs[:ind_hk ]
 
     psPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
     ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
