@@ -103,6 +103,9 @@ case:
           NODES: "2"
           PROCS: "192"
 
+      jobChain.sh:
+          JOB_NUMBERS : "12"
+
 probes:
     profile_probes:
         pden_ps : 10

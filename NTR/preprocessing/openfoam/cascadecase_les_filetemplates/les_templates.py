@@ -18,7 +18,8 @@ file_templates = {"0": ["alphat",
 
                   #"utils": ["monitor.py"],
 
-                  ".": ["submit_job_hlrn.sh"],
+                  ".": ["submit_job_hlrn.sh",
+                        "jobChain.sh"],
 
                   }
 
