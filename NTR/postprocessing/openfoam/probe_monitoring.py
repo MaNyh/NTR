@@ -56,6 +56,8 @@ def massflowinlet(casesettings_yml):
 
 def make_averagevaluesplot(casepath, datname, monitorpath):
     dirlist = os.listdir(os.path.join(casepath, monitorpath))
+    dirlistasfloats = [float(i) for i in dirlist]
+    dirlistasfloats, dirlist = zip(*sorted(zip(dirlistasfloats, dirlist)))
     timeseries = {"time": []}
     for timedirectory in dirlist:
         subdirlist = os.listdir(os.path.join(casepath, monitorpath, timedirectory))
