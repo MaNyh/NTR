@@ -299,24 +299,7 @@ def line_intersection(point_a1, point_a2,
 
 def sortProfilePoints(x, y, alpha):
     x, y = calcConcaveHull(x, y, alpha=alpha)
-    """
-    def vecabs(vec):
-        return (vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2) ** .5
 
-    def vecDir(vec):
-        return vec / vecabs(vec)
-
-    points = np.stack((x,y,np.zeros(len(x)))).T
-    poly = pv.PolyData(points)
-    face = poly.delaunay_2d(alpha = alpha)
-    center = face.center
-    dist = points - center
-    abst = np.asarray([vecabs(i) for i in dist])
-    dirs = np.asarray([vecDir(i) for i in dist])
-
-    max_id = list(abst).index(max(abst))
-    ind_vk = max_id
-    """
     ind_vk = x.index(min(x))
 
     x_by_vk = None
@@ -446,19 +429,25 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
 
 
 def extract_geo_paras(points, alpha, verbose):
+    """
+    This function is extracting profile-data as stagger-angle, midline, psPoly, ssPoly and more from a set of points
+    Be careful, you need a suitable alpha-parameter in order to get the right geometry
+    The calculation of the leading-edge and trailing-edge index needs time and its not 100% reliable (yet)
+    Keep in mind, to check the results!
+    :param points: array of points in 3d with the shape (n,3)
+    :param alpha: nondimensional alpha-coefficient (calcConcaveHull)
+    :param verbose: bool for plots
+    :return: points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+    """
 
-    #INITIALISIERUNG
     origPoly = pv.PolyData(points)
     xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
     sortedPoly = pv.PolyData(points)
 
     ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly)
-
     psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly)
-
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
-
     camber_angle_hk, camber_angle_vk = angles_from_mids(midsPoly)
 
     if verbose:
@@ -475,7 +464,14 @@ def extract_geo_paras(points, alpha, verbose):
 
 
 def extract_vk_hk(origPoly, sortedPoly, verbose=False):
-
+    """
+    This function is calculating the leading-edge and trailing edge of a long 2d-body
+    The function is not 100% reliable yet. The computation is iterative and it can take a while
+    :param origPoly: all original points, unsorted
+    :param sortedPoly: sorted via calcConcaveHull
+    :param verbose: bool (True -> plots, False -> silent)
+    :return: returns indexes of LE(vk) and TE(hk) from sortedPoints
+    """
     def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly):
         mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
         mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
