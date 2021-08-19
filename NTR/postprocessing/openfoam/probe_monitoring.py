@@ -100,11 +100,15 @@ def make_averagevaluesplot(casepath, datname, monitorpath):
             x, y = zip(*sorted(zip(x, y)))
             axs[idx].plot(x, y, label=vars)
             axs[idx].set_ylabel(vars)
+            for xvline in dirlistasfloats:
+                axs[idx].axvline(x=xvline,linestyle=":",color="grey")
             axs[idx].legend()
         else:
             x, y = zip(*sorted(zip(x, y)))
             axs.plot(x, y, label=vars)
             axs.set_ylabel(vars)
+            for xvline in dirlistasfloats:
+                axs.axvline(x=xvline,linestyle=":",color="grey")
             axs.legend()
 
         # axs[idx].legend()
