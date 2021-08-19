@@ -40,15 +40,13 @@ def midpoint(x1, y1, x2, y2):
     return ((x1 + x2) / 2, (y1 + y2) / 2)
 
 
-def calcMidPoints(x1, y1, x2, y2, tolerance):
+def calcMidPoints(x1, y1, x2, y2, res=100, helperpoints=50000):
     # The reason is the tolerance which needs to be low enough for a reasonable realiability
     # but on the same side this is an approximation and the tolerance cant be too low
-    res = 100
-    res_oppposit = 50000
+    res = res
+    res_oppposit = helperpoints
 
     x1_one, y1_one = refine_spline(x1, y1, res)
-    #x1_one = x1_one[1:-1]
-    #y1_one = y1_one[1:-1]
     x2_one, y2_one = refine_spline(x2, y2, res_oppposit)
 
     x_mid_ss = []
@@ -74,55 +72,16 @@ def calcMidPoints(x1, y1, x2, y2, tolerance):
         dists_ps = []
 
         for j in range(len(x2_one)):
-            dists_ss.append(((x_mid - x2_one[j]) ** 2 + (x_mid - y2_one[j]) ** 2) ** (0.5))
-
+            dists_ss.append(((x_mid - x2_one[j]) ** 2 + (y_mid - y2_one[j]) ** 2) ** (0.5))
         for j in range(len(x1_one)):
-            dists_ps.append(((x_mid - x1_one[j]) ** 2 + (x_mid - y1_one[j]) ** 2) ** (0.5))
+            dists_ps.append(((x_mid - x1_one[j]) ** 2 + (y_mid - y1_one[j]) ** 2) ** (0.5))
 
         dist_1 = dists_ss[np.argmin(dists_ss)]
         dist_2 = dists_ps[np.argmin(dists_ps)]
-        if abs(dist_1-dist_2)/(dist_1+dist_2) < 0.1:#, rtol=tolerance
+        if abs(dist_1-dist_2)/(dist_1+dist_2) < 0.05:#, rtol=tolerance
             x_mid_ss.append(x_mid)
             y_mid_ss.append(y_mid)
-    """
-    x1_two, y1_two = refine_spline(x1, y1, res_oppposit)
-    x1_two = x1_two[1:-1]
-    y1_two = y1_two[1:-1]
-    x2_two, y2_two = refine_spline(x2, y2, res)
 
-    x_mid_ss = []
-    y_mid_ss = []
-
-    for i in range(len(x2_two)):
-
-        dists = []
-
-        for j in range(len(x1_two)):
-            dist = ((x2_two[i] - x1_two[j]) ** 2 + (y2_two[i] - y1_two[j]) ** 2) ** (0.5)
-
-            dists.append(dist)
-
-        index_p = np.argmin(dists)
-
-        p_x = x1_two[index_p]
-        p_y = y1_two[index_p]
-
-        x_mid, y_mid = midpoint(p_x, p_y, x2_two[i], y2_two[i])
-
-        dists_ss = []
-        dists_ps = []
-
-        for j in range(len(x2_two)):
-            dists_ss.append(((x_mid - x2_two[j]) ** 2 + (x_mid - y2_two[j]) ** 2) ** (0.5))
-        for j in range(len(x1_two)):
-            dists_ps.append(((x_mid - x1_two[j]) ** 2 + (x_mid - y1_two[j]) ** 2) ** (0.5))
-
-        dist_1 = dists_ss[np.argmin(dists_ss)]
-        dist_2 = dists_ps[np.argmin(dists_ps)]
-        if np.isclose(dist_1, dist_2, rtol=tolerance):
-            x_mid_ss.append(x_mid)
-            y_mid_ss.append(y_mid)
-    """
     x_mid_ss, y_mid_ss = zip(*sorted(zip(x_mid_ss, y_mid_ss)))
 
     return np.array(x_mid_ss), np.array(y_mid_ss)
@@ -409,27 +368,6 @@ def sortProfilePoints(x, y, alpha):
     return x_ss, y_ss, x_ps, y_ps
 
 
-"""
-def sortProfilePoints(x, y, alpha):
-    x, y = calcConcaveHull(x, y, alpha=alpha)
-    ind_vk, ind_hk = calc_vk_hk(x, y)
-
-    begin = min([ind_hk, ind_vk])
-    end = max([ind_hk, ind_vk])
-
-    x_ss = x[begin:end]
-    y_ss = y[begin:end]
-
-    y_ps = y[:begin] + y[end:]
-    x_ps = x[:begin] + x[end:]
-
-    x_ss, y_ss = zip(*sorted(zip(x_ss, y_ss)))
-    #x_ps, y_ps = zip(*sorted(zip(x_ps, y_ps)))
-
-    return x_ss, y_ss, x_ps, y_ps
-"""
-
-
 def rotate_points(origin, x, y, angle):
     """
     Rotate points counterclockwise (rotation around z-axis) by a given angle around a given origin.
@@ -508,45 +446,44 @@ def calc_vk_hk(x_koords, y_koords, beta_01, beta_02):
 
 
 def extract_geo_paras(points, alpha, verbose):
+
+    #INITIALISIERUNG
     origPoly = pv.PolyData(points)
     xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
     sortedPoly = pv.PolyData(points)
 
-    x_new, y_new = refine_spline(xs, ys, 10000)
-    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
-    linePoly = lines_from_points(splineNew)
-    veronoi_mid = veronoi_midline(origPoly.points)
+    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly)
 
-    midpts = veronoi_mid.points.copy()
-    midpts = midpts[np.argsort(midpts[:, 0])]
+    psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly)
+
+    midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
+
+    camber_angle_hk, camber_angle_vk = angles_from_mids(midsPoly)
 
     if verbose:
-        p=pv.Plotter()
-        p.add_mesh(origPoly,color="black",opacity=0.1,label="origPoly")
-        p.add_mesh(sortedPoly,color="orange",label="sortedPoly")
-        p.add_mesh(veronoi_mid,color="green",label="veronoi_mid")
+        p = pv.Plotter()
+        p.add_mesh(points, color="orange", label="points")
+        p.add_mesh(psPoly, color="green", label="psPoly")
+        p.add_mesh(ssPoly, color="black", label="ssPoly")
+        p.add_mesh(midsPoly, color="black", label="midsPoly")
+        p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
         p.add_legend()
-        p.set_background("white")
         p.show()
 
-    circles = []
-    quads = []
-    smashs = []
-    edges = []
-    farpts = []
-    farptsids = []
-    attempts = 0
-    valid_checkPoints = []
+    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
 
-    def extract_edge_poi(mids, direction, sortedPoly):
+
+def extract_vk_hk(origPoly, sortedPoly, verbose=False):
+
+    def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly):
         mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
         mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
 
         mids_tangent = mids_minx - mids_maxx
 
         splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) / 3
-        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius, j_size=splitBoxLength,
+        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius/2, j_size=splitBoxLength,
                             i_resolution=100, j_resolution=100)
 
         rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
@@ -571,9 +508,31 @@ def extract_geo_paras(points, alpha, verbose):
 
         return checkPoints
 
+    xs, ys = sortedPoly.points[::,0], sortedPoly.points[::,1]
+    x_new, y_new = refine_spline(xs, ys, 10000)
+    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
+    linePoly = lines_from_points(splineNew)
+    veronoi_mid = veronoi_midline(origPoly.points)
+    midpts = veronoi_mid.points.copy()
+    midpts = midpts[np.argsort(midpts[:, 0])]
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(origPoly, color="black", opacity=0.1, label="origPoly")
+        p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
+        p.add_mesh(veronoi_mid, color="green", label="veronoi_mid")
+        p.add_legend()
+        p.set_background("white")
+        p.show()
+    circles = []
+    quads = []
+    smashs = []
+    edges = []
+    farpts = []
+    farptsids = []
+    attempts = 0
+    valid_checkPoints = []
     found_limits = {"low": False,
                     "high": False}
-
     for limit in found_limits.keys():
 
         while found_limits[limit] == False:
@@ -592,9 +551,9 @@ def extract_geo_paras(points, alpha, verbose):
             count_pos_try = 0
 
             if verbose:
-                p=pv.Plotter()
-                p.add_mesh(sortedPoly,color="orange",label="sortedPoly")
-                p.add_mesh(pv.PolyData(trypt),color="green",label="trypt")
+                p = pv.Plotter()
+                p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
+                p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
                 p.add_legend()
                 p.set_background("white")
                 p.show()
@@ -643,7 +602,6 @@ def extract_geo_paras(points, alpha, verbose):
                     try_quad.translate(-try_center)
                     try_quad.rotate_z(mid_angle)
                     try_quad.translate(try_center)
-
 
                     if len(smash.points) == 4:
 
@@ -714,14 +672,13 @@ def extract_geo_paras(points, alpha, verbose):
                                     if cross.number_of_points > 0:
                                         deletelines.append(idx)
 
-
                             crosslines = [i for j, i in enumerate(crosslines) if j not in deletelines]
                             otherlines = [pv.Line(crosslines[0].points[0], crosslines[1].points[0], 2),
                                           pv.Line(crosslines[0].points[1], crosslines[1].points[1], 2)]
 
                             mids = [crosslines[0].points[5], crosslines[1].points[5]]
 
-                            checkPoints = extract_edge_poi(mids, limit, origPoly)
+                            checkPoints = extract_edge_poi(try_center, try_radius, mids, limit, origPoly)
                             if len(checkPoints) == 0:
                                 break
                             edges.append(first_no)
@@ -729,7 +686,7 @@ def extract_geo_paras(points, alpha, verbose):
                             edges.append(first_edge)
                             edges.append(second_edge)
 
-                            if any([i.length<try_radius/2 for i in otherlines]):
+                            if any([i.length < try_radius / 1.66 for i in otherlines]):
                                 break
 
                             farpt = [distant_node_index(i, np.array(checkPoints)) for i in mids]
@@ -741,9 +698,10 @@ def extract_geo_paras(points, alpha, verbose):
                                 p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
                                 p.add_mesh(try_quad, color="black", label="try_quad")
                                 p.add_mesh(smash, color="red", label="smash")
-                                p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow",point_size=15,label="farpt")
-                                p.add_mesh(np.array(mids),color="black",label="mids")
-                                p.add_mesh(veronoi_mid,color="yellow",label="veronoi_mid")
+                                p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow", point_size=15,
+                                           label="farpt")
+                                p.add_mesh(np.array(mids), color="black", label="mids")
+                                p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
                                 p.add_legend()
                                 p.set_background("white")
                                 p.show()
@@ -759,58 +717,64 @@ def extract_geo_paras(points, alpha, verbose):
                                 quads.append(try_quad)
                                 circles.append(try_circle)
                                 valid_checkPoints.append(checkPoints)
-
     ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))][0]
     ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))][0]
+    return ind_hk, ind_vk, veronoi_mid
+
+
+def extractSidePolys(ind_hk, ind_vk, sortedPoly):
+    xs,ys = list(sortedPoly.points[::,0]), list(sortedPoly.points[::,1])
 
     if ind_vk < ind_hk:
-        x_ss = xs[ind_vk:ind_hk+1]
-        y_ss = ys[ind_vk:ind_hk+1]
+        x_ss = xs[ind_vk:ind_hk + 1]
+        y_ss = ys[ind_vk:ind_hk + 1]
 
-        y_ps = ys[ind_hk:] + ys[:ind_vk+1]
-        x_ps = xs[ind_hk:] + xs[:ind_vk+1]
+        y_ps = ys[ind_hk:] + ys[:ind_vk + 1]
+        x_ps = xs[ind_hk:] + xs[:ind_vk + 1]
 
     else:
-        x_ss = xs[ind_hk:ind_vk+1]
-        y_ss = ys[ind_hk:ind_vk+1]
+        x_ss = xs[ind_hk:ind_vk + 1]
+        y_ss = ys[ind_hk:ind_vk + 1]
 
-        y_ps = ys[ind_vk:] + ys[:ind_hk+1]
-        x_ps = xs[ind_vk:] + xs[:ind_hk+1]
-
+        y_ps = ys[ind_vk:] + ys[:ind_hk + 1]
+        x_ps = xs[ind_vk:] + xs[:ind_hk + 1]
     psPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
     ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
+    return psPoly, ssPoly
+
+
+def midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly):
+
+    x_ps, y_ps = psPoly.points[::, 0], psPoly.points[::, 1]
+    x_ss, y_ss = ssPoly.points[::, 0], ssPoly.points[::, 1]
 
     midsres = 100
-
     if x_ps[0] < x_ps[-1]:
         ax, ay = refine_spline(x_ps[::-1], y_ps[::-1], midsres)
     else:
         ax, ay = refine_spline(x_ps, y_ps, midsres)
-
     if x_ss[0] < x_ss[-1]:
         bx, by = refine_spline(x_ss[::-1], y_ss[::-1], midsres)
     else:
         bx, by = refine_spline(x_ss, y_ss, midsres)
     xmids, ymids = ((ax + bx) / 2, (ay + by) / 2)
-
     xmids = np.array(xmids)[::-1][1:-1]
     ymids = np.array(ymids)[::-1][1:-1]
-
     xmids[0] = points[ind_vk][0]
     ymids[0] = points[ind_vk][1]
-
     xmids[-1] = points[ind_hk][0]
     ymids[-1] = points[ind_hk][1]
-
     midsPoly = lines_from_points(np.stack((xmids, ymids, np.zeros(len(ymids)))).T)
+    return midsPoly
 
+
+def angles_from_mids(midsPoly):
+    xmids, ymids = midsPoly.points[::,0], midsPoly.points[::,1]
     vk_tangent = np.stack((xmids[0] - xmids[1], ymids[0] - ymids[1], 0)).T
     hk_tangent = np.stack((xmids[-2] - xmids[-1], ymids[-2] - ymids[-1], 0)).T
-
     camber_angle_vk = angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
     camber_angle_hk = angle_between(hk_tangent, np.array([0, 1, 0])) / np.pi * 180
-
-    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+    return camber_angle_hk, camber_angle_vk
 
 
 def calcMeanCamberLine(x, y, alpha):
