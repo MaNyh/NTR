@@ -478,6 +478,8 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     """
     This function is calculating the leading-edge and trailing edge of a long 2d-body
     The function is not 100% reliable yet. The computation is iterative and it can take a while
+    Points in origPoly and sortedPoly have to have defined points on the LE and TE, otherwise a LE or TE is not defined
+    and it will be random which point will be found near the LE / TE
     :param origPoly: all original points, unsorted
     :param sortedPoly: sorted via calcConcaveHull
     :param verbose: bool (True -> plots, False -> silent)
