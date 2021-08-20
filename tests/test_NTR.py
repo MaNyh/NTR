@@ -9,7 +9,7 @@ import pyvista as pv
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.geom_functions import sortProfilePoints
 from NTR.utils.geom_functions import calcConcaveHull
-
+from NTR.utils.geom_functions import extract_vk_hk
 
 def test_yamlDictRead(tmpdir):
     """
@@ -80,3 +80,20 @@ def test_profilePoints():
     reconstructed_area = sum(reconstructed_face["Area"])
 
     assert np.isclose(reconstructed_area, tarea)
+
+def test_extract_vk_hk():
+
+    points2d = np.loadtxt("symmairfoil.pts")
+
+    points = np.stack((points2d[:,0],points2d[:,1],np.zeros(len(points2d)))).T
+
+    profilepoints = pv.PolyData(points)
+
+    random_angle = np.random.randint(-40,40)
+    profilepoints.rotate_z(random_angle)
+
+    origPoly = pv.PolyData(profilepoints)
+    sortedPoly = pv.PolyData(profilepoints)
+    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly,sortedPoly,verbose=False)
+    assert ind_hk == 0, "wrong hk-index found"
+    assert ind_vk == 34, "wrong vk-index found"

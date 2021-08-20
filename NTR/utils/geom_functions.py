@@ -3,13 +3,13 @@ import numpy as np
 import pyvista as pv
 from matplotlib import path as mpltPath
 
-from scipy.interpolate import splprep, splev, interp1d
+from scipy.interpolate import splprep, splev, interp1d, UnivariateSpline, splev
 from scipy.spatial import Delaunay, distance
 from scipy.optimize import minimize
 from scipy.spatial.qhull import Voronoi
 from scipy.spatial.distance import squareform, pdist
 
-from NTR.utils.mathfunctions import vecAbs, vecDir, closest_node_index, angle_between
+from NTR.utils.mathfunctions import vecAbs, vecDir, closest_node_index, angle_between, splineCurvature
 from NTR.utils.thermoFunctions import Sutherland_Law
 from NTR.utils.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
@@ -239,7 +239,7 @@ def calcConcaveHull(x, y, alpha):
     return x_new, y_new
 
 
-def veronoi_midline(points):
+def veronoi_midline(points, verbose=True):
     points2d = points[::, 0:2]
     vor = Voronoi(points2d)
     midline = []
@@ -260,11 +260,11 @@ def veronoi_midline(points):
 
     twodpts = xsortedpoints[:, 0:2].T
 
-    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=5, full_output=True)
+    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=5,s=100, full_output=True)
 
     x_new, y_new = splev(u, tck, der=0)
 
-    x_new, y_new = refine_spline(x_new, y_new, 1000)
+    x_new, y_new = refine_spline(x_new, y_new, 100)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
 
     inside = inside_poly(points2d, splineNew[::, 0:2])
@@ -274,8 +274,19 @@ def veronoi_midline(points):
         if not p[0] in [i[0] for i in splines]:
             splines.append(p)
 
-    splines = lines_from_points(np.array(splines))
+    splines = polyline_from_points(np.array(splines))
 
+    while max(splineCurvature(splines.points[:,0],splines.points[:,1])>max(splineCurvature(points2d[:,0],points2d[:,1]))):
+        splines.point_arrays["curvature"] = splineCurvature(splines.points[:,0],splines.points[:,1])
+        delid = np.where(splines["curvature"]>max(splineCurvature(points2d[:,0],points2d[:,1])))[0]
+        pts = np.asarray([p for idp, p in enumerate(splines.points) if idp not in delid])
+        splines = polyline_from_points(pts)
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(points)
+        p.add_mesh(splines)
+        p.show()
     return splines
 
 
@@ -472,14 +483,14 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     :param verbose: bool (True -> plots, False -> silent)
     :return: returns indexes of LE(vk) and TE(hk) from sortedPoints
     """
-    def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly):
+    def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbose=False):
         mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
         mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
 
         mids_tangent = mids_minx - mids_maxx
 
-        splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) / 3
-        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius/2, j_size=splitBoxLength,
+        splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)])*2.1
+        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius*1.6, j_size=splitBoxLength,
                             i_resolution=100, j_resolution=100)
 
         rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
@@ -488,27 +499,37 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
             splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] <= 0]))
         elif direction == "high":
             splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] >= 0]))
+
         splitBox = splitBox.delaunay_2d()
         splitBox = splitBox.extrude((0, 0, 0.1))
         splitBox.translate((0, 0, -0.05))
 
         if direction == "low":
             splitBox.rotate_z(-rotate)
+            splitBox.translate(mids_maxx-mids_minx)
         elif direction == "high":
             splitBox.rotate_z(-rotate)
+            splitBox.translate(mids_minx-mids_maxx)
 
         splitBox.points += try_center
         enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
         checkPoints = [i for idx, i in enumerate(enclosedBoxPoints.points) if
                        enclosedBoxPoints["SelectedPoints"][idx] == 1]
 
+        if verbose:
+            p=pv.Plotter()
+            p.add_mesh(sortedPoly)
+            p.add_mesh(pv.PolyData(np.asarray(checkPoints)),color="blue")
+            p.add_mesh(splitBox.extract_feature_edges())
+            p.add_mesh(np.array(mids),color="red")
+            p.show()
         return checkPoints
 
     xs, ys = sortedPoly.points[::,0], sortedPoly.points[::,1]
     x_new, y_new = refine_spline(xs, ys, 10000)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
     linePoly = lines_from_points(splineNew)
-    veronoi_mid = veronoi_midline(origPoly.points)
+    veronoi_mid = veronoi_midline(origPoly.points,verbose)
     midpts = veronoi_mid.points.copy()
     midpts = midpts[np.argsort(midpts[:, 0])]
     if verbose:
@@ -534,28 +555,25 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
         while found_limits[limit] == False:
             attempts += 1
 
-            if limit == "low":
-                random_idx = np.random.randint(-int(0.03 * len(veronoi_mid.points)), -1)
-            elif limit == "high":
-                random_idx = np.random.randint(0, int(0.03 * len(veronoi_mid.points)))
-
-            trypt = midpts[random_idx]
-
-            closest = closest_node_index(np.array([trypt[0], trypt[1], 0]), sortedPoly.points)
-            closest_dist = vecAbs(np.array([trypt[0], trypt[1], 0]) - sortedPoly.points[closest])
-
-            count_pos_try = 0
-
             if verbose:
                 p = pv.Plotter()
                 p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-                p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
+                #p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
                 p.add_legend()
                 p.set_background("white")
                 p.show()
 
-            while (found_limits[limit] != True and count_pos_try < 4):
-                count_pos_try += 1
+            while (found_limits[limit] != True):
+
+                if limit == "low":
+                    random_idx = np.random.randint(-int((0.15 + 0.15 * (attempts / 100)) * len(veronoi_mid.points)), -1)
+                elif limit == "high":
+                    random_idx = np.random.randint(0, int((0.15 + 0.15 * (attempts / 100)) * len(veronoi_mid.points)))
+
+                trypt = midpts[random_idx]
+
+                closest = closest_node_index(np.array([trypt[0], trypt[1], 0]), sortedPoly.points)
+                closest_dist = vecAbs(np.array([trypt[0], trypt[1], 0]) - sortedPoly.points[closest])
 
                 add = (attempts / 100) * closest_dist * np.array(
                     [2 * (-0.5 + np.random.rand()), 2 * (-0.5 + 1 * np.random.rand()), 0])
@@ -578,7 +596,7 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                     count_ang += 1
 
                     try_center = np.array([shift_Try[0], shift_Try[1], 0])
-                    try_radius = closest_dist + np.random.rand() * closest_dist * 0.2
+                    try_radius = closest_dist + np.random.rand() * closest_dist * (0.15+0.15*(attempts / 100))
                     try_circle = pv.Cylinder(try_center,  # center
                                              (0, 0, 1),  # direction
                                              try_radius,  # radius
@@ -674,7 +692,38 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
 
                             mids = [crosslines[0].points[5], crosslines[1].points[5]]
 
-                            checkPoints = extract_edge_poi(try_center, try_radius, mids, limit, origPoly)
+                            checkPoints = extract_edge_poi(try_center, try_radius, mids, limit, origPoly, verbose)
+
+                            #points = np.asarray(checkPoints)
+
+                            """
+                            xs, ys = points[:, 0], points[:, 1]
+                            convexhull = ConvexHull(np.stack([xs, ys]).T)
+                            polylist = []
+                            for idx in convexhull.vertices:  # Indices of points forming the vertices of the convex hull.
+                                polylist.append(points[idx])
+                            points_fitted_closed = np.array(polylist + [polylist[0]])
+
+                            line = lines_from_points(np.asarray(points_fitted_closed))
+                            line = line.compute_cell_sizes()
+
+                            delid = np.argmax(line["Length"])
+                            cleanline = line.extract_cells([i for i in range(line.number_of_cells) if i!=delid])
+                            points = cleanline.points
+
+                            distance = np.cumsum(np.sqrt(np.sum(np.diff(points, axis=0) ** 2, axis=1)))
+                            distance = np.insert(distance, 0, 0) / distance[-1]
+
+                            distance,xs,ys,zs = zip(*sorted(zip(distance,points[:,0], points[:,1],points[:,2])))
+                            spoints = np.stack((xs,ys,zs)).T
+
+                            splines = [UnivariateSpline(distance, coords,k=2,s=0) for coords in spoints.T]
+
+                            nop = np.linspace(min(distance),max(distance), len(spoints)**2)
+                            points_fitted = np.vstack(spl(nop) for spl in splines).T
+                            checkPointsSpline = polyline_from_points(points_fitted)
+                            """
+
                             if len(checkPoints) == 0:
                                 break
                             edges.append(first_no)
@@ -682,10 +731,10 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                             edges.append(first_edge)
                             edges.append(second_edge)
 
-                            if any([i.length < try_radius / 1.66 for i in otherlines]):
+                            if any([i.length < try_radius / 2 for i in otherlines]):
                                 break
 
-                            farpt = [distant_node_index(i, np.array(checkPoints)) for i in mids]
+                            farpt = [distant_node_index(i, checkPoints) for i in mids]
 
                             if verbose:
                                 p = pv.Plotter()
@@ -694,8 +743,8 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                                 p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
                                 p.add_mesh(try_quad, color="black", label="try_quad")
                                 p.add_mesh(smash, color="red", label="smash")
-                                p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow", point_size=15,
-                                           label="farpt")
+                                p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow",
+                                           point_size=15, label="farpt")
                                 p.add_mesh(np.array(mids), color="black", label="mids")
                                 p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
                                 p.add_legend()
@@ -703,18 +752,37 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                                 p.show()
 
                             if all_equal(farpt):
+
                                 farpts.append(checkPoints[farpt[-1]])
 
-                                oids = np.where((sortedPoly.points[::, 0] == checkPoints[farpt[-1]][0]) & (
-                                    sortedPoly.points[::, 1] == checkPoints[farpt[-1]][1]))[0]
-                                farptsids.append(oids)
+                                oids = [np.where((sortedPoly.points == i).all(axis=1))[0][0] for i in farpts]
+
+                                farptsids.append(oids[-1])
                                 found_limits[limit] = True
                                 smashs.append(smash)
                                 quads.append(try_quad)
                                 circles.append(try_circle)
                                 valid_checkPoints.append(checkPoints)
-    ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))][0]
-    ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))][0]
+
+                                if verbose:
+                                    p = pv.Plotter()
+                                    p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
+                                    p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
+                                    p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
+                                    p.add_mesh(try_quad, color="black", label="try_quad")
+                                    p.add_mesh(smash, color="red", label="smash")
+                                    p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow",
+                                               point_size=15, label="farpt")
+                                   # p.add_mesh(realfarpt, color="red", point_size=20)
+                                    p.add_mesh(np.array(mids), color="black", label="mids")
+                                    p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
+                                    #p.add_mesh(points[0],color="black",point_size=10)
+                                    p.add_legend()
+                                    p.set_background("white")
+                                    p.show()
+
+    ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))]
+    ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))]
     return ind_hk, ind_vk, veronoi_mid
 
 
