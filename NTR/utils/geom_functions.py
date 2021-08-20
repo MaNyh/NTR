@@ -3,7 +3,7 @@ import numpy as np
 import pyvista as pv
 from matplotlib import path as mpltPath
 
-from scipy.interpolate import splprep, splev, interp1d, UnivariateSpline, splev
+from scipy.interpolate import splprep, interp1d, splev
 from scipy.spatial import Delaunay, distance
 from scipy.optimize import minimize
 from scipy.spatial.qhull import Voronoi
@@ -696,36 +696,6 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
 
                             checkPoints = extract_edge_poi(try_center, try_radius, mids, limit, origPoly, verbose)
 
-                            #points = np.asarray(checkPoints)
-
-                            """
-                            xs, ys = points[:, 0], points[:, 1]
-                            convexhull = ConvexHull(np.stack([xs, ys]).T)
-                            polylist = []
-                            for idx in convexhull.vertices:  # Indices of points forming the vertices of the convex hull.
-                                polylist.append(points[idx])
-                            points_fitted_closed = np.array(polylist + [polylist[0]])
-
-                            line = lines_from_points(np.asarray(points_fitted_closed))
-                            line = line.compute_cell_sizes()
-
-                            delid = np.argmax(line["Length"])
-                            cleanline = line.extract_cells([i for i in range(line.number_of_cells) if i!=delid])
-                            points = cleanline.points
-
-                            distance = np.cumsum(np.sqrt(np.sum(np.diff(points, axis=0) ** 2, axis=1)))
-                            distance = np.insert(distance, 0, 0) / distance[-1]
-
-                            distance,xs,ys,zs = zip(*sorted(zip(distance,points[:,0], points[:,1],points[:,2])))
-                            spoints = np.stack((xs,ys,zs)).T
-
-                            splines = [UnivariateSpline(distance, coords,k=2,s=0) for coords in spoints.T]
-
-                            nop = np.linspace(min(distance),max(distance), len(spoints)**2)
-                            points_fitted = np.vstack(spl(nop) for spl in splines).T
-                            checkPointsSpline = polyline_from_points(points_fitted)
-                            """
-
                             if len(checkPoints) == 0:
                                 break
                             edges.append(first_no)
@@ -1018,11 +988,9 @@ def getGeom2DVTUSLice2(mesh, alpha):
     x_profil = []
     y_profil = []
 
-    # indexes_profil_points = []
 
     for i in range(len(points_bounds)):
         if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:
-            # indexes_profil_points.append(i)
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
@@ -1237,7 +1205,6 @@ def getPitchValuesB2BSliceComplete(case, x):
         xx[i] = pt[0]
         zz[i] = pt[2]
 
-    # noa = len(cut_plane.array_names)
     array_names = cut_plane.point_arrays.keys()
     values = []
 
@@ -1247,18 +1214,12 @@ def getPitchValuesB2BSliceComplete(case, x):
         y2, [array_values] = sort_values_by_pitch(y, [array_values])
         values.append(array_values)
 
-        # daten nach y sortieren
-
     return y2, array_names, values
 
 
 def extract_profile_paras(points, verbose=False):
     points2d = points[:, 0:2]
-    # pointsClosed = np.vstack([points2d, [points2d[0]]])
-
     vor = Voronoi(points2d)
-
-    # origPoly = pv.PolyData(points)
 
     midline = []
     path = mpltPath.Path(points2d)
