@@ -10,6 +10,7 @@ from NTR.utils.geom_functions import sortProfilePoints
 from NTR.utils.geom_functions import calcConcaveHull
 from NTR.utils.geom_functions import extract_vk_hk
 
+
 def test_yamlDictRead(tmpdir):
     """
     tmpdir ist eine spezialvariable die durch pytest erkannt wird (ist ein PYTHONPATH-objekt)
@@ -27,7 +28,7 @@ def test_calcConcaveHull():
     square = pv.Plane()
     boxedges = square.extract_feature_edges()
 
-    boxedges.rotate_z(np.random.randint(0,360))
+    boxedges.rotate_z(np.random.randint(0, 360))
     boxpoints = boxedges.points
 
     np.random.shuffle(boxpoints)
@@ -41,7 +42,7 @@ def test_calcConcaveHull():
     assert any([yi in ys_raw for yi in ys])
 
     polygon = pv.Polygon()
-    polygon.rotate_z(np.random.randint(0,360))
+    polygon.rotate_z(np.random.randint(0, 360))
     polyedges = polygon.extract_feature_edges()
     polypoints = polyedges.points
     np.random.shuffle(polypoints)
@@ -52,6 +53,7 @@ def test_calcConcaveHull():
 
     assert len(xs) == len(xs_raw)
     assert any([yi in ys_raw for yi in ys])
+
 
 def test_profilePoints():
     ellipse = pv.ParametricEllipsoid(1, np.random.rand(), np.random.rand())
@@ -80,19 +82,86 @@ def test_profilePoints():
 
     assert np.isclose(reconstructed_area, tarea)
 
+
 def test_extract_vk_hk():
+    points2d = np.array([[1.00000, 0.0],
+                         [0.99572, 0.00057],
+                         [0.98296, 0.00218],
+                         [0.96194, 0.00463],
+                         [0.93301, 0.00770],
+                         [0.89668, 0.01127],
+                         [0.85355, 0.01522],
+                         [0.80438, 0.01945],
+                         [0.75000, 0.02384],
+                         [0.69134, 0.02823],
+                         [0.62941, 0.03247],
+                         [0.56526, 0.03638],
+                         [0.50000, 0.03978],
+                         [0.43474, 0.04248],
+                         [0.37059, 0.04431],
+                         [0.33928, 0.04484],
+                         [0.30866, 0.04509],
+                         [0.27886, 0.04504],
+                         [0.25000, 0.04466],
+                         [0.22221, 0.04397],
+                         [0.19562, 0.04295],
+                         [0.17033, 0.04161],
+                         [0.14645, 0.03994],
+                         [0.12408, 0.03795],
+                         [0.10332, 0.03564],
+                         [0.08427, 0.03305],
+                         [0.06699, 0.03023],
+                         [0.05156, 0.02720],
+                         [0.03806, 0.02395],
+                         [0.02653, 0.02039],
+                         [0.01704, 0.01646],
+                         [0.00961, 0.01214],
+                         [0.00428, 0.00767],
+                         [0.00107, 0.00349],
+                         [0.0, 0.0],
+                         [0.00107, -0.00349],
+                         [0.00428, -0.00767],
+                         [0.00961, -0.01214],
+                         [0.01704, -0.01646],
+                         [0.02653, -0.02039],
+                         [0.03806, -0.02395],
+                         [0.05156, -0.02720],
+                         [0.06699, -0.03023],
+                         [0.08427, -0.03305],
+                         [0.10332, -0.03564],
+                         [0.12408, -0.03795],
+                         [0.14645, -0.03994],
+                         [0.17033, -0.04161],
+                         [0.19562, -0.04295],
+                         [0.22221, -0.04397],
+                         [0.25000, -0.04466],
+                         [0.27886, -0.04504],
+                         [0.30866, -0.04509],
+                         [0.33928, -0.04484],
+                         [0.37059, -0.04431],
+                         [0.43474, -0.04248],
+                         [0.50000, -0.03978],
+                         [0.56526, -0.03638],
+                         [0.62941, -0.03247],
+                         [0.69134, -0.02823],
+                         [0.75000, -0.02384],
+                         [0.80438, -0.01945],
+                         [0.85355, -0.01522],
+                         [0.89668, -0.01127],
+                         [0.93301, -0.00770],
+                         [0.96194, -0.00463],
+                         [0.98296, -0.00218],
+                         [0.99572, -0.00057]])
 
-    points2d = np.loadtxt("symmairfoil.pts")
-
-    points = np.stack((points2d[:,0],points2d[:,1],np.zeros(len(points2d)))).T
+    points = np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T
 
     profilepoints = pv.PolyData(points)
 
-    random_angle = np.random.randint(-40,40)
+    random_angle = np.random.randint(-40, 40)
     profilepoints.rotate_z(random_angle)
 
     origPoly = pv.PolyData(profilepoints)
     sortedPoly = pv.PolyData(profilepoints)
-    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly,sortedPoly,verbose=False)
+    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly, verbose=False)
     assert ind_hk == 0, "wrong hk-index found"
     assert ind_vk == 34, "wrong vk-index found"
