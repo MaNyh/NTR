@@ -6,9 +6,8 @@ import numpy as np
 import pyvista as pv
 
 from NTR.utils.filehandling import yaml_dict_read
-from NTR.utils.geom_functions import sortProfilePoints
-from NTR.utils.geom_functions import calcConcaveHull
-from NTR.utils.geom_functions import extract_vk_hk
+from NTR.utils.geom_functions.pointcloud import calcConcaveHull
+from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints
 
 
 def test_yamlDictRead(tmpdir):
@@ -83,7 +82,7 @@ def test_profilePoints():
     assert np.isclose(reconstructed_area, tarea)
 
 
-def test_extract_vk_hk():
+def test_extrct_vk_hk():
     """
     tests a NACA0009 symmetric profile in a random angle as a minimal example.
     hk is point id 9, vk is id 34

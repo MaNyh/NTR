@@ -1,7 +1,7 @@
 import os
 
 from NTR.utils.coefficients import FluidCoeffs, CascadeCoeffs
-from NTR.utils.pyvista_utils import slice_midspan_z, load_mesh, mesh_scalar_gradients
+from NTR.utils.geom_functions.pyvista_utils import slice_midspan_z, load_mesh, mesh_scalar_gradients
 from NTR.preprocessing.openfoam.solver_variable_dicts import solver_var_dicts
 
 

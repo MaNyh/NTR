@@ -2,10 +2,12 @@ import numpy as np
 import pyvista as pv
 import os
 
-from NTR.utils.geom_functions import extract_geo_paras, calcMidPassageStreamLine
+from NTR.utils.geom_functions.pointcloud import calcConcaveHull
+from NTR.utils.geom_functions.profileparas import calcMidPassageStreamLine, extract_vk_hk, extractSidePolys, \
+    midline_from_sides, angles_from_mids
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
-from NTR.utils.filehandling import write_pickle
-from NTR.utils.pyvista_utils import lines_from_points
+from NTR.utils.filehandling import write_pickle, yaml_dict_read
+from NTR.utils.geom_functions.pyvista_utils import lines_from_points
 
 
 def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z, casepath,
@@ -109,3 +111,61 @@ def create_geometry(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_s
 
         plotter.show_axes()
         plotter.show()
+
+
+def extract_geo_paras(points, alpha, verbose):
+    """
+    This function is extracting profile-data as stagger-angle, midline, psPoly, ssPoly and more from a set of points
+    Be careful, you need a suitable alpha-parameter in order to get the right geometry
+    The calculation of the leading-edge and trailing-edge index needs time and its not 100% reliable (yet)
+    Keep in mind, to check the results!
+    :param points: array of points in 3d with the shape (n,3)
+    :param alpha: nondimensional alpha-coefficient (calcConcaveHull)
+    :param verbose: bool for plots
+    :return: points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+    """
+
+    origPoly = pv.PolyData(points)
+    xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
+    points = np.stack((xs, ys, np.zeros(len(xs)))).T
+    sortedPoly = pv.PolyData(points)
+
+    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly)
+    psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly)
+    midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
+    camber_angle_hk, camber_angle_vk = angles_from_mids(midsPoly)
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(points, color="orange", label="points")
+        p.add_mesh(psPoly, color="green", label="psPoly")
+        p.add_mesh(ssPoly, color="black", label="ssPoly")
+        p.add_mesh(midsPoly, color="black", label="midsPoly")
+        p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
+        p.add_legend()
+        p.show()
+
+    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+
+
+def run_create_geometry(settings_yaml):
+    case_path = os.path.abspath(os.path.dirname(settings_yaml))
+    settings = yaml_dict_read(settings_yaml)
+    meshpath = os.path.join(case_path, "01_Meshing")
+    if not os.path.isdir(meshpath):
+        os.mkdir(meshpath)
+    print(os.path.abspath(case_path))
+
+    print("create_geometry")
+    ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
+    outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)),"00_Ressources","01_Geometry")
+    create_geometry(ptstxtfile,
+                    settings["geom"]["x_inlet"],
+                    settings["geom"]["x_outlet"],
+                    settings["geometry"]["pitch"],
+                    settings["geom"]["ptcloud_profile_unit"],
+                    settings["geom"]["shift_domain"],
+                    settings["geometry"]["alpha"],
+                    settings["mesh"]["extrudeLength"],
+                    outpath,)
+    return 0

@@ -2,31 +2,8 @@ import os
 import pickle
 
 import NTR
-from NTR.preprocessing.create_geom import create_geometry
 from NTR.utils.filehandling import yaml_dict_read, write_pickle_protocolzero
 
-
-def run_create_geometry(settings_yaml):
-    case_path = os.path.abspath(os.path.dirname(settings_yaml))
-    settings = yaml_dict_read(settings_yaml)
-    meshpath = os.path.join(case_path, "01_Meshing")
-    if not os.path.isdir(meshpath):
-        os.mkdir(meshpath)
-    print(os.path.abspath(case_path))
-
-    print("create_geometry")
-    ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
-    outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)),"00_Ressources","01_Geometry")
-    create_geometry(ptstxtfile,
-                    settings["geom"]["x_inlet"],
-                    settings["geom"]["x_outlet"],
-                    settings["geometry"]["pitch"],
-                    settings["geom"]["ptcloud_profile_unit"],
-                    settings["geom"]["shift_domain"],
-                    settings["geometry"]["alpha"],
-                    settings["mesh"]["extrudeLength"],
-                    outpath,)
-    return 0
 
 def run_igg_meshfuncs(settings_yaml):
 
@@ -78,3 +55,5 @@ def absvec_array(array):
     return [absVec(vec) for vec in array]
 
 
+def all_equal(iterable):
+    return iterable.count(iterable[0]) == len(iterable)
