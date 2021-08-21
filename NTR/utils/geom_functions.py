@@ -78,7 +78,7 @@ def calcMidPoints(x1, y1, x2, y2, res=100, helperpoints=50000):
 
         dist_1 = dists_ss[np.argmin(dists_ss)]
         dist_2 = dists_ps[np.argmin(dists_ps)]
-        if abs(dist_1-dist_2)/(dist_1+dist_2) < 0.05:#, rtol=tolerance
+        if abs(dist_1 - dist_2) / (dist_1 + dist_2) < 0.05:  # , rtol=tolerance
             x_mid_ss.append(x_mid)
             y_mid_ss.append(y_mid)
 
@@ -260,7 +260,7 @@ def veronoi_midline(points, verbose=True):
 
     twodpts = xsortedpoints[:, 0:2].T
 
-    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=5,s=100, full_output=True)
+    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=5, s=100, full_output=True)
 
     x_new, y_new = splev(u, tck, der=0)
 
@@ -276,9 +276,10 @@ def veronoi_midline(points, verbose=True):
 
     splines = polyline_from_points(np.array(splines))
 
-    while max(splineCurvature(splines.points[:,0],splines.points[:,1])>max(splineCurvature(points2d[:,0],points2d[:,1]))):
-        splines.point_arrays["curvature"] = splineCurvature(splines.points[:,0],splines.points[:,1])
-        delid = np.where(splines["curvature"]>max(splineCurvature(points2d[:,0],points2d[:,1])))[0]
+    while max(splineCurvature(splines.points[:, 0], splines.points[:, 1]) > max(
+        splineCurvature(points2d[:, 0], points2d[:, 1]))):
+        splines.point_arrays["curvature"] = splineCurvature(splines.points[:, 0], splines.points[:, 1])
+        delid = np.where(splines["curvature"] > max(splineCurvature(points2d[:, 0], points2d[:, 1])))[0]
         pts = np.asarray([p for idp, p in enumerate(splines.points) if idp not in delid])
         splines = polyline_from_points(pts)
 
@@ -485,14 +486,15 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     :param verbose: bool (True -> plots, False -> silent)
     :return: returns indexes of LE(vk) and TE(hk) from sortedPoints
     """
+
     def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbose=False):
         mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
         mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
 
         mids_tangent = mids_minx - mids_maxx
 
-        splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)])*2.1
-        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius*1.6, j_size=splitBoxLength,
+        splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) * 2.1
+        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius * 1.6, j_size=splitBoxLength,
                             i_resolution=100, j_resolution=100)
 
         rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
@@ -508,10 +510,10 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
 
         if direction == "low":
             splitBox.rotate_z(-rotate)
-            splitBox.translate(mids_maxx-mids_minx)
+            splitBox.translate(mids_maxx - mids_minx)
         elif direction == "high":
             splitBox.rotate_z(-rotate)
-            splitBox.translate(mids_minx-mids_maxx)
+            splitBox.translate(mids_minx - mids_maxx)
 
         splitBox.points += try_center
         enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
@@ -519,19 +521,20 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                        enclosedBoxPoints["SelectedPoints"][idx] == 1]
 
         if verbose:
-            p=pv.Plotter()
+            p = pv.Plotter()
             p.add_mesh(sortedPoly)
-            p.add_mesh(pv.PolyData(np.asarray(checkPoints)),color="blue")
+            p.add_mesh(pv.PolyData(np.asarray(checkPoints)), color="blue")
             p.add_mesh(splitBox.extract_feature_edges())
-            p.add_mesh(np.array(mids),color="red")
+            p.add_mesh(np.array(mids), color="red")
             p.show()
+
         return checkPoints
 
-    xs, ys = sortedPoly.points[::,0], sortedPoly.points[::,1]
+    xs, ys = sortedPoly.points[::, 0], sortedPoly.points[::, 1]
     x_new, y_new = refine_spline(xs, ys, 10000)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
     linePoly = lines_from_points(splineNew)
-    veronoi_mid = veronoi_midline(origPoly.points,verbose)
+    veronoi_mid = veronoi_midline(linePoly.points, verbose)
     midpts = veronoi_mid.points.copy()
     midpts = midpts[np.argsort(midpts[:, 0])]
     if verbose:
@@ -547,7 +550,6 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     smashs = []
     edges = []
     farpts = []
-    farptsids = []
     attempts = 0
     valid_checkPoints = []
     found_limits = {"low": False,
@@ -560,7 +562,7 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
             if verbose:
                 p = pv.Plotter()
                 p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-                #p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
+                # p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
                 p.add_legend()
                 p.set_background("white")
                 p.show()
@@ -598,7 +600,7 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                     count_ang += 1
 
                     try_center = np.array([shift_Try[0], shift_Try[1], 0])
-                    try_radius = closest_dist + np.random.rand() * closest_dist * (0.15+0.15*(attempts / 100))
+                    try_radius = closest_dist + np.random.rand() * closest_dist * (0.15 + 0.15 * (attempts / 100))
                     try_circle = pv.Cylinder(try_center,  # center
                                              (0, 0, 1),  # direction
                                              try_radius,  # radius
@@ -727,9 +729,11 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
 
                                 farpts.append(checkPoints[farpt[-1]])
 
+                                #find original id's from used pointset (sortedPoly) for further usage
+                                #TODO this is not clean. farptsids can be defined later with completed oids. rename oids
                                 oids = [np.where((sortedPoly.points == i).all(axis=1))[0][0] for i in farpts]
 
-                                farptsids.append(oids[-1])
+
                                 found_limits[limit] = True
                                 smashs.append(smash)
                                 quads.append(try_quad)
@@ -745,21 +749,29 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                                     p.add_mesh(smash, color="red", label="smash")
                                     p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow",
                                                point_size=15, label="farpt")
-                                   # p.add_mesh(realfarpt, color="red", point_size=20)
                                     p.add_mesh(np.array(mids), color="black", label="mids")
                                     p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
-                                    #p.add_mesh(points[0],color="black",point_size=10)
                                     p.add_legend()
                                     p.set_background("white")
                                     p.show()
+    ind_vk = oids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))]
+    ind_hk = oids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))]
 
-    ind_vk = farptsids[[i[0] for i in farpts].index(min([i[0] for i in farpts]))]
-    ind_hk = farptsids[[i[0] for i in farpts].index(max([i[0] for i in farpts]))]
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
+        p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
+        p.add_mesh(sortedPoly.points[ind_vk], color="red", label="leading edge (vk)", point_size=20)
+        p.add_mesh(sortedPoly.points[ind_hk], color="blue", label="trailing edge (hk)", point_size=20)
+        p.add_legend()
+        p.set_background("white")
+        p.show()
+
     return ind_hk, ind_vk, veronoi_mid
 
 
 def extractSidePolys(ind_hk, ind_vk, sortedPoly):
-    xs,ys = list(sortedPoly.points[::,0]), list(sortedPoly.points[::,1])
+    xs, ys = list(sortedPoly.points[::, 0]), list(sortedPoly.points[::, 1])
 
     if ind_vk < ind_hk:
         x_ss = xs[ind_vk:ind_hk + 1]
@@ -780,7 +792,6 @@ def extractSidePolys(ind_hk, ind_vk, sortedPoly):
 
 
 def midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly):
-
     x_ps, y_ps = psPoly.points[::, 0], psPoly.points[::, 1]
     x_ss, y_ss = ssPoly.points[::, 0], ssPoly.points[::, 1]
 
@@ -805,7 +816,7 @@ def midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly):
 
 
 def angles_from_mids(midsPoly):
-    xmids, ymids = midsPoly.points[::,0], midsPoly.points[::,1]
+    xmids, ymids = midsPoly.points[::, 0], midsPoly.points[::, 1]
     vk_tangent = np.stack((xmids[0] - xmids[1], ymids[0] - ymids[1], 0)).T
     hk_tangent = np.stack((xmids[-2] - xmids[-1], ymids[-2] - ymids[-1], 0)).T
     camber_angle_vk = angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
@@ -987,7 +998,6 @@ def getGeom2DVTUSLice2(mesh, alpha):
 
     x_profil = []
     y_profil = []
-
 
     for i in range(len(points_bounds)):
         if np.array([points_bounds[i][0], points_bounds[i][1]]) not in points_outer_bounds:

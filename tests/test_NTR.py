@@ -84,6 +84,11 @@ def test_profilePoints():
 
 
 def test_extract_vk_hk():
+    """
+    tests a NACA0009 symmetric profile in a random angle as a minimal example.
+    hk is point id 9, vk is id 34
+    :return:
+    """
     points2d = np.array([[1.00000, 0.0],
                          [0.99572, 0.00057],
                          [0.98296, 0.00218],
