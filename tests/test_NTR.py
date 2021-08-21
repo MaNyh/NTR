@@ -87,7 +87,7 @@ def test_extract_vk_hk(verbose=False):
     tests a NACA0009 symmetric profile in a random angle as a minimal example.
     :return:
     """
-    from datasets_test import naca0009profile
+    from tests.datasets_test import naca0009profile
     points2d = naca0009profile.points
 
     ind_hk_test = naca0009profile.ind_hk
@@ -116,7 +116,7 @@ def test_extract_vk_hk(verbose=False):
 
 
 def test_extractSidePolys(verbose=False):
-    from datasets_test import naca0009profile
+    from tests.datasets_test import naca0009profile
     points2d = naca0009profile.points
     ind_hk = naca0009profile.ind_hk
     ind_vk = naca0009profile.ind_vk
@@ -137,7 +137,7 @@ def test_extractSidePolys(verbose=False):
 
 def test_midline_from_sides(verbose=False):
     from NTR.utils.mathfunctions import vecAbs
-    from datasets_test import naca0009profile
+    from tests.datasets_test import naca0009profile
 
     points2d = naca0009profile.points
     ind_hk = naca0009profile.ind_hk

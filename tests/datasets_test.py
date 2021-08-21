@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 class profile_data:
     def __init__(self, name, type, points, ind_hk, ind_vk):
@@ -9,4 +10,4 @@ class profile_data:
         self.ind_vk = ind_vk
 
 
-naca0009profile = profile_data("naca0009", "symmetric", np.loadtxt("naca0009.pts"), 0, 34)
+naca0009profile = profile_data("naca0009", "symmetric", np.loadtxt(os.path.join(os.path.dirname(__file__),"naca0009.pts")), 0, 34)
