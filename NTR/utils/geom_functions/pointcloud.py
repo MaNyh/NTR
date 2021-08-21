@@ -4,8 +4,7 @@ from matplotlib import path as mpltPath
 from scipy.interpolate import splprep, splev
 from scipy.spatial import Voronoi, Delaunay
 
-from NTR.utils.geom_functions.spline import refine_spline
-from NTR.utils.mathfunctions import splineCurvature
+from NTR.utils.geom_functions.spline import refine_spline, splineCurvature
 from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
 
 

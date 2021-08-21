@@ -7,7 +7,7 @@ import pyvista as pv
 
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
-from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints
+from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 
 
 def test_yamlDictRead(tmpdir):
@@ -82,80 +82,16 @@ def test_profilePoints():
     assert np.isclose(reconstructed_area, tarea)
 
 
-def test_extrct_vk_hk():
+def test_extract_vk_hk(verbose=False):
     """
     tests a NACA0009 symmetric profile in a random angle as a minimal example.
-    hk is point id 9, vk is id 34
     :return:
     """
-    points2d = np.array([[1.00000, 0.0],
-                         [0.99572, 0.00057],
-                         [0.98296, 0.00218],
-                         [0.96194, 0.00463],
-                         [0.93301, 0.00770],
-                         [0.89668, 0.01127],
-                         [0.85355, 0.01522],
-                         [0.80438, 0.01945],
-                         [0.75000, 0.02384],
-                         [0.69134, 0.02823],
-                         [0.62941, 0.03247],
-                         [0.56526, 0.03638],
-                         [0.50000, 0.03978],
-                         [0.43474, 0.04248],
-                         [0.37059, 0.04431],
-                         [0.33928, 0.04484],
-                         [0.30866, 0.04509],
-                         [0.27886, 0.04504],
-                         [0.25000, 0.04466],
-                         [0.22221, 0.04397],
-                         [0.19562, 0.04295],
-                         [0.17033, 0.04161],
-                         [0.14645, 0.03994],
-                         [0.12408, 0.03795],
-                         [0.10332, 0.03564],
-                         [0.08427, 0.03305],
-                         [0.06699, 0.03023],
-                         [0.05156, 0.02720],
-                         [0.03806, 0.02395],
-                         [0.02653, 0.02039],
-                         [0.01704, 0.01646],
-                         [0.00961, 0.01214],
-                         [0.00428, 0.00767],
-                         [0.00107, 0.00349],
-                         [0.0, 0.0],
-                         [0.00107, -0.00349],
-                         [0.00428, -0.00767],
-                         [0.00961, -0.01214],
-                         [0.01704, -0.01646],
-                         [0.02653, -0.02039],
-                         [0.03806, -0.02395],
-                         [0.05156, -0.02720],
-                         [0.06699, -0.03023],
-                         [0.08427, -0.03305],
-                         [0.10332, -0.03564],
-                         [0.12408, -0.03795],
-                         [0.14645, -0.03994],
-                         [0.17033, -0.04161],
-                         [0.19562, -0.04295],
-                         [0.22221, -0.04397],
-                         [0.25000, -0.04466],
-                         [0.27886, -0.04504],
-                         [0.30866, -0.04509],
-                         [0.33928, -0.04484],
-                         [0.37059, -0.04431],
-                         [0.43474, -0.04248],
-                         [0.50000, -0.03978],
-                         [0.56526, -0.03638],
-                         [0.62941, -0.03247],
-                         [0.69134, -0.02823],
-                         [0.75000, -0.02384],
-                         [0.80438, -0.01945],
-                         [0.85355, -0.01522],
-                         [0.89668, -0.01127],
-                         [0.93301, -0.00770],
-                         [0.96194, -0.00463],
-                         [0.98296, -0.00218],
-                         [0.99572, -0.00057]])
+    from tests.datasets_test import naca0009profile
+    points2d = naca0009profile.points
+
+    ind_hk_test = naca0009profile.ind_hk
+    ind_vk_test = naca0009profile.ind_vk
 
     points = np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T
 
@@ -166,6 +102,60 @@ def test_extrct_vk_hk():
 
     origPoly = pv.PolyData(profilepoints)
     sortedPoly = pv.PolyData(profilepoints)
-    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly, verbose=False)
-    assert ind_hk == 0, "wrong hk-index found"
-    assert ind_vk == 34, "wrong vk-index found"
+    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly, verbose=verbose)
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(sortedPoly.points[ind_hk], color="red", point_size=20)
+        p.add_mesh(sortedPoly.points[ind_vk], color="red", point_size=20)
+        p.add_mesh(sortedPoly)
+        p.show()
+
+    assert ind_hk == ind_hk_test, "wrong hk-index found"
+    assert ind_vk == ind_vk_test, "wrong vk-index found"
+
+
+def test_extractSidePolys(verbose=False):
+    from tests.datasets_test import naca0009profile
+    points2d = naca0009profile.points
+    ind_hk = naca0009profile.ind_hk
+    ind_vk = naca0009profile.ind_vk
+
+    poly = pv.PolyData(np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T)
+    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(poly.points[ind_hk], color="yellow", point_size=20)
+        p.add_mesh(poly.points[ind_vk], color="yellow", point_size=20)
+        p.add_mesh(ssPoly, color="blue")
+        p.add_mesh(psPoly, color="red")
+        p.show()
+
+    assert ssPoly.number_of_points == psPoly.number_of_points, "number of sidepoints are not equal, test failed"
+
+
+def test_midline_from_sides(verbose=False):
+    from NTR.utils.mathfunctions import vecAbs
+    from tests.datasets_test import naca0009profile
+
+    points2d = naca0009profile.points
+    ind_hk = naca0009profile.ind_hk
+    ind_vk = naca0009profile.ind_vk
+
+    poly = pv.PolyData(np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T)
+    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
+
+    mids = midline_from_sides(ind_hk, ind_vk, poly.points, psPoly, ssPoly)
+
+    length = mids.length
+    testlength = vecAbs(ssPoly.points[0] - ssPoly.points[-1])
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(mids, color="yellow", point_size=20)
+        p.add_mesh(ssPoly, color="blue")
+        p.add_mesh(psPoly, color="red")
+        p.show()
+
+    assert length == testlength, "midline not accurate"

@@ -136,6 +136,7 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
 
                     try_center = np.array([shift_Try[0], shift_Try[1], 0])
                     try_radius = closest_dist + np.random.rand() * closest_dist * (0.15 + 0.15 * (attempts / 100))
+                    # TODO: refactor "check position in long body geometry" BEGIN
                     try_circle = pv.Cylinder(try_center,  # center
                                              (0, 0, 1),  # direction
                                              try_radius,  # radius
@@ -154,7 +155,7 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                     try_quad.rotate_z(mid_angle)
                     try_quad.translate(try_center)
 
-                    #TODO: refactor "check position in long body geometry" BEGIN
+
                     smash = linePoly.slice_along_line(polyline_from_points(try_circle.slice(normal="z").points))
 
                     if len(smash.points) == 4:
