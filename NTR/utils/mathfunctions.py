@@ -215,8 +215,3 @@ def C_barycentric(R):
     CWeights = np.array([C1c, C2c, C3c])
 
     return CWeights
-
-
-def closest_node_index(node, nodes):
-    closest_index = distance.cdist([node], nodes).argmin()
-    return closest_index
