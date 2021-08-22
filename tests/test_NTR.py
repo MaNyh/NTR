@@ -171,4 +171,3 @@ def test_midline_from_sides(verbose=False):
 
     assert length == testlength, "midline not accurate"
 
-def test_
