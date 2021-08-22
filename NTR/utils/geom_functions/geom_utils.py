@@ -5,8 +5,8 @@ from scipy.optimize import minimize
 
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import sortProfilePoints
-from NTR.utils.thermoFunctions import Sutherland_Law
-from NTR.utils.boundaryLayerFunctions import calcWallShearStress
+from NTR.utils.fluid_functions.thermoFunctions import Sutherland_Law
+from NTR.utils.fluid_functions.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
 from NTR.utils.geom_functions.pyvista_utils import slice_midspan_z
 
