@@ -354,4 +354,3 @@ def main():
                 for x,y in zip(X,Y):
                     print(x,y)
 
-print()
