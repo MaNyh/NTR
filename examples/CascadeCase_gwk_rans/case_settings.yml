@@ -5,6 +5,7 @@ geometry:
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
 
 geom:
+    algorithm                       : "from_pointcloud"
     ptcloud_profile                 : "00_Ressources/01_Geometry/profile_pointcloud.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                   #m vs mm
     beta_meta_01                    : 135                                   #Inflow angle [deg]

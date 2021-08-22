@@ -157,16 +157,17 @@ def run_create_geometry(settings_yaml):
     print(os.path.abspath(case_path))
 
     print("create_geometry")
-    ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
-    outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)),"00_Ressources","01_Geometry")
-    create_geometry(ptstxtfile,
-                    settings["geom"]["x_inlet"],
-                    settings["geom"]["x_outlet"],
-                    settings["geometry"]["pitch"],
-                    settings["geom"]["ptcloud_profile_unit"],
-                    settings["geom"]["shift_domain"],
-                    settings["geometry"]["alpha"],
-                    settings["mesh"]["extrudeLength"],
-                    outpath,)
+    if settings["geom"]["algorithm"] == "from_pointcloud":
+        ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
+        outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)),"00_Ressources","01_Geometry")
+        create_geometry(ptstxtfile,
+                        settings["geom"]["x_inlet"],
+                        settings["geom"]["x_outlet"],
+                        settings["geometry"]["pitch"],
+                        settings["geom"]["ptcloud_profile_unit"],
+                        settings["geom"]["shift_domain"],
+                        settings["geometry"]["alpha"],
+                        settings["mesh"]["extrudeLength"],
+                        outpath,)
     return 0
 

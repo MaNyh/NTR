@@ -4,6 +4,7 @@ geometry:
     midline_tolerance               : 20
 
 geom:
+    algorithm                       : "from_pointcloud"
     ptcloud_profile                 : "00_Ressources/01_Geometry/PointCloudBladeGeometry.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                   #m vs mm
     x_inlet                         : -0.16                                  #Shift Inlet along x [m]
