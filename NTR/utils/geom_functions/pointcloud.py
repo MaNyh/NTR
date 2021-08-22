@@ -29,22 +29,31 @@ def veronoi_midline(points, verbose=True):
 
     twodpts = xsortedpoints[:, 0:2].T
 
-    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=5, s=100, full_output=True)
+    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=3, s=0.1, full_output=True)
 
     x_new, y_new = splev(u, tck, der=0)
 
-    x_new, y_new = refine_spline(x_new, y_new, 100)
+    x_new, y_new = refine_spline(x_new, y_new, 300)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
+    splineNew = splineNew[np.argsort(splineNew[:, 0])]
 
     inside = inside_poly(points2d, splineNew[::, 0:2])
-    splineNewclean = [i for idx, i in enumerate(splineNew) if inside[idx] == True]
+    splineNewclean = np.array([i for idx, i in enumerate(splineNew) if inside[idx] == True])
+    splineNewclean = splineNewclean[np.argsort(splineNewclean[:, 0])]
     splines = []
     for p in splineNewclean:
         if not p[0] in [i[0] for i in splines]:
             splines.append(p)
 
-    splines = polyline_from_points(np.array(splines))
+    twodpts = np.array(splines)[:, 0:2].T
 
+    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=3, s=0.1, full_output=True)
+
+    x_new, y_new = splev(u, tck, der=0)
+    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
+
+    splines = polyline_from_points(splineNew)
+    """
     while max(splineCurvature(splines.points[:, 0], splines.points[:, 1]) > max(
         splineCurvature(points2d[:, 0], points2d[:, 1]))):
         splines.point_arrays["curvature"] = splineCurvature(splines.points[:, 0], splines.points[:, 1])
@@ -52,8 +61,20 @@ def veronoi_midline(points, verbose=True):
         pts = np.asarray([p for idp, p in enumerate(splines.points) if idp not in delid])
         splines = polyline_from_points(pts)
 
+    inside = inside_poly(points2d, splineNew[::, 0:2])
+    splineNewclean = np.array([i for idx, i in enumerate(splineNew) if inside[idx] == True])
+    splineNewclean = splineNewclean[np.argsort(splineNewclean[:, 0])]
+    splines = []
+    for p in splineNewclean:
+        if not p[0] in [i[0] for i in splines]:
+            splines.append(p)
+
+    splines = polyline_from_points(splineNew)
+    """
     if verbose:
         p = pv.Plotter()
+
+        p.add_mesh(midpoints)
         p.add_mesh(points)
         p.add_mesh(splines)
         p.show()

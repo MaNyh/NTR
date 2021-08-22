@@ -35,7 +35,6 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                             i_resolution=100, j_resolution=100)
 
         rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
-
         if direction == "low":
             splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] <= 0]))
         elif direction == "high":
@@ -47,10 +46,10 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
 
         if direction == "low":
             splitBox.rotate_z(-rotate)
-            splitBox.translate(mids_maxx - mids_minx)
+            splitBox.translate(try_center - mids_minx)
         elif direction == "high":
             splitBox.rotate_z(-rotate)
-            splitBox.translate(mids_minx - mids_maxx)
+            splitBox.translate(try_center - mids_maxx)
 
         splitBox.points += try_center
         enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
@@ -93,15 +92,13 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     for limit in found_limits.keys():
         while found_limits[limit] == False:
 
-            attempts += 1
-
             if verbose:
                 p = pv.Plotter()
                 p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
                 p.add_legend()
                 p.set_background("white")
                 p.show()
-
+            attempts += 1
             while (found_limits[limit] != True):
 
                 if limit == "low":

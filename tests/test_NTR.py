@@ -84,15 +84,21 @@ def test_profilePoints():
 
 def test_extract_vk_hk(verbose=False):
     """
-    tests a NACA0009 symmetric profile in a random angle as a minimal example.
+    tests a NACA  profile in a random angle as a minimal example.
     :return:
     """
-    from NTR.database.datasets_test import datasets
-    points2d = datasets["naca0009"]["points"]
-    ind_hk_test = datasets["naca0009"]["ind_hk"]
-    ind_vk_test = datasets["naca0009"]["ind_vk"]
+    from NTR.database.naca_airfoil_creator import naca
 
-    points = np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T
+    res = 80
+
+    #d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
+    #digitstring = str(d1)+str(d2)+str(d3)+str(d4)
+    #manifold problems with other profiles with veronoi-mid and other unoptimized code. therefor tests only 0009
+    X,Y = naca("0009", res, finite_TE = False, half_cosine_spacing = True)
+    ind_hk_test = 0
+    ind_vk_test = res
+
+    points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) )).T
 
     profilepoints = pv.PolyData(points)
 
@@ -115,13 +121,15 @@ def test_extract_vk_hk(verbose=False):
 
 
 def test_extractSidePolys(verbose=False):
+    from NTR.database.naca_airfoil_creator import naca
 
-    from NTR.database.datasets_test import datasets
-    points2d = datasets["naca0009"]["points"]
-    ind_hk = datasets["naca0009"]["ind_hk"]
-    ind_vk = datasets["naca0009"]["ind_vk"]
+    res = 240
+    X,Y = naca('0009', res, finite_TE = False, half_cosine_spacing = True)
+    ind_hk = 0
+    ind_vk = res
+    points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) - 1)).T
 
-    poly = pv.PolyData(np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T)
+    poly = pv.PolyData(points)
     ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
 
     if verbose:
@@ -135,15 +143,18 @@ def test_extractSidePolys(verbose=False):
     assert ssPoly.number_of_points == psPoly.number_of_points, "number of sidepoints are not equal, test failed"
 
 
+
 def test_midline_from_sides(verbose=False):
     from NTR.utils.mathfunctions import vecAbs
-    from NTR.database.datasets_test import datasets
+    from NTR.database.naca_airfoil_creator import naca
 
-    points2d = datasets["naca0009"]["points"]
-    ind_hk = datasets["naca0009"]["ind_hk"]
-    ind_vk = datasets["naca0009"]["ind_vk"]
+    res = 240
+    X,Y = naca('0009', res, finite_TE = False, half_cosine_spacing = True)
+    ind_hk = 0
+    ind_vk = res
 
-    poly = pv.PolyData(np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T)
+    points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) - 1)).T
+    poly = pv.PolyData(points)
     ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
 
     mids = midline_from_sides(ind_hk, ind_vk, poly.points, psPoly, ssPoly)
@@ -159,4 +170,5 @@ def test_midline_from_sides(verbose=False):
         p.show()
 
     assert length == testlength, "midline not accurate"
+
 
