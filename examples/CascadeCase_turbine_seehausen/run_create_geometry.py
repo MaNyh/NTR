@@ -1,3 +1,3 @@
-from NTR.preprocessing.create_geom import run_create_geometry
+from NTR.preprocessing.create_geom import run_create_geometry_frompointcloud
 
-run_create_geometry("case_settings.yml")
+run_create_geometry_frompointcloud("case_settings.yml")
