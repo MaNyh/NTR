@@ -276,8 +276,8 @@ class Display(object):
         self.ax.legend(self.h, self.label)
         self.plt.show()
 
-def demo(profNaca = ['0009', '2414', '6409'], nPoints = 240, finite_TE = False, half_cosine_spacing = False):
-    #profNaca = ['0009', '0012', '2414', '2415', '6409' , '0006', '0008', '0010', '0012', '0015']
+def demo(profNaca = ['0009', '2414', '6409'], nPoints = 640, finite_TE = False, half_cosine_spacing = True):
+    profNaca = ['0009', '0012', '2414', '2415', '6409' , '0006', '0008', '0010', '0012', '0015']
     d = Display()
     for i,p in enumerate(profNaca):
         X,Y = naca(p, nPoints, finite_TE, half_cosine_spacing)
