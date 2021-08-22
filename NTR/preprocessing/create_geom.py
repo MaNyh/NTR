@@ -148,7 +148,7 @@ def extract_geo_paras(points, alpha, verbose):
     return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
 
 
-def run_create_geometry_frompointcloud(settings_yaml):
+def run_create_geometry(settings_yaml):
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
     meshpath = os.path.join(case_path, "01_Meshing")
@@ -169,3 +169,4 @@ def run_create_geometry_frompointcloud(settings_yaml):
                     settings["mesh"]["extrudeLength"],
                     outpath,)
     return 0
+
