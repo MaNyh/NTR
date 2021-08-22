@@ -87,11 +87,10 @@ def test_extract_vk_hk(verbose=False):
     tests a NACA0009 symmetric profile in a random angle as a minimal example.
     :return:
     """
-    from tests.datasets_test import naca0009profile
-    points2d = naca0009profile.points
-
-    ind_hk_test = naca0009profile.ind_hk
-    ind_vk_test = naca0009profile.ind_vk
+    from NTR.database.datasets_test import datasets
+    points2d = datasets["naca0009"]["points"]
+    ind_hk_test = datasets["naca0009"]["ind_hk"]
+    ind_vk_test = datasets["naca0009"]["ind_vk"]
 
     points = np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T
 
@@ -116,10 +115,11 @@ def test_extract_vk_hk(verbose=False):
 
 
 def test_extractSidePolys(verbose=False):
-    from tests.datasets_test import naca0009profile
-    points2d = naca0009profile.points
-    ind_hk = naca0009profile.ind_hk
-    ind_vk = naca0009profile.ind_vk
+
+    from NTR.database.datasets_test import datasets
+    points2d = datasets["naca0009"]["points"]
+    ind_hk = datasets["naca0009"]["ind_hk"]
+    ind_vk = datasets["naca0009"]["ind_vk"]
 
     poly = pv.PolyData(np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T)
     ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
@@ -137,11 +137,11 @@ def test_extractSidePolys(verbose=False):
 
 def test_midline_from_sides(verbose=False):
     from NTR.utils.mathfunctions import vecAbs
-    from tests.datasets_test import naca0009profile
+    from NTR.database.datasets_test import datasets
 
-    points2d = naca0009profile.points
-    ind_hk = naca0009profile.ind_hk
-    ind_vk = naca0009profile.ind_vk
+    points2d = datasets["naca0009"]["points"]
+    ind_hk = datasets["naca0009"]["ind_hk"]
+    ind_vk = datasets["naca0009"]["ind_vk"]
 
     poly = pv.PolyData(np.stack((points2d[:, 0], points2d[:, 1], np.zeros(len(points2d)))).T)
     ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
@@ -159,3 +159,4 @@ def test_midline_from_sides(verbose=False):
         p.show()
 
     assert length == testlength, "midline not accurate"
+
