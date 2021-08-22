@@ -29,11 +29,6 @@ monitoring:
     massflowoutlet: "/03_Solution/postProcessing/MassflowOutlet"
     logfile: "03_Solution/log.log"
 
-igg:
-    install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
-    executable                      : "iggx86_64.exe"
-    argument_pickle_dict            : "igg_args.pkl"
-
 geom:
     ptcloud_profile                 : "00_Ressources/01_Geometry/profile_pointcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm

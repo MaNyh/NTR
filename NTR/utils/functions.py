@@ -9,6 +9,7 @@ def run_igg_meshfuncs(settings_yaml):
 
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
+    externals_settings = yaml_dict_read(os.path.join(os.path.dirname(__file__),"externals","externals_settings.yml"))
     meshpath = os.path.join(case_path, "01_Meshing")
     if not os.path.isdir(meshpath):
         os.mkdir(meshpath)
@@ -16,13 +17,13 @@ def run_igg_meshfuncs(settings_yaml):
 
     print("create_mesh")
     cwd = os.getcwd()
-    os.chdir(settings["igg"]["install_directory"])
-    igg_exe = settings["igg"]["executable"]
+    os.chdir(externals_settings["igg"]["install_directory"])
+    igg_exe = externals_settings["igg"]["executable"]
 
     ntrpath = os.path.dirname(os.path.abspath(NTR.__file__))
 
     script_path = os.path.join(ntrpath, "utils", "externals", "numeca_igg", "igg_cascade_meshcreator.py")
-    args_dict_path = os.path.join(ntrpath, "utils", "externals", "numeca_igg", settings["igg"]["argument_pickle_dict"])
+    args_dict_path = os.path.join(ntrpath, "utils", "externals", "numeca_igg", externals_settings["igg"]["argument_pickle_dict"])
 
     point_cloud_path = os.path.join(case_path,"01_Meshing", "geom.dat")
 

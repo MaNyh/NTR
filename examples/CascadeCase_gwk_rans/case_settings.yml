@@ -4,16 +4,6 @@ geometry:
     pitch                           : 0.0765                                #Pitch [m]
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
 
-probing:
-    domain : "00_Ressources/02_UsedMesh/10_GWKVD_RANS_0.vtk"
-    blade : "00_Ressources/02_UsedMesh/BLADE_0.vtk"
-    output_path : "02_Preprocessing/system"
-
-igg:
-    install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
-    executable                      : "iggx86_64.exe"
-    argument_pickle_dict            : "igg_args.pkl"
-
 geom:
     ptcloud_profile                 : "00_Ressources/01_Geometry/profile_pointcloud.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                   #m vs mm
