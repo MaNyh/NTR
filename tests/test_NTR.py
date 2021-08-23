@@ -8,7 +8,7 @@ import pyvista as pv
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
-
+from NTR.utils.geom_functions.spline import splineCurvature
 
 def test_yamlDictRead(tmpdir):
     """
@@ -19,6 +19,15 @@ def test_yamlDictRead(tmpdir):
         handle.write("test_key: True\n")
     assert yaml_dict_read(test_file) == {"test_key": True}
 
+def test_splineCurvature():
+    radius = np.random.rand()
+    curve = 1/radius
+    circle = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
+    circle.rotate_z(-180)
+    circle2 = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
+    circlePoly = pv.PolyData([*circle.points[1:-1]]+[*circle2.points])
+    curvature_return = splineCurvature(circlePoly.points[::, 0], circlePoly.points[::, 1])
+    assert not any(abs(curvature_return[3:-3]-curve)[3:-3]>0.05), "spline curvature calculation failed"
 
 def test_calcConcaveHull():
     """
