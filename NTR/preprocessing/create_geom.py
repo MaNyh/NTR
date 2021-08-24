@@ -9,6 +9,7 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle, yaml_dict_read
 from NTR.utils.geom_functions.pyvista_utils import lines_from_points
 from NTR.database.naca_airfoil_creator import naca
+from NTR.utils.mathfunctions import vecAbs
 
 
 def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z,
@@ -67,6 +68,7 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
                        [[x_ps, y_ps], [x_ss, y_ss], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mpsl[::-1], y_mpsl[::-1]]],
                        'obere Kurvenverlauf des Kanals')
 
+
     geo_dict = {"points": points,
                 "sortedPoly": sortedPoints,
                 "sidePolys": {"psPoly": psPoly, "ssPoly": ssPoly},
@@ -81,6 +83,7 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
                 "pitch": pitch,
                 "span_z": span_z
                 }
+
 
     geo_filename = "geometry.pkl"
     write_pickle(os.path.join(casepath, geo_filename), geo_dict)
@@ -113,10 +116,12 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
 
         plotter.show_axes()
         plotter.show()
+    return geo_dict
+
 
 
 def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_cosine_spacing, x_inlet, x_outlet,
-                                    pitch, geoscaling, blade_shift, span_z,casepath,verbose=False):
+                                    pitch, geoscaling, blade_shift,staggerangle, span_z,casepath,verbose=False):
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
@@ -126,6 +131,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_co
         finite_TE,
         half_cosine_spacing,
         geoscaling,
+        staggerangle,
         verbose)
 
     x_mids = midsPoly.points[::, 0]
@@ -209,15 +215,19 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_co
 
         plotter.show_axes()
         plotter.show()
+    return geo_dict
 
 
-def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spacing, geoscaling, verbose=True):
+def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spacing, geoscaling, staggerangle, verbose=True):
     ptsx, ptsy = naca(nacadigits, numberofpoints,finite_TE, half_cosine_spacing)
     ind_hk = 0
     ind_vk = numberofpoints
-    points = np.stack((ptsx[:-1], ptsy[:-1], np.zeros(numberofpoints * 2) - 1)).T * geoscaling
-
+    points = np.stack((ptsx[:-1], ptsy[:-1], np.zeros(numberofpoints * 2) - 1)).T
+    scalegeo = geoscaling / vecAbs(points[ind_hk]-points[ind_vk])
     poly = pv.PolyData(points)
+    poly.points*=scalegeo
+    poly.rotate_z(staggerangle)
+    points = poly.points
     ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
     camber_angle_hk, camber_angle_vk = angles_from_mids(midsPoly)
@@ -228,7 +238,6 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
         p.add_mesh(psPoly, color="green", label="psPoly")
         p.add_mesh(ssPoly, color="black", label="ssPoly")
         p.add_mesh(midsPoly, color="black", label="midsPoly")
-        p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
         p.add_legend()
         p.show()
     return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
@@ -281,7 +290,7 @@ def run_create_geometry(settings_yaml):
     if settings["geom"]["algorithm"] == "from_pointcloud":
         ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
         outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)), "00_Ressources", "01_Geometry")
-        create_geometry_frompointcloud(ptstxtfile,
+        geo_dict = create_geometry_frompointcloud(ptstxtfile,
                                        settings["geom"]["x_inlet"],
                                        settings["geom"]["x_outlet"],
                                        settings["geometry"]["pitch"],
@@ -293,7 +302,7 @@ def run_create_geometry(settings_yaml):
 
     if settings["geom"]["algorithm"] == "naca_airfoil_generator":
         outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)), "00_Ressources", "01_Geometry")
-        create_geometry_fromnacaairfoil(settings["geom"]["naca_digits"],
+        geo_dict = create_geometry_fromnacaairfoil(settings["geom"]["naca_digits"],
                                         settings["geom"]["numberofpoints"],
                                         settings["geom"]["finite_TE"],
                                         settings["geom"]["half_cosine_spacing"],
@@ -302,9 +311,18 @@ def run_create_geometry(settings_yaml):
                                         settings["geometry"]["pitch"],
                                         settings["geom"]["geoscaling"],
                                         settings["geom"]["shift_domain"],
+                                        settings["geom"]["staggerangle"],
                                         settings["mesh"]["extrudeLength"],
                                         outpath, )
+    #blockpoints(geo_dict,settings)
+    return 0
+
+"""
+def blockpoints(geodict,settings):
+    ssPoly = geodict["sidePolys"]["ssPoly"]
+    psPoly = geodict["sidePolys"]["psPoly"]
+    ylower = geodict["periodics"]["ylower"]
+
 
     return 0
-#nacadigits, numberofpoints,finite_TE,half_cosine_spacing, x_inlet, x_outlet,
- #                                   pitch, geoscaling, blade_shift, span_z,casepath,verbose=False
+"""

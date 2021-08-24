@@ -285,6 +285,7 @@ def set_blocks():
                                                                             CurvePointNorm(Curve("cspline_ps"),
                                                                                            0.0).y + shift_hk_block_xaxiscoeff,
                                                                             1.0))) + 0.05)
+    #TEILER IM RAUM AUF SAUGSEITE
     p3 = Point(CurvePointNorm(Curve("cspline_ss"), 0.5).x,
                CurvePointNorm(Curve("cspline_ss"), 0.5).y + yPerLowHGridBlockPitchStart * pitch, 0)
 
