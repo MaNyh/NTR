@@ -4,13 +4,14 @@ from matplotlib import path as mpltPath
 from scipy.interpolate import splprep, splev
 from scipy.spatial import Voronoi, Delaunay
 
-from NTR.utils.geom_functions.spline import refine_spline, splineCurvature
+from NTR.utils.geom_functions.distance import closest_node_index
+from NTR.utils.mathfunctions import vecAbs
 from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
 
 
 def veronoi_midline(points, verbose=True):
     points2d = points[::, 0:2]
-    vor = Voronoi(points2d)
+    vor = Voronoi(points2d,furthest_site=False, incremental=True,)
     midline = []
     #for idx, r in enumerate(vor.regions[[len(i) for i in vor.regions].index(max([len(i) for i in vor.regions]))]):
     pts_ids = []
@@ -27,7 +28,14 @@ def veronoi_midline(points, verbose=True):
         if not p[0] in [i[0] for i in midline]:
             midline.append(p)
 
-    midpoints = pv.PolyData(midline)
+    distances = [vecAbs(midline[closest_node_index(i, [y for idy, y in enumerate(midline) if idy != idx])]-i) for idx,i in enumerate(midline)]
+    omega = np.mean(distances)
+    #mins = np.min(distances)
+    #sigma = np.std(distances)
+    margin = np.var(distances)
+    allowed = [i for idx, i in enumerate(midline) if distances[idx]<omega-margin]
+
+    midpoints = pv.PolyData(allowed)
 
     xsortedpoints = midpoints.points[np.argsort(midpoints.points[:, 0])]
 
