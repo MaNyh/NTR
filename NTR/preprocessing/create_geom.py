@@ -14,7 +14,7 @@ from NTR.utils.mathfunctions import vecAbs
 
 def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z,
                                    casepath,
-                                   verbose=False):
+                                   verbose=True):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -120,8 +120,8 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
 
 
 
-def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_cosine_spacing, x_inlet, x_outlet,
-                                    pitch, geoscaling, blade_shift,staggerangle, span_z,casepath,verbose=False):
+def create_geometry_fromnacaairfoil(nacadigits, numberofpoints, finite_TE, half_cosine_spacing, x_inlet, x_outlet,
+                                    pitch, camberlength, blade_shift, staggerangle, span_z, casepath, verbose=False):
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
@@ -130,7 +130,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_co
         numberofpoints,
         finite_TE,
         half_cosine_spacing,
-        geoscaling,
+        camberlength,
         staggerangle,
         verbose)
 
@@ -218,12 +218,12 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_co
     return geo_dict
 
 
-def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spacing, geoscaling, staggerangle, verbose=True):
+def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spacing, camberlength, staggerangle, verbose=False):
     ptsx, ptsy = naca(nacadigits, numberofpoints,finite_TE, half_cosine_spacing)
     ind_hk = 0
     ind_vk = numberofpoints
     points = np.stack((ptsx[:-1], ptsy[:-1], np.zeros(numberofpoints * 2) - 1)).T
-    scalegeo = geoscaling / vecAbs(points[ind_hk]-points[ind_vk])
+    scalegeo = camberlength / vecAbs(points[ind_hk] - points[ind_vk])
     poly = pv.PolyData(points)
     poly.points*=scalegeo
     poly.rotate_z(staggerangle)
@@ -243,7 +243,7 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
     return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
 
 
-def extract_geo_paras(points, alpha, verbose):
+def extract_geo_paras(points, alpha, verbose=False):
     """
     This function is extracting profile-data as stagger-angle, midline, psPoly, ssPoly and more from a set of points
     Be careful, you need a suitable alpha-parameter in order to get the right geometry
@@ -309,7 +309,7 @@ def run_create_geometry(settings_yaml):
                                         settings["geom"]["x_inlet"],
                                         settings["geom"]["x_outlet"],
                                         settings["geometry"]["pitch"],
-                                        settings["geom"]["geoscaling"],
+                                        settings["geom"]["camberlength"],
                                         settings["geom"]["shift_domain"],
                                         settings["geom"]["staggerangle"],
                                         settings["mesh"]["extrudeLength"],

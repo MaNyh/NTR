@@ -12,16 +12,20 @@ def veronoi_midline(points, verbose=True):
     points2d = points[::, 0:2]
     vor = Voronoi(points2d)
     midline = []
-    for idx, r in enumerate(vor.regions):
+    #for idx, r in enumerate(vor.regions[[len(i) for i in vor.regions].index(max([len(i) for i in vor.regions]))]):
+    pts_ids = []
+    for r in vor.regions:
+        for i in r:
+            if i not in pts_ids and i  != -1:
+                pts_ids.append(i)
+    pts = vor.vertices[pts_ids]
+    pts3d = np.insert(pts, 2, 0, axis=1)
 
-        pts = vor.vertices[r]
-        pts3d = np.insert(pts, 2, 0, axis=1)
-
-        inside = inside_poly(points2d, pts3d[::, 0:2])
-        pts3dclean = [i for idx, i in enumerate(pts3d) if inside[idx] == True]
-        for p in pts3dclean:
-            if not p[0] in [i[0] for i in midline]:
-                midline.append(p)
+    inside = inside_poly(points2d, pts3d[0::,0:2])
+    pts3dclean = [i for idx, i in enumerate(pts3d) if inside[idx] == True]
+    for p in pts3dclean:
+        if not p[0] in [i[0] for i in midline]:
+            midline.append(p)
 
     midpoints = pv.PolyData(midline)
 
@@ -33,52 +37,27 @@ def veronoi_midline(points, verbose=True):
 
     x_new, y_new = splev(u, tck, der=0)
 
-    x_new, y_new = refine_spline(x_new, y_new, 300)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
     splineNew = splineNew[np.argsort(splineNew[:, 0])]
 
     inside = inside_poly(points2d, splineNew[::, 0:2])
     splineNewclean = np.array([i for idx, i in enumerate(splineNew) if inside[idx] == True])
-    splineNewclean = splineNewclean[np.argsort(splineNewclean[:, 0])]
+    #splineNewclean = splineNewclean[np.argsort(splineNewclean[:, 0])]
     splines = []
     for p in splineNewclean:
         if not p[0] in [i[0] for i in splines]:
             splines.append(p)
 
-    twodpts = np.array(splines)[:, 0:2].T
+    outspline = polyline_from_points(np.array(splines))
 
-    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=3, s=0.1, full_output=True)
-
-    x_new, y_new = splev(u, tck, der=0)
-    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
-
-    splines = polyline_from_points(splineNew)
-    """
-    while max(splineCurvature(splines.points[:, 0], splines.points[:, 1]) > max(
-        splineCurvature(points2d[:, 0], points2d[:, 1]))):
-        splines.point_arrays["curvature"] = splineCurvature(splines.points[:, 0], splines.points[:, 1])
-        delid = np.where(splines["curvature"] > max(splineCurvature(points2d[:, 0], points2d[:, 1])))[0]
-        pts = np.asarray([p for idp, p in enumerate(splines.points) if idp not in delid])
-        splines = polyline_from_points(pts)
-
-    inside = inside_poly(points2d, splineNew[::, 0:2])
-    splineNewclean = np.array([i for idx, i in enumerate(splineNew) if inside[idx] == True])
-    splineNewclean = splineNewclean[np.argsort(splineNewclean[:, 0])]
-    splines = []
-    for p in splineNewclean:
-        if not p[0] in [i[0] for i in splines]:
-            splines.append(p)
-
-    splines = polyline_from_points(splineNew)
-    """
     if verbose:
         p = pv.Plotter()
 
         p.add_mesh(midpoints)
         p.add_mesh(points)
-        p.add_mesh(splines)
+        p.add_mesh(outspline)
         p.show()
-    return splines
+    return outspline
 
 
 def inside_poly(polygon, points):
