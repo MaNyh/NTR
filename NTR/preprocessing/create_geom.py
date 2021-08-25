@@ -230,7 +230,7 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
     points = poly.points
     ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
-    camber_angle_hk, camber_angle_vk = angles_from_mids(midsPoly)
+    metal_angle_hk, metal_angle_vk, camber_angle = angles_from_mids(midsPoly)
 
     if verbose:
         p = pv.Plotter()
@@ -240,7 +240,7 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
         p.add_mesh(midsPoly, color="black", label="midsPoly")
         p.add_legend()
         p.show()
-    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk, camber_angle
 
 
 def extract_geo_paras(points, alpha, verbose):
@@ -252,7 +252,7 @@ def extract_geo_paras(points, alpha, verbose):
     :param points: array of points in 3d with the shape (n,3)
     :param alpha: nondimensional alpha-coefficient (calcConcaveHull)
     :param verbose: bool for plots
-    :return: points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+    :return: points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk
     """
 
     origPoly = pv.PolyData(points)
@@ -263,7 +263,7 @@ def extract_geo_paras(points, alpha, verbose):
     ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly)
     psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly)
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
-    camber_angle_hk, camber_angle_vk = angles_from_mids(midsPoly)
+    metal_angle_hk, metal_angle_vk, camber_angle = angles_from_mids(midsPoly)
 
     if verbose:
         p = pv.Plotter()
@@ -275,7 +275,7 @@ def extract_geo_paras(points, alpha, verbose):
         p.add_legend()
         p.show()
 
-    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
+    return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk, camber_angle
 
 
 def run_create_geometry(settings_yaml):

@@ -24,10 +24,8 @@ def test_splineCurvature():
     curve = 1/radius
     circle = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
     circle.rotate_z(-180)
-    circle2 = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
-    circlePoly = pv.PolyData([*circle.points[1:-1]]+[*circle2.points])
-    curvature_return = splineCurvature(circlePoly.points[::, 0], circlePoly.points[::, 1])
-    assert not any(abs(curvature_return[3:-3]-curve)[3:-3]>0.05), "spline curvature calculation failed"
+    curvature_return = splineCurvature(circle.points[::, 0], circle.points[::, 1])
+    assert not any(abs(curvature_return[3:-3]-curve)>0.05), "spline curvature calculation failed"
 
 def test_calcConcaveHull():
     """
@@ -125,15 +123,17 @@ def test_extract_vk_hk(verbose=False):
         p.add_mesh(sortedPoly)
         p.show()
 
-    assert ind_hk == ind_hk_test, "wrong hk-index found"
-    assert ind_vk == ind_vk_test, "wrong vk-index found"
+    assert ind_hk == ind_hk_test, "wrong hk-index chosen"
+    assert ind_vk == ind_vk_test, "wrong vk-index chosen"
 
 
 def test_extractSidePolys(verbose=False):
     from NTR.database.naca_airfoil_creator import naca
+    d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
+    digitstring = str(d1)+str(d2)+str(d3)+str(d4)
 
     res = 240
-    X,Y = naca('0009', res, finite_TE = False, half_cosine_spacing = True)
+    X,Y = naca(digitstring, res, finite_TE = False, half_cosine_spacing = True)
     ind_hk = 0
     ind_vk = res
     points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) - 1)).T
@@ -149,7 +149,7 @@ def test_extractSidePolys(verbose=False):
         p.add_mesh(psPoly, color="red")
         p.show()
 
-    assert ssPoly.number_of_points == psPoly.number_of_points, "number of sidepoints are not equal, test failed"
+    assert ssPoly.number_of_points == psPoly.number_of_points, "number of sidepoints are not equal"
 
 
 
