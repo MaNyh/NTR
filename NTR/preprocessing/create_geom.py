@@ -14,7 +14,7 @@ from NTR.utils.mathfunctions import vecAbs
 
 def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z,
                                    casepath,
-                                   verbose=True):
+                                   verbose=False):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -254,15 +254,22 @@ def extract_geo_paras(points, alpha, verbose=False):
     :param verbose: bool for plots
     :return: points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, camber_angle_vk, camber_angle_hk
     """
+    print("starting extract_geo_paras")
+    print()
+    print("sorting point-data...")
 
     origPoly = pv.PolyData(points)
     xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
     sortedPoly = pv.PolyData(points)
 
-    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly)
+    print("extracting LE/TE-indices...")
+    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly, verbose)
+    print("extracting ps/ss-sides...")
     psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly)
+    print("calculating midline...")
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
+    print("calculating angles...")
     camber_angle_hk, camber_angle_vk = angles_from_mids(midsPoly)
 
     if verbose:

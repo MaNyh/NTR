@@ -10,6 +10,7 @@ from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
 
+
 def test_yamlDictRead(tmpdir):
     """
     tmpdir ist eine spezialvariable die durch pytest erkannt wird (ist ein PYTHONPATH-objekt)
@@ -19,15 +20,17 @@ def test_yamlDictRead(tmpdir):
         handle.write("test_key: True\n")
     assert yaml_dict_read(test_file) == {"test_key": True}
 
+
 def test_splineCurvature():
     radius = np.random.rand()
-    curve = 1/radius
+    curve = 1 / radius
     circle = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
     circle.rotate_z(-180)
     circle2 = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
-    circlePoly = pv.PolyData([*circle.points[1:-1]]+[*circle2.points])
+    circlePoly = pv.PolyData([*circle.points[1:-1]] + [*circle2.points])
     curvature_return = splineCurvature(circlePoly.points[::, 0], circlePoly.points[::, 1])
-    assert not any(abs(curvature_return[3:-3]-curve)[3:-3]>0.05), "spline curvature calculation failed"
+    assert not any(abs(curvature_return[3:-3] - curve)[3:-3] > 0.05), "spline curvature calculation failed"
+
 
 def test_calcConcaveHull():
     """
@@ -98,16 +101,16 @@ def test_extract_vk_hk(verbose=False):
     """
     from NTR.database.naca_airfoil_creator import naca
 
-    res = 80
+    res = 160
 
-    #d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
-    #digitstring = str(d1)+str(d2)+str(d3)+str(d4)
-    #manifold problems with other profiles with veronoi-mid and other unoptimized code. therefor tests only 0009
-    X,Y = naca("6520", res, finite_TE = False, half_cosine_spacing = True)
+    #d1, d2, d3, d4 = np.random.randint(0, 6), np.random.randint(0, 5), np.random.randint(0, 1), np.random.randint(0, 9)
+    #digitstring = str(d1) + str(d2) + str(d3) + str(d4)
+    # manifold problems with other profiles with veronoi-mid and other unoptimized 6510 code.
+    X, Y = naca("6509", res, finite_TE=False, half_cosine_spacing=True)
     ind_hk_test = 0
     ind_vk_test = res
 
-    points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) )).T
+    points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2))).T
 
     profilepoints = pv.PolyData(points)
 
@@ -133,7 +136,7 @@ def test_extractSidePolys(verbose=False):
     from NTR.database.naca_airfoil_creator import naca
 
     res = 240
-    X,Y = naca('0009', res, finite_TE = False, half_cosine_spacing = True)
+    X, Y = naca('0009', res, finite_TE=False, half_cosine_spacing=True)
     ind_hk = 0
     ind_vk = res
     points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) - 1)).T
@@ -152,13 +155,12 @@ def test_extractSidePolys(verbose=False):
     assert ssPoly.number_of_points == psPoly.number_of_points, "number of sidepoints are not equal, test failed"
 
 
-
 def test_midline_from_sides(verbose=False):
     from NTR.utils.mathfunctions import vecAbs
     from NTR.database.naca_airfoil_creator import naca
 
     res = 240
-    X,Y = naca('0009', res, finite_TE = False, half_cosine_spacing = True)
+    X, Y = naca('0009', res, finite_TE=False, half_cosine_spacing=True)
     ind_hk = 0
     ind_vk = res
 
@@ -179,4 +181,3 @@ def test_midline_from_sides(verbose=False):
         p.show()
 
     assert length == testlength, "midline not accurate"
-

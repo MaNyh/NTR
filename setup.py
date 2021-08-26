@@ -25,7 +25,8 @@ requirements = ['Click>=7.0',
                 "vtk>=9.0.1",
                 "scipy>=1.6.1",
                 "pyvista>=0.25.0",
-                "PyYaml>=5.4.1"
+                "PyYaml>=5.4.1",
+                "scikit-image>=0.18.3"
                 ]
 
 setup_requirements = [ ]
