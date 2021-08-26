@@ -11,9 +11,9 @@ import os
 import numpy as np
 import pyvista as pv
 
-from NTR.utils.geom_functions import getBoundaryValues, refine_spline, equi_points
+from NTR.utils.geom_functions.geom_utils import getBoundaryValues, equi_points
+from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
-
 
 def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
                             interval_time_steps_probes, output_path,  start_time, end_time, tolerance):
