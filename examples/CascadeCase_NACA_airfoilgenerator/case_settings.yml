@@ -1,35 +1,35 @@
 geometry:
-    pitch                           : 0.07                                #Pitch [m]
-    alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
-    midline_tolerance               : 20
+    pitch                           : 0.08                                #Pitch [m]
+    alpha                           : 0.01                                #Geometric parameter used for hull-calculations
+    midline_tolerance               : 20                                  #deprecated - not used
 
 geom:
-    algorithm                       : "naca_airfoil_generator"
-    naca_digits                     : "4404" #6508 #4404
-    numberofpoints                  : 512
-    finite_TE                       : False
-    half_cosine_spacing             : True
-    geoscaling                      : 0.15
-    x_inlet                         : -0.15                                  #Shift Inlet along x [m]
-    x_outlet                        : 0.3                                  #Shift Outlet along x [m]
-    shift_domain                    : 0.005                                #Shift Domain to have probes inside domain [m]
-    staggerangle                    : 0 #20 #0                                 #degree
+    algorithm                       : "naca_airfoil_generator"            # naca_airfoil_generator vs / from_pointcloud
+    naca_digits                     : "6508" #6508 #4404                  # 4/5 digit-NACA-Code
+    numberofpoints                  : 512                                 #resolution
+    finite_TE                       : False                               #False=zero-thickness-HK, True=finite-thickness-HK
+    half_cosine_spacing             : True                                #False=äquidistant, True=hoche VK/HK Auflösung
+    camberlength                      : 0.15                              #Sehnenlänge [m]
+    x_inlet                         : -0.15                               #Shift Inlet along x [m]
+    x_outlet                        : 0.3                                 #Shift Outlet along x [m]
+    shift_domain                    : 0.005                               #Shift Domain to have probes inside domain [m]
+    staggerangle                    : 10 #10 #0                           #degree
 
 mesh:
     factor                          : 1                                   #Mesh-density factor
-    ogrid_factor                    : 2       #1 #2                             #o-grid-node-ratio
-    delta_i                         : 0.0015                                #node-distribution along fixed edges
+    ogrid_factor                    : 2       #2  #1                      #o-grid-node-ratio
+    delta_i                         : 0.0015                              #node-distribution along fixed edges
     first_cell_width                : 0.00001                             #first cell height when factor=1
     le_firstcellheight_coeff        : 1
     te_firstcellheight_coeff        : 1
-    exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
-    layers                          : 1                                    #fixed cells in boundary layer
-    extrudeLength                   : 0.04                                  #length of extruded span
+    exp_ratio                       : 1.01                                #expansion ratio along boundary layer
+    layers                          : 1                                   #fixed cells in boundary layer
+    extrudeLength                   : 0.04                                #length of extruded span
     blockStartFromChord             : 0.015
-    cellwidthcoeff                  : 0.001                                 #cell width-coeff at LT and TE (stagnation-point-flow)
-    streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
-    yPerLowHGridBlockPitchStart     : 0.25                                 #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.65                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.02                                  #move periodic vertices (yPer from LE) along x
+    cellwidthcoeff                  : 0.001                               #cell width-coeff at LT and TE (stagnation-point-flow)
+    streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
+    yPerLowHGridBlockPitchStart     : 0.25                                #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.65                                #move high-y-per-block along y-pitch
+    shift_vk_block_xaxiscoeff       : 0.02                                #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.08                                #move periodic vertices (yPer from TE) along x
-    smoothing                       : 5000                                  #smoothing iterations
+    smoothing                       : 5000                                #smoothing iterations
