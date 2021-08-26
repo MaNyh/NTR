@@ -1,70 +1,79 @@
 import numpy as np
 import pyvista as pv
 from matplotlib import path as mpltPath
-from scipy.interpolate import splprep, splev
-from scipy.spatial import Voronoi, Delaunay
+from scipy.spatial import Delaunay
+from scipy.interpolate import griddata,UnivariateSpline
+from skimage.morphology import skeletonize
 
-from NTR.utils.geom_functions.distance import closest_node_index
-from NTR.utils.mathfunctions import vecAbs
+from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
 
 
-def veronoi_midline(points, verbose=True):
+def skeletonize_poly(points, verbose=True):
+    print("starting skeletonize_poly")
+    print()
+
     points2d = points[::, 0:2]
-    vor = Voronoi(points2d,furthest_site=False, incremental=True,)
-    midline = []
-    #for idx, r in enumerate(vor.regions[[len(i) for i in vor.regions].index(max([len(i) for i in vor.regions]))]):
-    pts_ids = []
-    for r in vor.regions:
-        for i in r:
-            if i not in pts_ids and i  != -1:
-                pts_ids.append(i)
-    pts = vor.vertices[pts_ids]
-    pts3d = np.insert(pts, 2, 0, axis=1)
+    res = 1000
+    pointsclosed = np.array(list(points2d) + [points2d[-1]])
 
-    inside = inside_poly(points2d, pts3d[0::,0:2])
-    pts3dclean = [i for idx, i in enumerate(pts3d) if inside[idx] == True]
-    for p in pts3dclean:
-        if not p[0] in [i[0] for i in midline]:
-            midline.append(p)
+    origPoly = pv.PolyData(points)
 
-    distances = [vecAbs(midline[closest_node_index(i, [y for idy, y in enumerate(midline) if idy != idx])]-i) for idx,i in enumerate(midline)]
-    omega = np.mean(distances)
-    #mins = np.min(distances)
-    #sigma = np.std(distances)
-    margin = np.var(distances)
-    allowed = [i for idx, i in enumerate(midline) if distances[idx]<omega-margin]
+    print("generating 2d grid for skeletonization...")
 
-    midpoints = pv.PolyData(allowed)
+    bounds = origPoly.bounds
+    x = np.linspace(bounds[0], bounds[1], res)
+    y = np.linspace(bounds[2], bounds[3], res)
 
-    xsortedpoints = midpoints.points[np.argsort(midpoints.points[:, 0])]
+    pts = []
+    for xi in x:
+        for yi in y:
+            pts.append((xi, yi))
+    pts = np.array(pts)
 
-    twodpts = xsortedpoints[:, 0:2].T
+    print("structuring griddata values...")
 
-    (tck, u), fp, ier, msg = splprep(twodpts, u=None, per=0, k=3, s=0.1, full_output=True)
+    insides = inside_poly(pointsclosed, pts).astype(int)
+    pts3d = []
+    for idx, ins in enumerate(insides):
+        if ins == 1:
+            pts3d.append([pts[::, 0][idx], pts[::, 1][idx], 0])
 
-    x_new, y_new = splev(u, tck, der=0)
+    print("interpolating griddata...")
+    xv, yv = np.meshgrid(x, y, sparse=False, indexing='ij')
 
-    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
-    splineNew = splineNew[np.argsort(splineNew[:, 0])]
+    grid_z1 = griddata(pts, insides, (xv, yv), method="nearest")
+    print("calling skeletonize...")
 
-    inside = inside_poly(points2d, splineNew[::, 0:2])
-    splineNewclean = np.array([i for idx, i in enumerate(splineNew) if inside[idx] == True])
-    #splineNewclean = splineNewclean[np.argsort(splineNewclean[:, 0])]
-    splines = []
-    for p in splineNewclean:
-        if not p[0] in [i[0] for i in splines]:
-            splines.append(p)
+    skeleton = skeletonize(grid_z1)
+    print("calculating smooth spline...")
 
-    outspline = polyline_from_points(np.array(splines))
+    px = []
+    py = []
+    for idr, r in enumerate(skeleton):
+        for idz, z in enumerate(r):
+            if z != False:
+                px.append(x[idr])
+                py.append(y[idz])
+
+    x_mid_ss, y_mid_ss = zip(*sorted(zip(px, py)))
+
+    x_mid_ss_ref, y_mid_ref = refine_spline(x_mid_ss, y_mid_ss, 4000)
+    spl = UnivariateSpline( x_mid_ss_ref, y_mid_ref)
+    xs = np.linspace(x_mid_ss_ref[0], x_mid_ss_ref[-1], 1000)
+    xout,yout = xs, spl(xs)
+
+    midline = np.stack((xout,yout, np.zeros(len(yout)))).T
+    outspline = polyline_from_points(midline)
 
     if verbose:
         p = pv.Plotter()
-
-        p.add_mesh(midpoints)
-        p.add_mesh(points)
-        p.add_mesh(outspline)
+        p.add_mesh(origPoly)
+        p.add_mesh(points, color="black")
+        p.add_mesh(outspline, color="yellow")
         p.show()
+    print("finished skeletonize")
+    print("--exit skeletonize_poly --")
     return outspline
 
 
