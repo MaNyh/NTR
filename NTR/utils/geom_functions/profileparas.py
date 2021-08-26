@@ -5,7 +5,7 @@ from scipy.interpolate import splprep, splev
 from scipy.spatial import Voronoi
 
 from NTR.utils.functions import all_equal
-from NTR.utils.geom_functions.pointcloud import veronoi_midline, calcConcaveHull
+from NTR.utils.geom_functions.pointcloud import skeletonize_poly, calcConcaveHull
 from NTR.utils.geom_functions.spline import refine_spline, calcMidPoints
 from NTR.utils.geom_functions.distance import closest_node_index, distant_node_index
 from NTR.utils.mathfunctions import vecAbs, angle_between, vecDir
@@ -23,54 +23,13 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     :param verbose: bool (True -> plots, False -> silent)
     :return: returns indexes of LE(vk) and TE(hk) from sortedPoints
     """
-
-    def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbose=False):
-        mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
-        mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
-
-        mids_tangent = mids_minx - mids_maxx
-
-        splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) * 2.1
-        splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius * 1.6, j_size=splitBoxLength,
-                            i_resolution=100, j_resolution=100)
-
-        rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
-        if direction == "low":
-            splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] <= 0]))
-        elif direction == "high":
-            splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] >= 0]))
-
-        splitBox = splitBox.delaunay_2d()
-        splitBox = splitBox.extrude((0, 0, 0.1))
-        splitBox.translate((0, 0, -0.05))
-
-        if direction == "low":
-            splitBox.rotate_z(-rotate)
-            splitBox.translate(try_center - mids_minx)
-        elif direction == "high":
-            splitBox.rotate_z(-rotate)
-            splitBox.translate(try_center - mids_maxx)
-
-        splitBox.points += try_center
-        enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
-        checkPoints = [i for idx, i in enumerate(enclosedBoxPoints.points) if
-                       enclosedBoxPoints["SelectedPoints"][idx] == 1]
-
-        if verbose:
-            p = pv.Plotter()
-            p.add_mesh(sortedPoly)
-            p.add_mesh(pv.PolyData(np.asarray(checkPoints)), color="blue")
-            p.add_mesh(splitBox.extract_feature_edges())
-            p.add_mesh(np.array(mids), color="red")
-            p.show()
-
-        return checkPoints
+    print("start extract_vk_hk")
 
     xs, ys = sortedPoly.points[::, 0], sortedPoly.points[::, 1]
     x_new, y_new = refine_spline(xs, ys, 10000)
     splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
     linePoly = lines_from_points(splineNew)
-    veronoi_mid = veronoi_midline(linePoly.points, verbose)
+    veronoi_mid = skeletonize_poly(linePoly.points, verbose)
     midpts = veronoi_mid.points.copy()
     midpts = midpts[np.argsort(midpts[:, 0])]
 
@@ -83,13 +42,16 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
         p.set_background("white")
         p.show()
 
+    print("starting looking for LE and TE")
     farpts = []
-    attempts = 0
+
     valid_checkPoints = []
     found_limits = {"low": False,
                     "high": False}
 
     for limit in found_limits.keys():
+        attempts = 0
+
         while found_limits[limit] == False:
 
             if verbose:
@@ -98,14 +60,14 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                 p.add_legend()
                 p.set_background("white")
                 p.show()
-            attempts += 1
+
             while (found_limits[limit] != True):
 
                 if limit == "low":
-                    random_idx = np.random.randint(-int((0.15 + 0.15 * (attempts / 100)) * len(veronoi_mid.points)), -1)
+                    random_idx = np.random.randint(-int((0.1 + 0.2 * (attempts / 100)) * len(veronoi_mid.points)), -1)
                 elif limit == "high":
-                    random_idx = np.random.randint(0, int((0.15 + 0.15 * (attempts / 100)) * len(veronoi_mid.points)))
-
+                    random_idx = np.random.randint(0, int((0.1 + 0.2 * (attempts / 100)) * len(veronoi_mid.points)))
+                attempts += 1
                 trypt = midpts[random_idx]
 
                 closest = closest_node_index(np.array([trypt[0], trypt[1], 0]), sortedPoly.points)
@@ -238,7 +200,7 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                             if len(checkPoints) == 0:
                                 break
 
-                            if any([i.length < try_radius / 2 for i in otherlines]):
+                            if any([i.length < try_radius / 2 *(100-attempts)/100 for i in otherlines]):
                                 break
 
                             farpt = [distant_node_index(i, checkPoints) for i in mids]
@@ -300,6 +262,49 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
         p.show()
 
     return ind_hk, ind_vk, veronoi_mid
+
+
+def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbose=False):
+    mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
+    mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
+
+    mids_tangent = mids_minx - mids_maxx
+
+    splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) * 2.1
+    splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius * 1.6, j_size=splitBoxLength,
+                        i_resolution=100, j_resolution=100)
+
+    rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
+    if direction == "low":
+        splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] <= 0]))
+    elif direction == "high":
+        splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] >= 0]))
+
+    splitBox = splitBox.delaunay_2d()
+    splitBox = splitBox.extrude((0, 0, 0.1))
+    splitBox.translate((0, 0, -0.05))
+
+    if direction == "low":
+        splitBox.rotate_z(-rotate)
+        splitBox.translate(vecDir(try_center - mids_minx)*try_radius)
+    elif direction == "high":
+        splitBox.rotate_z(-rotate)
+        splitBox.translate(vecDir(try_center - mids_maxx)*try_radius)
+
+    splitBox.points += try_center
+    enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
+    checkPoints = [i for idx, i in enumerate(enclosedBoxPoints.points) if
+                   enclosedBoxPoints["SelectedPoints"][idx] == 1]
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(sortedPoly)
+        p.add_mesh(pv.PolyData(np.asarray(checkPoints)), color="blue")
+        p.add_mesh(splitBox.extract_feature_edges())
+        p.add_mesh(np.array(mids), color="red")
+        p.show()
+
+    return checkPoints
 
 
 def extractSidePolys(ind_hk, ind_vk, sortedPoly):
