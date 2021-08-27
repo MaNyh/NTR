@@ -26,7 +26,6 @@ boundaryField
         type            waveTransmissive;
         gamma           1.4;
         value           uniform __PINLET__;
-        fieldInf        __PINLET__;
         lInf            0.1;             //a measure of how far away the far-field condition should be
 
     }
@@ -34,7 +33,8 @@ boundaryField
     {
         type            waveTransmissive;
         gamma           1.4;
-	    value		    uniform 101325;
+	    value		    uniform __POUTLET__;
+	    fieldInf        __POUTLET__;
     }
     BLADE
     {
