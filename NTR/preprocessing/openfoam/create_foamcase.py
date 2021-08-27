@@ -1,92 +1,42 @@
 import os
 
 import NTR
+from NTR.preprocessing.case_creation import case_template
 from NTR.preprocessing.openfoam.cascadecase_les_filetemplates import les_templates
-from NTR.preprocessing.openfoam.filetemplate_utils import get_template_contents
-from NTR.utils.filehandling import yaml_dict_read, read_pickle
-from NTR.preprocessing.openfoam.create_probes import create_probe_dicts
+from NTR.preprocessing.openfoam.create_probes import create_of_les_probe_dicts
 
 
+class Openfoam_cascade_les(case_template):
 
-def create_cascadecase_les(settings, mainpath, file_templates, probe_templates):
+    def __init__(self, settings_dict,casepath):
+        case_templates = les_templates
+        templatepath = os.path.abspath(os.path.dirname(NTR.preprocessing.openfoam.cascadecase_les_filetemplates.__file__))
 
-    directories = file_templates.keys()
-
-    casepath = os.path.join(mainpath, "02_Preprocessing")
-    templatepath = os.path.abspath(os.path.dirname(NTR.preprocessing.openfoam.cascadecase_les_filetemplates.__file__))
-
-    create_main_directories(casepath, directories)
-    create_files(casepath, settings, file_templates, probe_templates, templatepath)
+        super().__init__(case_templates, settings_dict, casepath, templatepath, self.Openfoam_cascade_les_filehandling, create_of_les_probe_dicts)
 
 
-def create_cascadecase_ras(settings, mainpath, file_templates, probe_templates):
+    def Openfoam_cascade_les_filehandling(self,file, template_content, settings, probes_dict):
+        if file == "controlDict":
+            for key, value in probes_dict.items():
+                template_content = template_content.replace("//__globalsetting__" + key + "__//", value)
+            template_content = template_content.replace("__DELTAT__",
+                                                        str(settings["openfoam_cascade_les_settings"]["timestep"]))
 
-    directories = file_templates.keys()
+        if file == "createPatchDict":
+            template_content = template_content.replace("__ZSPAN__", str(settings["mesh"]["extrudeLength"]))
 
-    casepath = os.path.join(mainpath, "02_Preprocessing")
-    templatepath = os.path.abspath(os.path.dirname(NTR.preprocessing.openfoam.cascadecase_les_filetemplates.__file__))
-
-    create_main_directories(casepath, directories)
-    create_files(casepath, settings, file_templates, probe_templates, templatepath)
-
-
-def create_foamcase(setting_file):
-
-    settings = yaml_dict_read(setting_file)
-    mainpath = os.path.abspath(os.path.dirname(setting_file))
-    geo_ressources = read_pickle(os.path.join(mainpath, "00_Ressources", "01_Geometry", "geometry.pkl"))
-
-    if settings["case_settings"]["sim_type"] == "openfoam_les":
-        file_templates = les_templates.file_templates
-        probe_templates = les_templates.probe_templates
-        create_cascadecase_les(settings, mainpath, file_templates, probe_templates)
-        create_probe_dicts(settings, geo_ressources)
-
-    elif settings["case_settings"]["sim_type"] == "openfoam_ras":
-        file_templates = les_templates.file_templates
-        probe_templates = les_templates.probe_templates
-        create_cascadecase_ras(settings, mainpath, file_templates, probe_templates)
+        if file == "U":
+            template_content = template_content.replace("__PITCHPER__", str(settings["geometry"]["pitch"]))
+            template_content = template_content.replace("__SPANPER__", str(settings["mesh"]["extrudeLength"]))
+        return template_content
 
 
-def create_files(casepath, settings, files, probe_templates, templatepath):
+class Openfoam_cascade_ras(case_template):
+    def __init__(self, settings_dict,casepath):
+        case_templates = les_templates
+        templatepath = os.path.abspath(os.path.dirname(NTR.preprocessing.openfoam.cascadecase_ras_filetemplates.__file__))
+        super().__init__(case_templates, settings_dict, casepath, templatepath, self.Openfoam_cascade_ras_filehandling, create_of_ras_probe_dicts)
+        self.directories = []
 
-    probing_settings = settings["probing"]["probes"]
-    probes_dict = {}
-    for k, v in probing_settings.items():
-        if v == True:
-            probes_dict[k] = probe_templates[k]
-
-    templates = get_template_contents(templatepath, files)
-    for directory, filenames in files.items():
-        for file in filenames:
-            template_content = templates[directory][file]
-
-            filesettings = settings["case"]["case_parameters"][file]
-            if filesettings:
-                for key, value in filesettings.items():
-                    template_content = template_content.replace("__" + key + "__", value)
-
-            if file == "controlDict":
-                for key, value in probes_dict.items():
-                    template_content = template_content.replace("//__globalsetting__" + key + "__//", value)
-                template_content = template_content.replace("__DELTAT__", str(settings["case_settings"]["timestep"]))
-
-            if file == "createPatchDict":
-                template_content = template_content.replace("__ZSPAN__", str(settings["mesh"]["extrudeLength"]))
-
-            if settings["case_settings"]["sim_type"]=="openfoam_les":
-                if file == "U":
-                    template_content = template_content.replace("__PITCHPER__", str(settings["geometry"]["pitch"]))
-                    template_content = template_content.replace("__SPANPER__", str(settings["mesh"]["extrudeLength"]))
-
-
-            with open(os.path.join(casepath, directory, file), "w", newline='\n') as fobj:
-                fobj.writelines(template_content)
-
-
-def create_main_directories(casepath, directories):
-    if not os.path.isdir(casepath):
-        os.mkdir(casepath)
-    for d in directories:
-        if not os.path.isdir(os.path.join(casepath, d)):
-            os.mkdir(os.path.join(casepath, d))
+    def Openfoam_cascade_ras_filehandling(self,file, template_content, settings, probes_dict):
+        return template_content

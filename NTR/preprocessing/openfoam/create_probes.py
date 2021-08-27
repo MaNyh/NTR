@@ -377,17 +377,17 @@ probeLocations
     return outprobes
 
 
-def create_probe_dicts(case_settings, geo_ressources):
+def create_of_les_probe_dicts(case_settings, geo_ressources):
 
     midspan_z = case_settings["mesh"]["extrudeLength"] / 2
 
-    output_path = case_settings["probing"]["output_path"]
+    output_path = os.path.join("02_Simcase", "system")
 
     probes = {}
 
     if case_settings["probing"]["probes"]["profile_probing"]:
         sampling_rate = case_settings["probes"]["profile_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
         outprobes = createProbesProfileDict(geo_ressources,
                                             midspan_z,
                                             case_settings["probes"]["profile_probes"]["pden_ps"],
@@ -404,7 +404,7 @@ def create_probe_dicts(case_settings, geo_ressources):
     if case_settings["probing"]["probes"]["streamline_probing"]:
 
         sampling_rate = case_settings["probes"]["streamline_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
         outprobes = createProbesStreamlineDict(case_settings["probes"]["streamline_probes"]["nop_streamline"],
                                                output_path,
                                                timestepinterval,
@@ -417,7 +417,7 @@ def create_probe_dicts(case_settings, geo_ressources):
 
     if case_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         sampling_rate = case_settings["probes"]["inletoutlet_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
         outprobes = createProbesInletOutlet(geo_ressources,
                                             timestepinterval,
                                             output_path,
@@ -429,7 +429,7 @@ def create_probe_dicts(case_settings, geo_ressources):
     if case_settings["probing"]["probes"]["xslice_probing"]:
 
         sampling_rate = case_settings["probes"]["xsclicing_probes"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
         outprobes = createXSliceProbes(geo_ressources,
                                        case_settings["probes"]["xsclicing_probes"]["nop"],
                                        case_settings["probes"]["xsclicing_probes"]["x_slice_one"],
@@ -443,7 +443,7 @@ def create_probe_dicts(case_settings, geo_ressources):
 
     if case_settings["probing"]["probes"]["inletoutletfieldave_probing"]:
         sampling_rate = case_settings["probes"]["inletoutletfieldave_probing"]["sampling_rate"]
-        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
         create_inletoutletave_probe_dict(case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
                                          case_settings["probes"]["inletoutletfieldave_probing"]["end_time"],
                                          timestepinterval,
@@ -454,7 +454,7 @@ def create_probe_dicts(case_settings, geo_ressources):
 
         U = [float(i) for i in case_settings["case"]["case_parameters"]["U"]["UINLET"].split(" ")]
         angle = np.arccos(U[0] / U[1]) * 180 / np.pi
-        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["case_settings"]["timestep"]))
+        timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
 
         outprobes = create_vk_stagflow_probes(geo_ressources,
                                               case_settings["probes"]["vk_stagnationflow_probing"]["nop"],

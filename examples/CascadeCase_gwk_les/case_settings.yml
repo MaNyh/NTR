@@ -1,9 +1,9 @@
 case_settings:
     name : "GWK_Verdichterkaskade_LES"
-    case_type : "CascadeCase"
+    case_type : "Openfoam_cascade_les"
+
+openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"
-    sim_type: "openfoam_les"
-    machine_type : "compressor"
     timestep : "10e-8"
 
 geometry:
@@ -20,7 +20,6 @@ probing:
         xslice_probing: True
         midspanslice_probing: True
         vk_stagnationflow_probing : True
-    output_path : "02_Preprocessing/system"
 
 monitoring:
     averagevaluesinlet: "/03_Solution/postProcessing/AverValuesInlet"
