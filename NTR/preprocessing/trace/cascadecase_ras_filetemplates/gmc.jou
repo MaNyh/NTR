@@ -1,0 +1,9 @@
+# journal recorded by gmc_v9.3.4 at 2021/06/28 10:00:10
+gmc -> open 'input/TRACE.cgns'
+gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to 110000.000000
+gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to 57.156394
+gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to 293.150000
+gmc -> set_attributes of panel_group named 'INLET' : set TurbulenceIntensityAbs to 0.020000
+gmc -> set_attributes of panel_group named 'INLET' : set Species all to null
+gmc -> set_trace6_conventions on
+gmc -> save 'input/TRACE.cgns'
