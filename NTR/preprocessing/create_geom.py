@@ -125,7 +125,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_co
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
-    sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02 = create_naca_geoparas(
+    sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02 , camberangle = create_naca_geoparas(
         nacadigits,
         numberofpoints,
         finite_TE,
@@ -309,7 +309,7 @@ def run_create_geometry(settings_yaml):
                                         settings["geom"]["x_inlet"],
                                         settings["geom"]["x_outlet"],
                                         settings["geometry"]["pitch"],
-                                        settings["geom"]["geoscaling"],
+                                        settings["geom"]["camberlength"],
                                         settings["geom"]["shift_domain"],
                                         settings["geom"]["staggerangle"],
                                         settings["mesh"]["extrudeLength"],

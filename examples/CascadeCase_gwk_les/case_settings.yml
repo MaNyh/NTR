@@ -67,7 +67,8 @@ case:
       T :
         TINLET : "293.15"
       p :
-        PINLET : "101325"
+        PINLET : "95000"
+        POUTLET : "101325"
       alphat:
       nut:
       thermophysicalProperties:

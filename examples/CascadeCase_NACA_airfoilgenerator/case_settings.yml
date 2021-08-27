@@ -5,7 +5,7 @@ geometry:
 
 geom:
     algorithm                       : "naca_airfoil_generator"            # naca_airfoil_generator vs / from_pointcloud
-    naca_digits                     : "6508" #6508 #4404                  # 4/5 digit-NACA-Code
+    naca_digits                     : "6404" #6508 #4404                  # 4/5 digit-NACA-Code
     numberofpoints                  : 512                                 #resolution
     finite_TE                       : False                               #False=zero-thickness-HK, True=finite-thickness-HK
     half_cosine_spacing             : True                                #False=äquidistant, True=hoche VK/HK Auflösung
@@ -13,11 +13,11 @@ geom:
     x_inlet                         : -0.15                               #Shift Inlet along x [m]
     x_outlet                        : 0.3                                 #Shift Outlet along x [m]
     shift_domain                    : 0.005                               #Shift Domain to have probes inside domain [m]
-    staggerangle                    : 10 #10 #0                           #degree
+    staggerangle                    : 15 #10 #0                           #degree
 
 mesh:
     factor                          : 1                                   #Mesh-density factor
-    ogrid_factor                    : 2       #2  #1                      #o-grid-node-ratio
+    ogrid_factor                    : 1      #1.6  #1                      #o-grid-node-ratio
     delta_i                         : 0.0015                              #node-distribution along fixed edges
     first_cell_width                : 0.00001                             #first cell height when factor=1
     le_firstcellheight_coeff        : 1
