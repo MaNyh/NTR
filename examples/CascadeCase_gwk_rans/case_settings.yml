@@ -108,3 +108,10 @@ case:
 
 probing:
     probes:
+        profile_probing: False
+        streamline_probing: False
+        inletoutletfieldave_probing: False
+        inletoutletvelocity_probing: False
+        xslice_probing: False
+        midspanslice_probing: False
+        vk_stagnationflow_probing : False
