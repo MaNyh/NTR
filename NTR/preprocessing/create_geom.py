@@ -281,15 +281,20 @@ def extract_geo_paras(points, alpha, verbose):
 def run_create_geometry(settings_yaml):
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
+
     meshpath = os.path.join(case_path, "01_Meshing")
+    datpath = os.path.join(case_path, "04_Data")
     if not os.path.isdir(meshpath):
         os.mkdir(meshpath)
-    print(os.path.abspath(case_path))
+    if not os.path.isdir(datpath):
+        os.mkdir(datpath)
 
+    print(os.path.abspath(case_path))
+    outpath = os.path.join(datpath)
     print("create_geometry")
     if settings["geom"]["algorithm"] == "from_pointcloud":
         ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
-        outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)), "00_Ressources", "01_Geometry")
+
         geo_dict = create_geometry_frompointcloud(ptstxtfile,
                                        settings["geom"]["x_inlet"],
                                        settings["geom"]["x_outlet"],
@@ -301,7 +306,7 @@ def run_create_geometry(settings_yaml):
                                        outpath, )
 
     if settings["geom"]["algorithm"] == "naca_airfoil_generator":
-        outpath = os.path.join(os.path.dirname(os.path.abspath(settings_yaml)), "00_Ressources", "01_Geometry")
+
         geo_dict = create_geometry_fromnacaairfoil(settings["geom"]["naca_digits"],
                                         settings["geom"]["numberofpoints"],
                                         settings["geom"]["finite_TE"],

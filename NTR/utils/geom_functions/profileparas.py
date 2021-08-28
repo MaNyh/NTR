@@ -42,7 +42,6 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
         p.set_background("white")
         p.show()
 
-    print("starting looking for LE and TE")
     farpts = []
 
     valid_checkPoints = []
