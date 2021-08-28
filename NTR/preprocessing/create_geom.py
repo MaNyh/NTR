@@ -29,7 +29,7 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
-    sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02 = extract_geo_paras(points,
+    sortedPoints, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, beta_meta_01, beta_meta_02, camber_angle = extract_geo_paras(points,
                                                                                                            alpha,
                                                                                                            verbose)
 

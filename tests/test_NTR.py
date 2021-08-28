@@ -9,6 +9,7 @@ from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
+from NTR.preprocessing.case_creation import openfoam_cascade_les_templates, openfoam_cascade_ras_templates, trace_cascade_ras_templates, create_simulationcase
 
 def test_yamlDictRead(tmpdir):
     """
@@ -180,3 +181,16 @@ def test_midline_from_sides(verbose=False):
 
     assert length == testlength, "midline not accurate"
 
+def test_simcases():
+    cases = {"openfoam_cascade_les_templates":openfoam_cascade_les_templates,
+             "openfoam_cascade_ras_templates":openfoam_cascade_ras_templates,
+             "trace_cascade_ras_templates":trace_cascade_ras_templates}
+
+    for name, case in cases.items():
+        dirietories = list(case.file_templates.keys())
+        assert len(dirietories) > 0, "no directory structure for " + name
+
+    no_change_settings = {}
+
+
+    print()

@@ -75,7 +75,11 @@ def create_simulationcase(path_to_yaml_dict):
     mainpath = os.path.abspath(os.path.dirname(path_to_yaml_dict))
 
     case_type = settings["case_settings"]["case_type"]
-    geo_ressources = read_pickle(os.path.join(mainpath, "00_Ressources", "01_Geometry", "geometry.pkl"))
+
+    path_to_geo_ressources =os.path.join(mainpath, "04_Data", "01_Geometry", "geometry.pkl")
+    assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
+    geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
+
     if case_type == "Openfoam_cascade_les":
         casepath = os.path.abspath(os.path.dirname(path_to_yaml_dict))
         Case = Openfoam_cascade_les(settings, casepath)
