@@ -30,7 +30,7 @@ monitoring:
 
 geom:
     algorithm                       : "from_pointcloud"
-    ptcloud_profile                 : "00_Ressources/01_Geometry/profile_pointcloud.txt"   #Name of the pointcloud-file
+    ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
     x_inlet                         : -0.13                                  #Shift Inlet along x [m]
     x_outlet                        : 0.26                              #Shift Outlet along x [m]

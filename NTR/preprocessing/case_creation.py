@@ -76,7 +76,7 @@ def create_simulationcase(path_to_yaml_dict):
 
     case_type = settings["case_settings"]["case_type"]
 
-    path_to_geo_ressources =os.path.join(mainpath, "04_Data", "01_Geometry", "geometry.pkl")
+    path_to_geo_ressources =os.path.join(mainpath, "04_Data", "geometry.pkl")
     assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
     geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
 
