@@ -28,27 +28,25 @@ boundaryField
 {
     INLET
     {
-    
         type            waveTransmissive;
-	gamma		1.4;
+	    gamma		1.4;
         value           uniform (35.392445 58.06355 0);
-	fieldInf	uniform (35.392445 58.06355 0);
-    
+	    fieldInf	uniform (35.392445 58.06355 0);
     }
 
     OUTLET
     {
         type            waveTransmissive;
-	gamma		1.4;
+	    gamma		1.4;
         value           uniform (35.392445 0   0.   ); //startwert only
-	inletValue	uniform (0 0 0);     
+	    inletValue	uniform (0 0 0);
     }
 
     BLADE
     {
      	type            noSlip;
     }
- 
+
     Z_lower
     {
         type            cyclic;

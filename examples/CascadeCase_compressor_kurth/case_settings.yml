@@ -5,7 +5,7 @@ geometry:
 
 geom:
     algorithm                       : "from_pointcloud"
-    ptcloud_profile                 : "00_Ressources/01_Geometry/PointCloudBladeGeometry.txt"              #Name of the pointcloud-file
+    ptcloud_profile                 : "00_Ressources/PointCloudBladeGeometry.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                   #m vs mm
     x_inlet                         : -0.16                                  #Shift Inlet along x [m]
     x_outlet                        : 0.32                                  #Shift Outlet along x [m]
@@ -13,7 +13,7 @@ geom:
 
 mesh:
     factor                          : 1                                   #Mesh-density factor
-    ogrid_factor                    : 1.2                                   #o-grid-node-ratio
+    ogrid_factor                    : 1.6                                   #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.000005                              #first cell height when factor=1
     le_firstcellheight_coeff        : 0.5

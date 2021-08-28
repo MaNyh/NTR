@@ -5,7 +5,7 @@ geometry:
 
 geom:
     algorithm                       : "from_pointcloud"
-    ptcloud_profile                 : "00_Ressources/01_Geometry/outcloud.txt"   #Name of the pointcloud-file
+    ptcloud_profile                 : "00_Ressources/outcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
     x_inlet                         : -0.26                                  #Shift Inlet along x [m]
     x_outlet                        : 0.22                                  #Shift Outlet along x [m]

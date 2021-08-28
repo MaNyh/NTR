@@ -25,14 +25,15 @@ boundaryField
     {
         type            waveTransmissive;
         gamma           1.4;
-	value		101325;
-	fieldInf  	101325;
+	    value		101325;
+
     }
     OUTLET
     {
         type            waveTransmissive;
-	gamma		1.4;
-	value		uniform 101325;
+        gamma		1.4;
+        value		uniform 101325;
+        fieldInf  	101325;
     }
     BLADE
     {

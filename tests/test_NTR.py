@@ -4,6 +4,7 @@
 
 import numpy as np
 import pyvista as pv
+import yaml
 
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
@@ -181,13 +182,17 @@ def test_midline_from_sides(verbose=False):
 
     assert length == testlength, "midline not accurate"
 
-def test_simcases():
+def test_simcases(tmpdir):
     cases = {"openfoam_cascade_les_templates": openfoam_cascade_les_templates,
-             #"openfoam_cascade_ras_templates":openfoam_cascade_ras_templates,
-             #"trace_cascade_ras_templates":trace_cascade_ras_templates
+             "openfoam_cascade_ras_templates": openfoam_cascade_ras_templates,
+             "trace_cascade_ras_templates": trace_cascade_ras_templates
              }
 
     for name, case in cases.items():
         dirietories = list(case.file_templates.keys())
         assert len(dirietories) > 0, "no directory structure for " + name
 
+#        test_settingsdict = {}
+#        test_file = tmpdir / "test.yaml"
+#        with open(test_file, "w") as handle:
+#            yaml.dump(test_settingsdict, handle)
