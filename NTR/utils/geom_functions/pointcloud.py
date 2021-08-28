@@ -10,16 +10,12 @@ from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
 
 
 def skeletonize_poly(points, verbose=True):
-    print("starting skeletonize_poly")
-    print()
 
     points2d = points[::, 0:2]
     res = 1000
     pointsclosed = np.array(list(points2d) + [points2d[-1]])
 
     origPoly = pv.PolyData(points)
-
-    print("generating 2d grid for skeletonization...")
 
     bounds = origPoly.bounds
     x = np.linspace(bounds[0], bounds[1], res)
@@ -31,22 +27,17 @@ def skeletonize_poly(points, verbose=True):
             pts.append((xi, yi))
     pts = np.array(pts)
 
-    print("structuring griddata values...")
-
     insides = inside_poly(pointsclosed, pts).astype(int)
     pts3d = []
     for idx, ins in enumerate(insides):
         if ins == 1:
             pts3d.append([pts[::, 0][idx], pts[::, 1][idx], 0])
 
-    print("interpolating griddata...")
     xv, yv = np.meshgrid(x, y, sparse=False, indexing='ij')
 
     grid_z1 = griddata(pts, insides, (xv, yv), method="nearest")
-    print("calling skeletonize...")
 
     skeleton = skeletonize(grid_z1)
-    print("calculating smooth spline...")
 
     px = []
     py = []
@@ -72,8 +63,6 @@ def skeletonize_poly(points, verbose=True):
         p.add_mesh(points, color="black")
         p.add_mesh(outspline, color="yellow")
         p.show()
-    print("finished skeletonize")
-    print("--exit skeletonize_poly --")
     return outspline
 
 

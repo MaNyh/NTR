@@ -23,7 +23,6 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     :param verbose: bool (True -> plots, False -> silent)
     :return: returns indexes of LE(vk) and TE(hk) from sortedPoints
     """
-    print("start extract_vk_hk")
 
     xs, ys = sortedPoly.points[::, 0], sortedPoly.points[::, 1]
     x_new, y_new = refine_spline(xs, ys, 10000)
