@@ -1,8 +1,8 @@
 import csv
 import os
 import pickle
-
 import yaml
+from functools import reduce
 
 
 def yaml_dict_read(yml_file):
@@ -58,3 +58,17 @@ def get_template_contents(templatepath, file_templates):
             template_contents[key][val] = "".join(readtxtfile(os.path.join(templatepath, key, val)))
 
     return template_contents
+
+def get_directory_structure(rootdir):
+    """
+    Creates a nested dictionary that represents the folder structure of rootdir
+    """
+    dir = {}
+    rootdir = rootdir.rstrip(os.sep)
+    start = rootdir.rfind(os.sep) + 1
+    for path, dirs, files in os.walk(rootdir):
+        folders = path[start:].split(os.sep)
+        subdir = dict.fromkeys(files)
+        parent = reduce(dict.get, folders[:-1], dir)
+        parent[folders[-1]] = subdir
+    return dir

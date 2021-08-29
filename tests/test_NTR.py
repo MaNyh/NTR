@@ -4,13 +4,13 @@
 
 import numpy as np
 import pyvista as pv
-import yaml
 
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
-from NTR.preprocessing.case_creation import openfoam_cascade_les_templates, openfoam_cascade_ras_templates, trace_cascade_ras_templates, create_simulationcase
+from NTR.preprocessing.case_creation import openfoam_cascade_les_templates, openfoam_cascade_ras_templates, trace_cascade_ras_templates
+
 
 def test_yamlDictRead(tmpdir):
     """
@@ -96,7 +96,7 @@ def test_extract_vk_hk(verbose=False):
     tests a NACA  profile in a random angle as a minimal example.
     :return:
     """
-    from NTR.database.naca_airfoil_creator import naca
+    from NTR.database.data_generators.naca_airfoil_creator import naca
 
     res = 80
 
@@ -130,7 +130,7 @@ def test_extract_vk_hk(verbose=False):
 
 
 def test_extractSidePolys(verbose=False):
-    from NTR.database.naca_airfoil_creator import naca
+    from NTR.database.data_generators.naca_airfoil_creator import naca
     d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
     digitstring = str(d1)+str(d2)+str(d3)+str(d4)
 
@@ -157,7 +157,7 @@ def test_extractSidePolys(verbose=False):
 
 def test_midline_from_sides(verbose=False):
     from NTR.utils.mathfunctions import vecAbs
-    from NTR.database.naca_airfoil_creator import naca
+    from NTR.database.data_generators.naca_airfoil_creator import naca
 
     res = 240
     X,Y = naca('0009', res, finite_TE = False, half_cosine_spacing = True)
