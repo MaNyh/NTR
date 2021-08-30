@@ -109,20 +109,22 @@ def create_simulationcase(path_to_yaml_dict):
     copy_template(case_type, case_structure, path_to_sim)
     case_structure_parameters = find_vars_opts(case_structure)
     check_settings_necessarities(case_structure_parameters, settings)
+    writeout_simulation(case_structure_parameters, path_to_sim, settings)
 
 
+def writeout_simulation(case_structure_parameters, path_to_sim, settings):
     walk_casefile_list = nested_dict_pairs_iterator(case_structure_parameters)
     for parameterdata in walk_casefile_list:
         para_keys = parameterdata[:-2]
         fpath = os.path.join(path_to_sim, *parameterdata[1:-2])
         parametername = parameterdata[-2]
 
-        para_type =parameterdata[-1]
+        para_type = parameterdata[-1]
         if para_type == "var":
             para_type = "variables"
             variable = settings["simcase_settings"][para_type][parametername]
             with open(fpath) as fobj:
-                newText = fobj.read().replace("<var "+parametername+" var>", str(variable))
+                newText = fobj.read().replace("<var " + parametername + " var>", str(variable))
             with open(fpath, "w") as fobj:
                 fobj.write(newText)
         elif para_type == "opt":
@@ -130,19 +132,18 @@ def create_simulationcase(path_to_yaml_dict):
             option = settings["simcase_settings"][para_type][parametername]
             if option == True:
                 assert "simcase_optiondef" in list(settings.keys()), "simcase_optiondef not defined in configuration"
-                assert parametername in list(settings["simcase_optiondef"].keys()), parametername + " not defined in simcase_optiondef"
+                assert parametername in list(
+                    settings["simcase_optiondef"].keys()), parametername + " not defined in simcase_optiondef"
                 optiondefinition = settings["simcase_optiondef"][parametername]
                 with open(fpath) as fobj:
-                    newText = fobj.read().replace("<opt "+parametername+" opt>", str(optiondefinition))
+                    newText = fobj.read().replace("<opt " + parametername + " opt>", str(optiondefinition))
                 with open(fpath, "w") as fobj:
                     fobj.write(newText)
             else:
                 with open(fpath) as fobj:
-                    newText = fobj.read().replace("<opt "+parametername+" opt>", "")
+                    newText = fobj.read().replace("<opt " + parametername + " opt>", "")
                 with open(fpath, "w") as fobj:
                     fobj.write(newText)
-
-    print("haha")
 
 
 def copy_template(case_type, case_structure, path_to_sim):
@@ -226,17 +227,23 @@ def test_create_simulationcase(tmpdir):
                                     },
                                     "options":{
                                                 'STAGNATIONPOINTFLOW_PROBING': True,
-                                                'INOUT_FIELDAVE_PROBING': False,
-                                                'INOUT_VELOCITY_PROBING': False,
-                                                'XSCLICE_PROBING': False,
-                                                'MIDSPANSLICE_PROBING': False,
-                                                'PROFILE_PROBING': False,
-                                                'STREAMLINE_PROBING': False,
+                                                'INOUT_FIELDAVE_PROBING': True,
+                                                'INOUT_VELOCITY_PROBING': True,
+                                                'XSCLICE_PROBING': True,
+                                                'MIDSPANSLICE_PROBING': True,
+                                                'PROFILE_PROBING': True,
+                                                'STREAMLINE_PROBING': True,
 
                                     }
                   },
                 "simcase_optiondef":{
                                     "STAGNATIONPOINTFLOW_PROBING":" import stagnationflowprobes",
+                                    "INOUT_FIELDAVE_PROBING":" import stagnationflowprobes",
+                                    "INOUT_VELOCITY_PROBING":" import stagnationflowprobes",
+                                    "XSCLICE_PROBING":" import stagnationflowprobes",
+                                    "MIDSPANSLICE_PROBING":" import stagnationflowprobes",
+                                    "PROFILE_PROBING":" import stagnationflowprobes",
+                                    "STREAMLINE_PROBING":" import stagnationflowprobes",
                     },
                  }
 
