@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 """Tests for `NTR` package."""
+import os
 
 import numpy as np
 import pyvista as pv
 
-from NTR.utils.filehandling import yaml_dict_read
+from NTR.database.case_reader import create_simulationcase
+from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
@@ -196,3 +198,61 @@ def test_simcases(tmpdir):
 #        test_file = tmpdir / "test.yaml"
 #        with open(test_file, "w") as handle:
 #            yaml.dump(test_settingsdict, handle)
+def test_create_simulationcase(tmpdir):
+    test_dict = {"case_settings": {
+                                    "case_type" : "openfoam_cascade_les",
+                                    "name" : "testcase"
+                  },
+                 "simcase_settings":{
+                                    "variables": {
+                                                'EDDYDENSITY':'1',
+                                                'RINLET':'1',
+                                                'LINLET':'1',
+                                                'WRITEINTERVAL':'1',
+                                                'PURGEWRITE':'1',
+                                                'DELTAT':'1',
+                                                'UDASHSCALING':"1",
+                                                'PINLET':"10000",
+                                                'POUTLET':"100000",
+                                                'TINLET':"298",
+                                                'UINLET':"(10 10 0)",
+                                                'ZSPAN':"0.02",
+                                                'SPANPER':"0.02",
+                                                'PITCHPER':"0.00765",
+                                                'PROCS':"192",
+                                                'NOUTERCORRECTORS':"2",
+                                                'ADUSTABLETIMESTEP': "False",
+                                                'JOB_NUMBERS':"12",
+                                                'HLRN_JOB_ACCOUNT':'niinyhma',
+                                                'HLRN_JOB_EMAIL':'nyhuis@tfd.uni-hannover.de',
+                                    },
+                                    "options":{
+                                                'STAGNATIONPOINTFLOW_PROBING': True,
+                                                'INOUT_FIELDAVE_PROBING': True,
+                                                'INOUT_VELOCITY_PROBING': True,
+                                                'XSCLICE_PROBING': True,
+                                                'MIDSPANSLICE_PROBING': True,
+                                                'PROFILE_PROBING': True,
+                                                'STREAMLINE_PROBING': True,
+
+                                    }
+                  },
+                "simcase_optiondef":{
+                                    "STAGNATIONPOINTFLOW_PROBING":" import stagnationflowprobes",
+                                    "INOUT_FIELDAVE_PROBING":" import stagnationflowprobes",
+                                    "INOUT_VELOCITY_PROBING":" import stagnationflowprobes",
+                                    "XSCLICE_PROBING":" import stagnationflowprobes",
+                                    "MIDSPANSLICE_PROBING":" import stagnationflowprobes",
+                                    "PROFILE_PROBING":" import stagnationflowprobes",
+                                    "STREAMLINE_PROBING":" import stagnationflowprobes",
+                    },
+                 }
+
+    test_file = tmpdir / "test_create_simulationcase.yml"
+    test_geo_dict = {}
+    os.mkdir(tmpdir/"04_Data")
+    test_geo_file = tmpdir / os.path.join("04_Data", "geometry.pkl")
+    write_yaml_dict(test_file,test_dict)
+    write_pickle(test_geo_file,test_geo_dict)
+    create_simulationcase(test_file)
+    print(tmpdir)
