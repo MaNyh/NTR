@@ -56,7 +56,7 @@ def find_vars_opts(case_structure):
     for pair in all_pairs:
         setInDict(case_structure,pair[:-1],{})
         filepath = os.path.join(*pair[:-1])
-        with open(os.path.join(os.path.dirname(__file__), "case_templates", filepath), "r") as fhandle:
+        with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
 
                 lookup_var = re.search(varsignature, line)
@@ -80,12 +80,12 @@ def create_simulationcase(path_to_yaml_dict):
                        "solution": "03_Solution",
                        "data": "04_Data"}
 
-    case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "case_templates"))
+    case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
 
     case_structures = {}
     for cname in case_templates:
         cstruct = get_directory_structure(
-            os.path.join(os.path.dirname(__file__), "case_templates", cname))
+            os.path.join(os.path.dirname(__file__), "../database/case_templates", cname))
         case_structures[cname] = cstruct
 
     settings = yaml_dict_read(path_to_yaml_dict)
@@ -153,7 +153,7 @@ def copy_template(case_type, case_structure, path_to_sim):
         if dirstructure == ():
             dirstructure = ""
 
-        template_fpath = os.path.join(os.path.dirname(__file__), "case_templates", case_type, *dirstructure, filename)
+        template_fpath = os.path.join(os.path.dirname(__file__), "../database/case_templates", case_type, *dirstructure, filename)
         sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
         shutil.copyfile(template_fpath, sim_fpath)
 
@@ -167,8 +167,21 @@ def check_settings_necessarities(case_structure, settings_dict):
             necessarity_vars.append(item[-2])
         if item[-1] == "opt":
             necessarity_opts.append(item[-2])
-    settings_variables = list(settings_dict["simcase_settings"]["variables"].keys())
-    settings_options = list(settings_dict["simcase_settings"]["options"].keys())
+
+
+    assert "variables" in settings_dict["simcase_settings"].keys(), "variables not set simcase_settings"
+    if settings_dict["simcase_settings"]["variables"]:
+        settings_variables = list(settings_dict["simcase_settings"]["variables"].keys())
+    else:
+        settings_variables = []
+
+    assert "options" in settings_dict["simcase_settings"].keys(), "options not set in simcase_settings"
+    if settings_dict["simcase_settings"]["options"]:
+        settings_options = list(settings_dict["simcase_settings"]["options"].keys())
+    else:
+        settings_options = []
+
+
     for variable in necessarity_vars:
         assert variable in settings_variables, "variable " + variable + " not set in configuration file"
     for option in necessarity_opts:

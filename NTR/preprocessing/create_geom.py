@@ -290,31 +290,31 @@ def run_create_geometry(settings_yaml):
         os.mkdir(datpath)
 
     print("create_geometry")
-    if settings["geom"]["algorithm"] == "from_pointcloud":
-        ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
+    if settings["geometry"]["algorithm"] == "from_pointcloud":
+        ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geometry"]["ptcloud_profile"])
 
         geo_dict = create_geometry_frompointcloud(ptstxtfile,
-                                       settings["geom"]["x_inlet"],
-                                       settings["geom"]["x_outlet"],
+                                       settings["geometry"]["x_inlet"],
+                                       settings["geometry"]["x_outlet"],
                                        settings["geometry"]["pitch"],
-                                       settings["geom"]["ptcloud_profile_unit"],
-                                       settings["geom"]["shift_domain"],
+                                       settings["geometry"]["ptcloud_profile_unit"],
+                                       settings["geometry"]["shift_domain"],
                                        settings["geometry"]["alpha"],
                                        settings["mesh"]["extrudeLength"],
                                        case_path, )
 
-    if settings["geom"]["algorithm"] == "naca_airfoil_generator":
+    if settings["geometry"]["algorithm"] == "naca_airfoil_generator":
 
-        geo_dict = create_geometry_fromnacaairfoil(settings["geom"]["naca_digits"],
-                                        settings["geom"]["numberofpoints"],
-                                        settings["geom"]["finite_TE"],
-                                        settings["geom"]["half_cosine_spacing"],
-                                        settings["geom"]["x_inlet"],
-                                        settings["geom"]["x_outlet"],
+        geo_dict = create_geometry_fromnacaairfoil(settings["geometry"]["naca_digits"],
+                                        settings["geometry"]["numberofpoints"],
+                                        settings["geometry"]["finite_TE"],
+                                        settings["geometry"]["half_cosine_spacing"],
+                                        settings["geometry"]["x_inlet"],
+                                        settings["geometry"]["x_outlet"],
                                         settings["geometry"]["pitch"],
-                                        settings["geom"]["camberlength"],
-                                        settings["geom"]["shift_domain"],
-                                        settings["geom"]["staggerangle"],
+                                        settings["geometry"]["camberlength"],
+                                        settings["geometry"]["shift_domain"],
+                                        settings["geometry"]["staggerangle"],
                                         settings["mesh"]["extrudeLength"],
                                         case_path, )
     #blockpoints(geo_dict,settings)

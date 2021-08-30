@@ -1,34 +1,62 @@
 case_settings:
     name : "GWK_Verdichterkaskade_LES"
-    case_type : "Openfoam_cascade_les"
+    case_type : "openfoam_cascade_les"
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"
     timestep : "10e-8"
 
+simcase_settings:
+    variables:
+        JOB_NUMBERS: "12"
+        HLRN_JOB_ACCOUNT: "niinyhma"
+        HLRN_JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
+
+        PINLET: "95000"
+        TINLET : "293.15"
+        UINLET: "35.392445 58.06355 0"
+        EDDYDENSITY: "10"
+        UDASHSCALING: "1"
+        RINLET : "4 0 0 4 0 4"
+        LINLET : "0.02"
+
+        POUTLET: "101325"
+
+        PITCHPER: "0.0765"
+        SPANPER: "0.04"
+        ZSPAN: "0.04"
+
+        DELTAT: "10e-8"
+
+        WRITEINTERVAL : "2000"
+        PURGEWRITE: "2"
+
+        ADUSTABLETIMESTEP : "off"
+        #STARTAVETIME : "0.12"
+        PROCS: "192"
+        NOUTERCORRECTORS : "2"
+
+        #START: "0.12"
+        #END: "1000"
+
+        #RUNTIME : "10:00:00"
+        #NODES: "2"
+        #PROCS: "192"
+
+    options:
+        INOUT_FIELDAVE_PROBING: "nan"
+        INOUT_VELOCITY_PROBING: "nan"
+        XSCLICE_PROBING : "nan"
+        MIDSPANSLICE_PROBING : "nan"
+        PROFILE_PROBING : "nan"
+        STREAMLINE_PROBING : "nan"
+        STAGNATIONPOINTFLOW_PROBING : "nan"
+
+
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
     midline_tolerance               : 5                                     #Tolerance coefficient for midline-generation
-
-probing:
-    probes:
-        profile_probing: True
-        streamline_probing: True
-        inletoutletfieldave_probing: True
-        inletoutletvelocity_probing: True
-        xslice_probing: True
-        midspanslice_probing: True
-        vk_stagnationflow_probing : True
-
-monitoring:
-    averagevaluesinlet: "/03_Solution/postProcessing/AverValuesInlet"
-    averagevaluesoutlet: "/03_Solution/postProcessing/AverValuesOutlet"
-    massflowinlet: "/03_Solution/postProcessing/MassflowInlet"
-    massflowoutlet: "/03_Solution/postProcessing/MassflowOutlet"
-    logfile: "03_Solution/log.log"
-
-geom:
     algorithm                       : "from_pointcloud"
     ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
@@ -56,52 +84,6 @@ mesh:
     smoothing                       : 5000                                  #smoothing iterations
 
 
-case:
-    case_parameters:
-      U :
-        UINLET : "35.392445 58.06355 0"
-        RINLET : "4 0 0 4 0 4"
-        LINLET : "0.02"
-        EDDYDENSITY : "10"
-        UDASHSCALING : "1"
-      T :
-        TINLET : "293.15"
-      p :
-        PINLET : "95000"
-        POUTLET : "101325"
-      alphat:
-      nut:
-      thermophysicalProperties:
-      turbulenceProperties:
-      controlDict:
-        WRITEINTERVAL : "2000"
-        ADUSTABLETIMESTEP : "off"
-        STARTAVETIME : "0.12"
-        PURGEWRITE : "2"
-      createPatchDict:
-      decomposeParDict:
-        PROCS: "192"
-      fvSchemes:
-      fvSolution:
-          NOUTERCORRECTORS : "2"
-      mapFieldsDict:
-      SurfaceSampleDict:
-      topoSetDict:
-
-      Probes_FieldAve_Dict:
-          START: "0.12"
-          END: "1000"
-      Probe_Slice_Dict:
-          START: "0.12"
-          END: "1000"
-
-      submit_job_hlrn.sh:
-          RUNTIME : "10:00:00"
-          NODES: "2"
-          PROCS: "192"
-
-      jobChain.sh:
-          JOB_NUMBERS : "12"
 
 probes:
     profile_probes:

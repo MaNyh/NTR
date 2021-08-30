@@ -2,7 +2,8 @@ import os
 
 from NTR.preprocessing.create_geom import run_create_geometry
 from NTR.utils.functions import run_igg_meshfuncs
-from NTR.preprocessing.case_creation import create_simulationcase
+#from NTR.preprocessing.case_creation import create_simulationcase
+from NTR.preprocessing.create_simcase import create_simulationcase
 
 examples_compressor_kurth = os.path.join("..", "examples", "CascadeCase_compressor_kurth", "case_settings.yml")
 examples_gwkles = os.path.join("..", "examples", "CascadeCase_gwk_les", "case_settings.yml")
@@ -18,8 +19,8 @@ def test_example_compressor_kurth():
 
 
 def test_example_gwkles():
-    run_create_geometry(examples_gwkles)
-    run_igg_meshfuncs(examples_gwkles)
+    #run_create_geometry(examples_gwkles)
+    #run_igg_meshfuncs(examples_gwkles)
     create_simulationcase(examples_gwkles)
 
 

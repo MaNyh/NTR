@@ -6,12 +6,11 @@ import os
 import numpy as np
 import pyvista as pv
 
-from NTR.database.case_reader import create_simulationcase
+from NTR.preprocessing.create_simcase import create_simulationcase
 from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
-from NTR.preprocessing.case_creation import openfoam_cascade_les_templates, openfoam_cascade_ras_templates, trace_cascade_ras_templates
 
 
 def test_yamlDictRead(tmpdir):
