@@ -1,0 +1,46 @@
+MIDSPAN_SAMPLING
+{
+
+	type                surfaces;
+	libs                ("libsampling.so");
+	enabled             false;
+	writeControl        writeTime;
+	writeInterval       1;
+	writeFields         true;        
+	log                 false;
+	valueOutput         true;
+	surfaceFormat       vtk;
+	regionType          sampledSurface;
+	operation           areaAverage;
+	interpolationScheme cellPoint;
+	
+	fields
+	(
+	        U
+	        p
+	        T
+	        gradU
+	        nut
+	        rho
+	
+	);
+	
+	surfaces
+	(
+	
+	    SLICE
+	    {
+		    type        plane;
+		    source      cells;
+	
+		    planeType   pointAndNormal;
+	
+		    pointAndNormalDict
+		    {
+			normal      (0 0 1);
+			point       (0 0 0);
+		    }
+	    }
+	        
+	);
+}

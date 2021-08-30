@@ -1,0 +1,164 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     rhoPimpleFoam;
+
+startFrom       latestTime;
+
+startTime       1e-06;
+
+//stopAt          writeNow;
+stopAt		endTime;
+
+endTime         0.6;
+
+deltaT          6e-8;//
+
+writeControl    timeStep;
+
+writeInterval   100;
+
+purgeWrite      3;
+
+writeFormat     ascii;
+
+writePrecision  16;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   16;
+
+runTimeModifiable true;
+
+adjustTimeStep  on;
+
+maxCo           50; //maximale courant number
+
+libs (
+"libfieldFunctionObjects.so"
+"libsampling.so"
+"libAdvectiveFields.so"
+//"libWaveTransmissiveFields.so"
+//"libDFSEM_WaveTransmissive_synthWake.so"
+);
+
+
+functions
+{
+    #includeFunc flowRatePatch(name=INLET)
+    #includeFunc flowRatePatch(name=OUTLET)
+    #includeFunc resudials
+
+
+sclice
+    {    
+
+    type        			surfaces;
+//    writeControl              	writeTime;
+    interpolationScheme 		cellPoint;
+    functionObjectLibs 			( "libsampling.so" );
+    enabled         			true;
+    writeControl   			timeStep; 
+    writeInterval  			100; // the surface will be stored every 2nd time step (for example)
+    surfaceFormat    			vtk;    
+    surfaces
+    (
+        zCut
+        {
+        // Cutingplane using iso surface
+        type            cuttingPlane;
+        planeType       pointAndNormal;
+        pointAndNormalDict
+        {
+            basePoint       (0.06645314767956734 0.015346363186836243 0.02);
+            normalVector    (0.0 0.0 1.0);
+        }
+        interpolate     true;       
+        }
+    );
+
+    fields
+    (
+    U
+    );
+    }        
+
+
+fieldAverage
+   {
+        type            	  fieldAverage;
+       	writeControl    	  writeTime;
+        restartOnOutput           false;
+        restartOnRestart          false;
+	enabled			  true;
+
+        fields
+        (
+	  wallShearStress
+	  {
+		mean true;
+		prime2Mean false;
+		base time;
+	  }
+	  rho
+	  {
+		mean true;
+		prime2Mean false;
+		base	time;
+	  }
+
+	  U
+          {
+                mean        true;
+                prime2Mean  true;
+                base        time;
+          }
+
+          p
+          {
+              mean        true;
+              prime2Mean  true;
+              base        time;
+          }
+          T
+          {
+              mean        true;
+              prime2Mean  true;
+              base        time;
+          }
+          nut
+          {
+              mean        true;
+	      prime2Mean  true;
+              base        time;
+          }
+          alphat
+          {
+	     mean 	true;
+	     prime2Mean	true;
+	     base 	time;
+	  }
+      
+	);
+  }
+
+
+}
+
+// ************************************************************************* //

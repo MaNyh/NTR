@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     rhoPimpleFoam;
+
+startFrom       latestTime;
+
+startTime       <var DELTAT var>;
+
+stopAt		    endTime;
+
+endTime         10;
+
+deltaT          <var DELTAT var>;
+
+writeControl    timeStep;
+
+writeInterval   <var WRITEINTERVAL var>;
+
+purgeWrite      <var PURGEWRITE var>;
+
+writeFormat     ascii;
+
+writePrecision  16;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   16;
+
+runTimeModifiable true;
+
+adjustTimeStep  <var ADUSTABLETIMESTEP var>;
+
+maxCo           0.4; //maximale courant number
+
+libs (
+    "libfieldFunctionObjects.so"
+    "libsampling.so"
+    "libAdvectiveFields.so"
+    "libWaveTransmissiveFields.so"
+    "libDFSEM_WaveTransmissive_synthWake.so"
+    );
+
+    functions
+    {
+        <opt INOUT_FIELDAVE_PROBING opt>
+        <opt INOUT_VELOCITY_PROBING opt>
+        <opt XSCLICE_PROBING opt>
+        <opt MIDSPANSLICE_PROBING opt>
+        <opt PROFILE_PROBING opt>
+        <opt STREAMLINE_PROBING opt>
+        <opt STAGNATIONPOINTFLOW_PROBING opt>
+    }
+//}
+
+// ************************************************************************* //
