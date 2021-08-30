@@ -63,7 +63,7 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
 
     outletPoly = pv.Line(*outlet_pts)
 
-    writeTecplot1DFile('01_Meshing/geom.dat', ['x', 'z'],
+    writeTecplot1DFile(os.path.join(casepath,'01_Meshing','geom.dat'), ['x', 'z'],
                        ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
                        [[x_ps, y_ps], [x_ss, y_ss], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mpsl[::-1], y_mpsl[::-1]]],
                        'obere Kurvenverlauf des Kanals')
@@ -88,7 +88,7 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
     geo_filename = "geometry.pkl"
     write_pickle(os.path.join(casepath, geo_filename), geo_dict)
 
-    if True:
+    if verbose:
         plotter = pv.Plotter()
         psPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
         ssPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
@@ -164,7 +164,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_co
 
     outletPoly = pv.Line(*outlet_pts)
 
-    writeTecplot1DFile('01_Meshing/geom.dat', ['x', 'z'],
+    writeTecplot1DFile(os.path.join(casepath,'01_Meshing','geom.dat'), ['x', 'z'],
                        ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
                        [[x_ps, y_ps], [x_ss, y_ss], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mpsl[::-1], y_mpsl[::-1]]],
                        'obere Kurvenverlauf des Kanals')
@@ -289,8 +289,6 @@ def run_create_geometry(settings_yaml):
     if not os.path.isdir(datpath):
         os.mkdir(datpath)
 
-    print(os.path.abspath(case_path))
-    outpath = os.path.join(datpath)
     print("create_geometry")
     if settings["geom"]["algorithm"] == "from_pointcloud":
         ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geom"]["ptcloud_profile"])
@@ -303,7 +301,7 @@ def run_create_geometry(settings_yaml):
                                        settings["geom"]["shift_domain"],
                                        settings["geometry"]["alpha"],
                                        settings["mesh"]["extrudeLength"],
-                                       outpath, )
+                                       case_path, )
 
     if settings["geom"]["algorithm"] == "naca_airfoil_generator":
 
@@ -318,7 +316,7 @@ def run_create_geometry(settings_yaml):
                                         settings["geom"]["shift_domain"],
                                         settings["geom"]["staggerangle"],
                                         settings["mesh"]["extrudeLength"],
-                                        outpath, )
+                                        case_path, )
     #blockpoints(geo_dict,settings)
     return 0
 

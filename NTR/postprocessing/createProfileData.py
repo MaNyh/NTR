@@ -30,7 +30,7 @@ def createProfileData(case):
     plt.plot(x_ps, y_ps, '-b', lw=1)
 
     plt.axis('equal')
-    output_path = case.casedir# os.path.dirname(os.path.abspath(path_to_mesh))
+    output_path = os.path.join(case.casedir,"04_Data")# os.path.dirname(os.path.abspath(path_to_mesh))
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_profil.pdf'))
 
@@ -149,14 +149,14 @@ def createProfileData(case):
         data_output.close()
 
 
-    writeOutput(case.casedir)
+    writeOutput(os.path.join(case.casedir,"04_Data"))
 
     return x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps
 
 
 def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1):
 
-    output_path = case.casedir
+    output_path = os.path.join(case.casedir,"04_Data")
 
     p = p_ss + p_ps[::-1]
     p_max = max(p)
@@ -218,7 +218,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, int
 
 
 def calcPostSliceValues(case, x, ind):
-    output_path = case.casedir
+    output_path = os.path.join(case.casedir,"04_Data")
     mesh = case.mesh_loaded_dict["fluid"]
     cut_plane = mesh.slice(normal="x", origin=(x, 0, 0))
     points = cut_plane.points

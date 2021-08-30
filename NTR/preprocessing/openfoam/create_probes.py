@@ -97,7 +97,7 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     data_file.write("""        );
 \t}""")
     data_file.close()
-
+    """
     plt.close('all')
     plt.figure(figsize=(8, 8))
 
@@ -107,7 +107,7 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     plt.legend(loc='best')
     plt.savefig(os.path.join(os.path.abspath(output_path), 'kontrollplot_probes_profile.pdf'))
     plt.close('all')
-
+    """
     outprobes = {"probes pressure-side": np.stack((x_bl_ss, y_bl_ss)),
                  "probes suction-side": np.stack((x_bl_ps, y_bl_ps)),
                  }
@@ -184,7 +184,7 @@ probeLocations
     data_file.write("""        );
 }""")
     data_file.close()
-
+    """
     plt.close('all')
     plt.figure(figsize=(8, 8))
     plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
@@ -196,7 +196,7 @@ probeLocations
     plt.legend(loc='best')
     plt.savefig(os.path.join(save_dir, 'kontrollplot_probes_streamline.pdf'))
     plt.close('all')
-
+    """
     outprobes = {"probes streamline": np.stack((x_probes, y_probes)),
                  }
 

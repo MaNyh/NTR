@@ -105,7 +105,7 @@ def test_extract_vk_hk(verbose=False):
     #d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
     #digitstring = str(d1)+str(d2)+str(d3)+str(d4)
     #manifold problems with other profiles with veronoi-mid and other unoptimized code. therefor tests only 0009
-    X,Y = naca("0009", res, finite_TE = False, half_cosine_spacing = True)
+    X,Y = naca("6504", res, finite_TE = False, half_cosine_spacing = True)
     ind_hk_test = 0
     ind_vk_test = res
 
@@ -184,20 +184,7 @@ def test_midline_from_sides(verbose=False):
 
     assert length == testlength, "midline not accurate"
 
-def test_simcases(tmpdir):
-    cases = {"openfoam_cascade_les_templates": openfoam_cascade_les_templates,
-             "openfoam_cascade_ras_templates": openfoam_cascade_ras_templates,
-             "trace_cascade_ras_templates": trace_cascade_ras_templates
-             }
 
-    for name, case in cases.items():
-        dirietories = list(case.file_templates.keys())
-        assert len(dirietories) > 0, "no directory structure for " + name
-
-#        test_settingsdict = {}
-#        test_file = tmpdir / "test.yaml"
-#        with open(test_file, "w") as handle:
-#            yaml.dump(test_settingsdict, handle)
 def test_create_simulationcase(tmpdir):
     test_dict = {"case_settings": {
                                     "case_type" : "openfoam_cascade_les",
@@ -252,7 +239,6 @@ def test_create_simulationcase(tmpdir):
     test_geo_dict = {}
     os.mkdir(tmpdir/"04_Data")
     test_geo_file = tmpdir / os.path.join("04_Data", "geometry.pkl")
-    write_yaml_dict(test_file,test_dict)
-    write_pickle(test_geo_file,test_geo_dict)
+    write_yaml_dict(test_file, test_dict)
+    write_pickle(test_geo_file, test_geo_dict)
     create_simulationcase(test_file)
-    print(tmpdir)
