@@ -305,7 +305,7 @@ def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbos
     return checkPoints
 
 
-def extractSidePolys(ind_hk, ind_vk, sortedPoly,verbose):
+def extractSidePolys(ind_hk, ind_vk, sortedPoly, verbose=False):
     xs, ys = list(sortedPoly.points[::, 0]), list(sortedPoly.points[::, 1])
 
     if ind_vk < ind_hk:

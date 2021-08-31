@@ -142,7 +142,7 @@ def test_extractSidePolys(verbose=False):
     points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) - 1)).T
 
     poly = pv.PolyData(points)
-    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
+    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly, verbose )
 
     if verbose:
         p = pv.Plotter()
@@ -167,7 +167,7 @@ def test_midline_from_sides(verbose=False):
 
     points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) - 1)).T
     poly = pv.PolyData(points)
-    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
+    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly, verbose)
 
     mids = midline_from_sides(ind_hk, ind_vk, poly.points, psPoly, ssPoly)
 
