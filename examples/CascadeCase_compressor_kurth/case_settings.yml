@@ -2,8 +2,6 @@ geometry:
     pitch                           : 0.1524                                #Pitch [m]
     alpha                           : 0.03                                  #Geometric parameter used for hull-calculations
     midline_tolerance               : 20
-
-geom:
     algorithm                       : "from_pointcloud"
     ptcloud_profile                 : "00_Ressources/PointCloudBladeGeometry.txt"              #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                   #m vs mm
@@ -24,8 +22,8 @@ mesh:
     blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
     cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
-    yPerLowHGridBlockPitchStart     : 0.35                                   #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.8                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.0                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : 0.05                                  #move periodic vertices (yPer from TE) along x
+    yPerLowHGridBlockPitchStart     : 0.4                                   #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.6                                  #move high-y-per-block along y-pitch
+    shift_vk_block_xaxiscoeff       : 0.05                                  #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : 0                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations

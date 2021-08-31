@@ -1,19 +1,16 @@
 geometry:
     pitch                           : 0.265                                #Pitch [m]
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
-    midline_tolerance               : 20
-
-geom:
     algorithm                       : "from_pointcloud"
     ptcloud_profile                 : "00_Ressources/outcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
-    x_inlet                         : -0.26                                  #Shift Inlet along x [m]
-    x_outlet                        : 0.22                                  #Shift Outlet along x [m]
+    x_inlet                         : 0.0                                  #Shift Inlet along x [m]
+    x_outlet                        : 0.28                                  #Shift Outlet along x [m]
     shift_domain                    : 0                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
     factor                          : 1                                   #Mesh-density factor
-    ogrid_factor                    : 0.1                                     #o-grid-node-ratio
+    ogrid_factor                    : 1                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.00001                             #first cell height when factor=1
     le_firstcellheight_coeff        : 1
@@ -30,6 +27,6 @@ mesh:
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.3                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.7                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.4                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : -0.2                                 #move periodic vertices (yPer from TE) along x
+    shift_vk_block_xaxiscoeff       : 0.05                                  #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : -0.05                                 #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations

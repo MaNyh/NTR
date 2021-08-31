@@ -14,7 +14,7 @@ from NTR.utils.mathfunctions import vecAbs
 
 def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z,
                                    casepath,
-                                   verbose=False):
+                                   verbose=True):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -97,13 +97,17 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
         midsPoly = pv.PolyData(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
 
         psPoly_asline = lines_from_points(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
+        psPoly_asline["scalars"]=np.arange(psPoly_asline.number_of_points)
         ssPoly_asline = lines_from_points(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
+        ssPoly_asline["scalars"]=np.arange(ssPoly_asline.number_of_points)
         mpslPolyLow_asline = lines_from_points(np.stack((x_mpsl, y_lower, np.zeros(len(x_mpsl)))).T)
         mpslPolyUpper_asline = lines_from_points(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
         midsPoly_asline = lines_from_points(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
 
-        plotter.add_mesh(psPoly, color="red")
-        plotter.add_mesh(ssPoly, color="blue")
+        plotter.add_mesh(psPoly, color="red",label="pressure side")
+        plotter.add_mesh(ssPoly, color="blue",label="suction side")
+        plotter.add_mesh(sortedPoints[ind_hk],color="green",point_size=20,label="TE")
+        plotter.add_mesh(sortedPoints[ind_vk],color="yellow",point_size=20,label="LE")
         plotter.add_mesh(mpslPolyLow)
         plotter.add_mesh(mpslPolyUpper)
         plotter.add_mesh(midsPoly, point_size=5)
@@ -115,13 +119,14 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
         plotter.add_mesh(midsPoly_asline)
 
         plotter.show_axes()
+        plotter.add_legend()
         plotter.show()
     return geo_dict
 
 
 
 def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_cosine_spacing, x_inlet, x_outlet,
-                                    pitch, geoscaling, blade_shift,staggerangle, span_z,casepath,verbose=False):
+                                    pitch, geoscaling, blade_shift,staggerangle, span_z,casepath,verbose=True):
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================
@@ -185,7 +190,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_co
                 }
 
     geo_filename = "geometry.pkl"
-    write_pickle(os.path.join(casepath, geo_filename), geo_dict)
+    write_pickle(os.path.join(casepath,"04_Data", geo_filename), geo_dict)
 
     if verbose:
         plotter = pv.Plotter()
@@ -228,7 +233,7 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
     poly.points*=scalegeo
     poly.rotate_z(staggerangle)
     points = poly.points
-    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly)
+    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly,verbose)
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
     metal_angle_hk, metal_angle_vk, camber_angle = angles_from_mids(midsPoly)
 
@@ -261,7 +266,7 @@ def extract_geo_paras(points, alpha, verbose):
     sortedPoly = pv.PolyData(points)
 
     ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly)
-    psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly)
+    psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly,verbose)
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
     metal_angle_hk, metal_angle_vk, camber_angle = angles_from_mids(midsPoly)
 
@@ -320,12 +325,3 @@ def run_create_geometry(settings_yaml):
     #blockpoints(geo_dict,settings)
     return 0
 
-"""
-def blockpoints(geodict,settings):
-    ssPoly = geodict["sidePolys"]["ssPoly"]
-    psPoly = geodict["sidePolys"]["psPoly"]
-    ylower = geodict["periodics"]["ylower"]
-
-
-    return 0
-"""

@@ -1,5 +1,5 @@
 #!/bin/bash
-JOB_NUMBERS='<var JOB_NUMBERS var>'
+JOB_NUMBERS=<var JOB_NUMBERS var>
 DEPENDENCY=""
 JOB_FILE="submit_job_hlrn.sh"
 

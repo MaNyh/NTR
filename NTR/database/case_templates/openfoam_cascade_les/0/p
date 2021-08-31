@@ -34,7 +34,7 @@ boundaryField
         type            waveTransmissive;
         gamma           1.4;
 	    value		    uniform <var POUTLET var>;
-	    fieldInf        <var POUTLETvar>;
+	    fieldInf        <var POUTLET var>;
     }
     BLADE
     {

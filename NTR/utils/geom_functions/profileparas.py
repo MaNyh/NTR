@@ -305,7 +305,7 @@ def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbos
     return checkPoints
 
 
-def extractSidePolys(ind_hk, ind_vk, sortedPoly):
+def extractSidePolys(ind_hk, ind_vk, sortedPoly,verbose):
     xs, ys = list(sortedPoly.points[::, 0]), list(sortedPoly.points[::, 1])
 
     if ind_vk < ind_hk:
@@ -321,9 +321,33 @@ def extractSidePolys(ind_hk, ind_vk, sortedPoly):
 
         y_ps = ys[ind_vk:] + ys[:ind_hk + 1]
         x_ps = xs[ind_vk:] + xs[:ind_hk + 1]
-    psPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
-    ssPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
-    return psPoly, ssPoly
+
+    psl_helper = polyline_from_points(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
+    ssl_helper = polyline_from_points(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
+
+    if psl_helper.length>ssl_helper.length:
+
+        psPoly = pv.PolyData(ssl_helper.points)
+        ssPoly = pv.PolyData(psl_helper.points)
+    else:
+
+        psPoly = pv.PolyData(psl_helper.points)
+        ssPoly = pv.PolyData(ssl_helper.points)
+    if verbose:
+        p = pv.Plotter()
+        psl = polyline_from_points(psPoly.points)
+        psl.point_arrays["scalars"] = range(psl.number_of_points)
+        p.add_mesh(psl, label="psPoly")
+        ssl = polyline_from_points(ssPoly.points)
+        ssl.point_arrays["scalars"] = range(ssl.number_of_points)
+        p.add_mesh(ssl, label="ssPoly")
+        p.add_mesh(psPoly, label="psPoly", color="white", point_size=1)
+        p.add_mesh(ssPoly, label="ssPoly", color="black", point_size=1)
+        p.add_legend()
+        p.add_axes()
+        p.show()
+
+    return ssPoly, psPoly
 
 
 def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
