@@ -15,18 +15,24 @@ from NTR.utils.geom_functions.geom_utils import getBoundaryValues, equi_points
 from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
 
-def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pden_Probes_Profile_PS,
-                            interval_time_steps_probes, output_path,  start_time, end_time, tolerance):
+def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_rate, path_to_sim, start_time, end_time,
+                                     tolerance, case_settings):
     """
     :param path_blade_surface: vtk-mesh
-    :param pden_Probes_Profile_SS: integer (slicer)
-    :param pden_Probes_Profile_PS: integer (slicer)
-    :param interval_time_steps_probes: integer
+    :param pden_ss: integer number of points on ss
+    :param pden_ps: integer number of points on ps
+    :param sampling_rate: sampling frequency<
     :param output_path: pathstring
     :param tolerance: float
     :return: openFoamDict
     """
-    ssPoly = geoparas_dict["sidePolys"]["ssPoly"]
+    midspan_z = geomdat_dict["span_z"]/2
+    output_path = os.path.join(path_to_sim,"system")
+    timestepinterval = int(
+        float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
+
+
+    ssPoly = geomdat_dict["sidePolys"]["ssPoly"]
     ref_ss_x, ref_ss_y = refine_spline(ssPoly.points[::, 0], ssPoly.points[::, 1], 4000)
     ref_ss_points = np.stack((ref_ss_x, ref_ss_y, np.zeros(len(ref_ss_y)))).T
     ref_ssPoly = pv.PolyData(ref_ss_points)
@@ -36,7 +42,7 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     ref_ss_face_shift.points += tolerance * ref_ss_face_shift.point_arrays["Normals"]
     ref_ss_cut = ref_ss_face_shift.slice(normal="z", origin=(0, 0, midspan_z))
 
-    psPoly = geoparas_dict["sidePolys"]["psPoly"]
+    psPoly = geomdat_dict["sidePolys"]["psPoly"]
     ref_ps_x, ref_ps_y = refine_spline(psPoly.points[::, 0], psPoly.points[::, 1], 4000)
     ref_ps_points = np.stack((ref_ps_x, ref_ps_y, np.zeros(len(ref_ps_y)))).T
     ref_psPoly = pv.PolyData(ref_ps_points)
@@ -54,8 +60,8 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     y_ps_shift = ref_ps_cut.points[::,1]
     z_bl_ps = ref_ps_cut.points[::,2]
 
-    x_bl_ss, y_bl_ss = refine_spline(x_ss_shift, y_ss_shift, pden_Probes_Profile_SS)
-    x_bl_ps, y_bl_ps = refine_spline(x_ps_shift, y_ps_shift, pden_Probes_Profile_PS)
+    x_bl_ss, y_bl_ss = refine_spline(x_ss_shift, y_ss_shift, pden_ss)
+    x_bl_ps, y_bl_ps = refine_spline(x_ps_shift, y_ps_shift, pden_ps)
 
 
 
@@ -66,7 +72,7 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
         type                probes;
         libs                ("libsampling.so");
         writeControl        timeStep;
-        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        writeInterval       """ + str(timestepinterval) + """;
         timeStart           """ + str(start_time) + """;
         timeEnd             """ + str(end_time) + """;
 
@@ -97,17 +103,7 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     data_file.write("""        );
 \t}""")
     data_file.close()
-    """
-    plt.close('all')
-    plt.figure(figsize=(8, 8))
 
-    plt.plot(x_bl_ss, y_bl_ss, 'xr', lw=1, label='probes ss_profile')
-    plt.plot(x_bl_ps, y_bl_ps, 'xb', lw=1, label='probes ps_profile')
-
-    plt.legend(loc='best')
-    plt.savefig(os.path.join(os.path.abspath(output_path), 'kontrollplot_probes_profile.pdf'))
-    plt.close('all')
-    """
     outprobes = {"probes pressure-side": np.stack((x_bl_ss, y_bl_ss)),
                  "probes suction-side": np.stack((x_bl_ps, y_bl_ps)),
                  }
@@ -115,30 +111,29 @@ def createProbesProfileDict(geoparas_dict, midspan_z, pden_Probes_Profile_SS, pd
     return outprobes
 
 
-def createProbesStreamlineDict(nop_Probes_Streamline, save_dir,
-                               interval_time_steps_probes, start_time, end_time, geoparas_dict):
+def openFoam_createProbesStreamlineDict(nop_streamline, sampling_rate, path_to_sim,
+                                        start_time, end_time, geomdat_dict, case_settings):
+    output_path = os.path.join(path_to_sim,"system")
+    timestepinterval = int(
+        float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
 
-
-    midspan_z = geoparas_dict["span_z"]/2
-    y_lower = geoparas_dict["periodics"]["ylower"]
-    y_upper = geoparas_dict["periodics"]["yupper"]
+    midspan_z = geomdat_dict["span_z"] / 2
+    y_lower = geomdat_dict["periodics"]["ylower"]
+    y_upper = geomdat_dict["periodics"]["yupper"]
 
     outer = y_lower.merge(y_upper)
 
     x_bounds = outer.points[::,0]
     y_bounds = outer.points[::,1]
 
-    y_inlet, x_inlet, y_outlet, x_outlet, x_lower_peri, y_lower_peri, x_upper_peri, y_upper_peri = getBoundaryValues(
-        x_bounds, y_bounds)
-
-    x_mpsl = np.array(geoparas_dict["midpassagestreamLine"]["x_mpsl"])
-    y_mpsl = np.array(geoparas_dict["midpassagestreamLine"]["y_mpsl"])
+    x_mpsl = np.array(geomdat_dict["midpassagestreamLine"]["x_mpsl"])
+    y_mpsl = np.array(geomdat_dict["midpassagestreamLine"]["y_mpsl"])
 
     # x_probes = []
     # y_probes = []
     z_probes = []
 
-    nop = int(nop_Probes_Streamline)
+    nop = int(nop_streamline)
 
     xn, yn = equi_points(x_mpsl, y_mpsl, nop)
     for i in range(nop):
@@ -152,7 +147,7 @@ def createProbesStreamlineDict(nop_Probes_Streamline, save_dir,
     x_probes[0] = x_probes[0] + 0.00001 * dist
     x_probes[-1] = x_probes[-1] - 0.00001 * dist
 
-    data_file = open(os.path.join(save_dir, 'Probes_Streamline_Dict'), 'w')
+    data_file = open(os.path.join(output_path, 'Probes_Streamline_Dict'), 'w')
 
     data_file.write("""
 Probes_Streamline
@@ -160,7 +155,7 @@ Probes_Streamline
 type                probes;
 libs                ("libsampling.so");
 writeControl        timeStep;
-writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+writeInterval       """ + str(timestepinterval) + """;
 timeStart           """ + str(start_time) + """;
 timeEnd             """ + str(end_time) + """;
 
@@ -184,30 +179,21 @@ probeLocations
     data_file.write("""        );
 }""")
     data_file.close()
-    """
-    plt.close('all')
-    plt.figure(figsize=(8, 8))
-    plt.plot(x_inlet, y_inlet, '-r', lw=1, label='inlet')
-    plt.plot(x_outlet, y_outlet, '-b', lw=1, label='outlet')
-    plt.plot(*geoparas_dict["points"][::,0:2], '.k', lw=1, label='profil')
-    plt.plot(x_lower_peri, y_lower_peri, '-y', lw=1, label='lower_peri')
-    plt.plot(x_upper_peri, y_upper_peri, '-c', lw=1, label='upper_peri')
-    plt.plot(x_probes, y_probes, 'x', label='Probes_Streamline', color="darkorange")
-    plt.legend(loc='best')
-    plt.savefig(os.path.join(save_dir, 'kontrollplot_probes_streamline.pdf'))
-    plt.close('all')
-    """
+
     outprobes = {"probes streamline": np.stack((x_probes, y_probes)),
                  }
 
     return outprobes
 
 
-def createProbesInletOutlet(geodat_dict, interval_time_steps_probes, output_path, start_time, end_time):
+def openFoam_createProbesInletOutlet(geomdat_dict, sampling_rate, path_to_sim, start_time, end_time, case_settings):
+    output_path = os.path.join(path_to_sim,"system")
+    timestepinterval = int(
+        float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
 
-    midspan_z = geodat_dict["span_z"]/2
-    y_lower = geodat_dict["periodics"]["ylower"]
-    y_upper = geodat_dict["periodics"]["yupper"]
+    midspan_z = geomdat_dict["span_z"] / 2
+    y_lower = geomdat_dict["periodics"]["ylower"]
+    y_upper = geomdat_dict["periodics"]["yupper"]
 
     outer = y_lower.merge(y_upper)
 
@@ -230,7 +216,7 @@ def createProbesInletOutlet(geodat_dict, interval_time_steps_probes, output_path
             type                probes;
             libs                ("libsampling.so");
             writeControl        timeStep;
-            writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+            writeInterval       """ + str(timestepinterval) + """;
             timeStart           """ + str(start_time) + """;
             timeEnd             """ + str(end_time) + """;
 
@@ -259,17 +245,20 @@ def createProbesInletOutlet(geodat_dict, interval_time_steps_probes, output_path
     return outprobes
 
 
-def createXSliceProbes(geodat_dict, nop, x_slice_1, x_slice_2, interval_time_steps_probes,
-                       output_path, start_time, end_time):
+def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sampling_rate,
+                                path_to_sim, start_time, end_time, case_settings):
 
-    midspan_z = geodat_dict["span_z"]/2
-    y_lower = geodat_dict["periodics"]["ylower"]
-    y_upper = geodat_dict["periodics"]["yupper"]
+    output_path = os.path.join(path_to_sim, "system")
+    timestepinterval = int(
+    float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
+    midspan_z = geomdat_dict["span_z"] / 2
+    y_lower = geomdat_dict["periodics"]["ylower"]
+    y_upper = geomdat_dict["periodics"]["yupper"]
 
     perbounds = y_lower.merge(y_upper)
 
-    slice_1 = perbounds.slice(origin=(x_slice_1, 0, 0), normal=(1, 0, 0))
-    slice_2 = perbounds.slice(origin=(x_slice_2, 0, 0), normal=(1, 0, 0))
+    slice_1 = perbounds.slice(origin=(x_slice_one, 0, 0), normal=(1, 0, 0))
+    slice_2 = perbounds.slice(origin=(x_slice_two, 0, 0), normal=(1, 0, 0))
 
     ys_1 = slice_1.points[::, 1]
     ys_2 = slice_2.points[::, 1]
@@ -291,7 +280,7 @@ def createXSliceProbes(geodat_dict, nop, x_slice_1, x_slice_2, interval_time_ste
             type                probes;
             libs                ("libsampling.so");
             writeControl        timeStep;
-            writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+            writeInterval       """ + str(timestepinterval) + """;
             timeStart           """ + str(start_time) + """;
             timeEnd             """ + str(end_time) + """;
 
@@ -309,32 +298,38 @@ def createXSliceProbes(geodat_dict, nop, x_slice_1, x_slice_2, interval_time_ste
     data_file.write('\t\t\t//Probes auf X-Slice 1 ' + str(len(y1_probes)) + '\n\n')
 
     for i in range(len(y1_probes)):
-        data_file.write('\t\t\t(' + str(x_slice_1) + '\t\t' + str(y1_probes[i]) + '\t\t' + str(midspan_z) + ')\n')
+        data_file.write('\t\t\t(' + str(x_slice_one) + '\t\t' + str(y1_probes[i]) + '\t\t' + str(midspan_z) + ')\n')
 
     data_file.write('\n\t\t\t//Probes auf X-Slice 2 ' + str(len(y2_probes)) + '\n\n')
 
     for i in range(len(y2_probes)):
-        data_file.write('\t\t\t(' + str(x_slice_2) + '\t\t' + str(y2_probes[i]) + '\t\t' + str(midspan_z) + ')\n')
+        data_file.write('\t\t\t(' + str(x_slice_two) + '\t\t' + str(y2_probes[i]) + '\t\t' + str(midspan_z) + ')\n')
 
     data_file.write("""        );
     \t}""")
     data_file.close()
 
-    outprobes = {"probes xslice1": np.stack((x_slice_1 * np.ones(len(y1_probes)), y1_probes)),
-                 "probes xslice2": np.stack((x_slice_2 * np.ones(len(y1_probes)), y2_probes)),
+    outprobes = {"probes xslice1": np.stack((x_slice_one * np.ones(len(y1_probes)), y1_probes)),
+                 "probes xslice2": np.stack((x_slice_two * np.ones(len(y1_probes)), y2_probes)),
                  }
 
     return outprobes
 
 
-def create_vk_stagflow_probes(geom_paras, nop, length, angle, interval_time_steps_probes,
-                              output_path, start_time, end_time):
+def openFoam_create_vk_stagflow_probes(geomdat_dict, nop, length, sampling_rate,
+                                       path_to_sim, start_time, end_time, case_settings):
 
-    vk_point = geom_paras["sortedPoly"][geom_paras["hk_vk_idx"]["ind_vk"]]
+    output_path = os.path.join(path_to_sim, "system")
+    timestepinterval = int(
+        float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
+
+    vk_point = geomdat_dict["sortedPoly"][geomdat_dict["hk_vk_idx"]["ind_vk"]]
+    u_inlet = np.array([float(i) for i in case_settings["simcase_settings"]["variables"]["UINLET"].split(" ")])
+    angle = np.arccos(u_inlet[0] / u_inlet[1]) * 180 / np.pi
     stagnationLine = pv.Line((0, 0, 0), (-length, 0, 0), nop - 1)
     stagnationLine.rotate_z(angle)
     stagnationLine.translate(vk_point)
-    midspan_z = geom_paras["span_z"] / 2
+    midspan_z = geomdat_dict["span_z"] / 2
     x_probes = stagnationLine.points[::, 0]
     y_probes = stagnationLine.points[::, 1]
     z_probes = stagnationLine.points[::, 2] + midspan_z
@@ -346,7 +341,7 @@ Probes_VKstagnation
 type                probes;
 libs                ("libsampling.so");
 writeControl        timeStep;
-writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+writeInterval       """ + str(timestepinterval) + """;
 timeStart           """ + str(start_time) + """;
 timeEnd             """ + str(end_time) + """;
 
@@ -376,8 +371,8 @@ probeLocations
 
     return outprobes
 
-
-def create_of_les_probe_dicts(case_settings, geo_ressources):
+"""
+def openFoam_create_of_les_probe_dicts(case_settings, geo_ressources):
 
     midspan_z = case_settings["mesh"]["extrudeLength"] / 2
 
@@ -388,16 +383,16 @@ def create_of_les_probe_dicts(case_settings, geo_ressources):
     if case_settings["probing"]["probes"]["profile_probing"]:
         sampling_rate = case_settings["probes"]["profile_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
-        outprobes = createProbesProfileDict(geo_ressources,
-                                            midspan_z,
-                                            case_settings["probes"]["profile_probes"]["pden_ps"],
-                                            case_settings["probes"]["profile_probes"]["pden_ss"],
-                                            timestepinterval,
-                                            output_path,
-                                            case_settings["probes"]["profile_probes"]["start_time"],
-                                            case_settings["probes"]["profile_probes"]["end_time"],
-                                            case_settings["probes"]["profile_probes"]["tolerance"]
-                                            )
+        outprobes = openFoam_createProbesProfileDict(geo_ressources,
+                                                     midspan_z,
+                                                     case_settings["probes"]["profile_probes"]["pden_ps"],
+                                                     case_settings["probes"]["profile_probes"]["pden_ss"],
+                                                     timestepinterval,
+                                                     output_path,
+                                                     case_settings["probes"]["profile_probes"]["start_time"],
+                                                     case_settings["probes"]["profile_probes"]["end_time"],
+                                                     case_settings["probes"]["profile_probes"]["tolerance"]
+                                                     )
         for k, v in outprobes.items():
             probes[k] = v
 
@@ -405,12 +400,11 @@ def create_of_les_probe_dicts(case_settings, geo_ressources):
 
         sampling_rate = case_settings["probes"]["streamline_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
-        outprobes = createProbesStreamlineDict(case_settings["probes"]["streamline_probes"]["nop_streamline"],
-                                               output_path,
-                                               timestepinterval,
-                                               case_settings["probes"]["streamline_probes"]["start_time"],
-                                               case_settings["probes"]["streamline_probes"]["end_time"],
-                                               geo_ressources)
+        outprobes = openFoam_createProbesStreamlineDict(case_settings["probes"]["streamline_probes"]["nop_streamline"],
+                                                        output_path, timestepinterval,
+                                                        case_settings["probes"]["streamline_probes"]["start_time"],
+                                                        case_settings["probes"]["streamline_probes"]["end_time"],
+                                                        geo_ressources)
 
         for k, v in outprobes.items():
             probes[k] = v
@@ -418,11 +412,9 @@ def create_of_les_probe_dicts(case_settings, geo_ressources):
     if case_settings["probing"]["probes"]["inletoutletvelocity_probing"]:
         sampling_rate = case_settings["probes"]["inletoutlet_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
-        outprobes = createProbesInletOutlet(geo_ressources,
-                                            timestepinterval,
-                                            output_path,
-                                            case_settings["probes"]["inletoutlet_probes"]["start_time"],
-                                            case_settings["probes"]["inletoutlet_probes"]["end_time"])
+        outprobes = openFoam_createProbesInletOutlet(geo_ressources, timestepinterval, output_path,
+                                                     case_settings["probes"]["inletoutlet_probes"]["start_time"],
+                                                     case_settings["probes"]["inletoutlet_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
@@ -430,24 +422,22 @@ def create_of_les_probe_dicts(case_settings, geo_ressources):
 
         sampling_rate = case_settings["probes"]["xsclicing_probes"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
-        outprobes = createXSliceProbes(geo_ressources,
-                                       case_settings["probes"]["xsclicing_probes"]["nop"],
-                                       case_settings["probes"]["xsclicing_probes"]["x_slice_one"],
-                                       case_settings["probes"]["xsclicing_probes"]["x_slice_two"],
-                                       timestepinterval,
-                                       output_path,
-                                       case_settings["probes"]["xsclicing_probes"]["start_time"],
-                                       case_settings["probes"]["xsclicing_probes"]["end_time"])
+        outprobes = openFoam_createXSliceProbes(geo_ressources, case_settings["probes"]["xsclicing_probes"]["nop"],
+                                                case_settings["probes"]["xsclicing_probes"]["x_slice_one"],
+                                                case_settings["probes"]["xsclicing_probes"]["x_slice_two"],
+                                                timestepinterval, output_path,
+                                                case_settings["probes"]["xsclicing_probes"]["start_time"],
+                                                case_settings["probes"]["xsclicing_probes"]["end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
     if case_settings["probing"]["probes"]["inletoutletfieldave_probing"]:
         sampling_rate = case_settings["probes"]["inletoutletfieldave_probing"]["sampling_rate"]
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
-        create_inletoutletave_probe_dict(case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
-                                         case_settings["probes"]["inletoutletfieldave_probing"]["end_time"],
-                                         timestepinterval,
-                                         output_path)
+        openFoam_create_inletoutletave_probe_dict(case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
+                                                  case_settings["probes"]["inletoutletfieldave_probing"]["end_time"],
+                                                  timestepinterval,
+                                                  output_path)
 
     if case_settings["probing"]["probes"]["vk_stagnationflow_probing"]:
         sampling_rate = case_settings["probes"]["inletoutletfieldave_probing"]["sampling_rate"]
@@ -456,15 +446,14 @@ def create_of_les_probe_dicts(case_settings, geo_ressources):
         angle = np.arccos(U[0] / U[1]) * 180 / np.pi
         timestepinterval = int(float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
 
-        outprobes = create_vk_stagflow_probes(geo_ressources,
-                                              case_settings["probes"]["vk_stagnationflow_probing"]["nop"],
-                                              case_settings["probes"]["vk_stagnationflow_probing"]["length"],
-                                              angle,
-                                              timestepinterval,
-                                              output_path,
-                                              case_settings["probes"]["inletoutletfieldave_probing"]["start_time"],
-                                              case_settings["probes"]["inletoutletfieldave_probing"]["end_time"]
-                                              )
+        outprobes = openFoam_create_vk_stagflow_probes(geo_ressources,
+                                                       case_settings["probes"]["vk_stagnationflow_probing"]["nop"],
+                                                       case_settings["probes"]["vk_stagnationflow_probing"]["length"],
+                                                       angle, timestepinterval, output_path,
+                                                       case_settings["probes"]["inletoutletfieldave_probing"][
+                                                           "start_time"],
+                                                       case_settings["probes"]["inletoutletfieldave_probing"][
+                                                           "end_time"])
         for k, v in outprobes.items():
             probes[k] = v
 
@@ -509,9 +498,13 @@ def create_of_les_probe_dicts(case_settings, geo_ressources):
     plt.legend(loc='best')
     plt.savefig(os.path.join('kontrollplot_probes.pdf'))
     plt.close('all')
+"""
 
+def openFoam_create_inletoutletave_probe_dict(start_time, end_time, sampling_rate, case_settings, path_to_sim, geomdat_dict):
+    output_path = os.path.join(path_to_sim,"system")
+    timestepinterval = int(
+        float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
 
-def create_inletoutletave_probe_dict(start_time, end_time, interval_time_steps_probes, output_path):
     with open(os.path.join(output_path, 'Probes_inletoutletave_Dict'), 'w') as data_file:
         data_file.write("""
 
@@ -520,7 +513,7 @@ MassflowInlet
         type                surfaceFieldValue;
         libs                ("libfieldFunctionObjects.so");
         writeControl        timeStep;
-        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        writeInterval       """ + str(timestepinterval) + """;
         timeStart           """ + str(start_time) + """;
         timeEnd             """ + str(end_time) + """;
 
@@ -542,7 +535,7 @@ AverValuesInlet
         type                    surfaceFieldValue;
         libs                    ("libfieldFunctionObjects.so");
         writeControl            timeStep;
-        writeInterval           """ + str(int(interval_time_steps_probes)) + """;
+        writeInterval           """ + str(timestepinterval) + """;
         timeStart           """ + str(start_time) + """;
         timeEnd             """ + str(end_time) + """;
         log                     true;
@@ -567,7 +560,7 @@ MassflowOutlet
         type                surfaceFieldValue;
         libs                ("libfieldFunctionObjects.so");
         writeControl        timeStep;
-        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        writeInterval       """ + str(timestepinterval) + """;
         timeStart           """ + str(start_time) + """;
         timeEnd             """ + str(end_time) + """;
 
@@ -589,7 +582,7 @@ AverValuesOutlet
         type                    surfaceFieldValue;
         libs                    ("libfieldFunctionObjects.so");
         writeControl            timeStep;
-        writeInterval       """ + str(int(interval_time_steps_probes)) + """;
+        writeInterval       """ + str(timestepinterval) + """;
         timeStart           """ + str(start_time) + """;
         timeEnd             """ + str(end_time) + """;
         log                     true;

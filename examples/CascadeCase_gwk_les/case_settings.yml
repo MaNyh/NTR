@@ -21,7 +21,9 @@ simcase_settings:
         LINLET : "0.02"
 
         POUTLET: "101325"
-
+        POUT_LINF: "0.01"
+        TOUTLET: "293.15"
+        TOUT_LINF: "0.01"
         PITCHPER: "0.0765"
         SPANPER: "0.04"
         ZSPAN: "0.04"
@@ -32,26 +34,76 @@ simcase_settings:
         PURGEWRITE: "2"
 
         ADUSTABLETIMESTEP : "off"
-        #STARTAVETIME : "0.12"
         PROCS: "192"
         NOUTERCORRECTORS : "2"
 
-        #START: "0.12"
-        #END: "1000"
-
-        #RUNTIME : "10:00:00"
-        #NODES: "2"
-        #PROCS: "192"
-
     options:
-        INOUT_FIELDAVE_PROBING: "nan"
-        INOUT_VELOCITY_PROBING: "nan"
-        XSCLICE_PROBING : "nan"
-        MIDSPANSLICE_PROBING : "nan"
-        PROFILE_PROBING : "nan"
-        STREAMLINE_PROBING : "nan"
-        STAGNATIONPOINTFLOW_PROBING : "nan"
+        INOUT_FIELDAVE_PROBING: True
+        INOUT_VELOCITY_PROBING: True
+        XSCLICE_PROBING : True
+        MIDSPANSLICE_PROBING : True
+        PROFILE_PROBING : True
+        STREAMLINE_PROBING : True
+        STAGNATIONPOINTFLOW_PROBING : True
 
+
+simcase_optiondef:
+
+    INOUT_VELOCITY_PROBING:
+        func: "NTR.preprocessing.create_simcase_options.openFoam_createProbesInletOutlet"
+        args:
+            sampling_rate: 1e5 #Hz
+            start_time: 0 #s
+            end_time: 1000 #s
+        insert: "import Probes_InletOutlet_Dict"
+
+    INOUT_FIELDAVE_PROBING:
+        func: "NTR.preprocessing.create_simcase_options.openFoam_create_inletoutletave_probe_dict"
+        args:
+            sampling_rate: 1e5 #Hz
+            start_time: 0
+            end_time: 1000
+        insert: "import Probes_inletoutletave_Dict"
+
+    XSCLICE_PROBING:
+        func: "NTR.preprocessing.create_simcase_options.openFoam_createXSliceProbes"
+        args:
+            nop: 6
+            sampling_rate: 1e5 #Hz
+            x_slice_one : -0.08
+            x_slice_two : 0.18
+            start_time: 0 #s
+            end_time: 0.12 #s
+        insert: "import Probes_XSlices_Dict"
+
+    PROFILE_PROBING:
+        func: "NTR.preprocessing.create_simcase_options.openFoam_createProbesProfileDict"
+        args:
+            pden_ps : 10
+            pden_ss : 10
+            sampling_rate : 1e6 #Hz
+            start_time : 0.12 #s
+            end_time : 1000 #s
+            tolerance : 0.000005
+        insert: "import Probes_Profile_Dict"
+
+
+    STREAMLINE_PROBING:
+        func: "NTR.preprocessing.create_simcase_options.openFoam_createProbesStreamlineDict"
+        args:
+            nop_streamline : 20
+            sampling_rate: 1e6 #Hz
+            start_time: 0.12 #s
+            end_time: 1000 #s
+
+    STAGNATIONPOINTFLOW_PROBING:
+        func: "NTR.preprocessing.create_simcase_options.openFoam_create_vk_stagflow_probes"
+        args:
+            nop : 6
+            sampling_rate: 1e5 #Hz
+            length : 0.03 #m
+            start_time: 0.12 #s
+            end_time: 1000 #s
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
@@ -82,47 +134,3 @@ mesh:
     shift_vk_block_xaxiscoeff       : 0.045                                 #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.005                                 #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
-
-
-
-probes:
-    profile_probes:
-        pden_ps : 10
-        pden_ss : 10
-        sampling_rate : 1e6 #Hz
-        start_time : 0.12 #s
-        end_time : 1000 #s
-        tolerance : 0.000005
-
-    streamline_probes:
-        nop_streamline : 20
-        sampling_rate: 1e6 #Hz
-        start_time: 0.12 #s
-        end_time: 1000 #s
-
-    inletoutlet_probes:
-        mesh : domain
-        sampling_rate: 1e5 #Hz
-        start_time: 0 #s
-        end_time: 1000 #s
-
-    inletoutletfieldave_probing:
-        sampling_rate: 1e5 #Hz
-        start_time: 0
-        end_time: 1000
-
-    xsclicing_probes:
-        mesh : domain
-        nop: 6
-        sampling_rate: 1e5 #Hz
-        x_slice_one : -0.08
-        x_slice_two : 0.18
-        start_time: 0 #s
-        end_time: 0.12 #s
-
-    vk_stagnationflow_probing:
-        nop : 6
-        sampling_rate: 1e5 #Hz
-        length : 0.03 #m
-        start_time: 0.12 #s
-        end_time: 1000 #s

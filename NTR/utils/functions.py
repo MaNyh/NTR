@@ -1,4 +1,5 @@
 import os
+import sys
 import pickle
 
 import NTR
@@ -48,13 +49,24 @@ def read_pickle_args(path):
     return pargs
 
 
-def absVec(vec):
-    return (vec[0]**2+vec[1]**2+vec[2]**2)**0.5
-
-
-def absvec_array(array):
-    return [absVec(vec) for vec in array]
-
-
 def all_equal(iterable):
     return iterable.count(iterable[0]) == len(iterable)
+
+
+def func_by_name(val):
+    if '.' in val:
+        module_name, fun_name = val.rsplit('.', 1)
+        # you should restrict which modules may be loaded here
+        assert module_name.startswith('NTR.')
+    else:
+        module_name = '__main__'
+        fun_name = val
+    try:
+        __import__(module_name)
+    except ImportError as exc:
+        raise ConstructorError(
+            "while constructing a Python object", mark,
+            "cannot find module %r (%s)" % (utf8(module_name), exc), mark)
+    module = sys.modules[module_name]
+    fun = getattr(module, fun_name)
+    return fun

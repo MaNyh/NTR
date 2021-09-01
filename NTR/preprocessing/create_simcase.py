@@ -5,7 +5,7 @@ from functools import reduce  # forward compatibility for Python 3
 import operator
 
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read , read_pickle
-
+from NTR.utils.functions import func_by_name
 
 def getFromDict(dataDict, mapList):
     return reduce(operator.getitem, mapList, dataDict)
@@ -91,7 +91,7 @@ def create_simulationcase(path_to_yaml_dict):
     settings = yaml_dict_read(path_to_yaml_dict)
 
     assert "name" in settings["case_settings"], "no name for the case defined"
-    case_name = settings["case_settings"]["name"]
+    #case_name = settings["case_settings"]["name"]
 
     casepath = os.path.abspath(os.path.dirname(path_to_yaml_dict))
 
@@ -101,7 +101,8 @@ def create_simulationcase(path_to_yaml_dict):
     path_to_sim = os.path.join(casepath,casedirectories["simcase"])
     path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
     assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
-    geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
+
+    #geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
 
     create_casedirstructure(casedirectories,casepath)
     case_structure = case_structures[case_type]
@@ -115,7 +116,6 @@ def create_simulationcase(path_to_yaml_dict):
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):
     walk_casefile_list = nested_dict_pairs_iterator(case_structure_parameters)
     for parameterdata in walk_casefile_list:
-        para_keys = parameterdata[:-2]
         fpath = os.path.join(path_to_sim, *parameterdata[1:-2])
         parametername = parameterdata[-2]
 
@@ -135,6 +135,14 @@ def writeout_simulation(case_structure_parameters, path_to_sim, settings):
                 assert parametername in list(
                     settings["simcase_optiondef"].keys()), parametername + " not defined in simcase_optiondef"
                 optiondefinition = settings["simcase_optiondef"][parametername]
+
+                optionfunc = func_by_name(optiondefinition["func"])
+                optionargs = optiondefinition["args"]
+                optionargs["path_to_sim"] = path_to_sim
+                optionargs["case_settings"] = settings
+                optionargs["geomdat_dict"] = read_pickle(os.path.join(path_to_sim,"..","04_Data","geometry.pkl"))
+                optionfunc(**optionargs)
+
                 with open(fpath) as fobj:
                     newText = fobj.read().replace("<opt " + parametername + " opt>", str(optiondefinition))
                 with open(fpath, "w") as fobj:
@@ -209,4 +217,3 @@ def create_simdirstructure(filetemplates,path):
             if not os.path.isdir(dpath):
                 os.mkdir(dpath)
     return 0
-

@@ -62,11 +62,10 @@ libs (
         <opt INOUT_FIELDAVE_PROBING opt>
         <opt INOUT_VELOCITY_PROBING opt>
         <opt XSCLICE_PROBING opt>
-        <opt MIDSPANSLICE_PROBING opt>
+        //MIDSPANSLICE_PROBING right now outcommented. what was defined here?//
         <opt PROFILE_PROBING opt>
         <opt STREAMLINE_PROBING opt>
         <opt STAGNATIONPOINTFLOW_PROBING opt>
     }
-//}
 
 // ************************************************************************* //

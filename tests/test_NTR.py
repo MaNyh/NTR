@@ -197,6 +197,7 @@ def test_create_simulationcase(tmpdir):
                                                 'WRITEINTERVAL':'1',
                                                 'PURGEWRITE':'1',
                                                 'DELTAT':'1',
+                                                'POUT_LINF':1,
                                                 'UDASHSCALING':"1",
                                                 'PINLET':"10000",
                                                 'POUTLET':"100000",

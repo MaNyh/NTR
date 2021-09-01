@@ -215,3 +215,11 @@ def C_barycentric(R):
     CWeights = np.array([C1c, C2c, C3c])
 
     return CWeights
+
+
+def absVec(vec):
+    return (vec[0]**2+vec[1]**2+vec[2]**2)**0.5
+
+
+def absvec_array(array):
+    return [absVec(vec) for vec in array]
