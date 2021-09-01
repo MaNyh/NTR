@@ -13,7 +13,7 @@ examples_naca6510 = os.path.join(ntrpath,"..", "examples", "CascadeCase_gwk_naca
 examples_nacagen = os.path.join(ntrpath,"..", "examples", "CascadeCase_NACA_airfoilgenerator", "case_settings.yml")
 examples_turbine_seehausen = os.path.join(ntrpath,"..", "examples", "CascadeCase_turbine_seehausen", "case_settings.yml")
 
-igg_settings = yaml_dict_read("../NTR/utils/externals/externals_settings.yml")
+igg_settings = yaml_dict_read(os.path.join(ntrpath,"utils","externals","externals_settings.yml"))
 iggdir = igg_settings["igg"]["install_directory"]
 igginstance = igg_settings["igg"]["executable"]
 iggpath = os.path.join(iggdir, igginstance)
