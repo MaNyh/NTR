@@ -208,6 +208,7 @@ def test_create_simulationcase(tmpdir):
                                                 'SPANPER':"0.02",
                                                 'PITCHPER':"0.00765",
                                                 'PROCS':"192",
+                                                'TOUT_LINF':'1',
                                                 'NOUTERCORRECTORS':"2",
                                                 'ADUSTABLETIMESTEP': "False",
                                                 'JOB_NUMBERS':"12",
@@ -215,13 +216,13 @@ def test_create_simulationcase(tmpdir):
                                                 'HLRN_JOB_EMAIL':'nyhuis@tfd.uni-hannover.de',
                                     },
                                     "options":{
-                                                'STAGNATIONPOINTFLOW_PROBING': True,
-                                                'INOUT_FIELDAVE_PROBING': True,
-                                                'INOUT_VELOCITY_PROBING': True,
-                                                'XSCLICE_PROBING': True,
-                                                'MIDSPANSLICE_PROBING': True,
-                                                'PROFILE_PROBING': True,
-                                                'STREAMLINE_PROBING': True,
+                                                'STAGNATIONPOINTFLOW_PROBING': False,
+                                                'INOUT_FIELDAVE_PROBING': False,
+                                                'INOUT_VELOCITY_PROBING': False,
+                                                'XSCLICE_PROBING': False,
+                                                'MIDSPANSLICE_PROBING': False,
+                                                'PROFILE_PROBING': False,
+                                                'STREAMLINE_PROBING': False,
 
                                     }
                   },

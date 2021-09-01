@@ -55,7 +55,7 @@ simcase_optiondef:
             sampling_rate: 1e5 #Hz
             start_time: 0 #s
             end_time: 1000 #s
-        insert: "import Probes_InletOutlet_Dict"
+        insert: '#include "Probes_InletOutlet_Dict"'
 
     INOUT_FIELDAVE_PROBING:
         func: "NTR.preprocessing.create_simcase_options.openFoam_create_inletoutletave_probe_dict"
@@ -63,7 +63,7 @@ simcase_optiondef:
             sampling_rate: 1e5 #Hz
             start_time: 0
             end_time: 1000
-        insert: "import Probes_inletoutletave_Dict"
+        insert: '#include "Probes_inletoutletave_Dict"'
 
     XSCLICE_PROBING:
         func: "NTR.preprocessing.create_simcase_options.openFoam_createXSliceProbes"
@@ -74,7 +74,7 @@ simcase_optiondef:
             x_slice_two : 0.18
             start_time: 0 #s
             end_time: 0.12 #s
-        insert: "import Probes_XSlices_Dict"
+        insert: '#include "Probes_XSlices_Dict"'
 
     PROFILE_PROBING:
         func: "NTR.preprocessing.create_simcase_options.openFoam_createProbesProfileDict"
@@ -85,7 +85,7 @@ simcase_optiondef:
             start_time : 0.12 #s
             end_time : 1000 #s
             tolerance : 0.000005
-        insert: "import Probes_Profile_Dict"
+        insert: '#include "Probes_Profile_Dict"'
 
 
     STREAMLINE_PROBING:
@@ -95,6 +95,7 @@ simcase_optiondef:
             sampling_rate: 1e6 #Hz
             start_time: 0.12 #s
             end_time: 1000 #s
+        insert: '#include "Probes_Streamline_Dict"'
 
     STAGNATIONPOINTFLOW_PROBING:
         func: "NTR.preprocessing.create_simcase_options.openFoam_create_vk_stagflow_probes"
@@ -104,6 +105,7 @@ simcase_optiondef:
             length : 0.03 #m
             start_time: 0.12 #s
             end_time: 1000 #s
+        insert: '#include "Probes_VKstagnation_Dict"'
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]

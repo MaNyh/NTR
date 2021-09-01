@@ -143,8 +143,9 @@ def writeout_simulation(case_structure_parameters, path_to_sim, settings):
                 optionargs["geomdat_dict"] = read_pickle(os.path.join(path_to_sim,"..","04_Data","geometry.pkl"))
                 optionfunc(**optionargs)
 
+                replace_opt =optiondefinition["insert"]
                 with open(fpath) as fobj:
-                    newText = fobj.read().replace("<opt " + parametername + " opt>", str(optiondefinition))
+                    newText = fobj.read().replace("<opt " + parametername + " opt>", str(replace_opt))
                 with open(fpath, "w") as fobj:
                     fobj.write(newText)
             else:

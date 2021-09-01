@@ -1,6 +1,5 @@
 import os
 
-
 from NTR.preprocessing.create_geom import run_create_geometry
 from NTR.utils.functions import run_igg_meshfuncs, yaml_dict_read
 from NTR.preprocessing.create_simcase import create_simulationcase
@@ -15,7 +14,8 @@ examples_turbine_seehausen = os.path.join("..", "examples", "CascadeCase_turbine
 igg_settings = yaml_dict_read("../NTR/utils/externals/externals_settings.yml")
 iggdir = igg_settings["igg"]["install_directory"]
 igginstance = igg_settings["igg"]["executable"]
-iggpath = os.path.join(iggdir,igginstance)
+iggpath = os.path.join(iggdir, igginstance)
+
 
 def test_example_compressor_kurth():
     run_create_geometry(examples_compressor_kurth)
@@ -23,6 +23,7 @@ def test_example_compressor_kurth():
         run_igg_meshfuncs(examples_compressor_kurth)
     else:
         print("igg-path is not right")
+
 
 def test_example_gwkles():
     if os.path.isfile(iggpath):
@@ -58,6 +59,7 @@ def test_example_nacagen():
         run_igg_meshfuncs(examples_nacagen)
     else:
         print("igg-path is not right")
+
 
 def test_example_turbine_seehausen():
     run_create_geometry(examples_turbine_seehausen)
