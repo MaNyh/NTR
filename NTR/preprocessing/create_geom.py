@@ -14,7 +14,7 @@ from NTR.utils.mathfunctions import vecAbs
 
 def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch, unit, blade_shift, alpha, span_z,
                                    casepath,
-                                   verbose=True):
+                                   verbose=False):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
@@ -126,7 +126,7 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
 
 
 def create_geometry_fromnacaairfoil(nacadigits, numberofpoints,finite_TE,half_cosine_spacing, x_inlet, x_outlet,
-                                    pitch, geoscaling, blade_shift,staggerangle, span_z,casepath,verbose=True):
+                                    pitch, geoscaling, blade_shift,staggerangle, span_z,casepath,verbose=False):
     # =============================================================================
     # Bestimmung Profilparameter
     # =============================================================================

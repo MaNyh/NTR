@@ -9,7 +9,7 @@ from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
 
 
-def skeletonize_poly(points, verbose=True):
+def skeletonize_poly(points, verbose=False):
 
     points2d = points[::, 0:2]
     res = 1000
