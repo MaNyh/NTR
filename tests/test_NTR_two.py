@@ -1,15 +1,17 @@
 import os
 
+import NTR
 from NTR.preprocessing.create_geom import run_create_geometry
 from NTR.utils.functions import run_igg_meshfuncs, yaml_dict_read
 from NTR.preprocessing.create_simcase import create_simulationcase
 
-examples_compressor_kurth = os.path.join("..", "examples", "CascadeCase_compressor_kurth", "case_settings.yml")
-examples_gwkles = os.path.join("..", "examples", "CascadeCase_gwk_les", "case_settings.yml")
-examples_gwkras = os.path.join("..", "examples", "CascadeCase_gwk_rans", "case_settings.yml")
-examples_naca6510 = os.path.join("..", "examples", "CascadeCase_gwk_naca6510", "case_settings.yml")
-examples_nacagen = os.path.join("..", "examples", "CascadeCase_NACA_airfoilgenerator", "case_settings.yml")
-examples_turbine_seehausen = os.path.join("..", "examples", "CascadeCase_turbine_seehausen", "case_settings.yml")
+ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
+examples_compressor_kurth = os.path.join(ntrpath,"..", "examples", "CascadeCase_compressor_kurth", "case_settings.yml")
+examples_gwkles = os.path.join(ntrpath,"..", "examples", "CascadeCase_gwk_les", "case_settings.yml")
+examples_gwkras = os.path.join(ntrpath,"..", "examples", "CascadeCase_gwk_rans", "case_settings.yml")
+examples_naca6510 = os.path.join(ntrpath,"..", "examples", "CascadeCase_gwk_naca6510", "case_settings.yml")
+examples_nacagen = os.path.join(ntrpath,"..", "examples", "CascadeCase_NACA_airfoilgenerator", "case_settings.yml")
+examples_turbine_seehausen = os.path.join(ntrpath,"..", "examples", "CascadeCase_turbine_seehausen", "case_settings.yml")
 
 igg_settings = yaml_dict_read("../NTR/utils/externals/externals_settings.yml")
 iggdir = igg_settings["igg"]["install_directory"]
