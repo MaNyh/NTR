@@ -111,6 +111,7 @@ def create_simulationcase(path_to_yaml_dict):
     case_structure_parameters = find_vars_opts(case_structure)
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
+    writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
 
 
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):
@@ -127,7 +128,16 @@ def writeout_simulation(case_structure_parameters, path_to_sim, settings):
                 newText = fobj.read().replace("<var " + parametername + " var>", str(variable))
             with open(fpath, "w") as fobj:
                 fobj.write(newText)
-        elif para_type == "opt":
+
+
+def writeout_simulation_options(case_structure_parameters, path_to_sim, settings):
+    walk_casefile_list = nested_dict_pairs_iterator(case_structure_parameters)
+    for parameterdata in walk_casefile_list:
+        fpath = os.path.join(path_to_sim, *parameterdata[1:-2])
+        parametername = parameterdata[-2]
+
+        para_type = parameterdata[-1]
+        if para_type == "opt":
             para_type = "options"
             option = settings["simcase_settings"][para_type][parametername]
             if option == True:
