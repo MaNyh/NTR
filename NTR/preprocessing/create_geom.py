@@ -83,10 +83,31 @@ def create_geometry_frompointcloud(path_profile_coords, x_inlet, x_outlet, pitch
                 "pitch": pitch,
                 "span_z": span_z
                 }
+    """
+    psPoly_line = lines_from_points(psPoly.points)
+    psPoly_surf = psPoly_line.extrude(vector=(0, 0, 0.1))
+    psPoly_surf = psPoly_surf.compute_normals()
+    psPoly_surf.points += 0.01 * psPoly_surf.point_arrays["Normals"]
+    psPoly_surf.translate((0,0,-0.05))
+    psPoly_slice = psPoly_surf.slice(origin=(0,0,0),normal=(0, 0, 1))
 
-
+    ssPoly_line = lines_from_points(ssPoly.points)
+    ssPoly_surf = ssPoly_line.extrude(vector=(0, 0, 0.1))
+    ssPoly_surf = ssPoly_surf.compute_normals()
+    ssPoly_surf.points += 0.01 * ssPoly_surf.point_arrays["Normals"]
+    ssPoly_surf.translate((0,0,-0.05))
+    ssPoly_slice = ssPoly_surf.slice(origin=(0,0,0),normal=(0, 0, 1))
+    p = pv.Plotter()
+    p.add_mesh(psPoly, label="psPoly",color="red",point_size=5)
+    p.add_mesh(ssPoly, label="ssPoly",color="green",point_size=5)
+    p.add_mesh(psPoly_slice)
+    p.add_mesh(ssPoly_slice)
+    p.add_legend()
+    p.add_axes()
+    p.show()
+    """
     geo_filename = "geometry.pkl"
-    write_pickle(os.path.join(casepath, geo_filename), geo_dict)
+    write_pickle(os.path.join(casepath,"04_Data", geo_filename), geo_dict)
 
     if verbose:
         plotter = pv.Plotter()
