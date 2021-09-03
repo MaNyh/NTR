@@ -285,44 +285,62 @@ def set_blocks():
                                                                             CurvePointNorm(Curve("cspline_ps"),
                                                                                            0.0).y + shift_hk_block_xaxiscoeff,
                                                                             1.0))) + 0.05)
+    print("p2:"+str(p2))
     #TEILER IM RAUM AUF SAUGSEITE
     p3 = Point(CurvePointNorm(Curve("cspline_ss"), 0.5).x,
                CurvePointNorm(Curve("cspline_ss"), 0.5).y + yPerLowHGridBlockPitchStart * pitch, 0)
 
+    print("p3:" + str(p3))
     # VK
     pt1 = Point(p1.x, p1.y + yPerHighHGridBlockPitchStart * pitch - pitch, 0)  # vk_ss
+    print("pt1:" + str(pt1))
     pt2 = CurvePointNorm(Curve("cspline_ss"), (1 - blockStartFromChord))  # vk_ssBOUNDARY
+    print("pt2:" + str(pt2))
     pt3 = CurvePointNorm(Curve("cspline_ps"), blockStartFromChord)  # vk_psBOUNDARY
+    print("pt3:" + str(pt3))
     pt4 = Point(p1.x, p1.y + yPerLowHGridBlockPitchStart * pitch - pitch, 0)  # vk_ss
+    print("pt4:" + str(pt4))
+
     # HK
     pt5 = Point(p2.x, p2.y + yPerLowHGridBlockPitchStart * pitch, 0)
+    print("pt5:" + str(pt5))
     pt6 = Point(p2.x, p2.y + yPerHighHGridBlockPitchStart * pitch, 0)
+    print("pt6:" + str(pt6))
     pt7 = CurvePointNorm(Curve("cspline_ss"), blockStartFromChord)
+    print("pt7:" + str(pt7))
     pt8 = CurvePointNorm(Curve("cspline_ps"), (1 - blockStartFromChord))
-
+    print("pt8:" + str(pt8))
     pt9 = CurvePointNorm(Curve("cspline_peri_lower"), 0.0)
+    print("pt9:" + str(pt9))
     pt10 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
         Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))
+    print("pt10:" + str(pt10))
     pt11 = CurvePointNorm(Curve("cspline_inlet"), yPerLowHGridBlockPitchStart)
-
+    print("pt11:" + str(pt11))
     pt12 = CurvePointNorm(Curve("cspline_inlet"), yPerHighHGridBlockPitchStart)
-
+    print("pt12:" + str(pt12))
     pt13 = CurvePointNorm(Curve("cspline_peri_upper"), 0.0)
-
+    print("pt13:" + str(pt13))
     pt14 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
         Curve("cspline_peri_lower").project_point(Point(p1.x, p1.y - pitch, 0))))
+    print("pt14:" + str(pt14))
     pt15 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
         Curve("cspline_peri_lower").project_point(Point(p2.x, p2.y, 0))))
-
+    print("pt15:" + str(pt15))
     pt16 = CurvePointNorm(Curve("cspline_peri_lower"), Curve("cspline_peri_lower").calc_normalize(
         Curve("cspline_peri_lower").project_point(Point(p2.x, p2.y, 0))))
+    print("pt16:" + str(pt16))
     pt17 = CurvePointNorm(Curve("cspline_peri_lower"), 1.0)
+    print("pt17:" + str(pt17))
     pt18 = CurvePointNorm(Curve("cspline_outlet"), yPerLowHGridBlockPitchStart)
+    print("pt18:" + str(pt18))
     pt19 = CurvePointNorm(Curve("cspline_outlet"), yPerHighHGridBlockPitchStart)
+    print("pt19:" + str(pt19))
     pt20 = CurvePointNorm(Curve("cspline_peri_upper"), 1.0)
+    print("pt20:" + str(pt20))
     pt21 = CurvePointNorm(Curve("cspline_peri_upper"), Curve("cspline_peri_upper").calc_normalize(
         Curve("cspline_peri_upper").project_point(Point(p2.x, p2.y + pitch, 0))))
-
+    print("pt21:" + str(pt21))
     """
     print(pt1, pt2, pt3, pt4, pt5, pt6, pt7, pt8, pt9, pt10, pt11,
           pt12, pt13, pt14, pt15, pt16, pt17, pt18, pt19, pt20, pt21, p1, p2, p3 )
