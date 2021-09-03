@@ -185,62 +185,49 @@ def test_midline_from_sides(verbose=False):
 
 
 def test_create_simulationcase(tmpdir):
-    test_dict = {"case_settings": {
-                                    "case_type" : "openfoam_cascade_les",
-                                    "name" : "testcase"
-                  },
-                 "simcase_settings":{
-                                    "variables": {
-                                                'EDDYDENSITY':'1',
-                                                'RINLET':'1',
-                                                'LINLET':'1',
-                                                'WRITEINTERVAL':'1',
-                                                'PURGEWRITE':'1',
-                                                'DELTAT':'1',
-                                                'POUT_LINF':'1',
-                                                'TOUTLET':'1',
-                                                'UDASHSCALING':"1",
-                                                'PINLET':"10000",
-                                                'POUTLET':"100000",
-                                                'TINLET':"298",
-                                                'UINLET':"(10 10 0)",
-                                                'ZSPAN':"0.02",
-                                                'SPANPER':"0.02",
-                                                'PITCHPER':"0.00765",
-                                                'PROCS':"192",
-                                                'TOUT_LINF':'1',
-                                                'NOUTERCORRECTORS':"2",
-                                                'ADUSTABLETIMESTEP': "False",
-                                                'JOB_NUMBERS':"12",
-                                                'HLRN_JOB_ACCOUNT':'niinyhma',
-                                                'HLRN_JOB_EMAIL':'nyhuis@tfd.uni-hannover.de',
-                                    },
-                                    "options":{
-                                                'STAGNATIONPOINTFLOW_PROBING': False,
-                                                'INOUT_FIELDAVE_PROBING': False,
-                                                'INOUT_VELOCITY_PROBING': False,
-                                                'XSCLICE_PROBING': False,
-                                                'MIDSPANSLICE_PROBING': False,
-                                                'PROFILE_PROBING': False,
-                                                'STREAMLINE_PROBING': False,
+    ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
+    case_templates = os.listdir(os.path.join(ntrpath, "database","case_templates"))
 
-                                    }
-                  },
-                "simcase_optiondef":{
-                                    "STAGNATIONPOINTFLOW_PROBING":" import stagnationflowprobes",
-                                    "INOUT_FIELDAVE_PROBING":" import stagnationflowprobes",
-                                    "INOUT_VELOCITY_PROBING":" import stagnationflowprobes",
-                                    "XSCLICE_PROBING":" import stagnationflowprobes",
-                                    "MIDSPANSLICE_PROBING":" import stagnationflowprobes",
-                                    "PROFILE_PROBING":" import stagnationflowprobes",
-                                    "STREAMLINE_PROBING":" import stagnationflowprobes",
-                    },
-                 }
+    case_structures = {}
+    for cname in case_templates:
+        cstruct = get_directory_structure(os.path.join(ntrpath, "database","case_templates"))
+        case_structures[cname] = cstruct
 
-    test_file = tmpdir / "test_create_simulationcase.yml"
-    test_geo_dict = {}
-    os.mkdir(tmpdir/"04_Data")
-    test_geo_file = tmpdir / os.path.join("04_Data", "geometry.pkl")
-    write_yaml_dict(test_file, test_dict)
-    write_pickle(test_geo_file, test_geo_dict)
-    create_simulationcase(test_file)
+    for indx in range(len(list(case_structures.keys()))):
+        case_type = list(case_structures.keys())[indx]
+        case_structure = case_structures[case_type][list(case_structures.keys())[0]].keys()[indx]
+        case_structure = find_vars_opts(case_structure)
+        case_structlist = list(nested_dict_pairs_iterator(case_structure))
+        variables = [i[-2] for i in list(case_structlist) if i[-1]=="var"]
+        options = [i[-2] for i in list(case_structlist) if i[-1]=="opt"]
+
+
+        test_dict = {"case_settings": {
+                                        "case_type" : case_type,
+                                        "name" : "testcase"
+                      },
+                     "simcase_settings":{
+                                        "variables": {
+
+                                        },
+                                        "options":{
+
+                                        }
+                      },
+                    "simcase_optiondef":{
+
+                        },
+                     }
+        for var in variables:
+            test_dict["simcase_settings"]["variables"][var]="1"
+        for opt in options:
+            test_dict["simcase_settings"]["options"][opt]="1"
+            test_dict["simcase_optiondef"][opt]="1"
+
+        test_file = tmpdir / "test_create_simulationcase.yml"
+        test_geo_dict = {}
+        os.mkdir(tmpdir/"04_Data")
+        test_geo_file = tmpdir / os.path.join("04_Data", "geometry.pkl")
+        write_yaml_dict(test_file, test_dict)
+        write_pickle(test_geo_file, test_geo_dict)
+        create_simulationcase(test_file)
