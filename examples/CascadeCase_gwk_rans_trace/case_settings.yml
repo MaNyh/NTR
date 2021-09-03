@@ -5,6 +5,12 @@ case_settings:
 
 simcase_settings:
     variables:
+        LENGTH_ZPER: 0.0025
+        LENGTH_YPER: 0.0765
+        OUTLET_PRESSURE: 100000
+        INLET_PRESSURE: 100000
+        VEL_YANGLE: 60
+        INLET_TEMPERATURE: 293.15
     options:
 simcase_optiondef:
 
@@ -22,7 +28,7 @@ geometry:
     x_inlet                         : -0.1                                  #Shift Inlet along x [m]
     x_outlet                        : 0.27                                  #Shift Outlet along x [m]
     pitch                           : 0.0765                                #Pitch [m]
-    shift_domain: 0.015                                 #Shift Domain to have probes inside domain [m]
+    shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
     factor                          : 1.7                                   #Mesh-density factor

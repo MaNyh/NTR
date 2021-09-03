@@ -19,13 +19,13 @@ gmc -> set_global_tolerance 0.000100
 gmc -> set_pmode linear_periodic
 
 gmc -> set_y_translation_count of zone named 'row01' to 0.0
-gmc -> set_z_translation_count of zone named 'row01' to 0.0025
+gmc -> set_z_translation_count of zone named 'row01' to <var LENGTH_ZPER var>
 
 gmc -> find_regular_faces
 gmc -> find_connectivity_light
 gmc -> find_connectivity
 
-gmc -> set_y_translation_count of zone named 'row01' to 0.076500
+gmc -> set_y_translation_count of zone named 'row01' to <var LENGTH_YPER var>
 gmc -> set_z_translation_count of zone named 'row01' to 0.0
 
 gmc -> find_connectivity_light
@@ -44,13 +44,9 @@ gmc -> move_panel 'Block_12/3' to group named 'BLADE'
 gmc -> move_panel 'Block_10/4' to group named 'BLADE'
 gmc -> move_panel 'Block_9/2' to group named 'BLADE'
 gmc -> compute_wall_distances
+
 gmc -> generate_machine_from_scratch
-gmc -> modify_component named 'default_component' : name 'default_named_component' type IPC
-gmc -> set_default_stages of component type 'IPC'
-gmc -> apply_default_settings for component type 'IPC'
-gmc -> apply_default_settings for machine
-gmc -> generate_machine_from_scratch
-gmc -> modify_component named 'default_component' : name 'default_named_component' type LPC
+gmc -> modify_component named 'default_component' : name 'CascadeCase_rans_trace' type LPC
 gmc -> set_trans_velocity of component type 'LPC' to 0.000000 0.000000 0.000000
 gmc -> set_default_stages of component type 'LPC'
 gmc -> apply_default_settings for component type 'LPC'
@@ -73,13 +69,13 @@ gmc -> set_equation_properties for row01 : HeatFluxModel to ConstantPrandtl
 gmc -> set_equation_properties for row01 : PrandtlTurbulent to 0.900000
 gmc -> set_attributes of panel_group named 'BLADE' : set wall_treatment to low_Reynolds
 gmc -> set_attributes of panel_group named 'BLADE' : set translational_velocity to 0.0 0.0 0.0
-gmc -> set_attributes of panel_group named 'OUTLET' : set back_pressure to value 100000.000000
+gmc -> set_attributes of panel_group named 'OUTLET' : set back_pressure to value <var OUTLET_PRESSURE var>
 gmc -> set_attributes of panel_group named 'OUTLET' : set radial_equilibrium to Midspan
 gmc -> set_attributes of panel_group named 'OUTLET' : set create_radial_bands to On
-gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to 100000.000000
-gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to 0.000000
+gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to <var INLET_PRESSURE var>
+gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to <var VEL_YANGLE var>
 gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleZ to 0.000000
-gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to 300.000000
+gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to <var INLET_TEMPERATURE var>
 gmc -> set_attributes of panel_group named 'INLET' : set TurbulenceIntensityAbs to 0.010000
 gmc -> set_attributes of panel_group named 'INLET' : set TurbulentLengthScale to 0.010000
 gmc -> set_attributes of panel_group named 'INLET' : set create_radial_bands to On
