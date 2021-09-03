@@ -10,9 +10,9 @@ NODES="1"
 NPROCS="12"
 MEMORY="16gb"
 QUEUE="all"
-WALLTIME="2:00:00"
+WALLTIME="10:00:00"
 #single or double precision TRACE version: "sp" or "dp"?
-PRECISION="dp"
+PRECISION="sp"
 #Architecture is optional. Either leave blank or: haswell,nehalem,sandybridge,skylake
 ARCHITECTURE=""
 ################################################################################
@@ -54,7 +54,7 @@ echo -e "#PBS -l walltime=$WALLTIME" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -l mem=$MEMORY" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -q $QUEUE" >> $RUNDIR/tempscript.sh;
 echo -e "module purge" >> $RUNDIR/tempscript.sh;
-echo -e "source /bigwork/nhkckcen/sw/trace94_${PRECISION}_profile.sh" >> $RUNDIR/tempscript.sh;
+echo -e "source $HOME/TRACE/trace94_${PRECISION}_profile.sh" >> $RUNDIR/tempscript.sh;
 
 #Special MPI configuration for the enos cluster:
 echo -e "[[ $HOSTNAME =~ ^enos-.* ]] && export MPI_IB_PKEY=0x8001" >> $RUNDIR/tempscript.sh;

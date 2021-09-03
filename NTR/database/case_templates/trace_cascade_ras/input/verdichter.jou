@@ -19,13 +19,13 @@ gmc -> set_global_tolerance 0.000100
 gmc -> set_pmode linear_periodic
 
 gmc -> set_y_translation_count of zone named 'row01' to 0.0
-gmc -> set_z_translation_count of zone named 'row01' to <var LENGTH_ZPER var>
+gmc -> set_z_translation_count of zone named 'row01' to 0.0025
 
 gmc -> find_regular_faces
 gmc -> find_connectivity_light
 gmc -> find_connectivity
 
-gmc -> set_y_translation_count of zone named 'row01' to <var LENGTH_YPER var>
+gmc -> set_y_translation_count of zone named 'row01' to 0.0765
 gmc -> set_z_translation_count of zone named 'row01' to 0.0
 
 gmc -> find_connectivity_light
@@ -69,15 +69,32 @@ gmc -> set_equation_properties for row01 : HeatFluxModel to ConstantPrandtl
 gmc -> set_equation_properties for row01 : PrandtlTurbulent to 0.900000
 gmc -> set_attributes of panel_group named 'BLADE' : set wall_treatment to low_Reynolds
 gmc -> set_attributes of panel_group named 'BLADE' : set translational_velocity to 0.0 0.0 0.0
-gmc -> set_attributes of panel_group named 'OUTLET' : set back_pressure to value <var OUTLET_PRESSURE var>
+gmc -> set_attributes of panel_group named 'OUTLET' : set back_pressure to value 100000
 gmc -> set_attributes of panel_group named 'OUTLET' : set radial_equilibrium to Midspan
 gmc -> set_attributes of panel_group named 'OUTLET' : set create_radial_bands to On
-gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to <var INLET_PRESSURE var>
-gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to <var VEL_YANGLE var>
+gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to 100000
+gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to 58.64
 gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleZ to 0.000000
-gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to <var INLET_TEMPERATURE var>
+gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to 293.15
 gmc -> set_attributes of panel_group named 'INLET' : set TurbulenceIntensityAbs to 0.010000
 gmc -> set_attributes of panel_group named 'INLET' : set TurbulentLengthScale to 0.010000
 gmc -> set_attributes of panel_group named 'INLET' : set create_radial_bands to On
+
+
+gmc -> set_init_properties for machine : DataFile to ''
+gmc -> set_init_properties for row01 : InflowDensity to 1
+gmc -> set_init_properties for row01 : InflowPressure to 1
+gmc -> set_init_properties for row01 : InflowVelocityX to 1
+gmc -> set_init_properties for row01 : InflowVelocityYAbs to 1
+gmc -> set_init_properties for row01 : InflowVelocityZ to 1
+gmc -> set_init_properties for row01 : OutflowDensity to 1
+gmc -> set_init_properties for row01 : OutflowPressure to 1
+gmc -> set_init_properties for row01 : OutflowVelocityX to 1
+gmc -> set_init_properties for row01 : OutflowVelocityYAbs to 1
+gmc -> set_init_properties for row01 : OutflowVelocityZ to 1
+gmc -> set_init_properties for row01 : XStart to -0.100000
+gmc -> set_init_properties for row01 : XEnd to 0.270000
+
+
 gmc -> set_trace6_conventions on
 gmc -> save 'TRACE.cgns'
