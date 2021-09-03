@@ -3,113 +3,34 @@ case_settings:
     case_type : "Openfoam_cascade_ras"
 
 openfoam_cascade_ras_settings:
-    var_type : "openfoam_instantanious"
     timestep : "10e-8"
 
 geometry:
-    beta_meta_01                    : 136.5                                  #Inflow angle [deg]
-    beta_meta_02                    : 111                                   #Outflow angle [deg]
     pitch                           : 0.0765                                #Pitch [m]
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+    midline_tolerance               : 5                                     #Tolerance coefficient for midline-generation
     algorithm                       : "from_pointcloud"
-    ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"              #Name of the pointcloud-file
-    ptcloud_profile_unit            : "mm"                                   #m vs mm
-    beta_meta_01                    : 135                                   #Inflow angle [deg]
-    beta_meta_02                    : 115                                   #Outflow angle [deg]
-    x_inlet                         : -0.1                                  #Shift Inlet along x [m]
-    x_outlet                        : 0.27                                  #Shift Outlet along x [m]
-    pitch                           : 0.0765                                #Pitch [m]
-    shift_domain: 0.015                                 #Shift Domain to have probes inside domain [m]
+    ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"   #Name of the pointcloud-file
+    ptcloud_profile_unit            : "mm"                                  #m vs mm
+    x_inlet                         : -0.13                                  #Shift Inlet along x [m]
+    x_outlet                        : 0.26                              #Shift Outlet along x [m]
+    shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.7                                   #Mesh-density factor
-    ogrid_factor                    : 1.2                                   #o-grid-node-ratio
+    factor                          : 1.04                                   #Mesh-density factor
+    ogrid_factor                    : 5.5                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.0000075                              #first cell height when factor=1
-    le_firstcellheight_coeff        : 0.4
+    first_cell_width                : 0.0000070                             #first cell height when factor=1
+    le_firstcellheight_coeff        : 0.8
     te_firstcellheight_coeff        : 0.8
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
-    layers                          : 2                                     #fixed cells in boundary layer
-    extrudeLength                   : 0.0025                                  #length of extruded span
-    blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
-    hk_ps_shift                     : 1                                #LE and TE-Block Meshing
-    hk_ss_shift                     : 1
-    vk_ps_shift                     : 1                                #LE and TE-Block Meshing
-    vk_ss_shift                     : 1
-    cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
-    streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
+    layers                          : 3                                    #fixed cells in boundary layer
+    extrudeLength                   : 0.001                                  #length of extruded span
+    blockStartFromChord             : 0.011                                 #LE and TE-Block Meshing
+    cellwidthcoeff                  : 0.4                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.55                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.6                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : 0.125                                  #move periodic vertices (yPer from TE) along x
+    yPerHighHGridBlockPitchStart    : 0.5                                  #move high-y-per-block along y-pitch
+    shift_vk_block_xaxiscoeff       : 0.045                                 #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : 0.005                                 #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
-
-
-mesh_dict:
-    fluid : "./03_Solution/06_GWKVD_RANS_22900.vtk"
-    blade : "./03_Solution/BLADE/BLADE_22900.vtk"
-
-post_process_settings:
-    calc_gradients :
-        mesh : "fluid"
-        scalar : "U"
-    set_xs:
-        set_x1: -0.08
-        set_x2 : 0.2
-    alpha : 0.2
-
-
-fluid_coeffs:
-    kappa : 1.4
-    M : 28.86e-3
-    mu : 20.0e-6
-    As : 1.458e-06
-    cp : 1004.5
-    Ts : 110.4
-    l : 0.13
-    p_k : 95000.0
-
-
-case:
-    case_parameters:
-      U :
-        UINLET : "35.392445 58.06355 0"
-        RINLET : "2 0 0 2 0 2"
-        LINLET : "0.01"
-        EDDYDENSITY : "10"
-      T :
-        TINLET : "293.15"
-      p :
-        PINLET : "101325"
-      alphat:
-      k:
-      omega:
-      nut:
-      thermophysicalProperties:
-      turbulenceProperties:
-      controlDict:
-        WRITEINTERVAL : "2000"
-        DELTAT : "5e-8"
-        ADUSTABLETIMESTEP : "on"
-        STARTAVETIME : "0.045"
-      createPatchDict:
-      decomposeParDict:
-        PROCS: "384"
-      fvSchemes:
-      fvSolution:
-      mapFieldsDict:
-      SurfaceSampleDict:
-      topoSetDict:
-      Massflow:
-      rrzn.sh:
-      monitor.py:
-
-probing:
-    probes:
-        profile_probing: False
-        streamline_probing: False
-        inletoutletfieldave_probing: False
-        inletoutletvelocity_probing: False
-        xslice_probing: False
-        midspanslice_probing: False
-        vk_stagnationflow_probing : False

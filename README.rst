@@ -36,45 +36,27 @@ As a developer, install development-requirements via
 'pip install -r requirements_dev.txt'
 
 
-Be aware that this package is in early development. It is not refactored well and functions are not validated or tested correctly
+Be aware that this package is in constant development.
+A test-module should keep things running. But not everything is tested and not everything can be tested within NTR itself.
+When using this package, please contribute to this collection of methods. Write issues, write your own code and make merge-requests for methods, that bring benefits
+
 
 Features
 -------------
-postprocessing
-    -openfoam
-    .createProfileData
 preprocessing
-    -openfoam
-        -create_probes
+    * geometrycreation
+    * experimental implementation of a naca-profile-generator
+    * meshing for cascade-cases (using numeca igg and it's strong smoothing algorithm)
+    * casecreation from ascii-based templates, independend from the solver that will be used
+postprocessing
+    * tbd
 
-utils
-    .aeroFunctions
-    .boundaryLayerFunctions
-    .case
-    .casereader
-    .coefficients
-    .create_geom
-    .pyvista_utils
-    .simFunctions
-    .solver_variable_dicts
-    .thermoFunctions
-
-Usage igg_cascademeshing
+Examples
 ---------------------------
 
-See ./examples/"meshing-case"
-Create a case-directory
+Currently not all examples are working properly. The implementation of the examples in a test-module should ensure, that this is the case in the future
 
-./case
-    -pointcloudfile.txt
-
-    -case_settings.yml
-
-    -call_stuff.py
-
-
-This structure is not final and must be optimized in the future. Set up settings.yml for your specific case. Right now, also the path to igg has to be set here
-
+Most cases will work though. Try to find a case that is suitable for your work and try to figure out how you can make use of the NTR methods
 
 Usage meshing
 ---------------------------
@@ -94,10 +76,10 @@ RAS-cases are not parametrized yet. The RAS-Package is only a dummy-package righ
 Based on the settings, the function is calling create_probes (see below)
 
 
-
-
-Usage create_probes
+Creating probes
 ---------------------------
+
+there is a method implemented for the creation of probes in openfoam-srs-cases
 
 Create probe-dictionaries with this algorithm. You will need the profile-surface as a vtk (PolyData).
 Set your options in the "case.yml"-file. Try out an example, you need a \*.vtk - domain for a case.
