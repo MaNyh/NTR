@@ -3,7 +3,7 @@
 #SBATCH --job-name=<var CLUSTERJOBNAME var>
 #SBATCH -t <var RUNTIME \>
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=<var HLRN_JOB_EMAIL var>
+#SBATCH --mail-user=<var JOB_EMAIL var>
 #SBATCH --nodes=<var NODES var>
 #SBATCH --tasks-per-node=<var TASKS_PER_NODE var>
 #SBATCH -p standard96
