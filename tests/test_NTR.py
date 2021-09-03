@@ -6,8 +6,9 @@ import os
 import numpy as np
 import pyvista as pv
 
-from NTR.preprocessing.create_simcase import create_simulationcase
-from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle
+import NTR
+from NTR.preprocessing.create_simcase import create_simulationcase,find_vars_opts,nested_dict_pairs_iterator
+from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle, get_directory_structure
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
@@ -195,7 +196,7 @@ def test_create_simulationcase(tmpdir):
 
     for indx in range(len(list(case_structures.keys()))):
         case_type = list(case_structures.keys())[indx]
-        case_structure = case_structures[case_type][list(case_structures.keys())[0]].keys()[indx]
+        case_structure = case_structures[case_type]["case_templates"]
         case_structure = find_vars_opts(case_structure)
         case_structlist = list(nested_dict_pairs_iterator(case_structure))
         variables = [i[-2] for i in list(case_structlist) if i[-1]=="var"]
@@ -226,7 +227,8 @@ def test_create_simulationcase(tmpdir):
 
         test_file = tmpdir / "test_create_simulationcase.yml"
         test_geo_dict = {}
-        os.mkdir(tmpdir/"04_Data")
+        if not os.path.isdir(tmpdir/"04_Data"):
+            os.mkdir(tmpdir/"04_Data")
         test_geo_file = tmpdir / os.path.join("04_Data", "geometry.pkl")
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)
