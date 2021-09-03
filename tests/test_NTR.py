@@ -195,7 +195,7 @@ def test_create_simulationcase(tmpdir):
 
     for indx in range(len(list(case_structures.keys()))):
         case_type = list(case_structures.keys())[indx]
-        case_structure = case_structures[case_type][list(case_structures.keys())[0]].keys())[indx]]
+        case_structure = case_structures[case_type][list(case_structures.keys())[0]].keys()[indx]
         case_structure = find_vars_opts(case_structure)
         case_structlist = list(nested_dict_pairs_iterator(case_structure))
         variables = [i[-2] for i in list(case_structlist) if i[-1]=="var"]
