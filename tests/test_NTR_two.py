@@ -18,7 +18,9 @@ iggdir = igg_settings["igg"]["install_directory"]
 igginstance = igg_settings["igg"]["executable"]
 iggpath = os.path.join(iggdir, igginstance)
 
-@pytest.mark.skipif(ON_CI = 'CI' in os.environ, reason="do not run this on a server-venv")
+ON_CI = 'CI' in os.environ
+
+@pytest.mark.skipif(ON_CI, reason="do not run this on a server-venv")
 def test_example_compressor_kurth():
     run_create_geometry(examples_compressor_kurth)
     if os.path.isfile(iggpath):
@@ -26,7 +28,7 @@ def test_example_compressor_kurth():
     else:
         print("igg-path is not right")
 
-@pytest.mark.skipif(ON_CI = 'CI' in os.environ, reason="do not run this on a server-venv")
+@pytest.mark.skipif(ON_CI, reason="do not run this on a server-venv")
 def test_example_gwkles():
     if os.path.isfile(iggpath):
         run_igg_meshfuncs(examples_gwkles)
@@ -34,7 +36,7 @@ def test_example_gwkles():
         print("igg-path is not right")
     create_simulationcase(examples_gwkles)
 
-@pytest.mark.skipif(ON_CI = 'CI' in os.environ, reason="do not run this on a server-venv")
+@pytest.mark.skipif(ON_CI , reason="do not run this on a server-venv")
 def test_example_gwkras():
     run_create_geometry(examples_gwkras)
 
@@ -44,7 +46,7 @@ def test_example_gwkras():
         print("igg-path is not right")
     create_simulationcase(examples_gwkras)
 
-@pytest.mark.skipif(ON_CI = 'CI' in os.environ, reason="do not run this on a server-venv")
+@pytest.mark.skipif(ON_CI, reason="do not run this on a server-venv")
 def test_example_naca6510():
     run_create_geometry(examples_naca6510)
 
@@ -53,7 +55,7 @@ def test_example_naca6510():
     else:
         print("igg-path is not right")
 
-@pytest.mark.skipif(ON_CI = 'CI' in os.environ, reason="do not run this on a server-venv")
+@pytest.mark.skipif(ON_CI, reason="do not run this on a server-venv")
 def test_example_nacagen():
     run_create_geometry(examples_nacagen)
 
@@ -62,7 +64,7 @@ def test_example_nacagen():
     else:
         print("igg-path is not right")
 
-@pytest.mark.skipif(ON_CI = 'CI' in os.environ, reason="do not run this on a server-venv")
+@pytest.mark.skipif(ON_CI, reason="do not run this on a server-venv")
 def test_example_turbine_seehausen():
     run_create_geometry(examples_turbine_seehausen)
 
