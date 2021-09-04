@@ -13,6 +13,7 @@ from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
 
+
 def test_yamlDictRead(tmpdir):
     """
     tmpdir ist eine spezialvariable die durch pytest erkannt wird (ist ein PYTHONPATH-objekt)
@@ -22,13 +23,15 @@ def test_yamlDictRead(tmpdir):
         handle.write("test_key: True\n")
     assert yaml_dict_read(test_file) == {"test_key": True}
 
+
 def test_splineCurvature():
     radius = np.random.rand()
-    curve = 1/radius
+    curve = 1 / radius
     circle = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
     circle.rotate_z(-180)
     curvature_return = splineCurvature(circle.points[::, 0], circle.points[::, 1])
-    assert not any(abs(curvature_return[3:-3]-curve)>0.05), "spline curvature calculation failed"
+    assert not any(abs(curvature_return[3:-3] - curve) > 0.05), "spline curvature calculation failed"
+
 
 def test_calcConcaveHull():
     """
@@ -101,14 +104,14 @@ def test_extract_vk_hk(verbose=False):
 
     res = 80
 
-    #d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
-    #digitstring = str(d1)+str(d2)+str(d3)+str(d4)
-    #manifold problems with other profiles with veronoi-mid and other unoptimized code. therefor tests only 0009
-    X,Y = naca("6504", res, finite_TE = False, half_cosine_spacing = True)
+    # d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
+    # digitstring = str(d1)+str(d2)+str(d3)+str(d4)
+    # manifold problems with other profiles with veronoi-mid and other unoptimized code. therefor tests only 0009
+    X, Y = naca("6504", res, finite_TE=False, half_cosine_spacing=True)
     ind_hk_test = 0
     ind_vk_test = res
 
-    points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) )).T
+    points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2))).T
 
     profilepoints = pv.PolyData(points)
 
@@ -132,17 +135,17 @@ def test_extract_vk_hk(verbose=False):
 
 def test_extractSidePolys(verbose=False):
     from NTR.database.data_generators.naca_airfoil_creator import naca
-    d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
-    digitstring = str(d1)+str(d2)+str(d3)+str(d4)
+    d1, d2, d3, d4 = np.random.randint(0, 9), np.random.randint(0, 9), np.random.randint(0, 9), np.random.randint(0, 9)
+    digitstring = str(d1) + str(d2) + str(d3) + str(d4)
 
     res = 240
-    X,Y = naca(digitstring, res, finite_TE = False, half_cosine_spacing = True)
+    X, Y = naca(digitstring, res, finite_TE=False, half_cosine_spacing=True)
     ind_hk = 0
     ind_vk = res
     points = np.stack((X[:-1], Y[:-1], np.zeros(res * 2) - 1)).T
 
     poly = pv.PolyData(points)
-    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly, verbose )
+    ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly, verbose)
 
     if verbose:
         p = pv.Plotter()
@@ -155,13 +158,12 @@ def test_extractSidePolys(verbose=False):
     assert ssPoly.number_of_points == psPoly.number_of_points, "number of sidepoints are not equal"
 
 
-
 def test_midline_from_sides(verbose=False):
     from NTR.utils.mathfunctions import vecAbs
     from NTR.database.data_generators.naca_airfoil_creator import naca
 
     res = 240
-    X,Y = naca('0009', res, finite_TE = False, half_cosine_spacing = True)
+    X, Y = naca('0009', res, finite_TE=False, half_cosine_spacing=True)
     ind_hk = 0
     ind_vk = res
 
@@ -186,47 +188,38 @@ def test_midline_from_sides(verbose=False):
 
 def test_create_simulationcase(tmpdir):
     ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
-    case_templates = os.listdir(os.path.join(ntrpath, "database","case_templates"))
+    case_templates = os.listdir(os.path.join(ntrpath, "database", "case_templates"))
 
     case_structures = {}
     for cname in case_templates:
-        cstruct = get_directory_structure(os.path.join(ntrpath, "database","case_templates"))
+        cstruct = get_directory_structure(os.path.join(ntrpath, "database", "case_templates"))
         case_structures[cname] = cstruct
 
     for indx in range(len(list(case_structures.keys()))):
         case_type = list(case_structures.keys())[indx]
-        case_structure = case_structures[case_type][list(case_structures.keys())[0]].keys())[indx]]
+        case_structure = case_structures[case_type]["case_templates"]
         case_structure = find_vars_opts(case_structure)
         case_structlist = list(nested_dict_pairs_iterator(case_structure))
-        variables = [i[-2] for i in list(case_structlist) if i[-1]=="var"]
-        options = [i[-2] for i in list(case_structlist) if i[-1]=="opt"]
+        variables = [i[-2] for i in list(case_structlist) if i[-1] == "var"]
+        options = [i[-2] for i in list(case_structlist) if i[-1] == "opt"]
 
-
-        test_dict = {"case_settings": {
-                                        "case_type" : case_type,
-                                        "name" : "testcase"
-                      },
-                     "simcase_settings":{
-                                        "variables": {
-
-                                        },
-                                        "options":{
-
-                                        }
-                      },
-                    "simcase_optiondef":{
-
-                        },
+        test_dict = {"case_settings": {"case_type": case_type,
+                                       "name": "testcase"},
+                     "simcase_settings": {"variables": {},
+                                          "options": {}},
+                     "simcase_optiondef": {},
                      }
+
         for var in variables:
-            test_dict["simcase_settings"]["variables"][var]="1"
+            test_dict["simcase_settings"]["variables"][var] = "1"
         for opt in options:
-            test_dict["simcase_settings"]["options"][opt]="1"
-            test_dict["simcase_optiondef"][opt]="1"
+            test_dict["simcase_settings"]["options"][opt] = "1"
+            test_dict["simcase_optiondef"][opt] = "1"
 
         test_file = tmpdir / "test_create_simulationcase.yml"
         test_geo_dict = {}
-        os.mkdir(tmpdir/"04_Data")
+        if not os.path.isdir(tmpdir / "04_Data"):
+            os.mkdir(tmpdir / "04_Data")
         test_geo_file = tmpdir / os.path.join("04_Data", "geometry.pkl")
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)

@@ -90,7 +90,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
                 "pitch": pitch,
                 "span_z": span_z
                 }
-
+    """
     # this might be used later on for the definition of a generic blocking-algorithm
     noplines = 101
     ssLinePts_X, ssLinePts_Y = refine_spline(ssPoly.points[::, 0], ssPoly.points[::, 1], noplines)
@@ -161,11 +161,11 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     p.add_legend()
     p.add_axes()
     p.show()
-
+    """
     geo_filename = "geometry.pkl"
     write_pickle(os.path.join(casepath, "04_Data", geo_filename), geo_dict)
 
-    if True:
+    if verbose:
         plotter = pv.Plotter()
         psPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
         ssPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)

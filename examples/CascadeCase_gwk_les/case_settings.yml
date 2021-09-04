@@ -8,10 +8,12 @@ openfoam_cascade_les_settings:
 
 simcase_settings:
     variables:
+        CLUSTERJOBNAME: "gkw_p14profile_cascadecase_les"
         JOB_NUMBERS: "12"
         HLRN_JOB_ACCOUNT: "niinyhma"
-        HLRN_JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
-
+        JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
+        NODES: "8"
+        TASKS_PER_NODE: "24"
         PINLET: "95000"
         TINLET : "293.15"
         UINLET: "35.392445 58.06355 0"
