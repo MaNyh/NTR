@@ -2,15 +2,14 @@ case_settings:
     name : "GWK_Verdichterkaskade_LES"
     case_type : "trace_cascade_ras"
 
-
 simcase_settings:
     variables:
-        LENGTH_ZPER: 0.0025
-        LENGTH_YPER: 0.0765
-        OUTLET_PRESSURE: 100000
-        INLET_PRESSURE: 100000
-        VEL_YANGLE: 58.64
-        INLET_TEMPERATURE: 293.15
+        LENGTH_ZPER: "0.0025"
+        LENGTH_YPER: "0.0765"
+        OUTLET_PRESSURE: "100000"
+        INLET_PRESSURE: "110000"
+        VEL_YANGLE: "58.64"
+        INLET_TEMPERATURE: "293.15"
     options:
 simcase_optiondef:
 
@@ -27,7 +26,7 @@ geometry:
     shift_domain                    : 0.01                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.8                                   #Mesh-density factor
+    factor                          : 2.2                                   #Mesh-density factor
     ogrid_factor                    : 4                                 #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                              #first cell height when factor=1
