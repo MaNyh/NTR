@@ -69,10 +69,10 @@ gmc -> set_equation_properties for row01 : HeatFluxModel to ConstantPrandtl
 gmc -> set_equation_properties for row01 : PrandtlTurbulent to 0.900000
 gmc -> set_attributes of panel_group named 'BLADE' : set wall_treatment to low_Reynolds
 gmc -> set_attributes of panel_group named 'BLADE' : set translational_velocity to 0.0 0.0 0.0
-gmc -> set_attributes of panel_group named 'OUTLET' : set back_pressure to value <var OUTLET_PRESSURE var>
+gmc -> set_attributes of panel_group named 'OUTLET' : set back_pressure to value <var OUTFLOW_PRESSURE var>
 gmc -> set_attributes of panel_group named 'OUTLET' : set radial_equilibrium to Midspan
 gmc -> set_attributes of panel_group named 'OUTLET' : set create_radial_bands to On
-gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to <var INLET_PRESSURE var>
+gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to <var INLET_TOTAL_PRESSURE var>
 gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to <var VEL_YANGLE var>
 gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleZ to 0.000000
 gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to 293.15
@@ -82,16 +82,17 @@ gmc -> set_attributes of panel_group named 'INLET' : set create_radial_bands to 
 
 
 gmc -> set_init_properties for machine : DataFile to ''
-gmc -> set_init_properties for row01 : InflowDensity to 1
-gmc -> set_init_properties for row01 : InflowPressure to 1
-gmc -> set_init_properties for row01 : InflowVelocityX to 1
-gmc -> set_init_properties for row01 : InflowVelocityYAbs to 1
-gmc -> set_init_properties for row01 : InflowVelocityZ to 1
-gmc -> set_init_properties for row01 : OutflowDensity to 1
-gmc -> set_init_properties for row01 : OutflowPressure to 1
-gmc -> set_init_properties for row01 : OutflowVelocityX to 1
-gmc -> set_init_properties for row01 : OutflowVelocityYAbs to 1
-gmc -> set_init_properties for row01 : OutflowVelocityZ to 1
+gmc -> set_init_properties for row01 : InflowTemperature to  <var INLET_TEMP var>
+gmc -> set_init_properties for row01 : InflowPressure to <var INLET_TOTAL_PRESSURE var>
+gmc -> set_init_properties for row01 : InflowVelocityX to <var INLET_VELX var>
+gmc -> set_init_properties for row01 : InflowVelocityYAbs to <var INLET_VELY var>
+gmc -> set_init_properties for row01 : InflowVelocityZ to <var INLET_VELZ var>
+
+gmc -> set_init_properties for row01 : OutflowTemperature to <var OUTFLOW_TEMP var>
+gmc -> set_init_properties for row01 : OutflowPressure to <var OUTFLOW_PRESSURE var>
+gmc -> set_init_properties for row01 : OutflowVelocityX to <var OUTFLOW_VELX var>
+gmc -> set_init_properties for row01 : OutflowVelocityYAbs to <var OUTFLOW_VELY var>
+gmc -> set_init_properties for row01 : OutflowVelocityZ to <var OUTFLOW_VELZ var>
 gmc -> set_init_properties for row01 : XStart to -0.100000
 gmc -> set_init_properties for row01 : XEnd to 0.270000
 
