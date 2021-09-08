@@ -118,7 +118,7 @@ geometry:
     ptcloud_profile_unit            : "mm"                                  #m vs mm
     x_inlet                         : -0.13                                  #Shift Inlet along x [m]
     x_outlet                        : 0.26                              #Shift Outlet along x [m]
-    shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
+    shift_domain                    : 0.005                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
     factor                          : 1.04                                   #Mesh-density factor

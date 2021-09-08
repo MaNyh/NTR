@@ -309,30 +309,28 @@ def extractSidePolys(ind_hk, ind_vk, sortedPoly, verbose=False):
     xs, ys = list(sortedPoly.points[::, 0]), list(sortedPoly.points[::, 1])
 
     if ind_vk < ind_hk:
-        x_ss = xs[ind_vk:ind_hk + 1]
-        y_ss = ys[ind_vk:ind_hk + 1]
+        x_ss = xs[ind_vk:ind_hk]
+        y_ss = ys[ind_vk:ind_hk ]
 
-        y_ps = ys[ind_hk:] + ys[:ind_vk + 1]
-        x_ps = xs[ind_hk:] + xs[:ind_vk + 1]
+        y_ps = ys[ind_hk-1:] + ys[:ind_vk+1]
+        x_ps = xs[ind_hk-1:] + xs[:ind_vk +1]
 
     else:
-        x_ss = xs[ind_hk:ind_vk + 1]
-        y_ss = ys[ind_hk:ind_vk + 1]
+        x_ss = xs[ind_hk:ind_vk ]
+        y_ss = ys[ind_hk:ind_vk ]
 
-        y_ps = ys[ind_vk:] + ys[:ind_hk + 1]
-        x_ps = xs[ind_vk:] + xs[:ind_hk + 1]
+        y_ps = ys[ind_vk:-1] + ys[:ind_hk +1]
+        x_ps = xs[ind_vk:-1] + xs[:ind_hk +1]
 
     psl_helper = polyline_from_points(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
     ssl_helper = polyline_from_points(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
-
     if psl_helper.length>ssl_helper.length:
-
         psPoly = pv.PolyData(ssl_helper.points)
         ssPoly = pv.PolyData(psl_helper.points)
     else:
-
         psPoly = pv.PolyData(psl_helper.points)
         ssPoly = pv.PolyData(ssl_helper.points)
+
     if verbose:
         p = pv.Plotter()
         psl = polyline_from_points(psPoly.points)
@@ -494,8 +492,8 @@ def midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly):
     else:
         bx, by = refine_spline(x_ss, y_ss, midsres)
     xmids, ymids = ((ax + bx) / 2, (ay + by) / 2)
-    xmids = np.array(xmids)[::-1][1:-1]
-    ymids = np.array(ymids)[::-1][1:-1]
+    xmids = np.array(xmids)[::-1]#[1:-1]
+    ymids = np.array(ymids)[::-1]#[1:-1]
     xmids[0] = points[ind_vk][0]
     ymids[0] = points[ind_vk][1]
     xmids[-1] = points[ind_hk][0]

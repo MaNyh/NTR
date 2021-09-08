@@ -4,6 +4,7 @@ import shutil
 from functools import reduce  # forward compatibility for Python 3
 import operator
 
+import NTR
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read , read_pickle
 from NTR.utils.functions import func_by_name
 
@@ -52,11 +53,12 @@ def find_vars_opts(case_structure):
     optsignature = r"<opt [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} opt>"
     siglim = (5, -5)
 
+    ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
     all_pairs = list(nested_dict_pairs_iterator(case_structure))
     for pair in all_pairs:
         setInDict(case_structure,pair[:-1],{})
         filepath = os.path.join(*pair[:-1])
-        with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
+        with open(os.path.join(ntrpath, "database","case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
 
                 lookup_var = re.search(varsignature, line)
@@ -79,13 +81,13 @@ def create_simulationcase(path_to_yaml_dict):
                        "simcase": "02_Simcase",
                        "solution": "03_Solution",
                        "data": "04_Data"}
-
-    case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
+    ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
+    case_templates = os.listdir(os.path.join(ntrpath, "database", "case_templates"))
 
     case_structures = {}
     for cname in case_templates:
         cstruct = get_directory_structure(
-            os.path.join(os.path.dirname(__file__), "../database/case_templates", cname))
+            os.path.join(ntrpath, "database","case_templates", cname))
         case_structures[cname] = cstruct
 
     settings = yaml_dict_read(path_to_yaml_dict)

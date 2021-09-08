@@ -8,6 +8,7 @@ from NTR.utils.geom_functions.profileparas import calcMidPassageStreamLine, extr
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle, yaml_dict_read
 from NTR.utils.geom_functions.pyvista_utils import lines_from_points
+from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.database.data_generators.naca_airfoil_creator import naca
 from NTR.utils.mathfunctions import vecAbs
 from NTR.utils.geom_functions.spline import refine_spline
@@ -18,7 +19,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     x_outlet = settings["geometry"]["x_outlet"]
     pitch = settings["geometry"]["pitch"]
     unit = settings["geometry"]["ptcloud_profile_unit"]
-    blade_shift = settings["geometry"]["shift_domain"]
+    blade_shift = settings["geometry"]["shift_domain"]-0.005
     alpha = settings["geometry"]["alpha"]
     span_z = settings["mesh"]["extrudeLength"]
 
@@ -49,7 +50,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     y_ps = psPoly.points[::, 1]
 
     stagger_angle = np.rad2deg(np.arctan((y_mids[-1] - y_mids[-0]) / (x_mids[-1] - x_mids[-0])))
-    chordlength = vecAbs(midsPoly.points[0] - midsPoly.points[-1])
+
     x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_meta_01, beta_meta_02,
                                               x_inlet, x_outlet, pitch)
 
@@ -90,7 +91,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
                 "pitch": pitch,
                 "span_z": span_z
                 }
-    """
+    chordlength = vecAbs(midsPoly.points[0] - midsPoly.points[-1])
     # this might be used later on for the definition of a generic blocking-algorithm
     noplines = 101
     ssLinePts_X, ssLinePts_Y = refine_spline(ssPoly.points[::, 0], ssPoly.points[::, 1], noplines)
@@ -112,10 +113,10 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
         "pitch"] * np.array([0, 1, 0])  # pt18
     outlet_northprofile = outlet_ylow + settings["mesh"]["yPerHighHGridBlockPitchStart"] * settings["geometry"][
         "pitch"] * np.array([0, 1, 0])  # pt19
-    midx_ysouth_2d = np.array(refine_spline(midsPoly.points[:, 0], midsPoly.points[:, 1], 3))[1]
-    midx_ysouth_z = 0
-    midx_ysouth = np.array([midx_ysouth_2d[0], midx_ysouth_2d[1], midx_ysouth_z])+ settings["mesh"]["yPerHighHGridBlockPitchStart"] * settings["geometry"][
-        "pitch"] * np.array([0, 1, 0])
+    midx_ynorth_2d = np.array(refine_spline(midsPoly.points[:, 0], midsPoly.points[:, 1], 3))[1]
+    midx_ynorth_z = 0
+    midx_ynorth = np.array([midx_ynorth_2d[0], midx_ynorth_2d[1], midx_ynorth_z]) + (settings["mesh"]["yPerHighHGridBlockPitchStart"] * settings["geometry"][
+        "pitch"] -blade_shift)* np.array([0, 1, 0])
     inlet_yhigh = inlet_pts[1]  # pt13
     vkplane_yhigh = refine_spline(per_y_upper.points[:,0],per_y_upper.points[:,1],noplines)
     vkplane_yhigh = np.stack((vkplane_yhigh[0],vkplane_yhigh[1],np.zeros(noplines))).T
@@ -150,7 +151,12 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     ssPoly_line = lines_from_points(ssPoly.points)
     ssPoly_surf = ssPoly_line.extrude(vector=(0, 0, 0.1))
     ssPoly_surf = ssPoly_surf.compute_normals()
-    ssPoly_surf.points += 0.01 * ssPoly_surf.point_arrays["Normals"]
+
+
+    mpslPolyLow = pv.PolyData(np.stack((x_mpsl, y_lower, np.zeros(len(x_mpsl)))).T)
+    mpslPolyUpper = pv.PolyData(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
+
+    ssPoly_surf.points += 0.1 * pitch * ssPoly_surf.point_arrays["Normals"]
     ssPoly_surf.translate((0, 0, -0.05))
     ssPoly_slice = ssPoly_surf.slice(origin=(0, 0, 0), normal=(0, 0, 1))
     p = pv.Plotter()
@@ -158,19 +164,43 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     p.add_mesh(ssPoly, label="ssPoly", color="green", point_size=5)
     p.add_mesh(psPoly_slice)
     p.add_mesh(ssPoly_slice)
+    p.add_mesh(midsPoly)
+    shift = 1
+    shifts = [shift,int(len(midsPoly.points) / 3),int(len(midsPoly.points) / 3)*2,-shift-1]
+    for s in shifts:
+        midspt = midsPoly.points[s]
+        ps_idx = closest_node_index(midspt, psPoly.points)
+        ss_idx = closest_node_index(midspt, ssPoly.points)
+        pspt = psPoly.points[ps_idx]
+        sspt = ssPoly.points[ss_idx]
+        psout_idx = closest_node_index(pspt,psPoly_slice.points)
+        ssout_idx = closest_node_index(sspt,ssPoly_slice.points)
+        psoutpt = psPoly_slice.points[psout_idx]
+        ssoutpt = ssPoly_slice.points[ssout_idx]
+        psline = pv.Line(pspt,psoutpt)
+        ssline = pv.Line(sspt,ssoutpt)
+
+        p.add_mesh(mpslPolyLow)
+        p.add_mesh(mpslPolyUpper)
+        p.add_mesh(psline)
+        p.add_mesh(ssline)
+        p.add_mesh(midspt, color="red", point_size=20)
+        p.add_mesh(pspt, color="blue", point_size=20)
+        p.add_mesh(sspt, color="blue", point_size=20)
+        p.add_mesh(psoutpt, color="blue", point_size=20)
+        p.add_mesh(ssoutpt, color="blue", point_size=20)
     p.add_legend()
     p.add_axes()
     p.show()
-    """
+
     geo_filename = "geometry.pkl"
     write_pickle(os.path.join(casepath, "04_Data", geo_filename), geo_dict)
 
-    if verbose:
+    if True: #verbose:
         plotter = pv.Plotter()
         psPoly = pv.PolyData(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
         ssPoly = pv.PolyData(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
-        mpslPolyLow = pv.PolyData(np.stack((x_mpsl, y_lower, np.zeros(len(x_mpsl)))).T)
-        mpslPolyUpper = pv.PolyData(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
+
         midsPoly = pv.PolyData(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
 
         psPoly_asline = lines_from_points(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
@@ -199,12 +229,14 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
         plotter.add_mesh(ssPoly, label="ssPoly", color="green", point_size=5)
         plotter.add_mesh(psPoly_slice)
         plotter.add_mesh(ssPoly_slice)
-        #plotter.add_mesh(pv.PolyData([(-0.004010, 0.048624, 0.000000)]), point_size=20, label="p1")
+        plotter.add_mesh(pv.PolyData([(-0.004010, 0.048624, 0.000000)]), point_size=20, label="p1")
+        plotter.add_mesh(midx_ynorth, point_size=20, label="p1")
+        """
         #plotter.add_mesh(pv.PolyData([(0.110653, 0.053960, 0.000000)]), point_size=20, label="p2")
 
         #plotter.add_mesh(pv.PolyData([(0.046967, 0.061204, 0.000000)]), point_size=20, label="p3", color="red")
         plotter.add_mesh(pv.PolyData([(-0.004010, 0.010374, 0.000000)]), point_size=20, label="pt1", color="blue")
-        plotter.add_mesh(pv.PolyData(midx_ysouth), point_size=20, label="midx_yss=pt1", color="blue")
+        plotter.add_mesh(pv.PolyData(midx_ynorth), point_size=20, label="midx_yss=pt1", color="blue")
         #plotter.add_mesh(pv.PolyData([(0.000733, 0.001322, 0.000000)]), point_size=20, label="pt2")
         #plotter.add_mesh(pv.PolyData([(0.001240, 0.000844, 0.000000)]), point_size=20, label="pt3")
         #plotter.add_mesh(pv.PolyData([(-0.004010, -0.012576, 0.000000)]), point_size=20, label="pt4")
@@ -232,7 +264,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
         #plotter.add_mesh(pv.PolyData([(0.260000, 0.187453, 0.000000)]), point_size=20, label="pt20")
         plotter.add_mesh(pv.PolyData([(0.110653, 0.130460, 0.000000)]), point_size=20, label="pt21")
         plotter.add_mesh(pv.PolyData(outlet_yhigh), point_size=20, label="outlet_high = pt21")
-
+        """
         plotter.show_axes()
         plotter.add_legend()
         plotter.show()
@@ -320,11 +352,13 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints, finite_TE, half_
         mpslPolyUpper_asline = lines_from_points(np.stack((x_mpsl, y_upper, np.zeros(len(x_mpsl)))).T)
         midsPoly_asline = lines_from_points(np.stack((x_mids, y_mids, np.zeros(len(x_mids)))).T)
 
+
         plotter.add_mesh(psPoly, color="red")
         plotter.add_mesh(ssPoly, color="blue")
         plotter.add_mesh(mpslPolyLow)
         plotter.add_mesh(mpslPolyUpper)
         plotter.add_mesh(midsPoly, point_size=5)
+
 
         plotter.add_mesh(psPoly_asline)
         plotter.add_mesh(ssPoly_asline)
@@ -413,8 +447,7 @@ def run_create_geometry(settings_yaml):
     if settings["geometry"]["algorithm"] == "from_pointcloud":
         ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geometry"]["ptcloud_profile"])
 
-        geo_dict = create_geometry_frompointcloud(ptstxtfile,
-                                                  settings, case_path)
+        geo_dict = create_geometry_frompointcloud(ptstxtfile,settings, case_path)
 
     if settings["geometry"]["algorithm"] == "naca_airfoil_generator":
         geo_dict = create_geometry_fromnacaairfoil(settings["geometry"]["naca_digits"],
