@@ -183,7 +183,7 @@ def test_midline_from_sides(verbose=False):
         p.add_mesh(psPoly, color="red")
         p.show()
 
-    assert length == testlength, "midline not accurate"
+    assert np.isclose(length,testlength), "midline not accurate"
 
 
 def test_create_simulationcase(tmpdir):
