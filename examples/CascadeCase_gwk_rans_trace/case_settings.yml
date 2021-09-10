@@ -7,7 +7,7 @@ simcase_settings:
         LENGTH_ZPER: "0.0025"
         LENGTH_YPER: "0.0765"
 
-        INLET_TOTAL_PRESSURE: "110000"
+        INLET_TOTAL_PRESSURE: "101000"
         INLET_TEMP: "293.15"
         INLET_VELX: "50"
         INLET_VELY: "40"
@@ -21,7 +21,7 @@ simcase_settings:
 
         VEL_YANGLE: "58.64"
         INLET_TEMPERATURE: "293.15"
-        GLOBAL_TOLERANCE: "0.0001"
+        GLOBAL_TOLERANCE: "0.0000001"
 
     options:
 simcase_optiondef:
