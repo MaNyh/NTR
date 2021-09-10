@@ -7,6 +7,7 @@ import operator
 import NTR
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read , read_pickle
 from NTR.utils.functions import func_by_name
+from NTR.database.case_structure import case_dirs
 
 def getFromDict(dataDict, mapList):
     return reduce(operator.getitem, mapList, dataDict)
@@ -76,11 +77,7 @@ def find_vars_opts(case_structure):
     return case_structure
 
 def create_simulationcase(path_to_yaml_dict):
-    casedirectories = {"ressources": "00_Ressources",
-                       "meshing": "01_Meshing",
-                       "simcase": "02_Simcase",
-                       "solution": "03_Solution",
-                       "data": "04_Data"}
+
     ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
     case_templates = os.listdir(os.path.join(ntrpath, "database", "case_templates"))
 
@@ -100,13 +97,13 @@ def create_simulationcase(path_to_yaml_dict):
     case_type = settings["case_settings"]["case_type"]
     #case_directories = case_structures[case_type]
     assert case_type in case_structures.keys(), "case_type " + case_type + " not found in templates."
-    path_to_sim = os.path.join(casepath,casedirectories["simcase"])
-    path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
+    path_to_sim = os.path.join(casepath,case_dirs["simcase"])
+    path_to_geo_ressources = os.path.join(casepath, case_dirs["data"], "geometry.pkl")
     assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
 
     #geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
 
-    create_casedirstructure(casedirectories,casepath)
+    create_casedirstructure(case_dirs,casepath)
     case_structure = case_structures[case_type]
     create_simdirstructure(case_structure,path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
@@ -152,7 +149,7 @@ def writeout_simulation_options(case_structure_parameters, path_to_sim, settings
                 optionargs = optiondefinition["args"]
                 optionargs["path_to_sim"] = path_to_sim
                 optionargs["case_settings"] = settings
-                optionargs["geomdat_dict"] = read_pickle(os.path.join(path_to_sim,"..","04_Data","geometry.pkl"))
+                optionargs["geomdat_dict"] = read_pickle(os.path.join(path_to_sim,"..",case_dirs["data"],"geometry.pkl"))
                 optionfunc(**optionargs)
 
                 replace_opt =optiondefinition["insert"]

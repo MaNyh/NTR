@@ -9,6 +9,7 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle, yaml_dict_read
 from NTR.utils.geom_functions.pyvista_utils import lines_from_points
 from NTR.utils.geom_functions.distance import closest_node_index
+from NTR.database.case_structure import case_dirs
 from NTR.database.data_generators.naca_airfoil_creator import naca
 from NTR.utils.mathfunctions import vecAbs
 from NTR.utils.geom_functions.spline import refine_spline
@@ -72,7 +73,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
 
     outletPoly = pv.Line(*outlet_pts)
 
-    writeTecplot1DFile(os.path.join(casepath, '01_Meshing', 'geom.dat'), ['x', 'z'],
+    writeTecplot1DFile(os.path.join(casepath, case_dirs["meshing"], 'geom.dat'), ['x', 'z'],
                        ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
                        [[x_ps, y_ps], [x_ss, y_ss], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mpsl[::-1], y_mpsl[::-1]]],
                        'obere Kurvenverlauf des Kanals')
@@ -194,7 +195,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     p.show()
 
     geo_filename = "geometry.pkl"
-    write_pickle(os.path.join(casepath, "04_Data", geo_filename), geo_dict)
+    write_pickle(os.path.join(casepath, case_dirs["data"], geo_filename), geo_dict)
 
     if True: #verbose:
         plotter = pv.Plotter()
@@ -315,7 +316,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints, finite_TE, half_
 
     outletPoly = pv.Line(*outlet_pts)
 
-    writeTecplot1DFile(os.path.join(casepath, '01_Meshing', 'geom.dat'), ['x', 'z'],
+    writeTecplot1DFile(os.path.join(casepath, case_dirs["meshing"], 'geom.dat'), ['x', 'z'],
                        ['druckseite', 'saugseite', 'lower peri', 'upper peri', 'skelett'],
                        [[x_ps, y_ps], [x_ss, y_ss], [x_mpsl, y_lower], [x_mpsl, y_upper], [x_mpsl[::-1], y_mpsl[::-1]]],
                        'obere Kurvenverlauf des Kanals')
@@ -336,7 +337,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints, finite_TE, half_
                 }
 
     geo_filename = "geometry.pkl"
-    write_pickle(os.path.join(casepath, "04_Data", geo_filename), geo_dict)
+    write_pickle(os.path.join(casepath, case_dirs["data"], geo_filename), geo_dict)
 
     if verbose:
         plotter = pv.Plotter()
@@ -436,8 +437,8 @@ def run_create_geometry(settings_yaml):
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
 
-    meshpath = os.path.join(case_path, "01_Meshing")
-    datpath = os.path.join(case_path, "04_Data")
+    meshpath = os.path.join(case_path, case_dirs["meshing"])
+    datpath = os.path.join(case_path, case_dirs["data"])
     if not os.path.isdir(meshpath):
         os.mkdir(meshpath)
     if not os.path.isdir(datpath):
@@ -462,5 +463,4 @@ def run_create_geometry(settings_yaml):
                                                    settings["geometry"]["staggerangle"],
                                                    settings["mesh"]["extrudeLength"],
                                                    case_path, )
-    # blockpoints(geo_dict,settings)
     return 0
