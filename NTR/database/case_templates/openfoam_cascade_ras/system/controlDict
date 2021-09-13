@@ -21,12 +21,11 @@ startFrom       latestTime;
 
 startTime       1e-06;
 
-//stopAt          writeNow;
-stopAt		endTime;
+stopAt		    endTime;
 
 endTime         0.6;
 
-deltaT          6e-8;//
+deltaT          6e-8;
 
 writeControl    timeStep;
 
@@ -48,14 +47,12 @@ runTimeModifiable true;
 
 adjustTimeStep  on;
 
-maxCo           50; //maximale courant number
+maxCo           50;
 
 libs (
 "libfieldFunctionObjects.so"
 "libsampling.so"
 "libAdvectiveFields.so"
-//"libWaveTransmissiveFields.so"
-//"libDFSEM_WaveTransmissive_synthWake.so"
 );
 
 
@@ -67,16 +64,16 @@ functions
 
 
 sclice
-    {    
+    {
 
     type        			surfaces;
 //    writeControl              	writeTime;
     interpolationScheme 		cellPoint;
     functionObjectLibs 			( "libsampling.so" );
     enabled         			true;
-    writeControl   			timeStep; 
+    writeControl   			timeStep;
     writeInterval  			100; // the surface will be stored every 2nd time step (for example)
-    surfaceFormat    			vtk;    
+    surfaceFormat    			vtk;
     surfaces
     (
         zCut
@@ -89,7 +86,7 @@ sclice
             basePoint       (0.06645314767956734 0.015346363186836243 0.02);
             normalVector    (0.0 0.0 1.0);
         }
-        interpolate     true;       
+        interpolate     true;
         }
     );
 
@@ -97,7 +94,7 @@ sclice
     (
     U
     );
-    }        
+    }
 
 
 fieldAverage
@@ -106,7 +103,7 @@ fieldAverage
        	writeControl    	  writeTime;
         restartOnOutput           false;
         restartOnRestart          false;
-	enabled			  true;
+	    enabled			  true;
 
         fields
         (
@@ -154,7 +151,7 @@ fieldAverage
 	     prime2Mean	true;
 	     base 	time;
 	  }
-      
+
 	);
   }
 

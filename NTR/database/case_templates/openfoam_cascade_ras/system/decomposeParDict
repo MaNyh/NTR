@@ -16,18 +16,10 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-//preservePatches (LOWER_WALL UPPER_WALL);
-
-numberOfSubdomains 12;
+numberOfSubdomains <var PROCS var>;
 
 method          hierarchical;
 
-/*
-singleProcessorFaceSets
-(
-(inlet_face_set 0)
-);
-*/
 simpleCoeffs
 {
 
@@ -35,7 +27,7 @@ simpleCoeffs
 
 hierarchicalCoeffs
 {
-    n               (1 12 1);
+    n               (<var PROCS var> 1 1);
     delta           0.001;
     order           yxz;
 }

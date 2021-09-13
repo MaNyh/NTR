@@ -1,9 +1,14 @@
 case_settings:
     name : "GWK_Verdichterkaskade_LES"
-    case_type : "Openfoam_cascade_ras"
+    case_type : "openfoam_cascade_ras"
 
 openfoam_cascade_ras_settings:
     timestep : "10e-8"
+simcase_settings:
+    variables:
+        TURBULENCE_MODEL: "kOmega"
+        PROCS: "12"
+    options:
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
