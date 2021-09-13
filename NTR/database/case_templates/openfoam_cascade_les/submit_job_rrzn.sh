@@ -5,7 +5,7 @@
 #SBATCH --mem-per-cpu=2G
 #SBATCH --time=100:00:00
 #SBATCH --constraint=[skylake|haswell]
-#SBATCH --mail-user=<var HLRN_JOB_EMAIL var>
+#SBATCH --mail-user=<var JOB_EMAIL var>
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --output batch.out
 #SBATCH --error batch.err
