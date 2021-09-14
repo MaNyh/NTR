@@ -111,6 +111,9 @@ gmc -> set_equation_properties for row01 : RotationalEffects to <var ROTATIONAL_
 gmc -> set_equation_properties for row01 : TransitionModel to <var TRANSITIONMODEL var>
 gmc -> set_equation_properties for row01 : VGJModel to <var VGJMODEL var>
 
+gmc -> set_solver_properties for 'machine' : SpatialAccuracy to  <var ACCURACY_ORDER var>
+gmc -> set_solver_properties for 'row01' : SpatialAccuracy to  <var ACCURACY_ORDER var>
+
 gmc -> set_attributes of panel_group named 'BLADE' : set wall_treatment to low_Reynolds
 gmc -> set_attributes of panel_group named 'BLADE' : set translational_velocity to 0.0 0.0 0.0
 
