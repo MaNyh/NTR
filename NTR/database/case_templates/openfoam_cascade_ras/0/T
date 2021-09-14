@@ -32,7 +32,9 @@ boundaryField
     {
         type            inletOutlet;
         value           uniform $Tinlet;
-	inletValue	uniform $Tinlet;
+	    inletValue	    uniform $Tinlet;
+	    fieldInf        uniform $Tinlet;
+        lInf            0.0005;
     }
     BLADE
     {

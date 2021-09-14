@@ -80,6 +80,7 @@ gmc -> set_equation_properties for machine : WavinessModel to Off
 gmc -> set_equation_properties for machine : Version2009 to Off
 gmc -> set_equation_properties for machine : HeatFluxModel to ConstantPrandtl
 gmc -> set_equation_properties for machine : PrandtlTurbulent to 0.900000
+gmc -> set_equation_properties for machine : StagnationPointAnomallyFix to KatoLaunder
 gmc -> set_reference Length to 0.13
 gmc -> set_reference Temperature to 298
 gmc -> set_reference Pressure to 1e6
