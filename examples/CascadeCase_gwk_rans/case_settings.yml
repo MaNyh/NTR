@@ -1,5 +1,5 @@
 case_settings:
-    name : "GWK_Verdichterkaskade_LES"
+    name : "GWK_Verdichterkaskade_RAS"
     case_type : "openfoam_cascade_ras"
 
 openfoam_cascade_ras_settings:
