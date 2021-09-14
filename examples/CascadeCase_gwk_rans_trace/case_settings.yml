@@ -37,7 +37,7 @@ geometry:
     shift_domain                    : 0.01                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 2.2                                   #Mesh-density factor
+    factor                          : 1.7                                   #Mesh-density factor
     ogrid_factor                    : 4                                 #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.0000075                              #first cell height when factor=1
@@ -51,6 +51,6 @@ mesh:
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.3                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.6                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.045                                  #move periodic vertices (yPer from LE) along x
+    shift_vk_block_xaxiscoeff       : 0.0475                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.0                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
