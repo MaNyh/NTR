@@ -64,7 +64,7 @@ patches
             neighbourPatch Z_upper;
 
             transform translational;
-            separationVector (0 0 0.0025);
+            separationVector (0 0 <var SPANPER var>);
             matchTolerance 0.02;
         }
 
@@ -77,7 +77,7 @@ patches
 		 FaceGroup75 FaceGroup79);
 
     }
-   
+
     {
         // Name of new patch
         name Z_upper;
@@ -89,7 +89,7 @@ patches
             neighbourPatch Z_lower;
 
             transform translational;
-            separationVector (0 0 -0.0025);
+            separationVector (0 0 -<var SPANPER var>);
             matchTolerance 0.1;
         }
 
@@ -114,7 +114,7 @@ patches
             neighbourPatch Y_upper;
 
             transform translational;
-            separationVector (0 0.0765 0);
+            separationVector (0 <var PITCHPER var> 0);
             matchTolerance 0.1;
         }
 
@@ -135,7 +135,7 @@ patches
             neighbourPatch Y_lower;
 
             transform translational;
-            separationVector (0 -0.0765 0);
+            separationVector (0 -<var PITCHPER var> 0);
             matchTolerance 0.02;
         }
 

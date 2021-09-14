@@ -6,8 +6,25 @@ openfoam_cascade_ras_settings:
     timestep : "10e-8"
 simcase_settings:
     variables:
+        NOUTER_CORR: "3"
+        NCORR: "2"
+        PCORR: "2"
         TURBULENCE_MODEL: "kOmega"
         PROCS: "12"
+
+        UIN_LINF: "0.005"
+        UINLET: "35.392445 58.06355 0"
+
+        POUTLET: "101325"
+        POUT_LINF: "0.005"
+
+        PINLET: "95000"
+
+        TOUTLET: "293.15"
+        TOUT_LINF: "0.005"
+
+        PITCHPER: "0.0765"
+        SPANPER: "0.0025"
     options:
 
 geometry:

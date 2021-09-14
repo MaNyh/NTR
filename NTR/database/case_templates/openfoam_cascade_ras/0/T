@@ -34,7 +34,7 @@ boundaryField
         value           uniform $Tinlet;
 	    inletValue	    uniform $Tinlet;
 	    fieldInf        uniform $Tinlet;
-        lInf            0.0005;
+        lInf            <var TOUT_LINF var>;
     }
     BLADE
     {

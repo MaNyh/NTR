@@ -4,17 +4,28 @@ case_settings:
 
 simcase_settings:
     variables:
+        STAGPOINT_ANNOMALLYFIX: "KatoLaunder"
+        QUASIUNSTEADYMODEL: "Off"
+        WAVINESSMODEL: "Off"
+        VERSION2009: "Off"
+        HEATFLUXMODEL: "ConstantPrandtl"
+        PRANDTLTURBULENT: "0.900000"
+        ROTATIONAL_EFF: "Off"
+        TRANSITIONMODEL: "Off"
+        VGJMODEL: "Null"
+
+
         LENGTH_YPER: "0.0765"
 
         INLET_TOTAL_PRESSURE: "101000"
         INLET_TEMP: "293.15"
-        INLET_VELX: "50"
-        INLET_VELY: "40"
+        INLET_VELX: "35.392445"
+        INLET_VELY: "58.06355"
         INLET_VELZ: "0"
 
         OUTFLOW_PRESSURE: "100000"
         OUTFLOW_TEMP: "293.15"
-        OUTFLOW_VELX: "50"
+        OUTFLOW_VELX: "35.392445"
         OUTFLOW_VELY: "40"
         OUTFLOW_VELZ: "0"
 

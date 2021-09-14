@@ -17,11 +17,10 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-//Uinlet          (35.392445 58.06355 0);
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (35.392445 58.06355 0);
+internalField   uniform (<var UINLET var>);
 
 
 boundaryField
@@ -29,17 +28,17 @@ boundaryField
     INLET
     {
         type            waveTransmissive;
-	    gamma		1.4;
-        value           uniform (35.392445 58.06355 0);
-	    fieldInf	uniform (35.392445 58.06355 0);
+	    gamma		    1.4;
+        value           uniform (<var UINLET var>);
+	    fieldInf	    <var UINLET var>;
     }
 
     OUTLET
     {
         type            waveTransmissive;
-	    gamma		1.4;
-        value           uniform (35.392445 0   0.   ); //startwert only
-	    inletValue	uniform (0 0 0);
+	    gamma		    1.4;
+        value           uniform (<var UINLET var>); //startwert only
+	    inletValue	    uniform (0 0 0);
     }
 
     BLADE

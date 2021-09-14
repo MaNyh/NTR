@@ -17,7 +17,7 @@ FoamFile
 
 dimensions      [1 -1 -2 0 0 0 0];
 
-internalField   uniform 101325;
+internalField   uniform <var POUTLET var>;
 
 boundaryField
 {
@@ -25,16 +25,16 @@ boundaryField
     {
         type            waveTransmissive;
         gamma           1.4;
-	    value		101325;
+	    value		    uniform <var PINLET var>;
 
     }
     OUTLET
     {
         type            waveTransmissive;
-        gamma		1.4;
-        value		uniform 101325;
-        fieldInf  	101325;
-        lInf        0.0005;
+        gamma		    1.4;
+        value		    uniform <var POUTLET var>;
+        fieldInf  	    <var POUTLET var>;
+        lInf            <var POUT_LINF var>;
     }
     BLADE
     {
