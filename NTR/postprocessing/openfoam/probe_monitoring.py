@@ -8,17 +8,18 @@ from NTR.postprocessing.openfoam.loginterpreter import logfilestats
 
 
 def show_monitors(casesettings_yml):
+    #TODO: need for implementation of test-functions here
     settings = yaml_dict_read(casesettings_yml)
-    if "inletoutletfieldave_probing" in settings["probing"]["probes"].keys():
+    if "INOUT_FIELDAVE_PROBING" in settings["simcase_settings"]["options"].keys():
         averagevaluesinlet(casesettings_yml)
         averagevaluesoutlet(casesettings_yml)
-    if "inletoutletvelocity_probing" in settings["probing"]["probes"].keys():
+    if "INOUT_VELOCITY_PROBING" in settings["simcase_settings"]["options"].keys():
         massflowoutlet(casesettings_yml)
         massflowinlet(casesettings_yml)
-    if "xslice_probing" in settings["probing"]["probes"].keys():
+    if "XSCLICE_PROBING" in settings["simcase_settings"]["options"].keys():
         xslices(casesettings_yml)
-    if "logfile" in settings["monitoring"].keys():
-        logfilestats("case_settings.yml")
+    #if "logfile" in settings["monitoring"].keys():
+    logfilestats("case_settings.yml")
 
 
 def averagevaluesinlet(casesettings_yml):
