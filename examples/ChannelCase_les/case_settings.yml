@@ -16,7 +16,11 @@ simcase_settings:
         TASKS_PER_NODE: "24"
         WALLTIME: "10:00:00"
         MEMORY: "16gb"
+        DELTAT: "10e-8"
+        WRITEINTERVAL : "2000"
+        PURGEWRITE: "2"
 
+        ADUSTABLETIMESTEP : "off"
 
     options:
         INOUT_FIELDAVE_PROBING: True
