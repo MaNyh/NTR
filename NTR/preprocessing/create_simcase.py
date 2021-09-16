@@ -62,18 +62,30 @@ def find_vars_opts(case_structure):
         with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
 
-                lookup_var = re.search(varsignature, line)
-                lookup_opt = re.search(optsignature, line)
-                if lookup_var:
-                    span = lookup_var.span()
-                    parameter = line[span[0] + siglim[0]:span[1] + siglim[1]]
-                    setInDict(case_structure, list(pair[:-1]) + [parameter], "var")
+                lookforvar=True
+                lookforopt=True
 
-                if lookup_opt:
-                    span = lookup_opt.span()
-                    opt_name = line[span[0] + siglim[0]:span[1] + siglim[1]]
-                    setInDict(case_structure, list(pair[:-1]) + [opt_name], "opt")
+                while(lookforvar):
+                    lookup_var = re.search(varsignature, line)
+                    if not lookup_var:
+                        lookforvar=False
+                    else:
+                        span = lookup_var.span()
+                        parameter = line[span[0] + siglim[0]:span[1] + siglim[1]]
+                        setInDict(case_structure, list(pair[:-1]) + [parameter], "var")
+                        match = line[span[0]:span[1]]
+                        line = line.replace(match, "")
 
+                while(lookforopt):
+                    lookup_opt = re.search(optsignature, line)
+                    if not lookup_opt:
+                        lookforopt=False
+                    else:
+                        span = lookup_opt.span()
+                        opt_name = line[span[0] + siglim[0]:span[1] + siglim[1]]
+                        setInDict(case_structure, list(pair[:-1]) + [opt_name], "opt")
+                        match = line[span[0]:span[1]]
+                        line = line.replace(match, "")
     return case_structure
 
 
