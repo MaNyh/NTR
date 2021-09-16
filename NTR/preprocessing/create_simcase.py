@@ -91,17 +91,15 @@ def create_simulationcase(path_to_yaml_dict):
     settings = yaml_dict_read(path_to_yaml_dict)
 
     assert "name" in settings["case_settings"], "no name for the case defined"
-    #case_name = settings["case_settings"]["name"]
 
     casepath = os.path.abspath(os.path.dirname(path_to_yaml_dict))
 
     case_type = settings["case_settings"]["case_type"]
-    #case_directories = case_structures[case_type]
     assert case_type in case_structures.keys(), "case_type " + case_type + " not found in templates."
     path_to_sim = os.path.join(casepath,casedirectories["simcase"])
-    path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
-    assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
 
+    #path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
+    #assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
     #geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
 
     create_casedirstructure(casedirectories,casepath)
