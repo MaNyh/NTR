@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 from NTR.utils.filehandling import yaml_dict_read, readtxtfile
-
+from NTR.database.case_dirstructure import casedirs
 
 class timestep:
     def __init__(self, raw_lines):
@@ -50,8 +50,8 @@ class timestep:
 
 
 def logfilestats(settings_dict):
-    settings = yaml_dict_read(settings_dict)
-    filepath = settings["monitoring"]["logfile"]
+    #settings = yaml_dict_read(settings_dict)
+    filepath = os.path.join(casedirs["solution"],"log.log")
     casepath = os.path.abspath(os.path.dirname(settings_dict))
     logfile_raw = readtxtfile(os.path.join(casepath,filepath))
     timestepobj_list = []

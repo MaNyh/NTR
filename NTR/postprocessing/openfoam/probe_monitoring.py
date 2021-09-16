@@ -57,7 +57,7 @@ def xslices(casesettings_yml):
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","Probes_XSlices")
 
-    nop = settings["probes"]["xsclicing_probes"]["nop"]
+    nop = settings["simcase_optiondef"]["XSCLICE_PROBING"]["args"]["nop"]
 
     timeseries = {}
 
