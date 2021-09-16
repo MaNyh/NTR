@@ -4,11 +4,14 @@ import shutil
 from functools import reduce  # forward compatibility for Python 3
 import operator
 
-from NTR.utils.filehandling import get_directory_structure, yaml_dict_read , read_pickle
+from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
+from NTR.database.case_dirstructure import casedirs
+
 
 def getFromDict(dataDict, mapList):
     return reduce(operator.getitem, mapList, dataDict)
+
 
 def setInDict(dataDict, mapList, value):
     """
@@ -18,6 +21,7 @@ def setInDict(dataDict, mapList, value):
     :param value:
     """
     getFromDict(dataDict, mapList[:-1])[mapList[-1]] = value
+
 
 def appendInDictList(dataDict, mapList, value):
     """
@@ -38,12 +42,11 @@ def nested_dict_pairs_iterator(dict_obj):
         # Check if value is of dict type
         if isinstance(value, dict):
             # If value is dict then iterate over all its values
-            for pair in  nested_dict_pairs_iterator(value):
+            for pair in nested_dict_pairs_iterator(value):
                 yield (key, *pair)
         else:
             # If value is not dict type then yield the value
             yield (key, value)
-
 
 
 def find_vars_opts(case_structure):
@@ -54,7 +57,7 @@ def find_vars_opts(case_structure):
 
     all_pairs = list(nested_dict_pairs_iterator(case_structure))
     for pair in all_pairs:
-        setInDict(case_structure,pair[:-1],{})
+        setInDict(case_structure, pair[:-1], {})
         filepath = os.path.join(*pair[:-1])
         with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
@@ -64,22 +67,17 @@ def find_vars_opts(case_structure):
                 if lookup_var:
                     span = lookup_var.span()
                     parameter = line[span[0] + siglim[0]:span[1] + siglim[1]]
-                    setInDict(case_structure,list(pair[:-1])+[parameter],"var")
+                    setInDict(case_structure, list(pair[:-1]) + [parameter], "var")
 
                 if lookup_opt:
                     span = lookup_opt.span()
                     opt_name = line[span[0] + siglim[0]:span[1] + siglim[1]]
-                    setInDict(case_structure,list(pair[:-1])+[opt_name],"opt")
+                    setInDict(case_structure, list(pair[:-1]) + [opt_name], "opt")
 
     return case_structure
 
-def create_simulationcase(path_to_yaml_dict):
-    casedirectories = {"ressources": "00_Ressources",
-                       "meshing": "01_Meshing",
-                       "simcase": "02_Simcase",
-                       "solution": "03_Solution",
-                       "data": "04_Data"}
 
+def create_simulationcase(path_to_yaml_dict):
     case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
 
     case_structures = {}
@@ -96,15 +94,15 @@ def create_simulationcase(path_to_yaml_dict):
 
     case_type = settings["case_settings"]["case_type"]
     assert case_type in case_structures.keys(), "case_type " + case_type + " not found in templates."
-    path_to_sim = os.path.join(casepath,casedirectories["simcase"])
+    path_to_sim = os.path.join(casepath, casedirs["simcase"])
 
-    #path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
-    #assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
-    #geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
+    # path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
+    # assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
+    # geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
 
-    create_casedirstructure(casedirectories,casepath)
+    create_casedirstructure(casedirs, casepath)
     case_structure = case_structures[case_type]
-    create_simdirstructure(case_structure,path_to_sim)
+    create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
     case_structure_parameters = find_vars_opts(case_structure)
     check_settings_necessarities(case_structure_parameters, settings)
@@ -148,10 +146,15 @@ def writeout_simulation_options(case_structure_parameters, path_to_sim, settings
                 optionargs = optiondefinition["args"]
                 optionargs["path_to_sim"] = path_to_sim
                 optionargs["case_settings"] = settings
-                optionargs["geomdat_dict"] = read_pickle(os.path.join(path_to_sim,"..","04_Data","geometry.pkl"))
+                geo_fpath = os.path.join(path_to_sim, "..", "04_Data", "geometry.pkl")
+                if os.path.isfile(geo_fpath):
+                    optionargs["geomdat_dict"] = read_pickle(os.path.join(path_to_sim, "..", "04_Data", "geometry.pkl"))
+                else:
+                    optionargs["geomdat_dict"] = None
+                    print("warning, no geometry.pkl found. uncertain if this is going to work...")
                 optionfunc(**optionargs)
 
-                replace_opt =optiondefinition["insert"]
+                replace_opt = optiondefinition["insert"]
                 with open(fpath) as fobj:
                     newText = fobj.read().replace("<opt " + parametername + " opt>", str(replace_opt))
                 with open(fpath, "w") as fobj:
@@ -170,7 +173,8 @@ def copy_template(case_type, case_structure, path_to_sim):
         if dirstructure == ():
             dirstructure = ""
 
-        template_fpath = os.path.join(os.path.dirname(__file__), "../database/case_templates", case_type, *dirstructure, filename)
+        template_fpath = os.path.join(os.path.dirname(__file__), "../database/case_templates", case_type, *dirstructure,
+                                      filename)
         sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
         shutil.copyfile(template_fpath, sim_fpath)
 
@@ -185,7 +189,6 @@ def check_settings_necessarities(case_structure, settings_dict):
         if item[-1] == "opt":
             necessarity_opts.append(item[-2])
 
-
     assert "variables" in settings_dict["simcase_settings"].keys(), "variables not set simcase_settings"
     if settings_dict["simcase_settings"]["variables"]:
         settings_variables = list(settings_dict["simcase_settings"]["variables"].keys())
@@ -198,7 +201,6 @@ def check_settings_necessarities(case_structure, settings_dict):
     else:
         settings_options = []
 
-
     for variable in necessarity_vars:
         assert variable in settings_variables, "variable " + variable + " not set in configuration file"
     for option in necessarity_opts:
@@ -210,19 +212,20 @@ def get_parametrized_simstructure(template_path):
     case_structures[case_name] = get_directory_structure(template_path)
 
 
-def create_casedirstructure(casedirectories,casepath):
+def create_casedirstructure(casedirectories, casepath):
     for d in casedirectories.values():
         if not os.path.isdir(os.path.join(casepath, d)):
             os.mkdir(os.path.join(casepath, d))
 
-def create_simdirstructure(filetemplates,path):
+
+def create_simdirstructure(filetemplates, path):
     directories = list(nested_dict_pairs_iterator(filetemplates))
     for d in directories:
         dirstructure = d[1:-2]
         if dirstructure == ():
             dirstructure = ""
         for dir in dirstructure:
-            dpath = os.path.join(path,dir)
+            dpath = os.path.join(path, dir)
             if not os.path.isdir(dpath):
                 os.mkdir(dpath)
     return 0
