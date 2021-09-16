@@ -5,9 +5,9 @@ case_settings:
 simcase_settings:
     variables:
 
-        TURBMODEL_IDENTIFIER: "MenterSST2003"   # MenterSST2003 // Wilcox1988
+        TURBMODEL_IDENTIFIER: "Wilcox1988"   # MenterSST2003 // Wilcox1988
 
-        ACCURACY_ORDER: "1stOrder"
+        ACCURACY_ORDER: "2ndOrder"
         STAGPOINT_ANNOMALLYFIX: "KatoLaunder"
         QUASIUNSTEADYMODEL: "Off"
         WAVINESSMODEL: "Off"
@@ -20,7 +20,7 @@ simcase_settings:
 
         LENGTH_YPER: "0.0765"
 
-        INLET_TOTAL_PRESSURE: "100500"
+        INLET_TOTAL_PRESSURE: "101325"
         INLET_TEMP: "293.15"
         INLET_VELX: "35.392445"
         INLET_VELY: "58.06355"
@@ -32,7 +32,7 @@ simcase_settings:
         OUTFLOW_VELY: "40"
         OUTFLOW_VELZ: "0"
 
-        VEL_YANGLE: "58.64"
+        VEL_YANGLE: "48.05"
         GLOBAL_TOLERANCE: "0.0000001"
 
     options:
