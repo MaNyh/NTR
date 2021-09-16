@@ -3,56 +3,50 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from NTR.utils.filehandling import yaml_dict_read, read_csv
+from NTR.database.case_dirstructure import casedirs
 from NTR.utils.mathfunctions import vecAbs
 from NTR.postprocessing.openfoam.loginterpreter import logfilestats
 
 
 def show_monitors(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
-    if "inletoutletfieldave_probing" in settings["probing"]["probes"].keys():
+    if settings["simcase_settings"]["options"]["INOUT_FIELDAVE_PROBING"]:
         averagevaluesinlet(casesettings_yml)
         averagevaluesoutlet(casesettings_yml)
-    if "inletoutletvelocity_probing" in settings["probing"]["probes"].keys():
+    if settings["simcase_settings"]["options"]["INOUT_VELOCITY_PROBING"]:
         massflowoutlet(casesettings_yml)
         massflowinlet(casesettings_yml)
-    if "xslice_probing" in settings["probing"]["probes"].keys():
+    if settings["simcase_settings"]["options"]["XSCLICE_PROBING"]:
         xslices(casesettings_yml)
-    if "logfile" in settings["monitoring"].keys():
-        logfilestats("case_settings.yml")
+    #if "logfile" in settings["monitoring"].keys():
+    logfilestats("case_settings.yml")
 
 
 def averagevaluesinlet(casesettings_yml):
-    settings = yaml_dict_read(casesettings_yml)
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
-    monitorpath = os.path.join(*settings["monitoring"]["averagevaluesinlet"].split("/"))
-
+    monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","AverValuesInlet")
     make_averagevaluesplot(casepath, datname, monitorpath)
 
 
 def averagevaluesoutlet(casesettings_yml):
-    settings = yaml_dict_read(casesettings_yml)
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
-    monitorpath = os.path.join(*settings["monitoring"]["averagevaluesoutlet"].split("/"))
-
+    monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","AverValuesOutlet")
     make_averagevaluesplot(casepath, datname, monitorpath)
 
 
 def massflowoutlet(casesettings_yml):
-    settings = yaml_dict_read(casesettings_yml)
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
-    monitorpath = os.path.join(*settings["monitoring"]["massflowoutlet"].split("/"))
-
+    monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","MassflowOutlet")
     make_averagevaluesplot(casepath, datname, monitorpath)
 
 
 def massflowinlet(casesettings_yml):
-    settings = yaml_dict_read(casesettings_yml)
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
-    monitorpath = os.path.join(*settings["monitoring"]["massflowinlet"].split("/"))
+    monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","MassflowInlet")
 
     make_averagevaluesplot(casepath, datname, monitorpath)
 
@@ -61,7 +55,7 @@ def xslices(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
     datnames = ["p", "U"]
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
-    monitorpath = os.path.join(*settings["monitoring"]["xslices"].split("/"))
+    monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","Probes_XSlices")
 
     nop = settings["probes"]["xsclicing_probes"]["nop"]
 
