@@ -6,7 +6,7 @@
 #PBS -l mem=<var MEMORY var>
 #PBS -M <var JOB_EMAIL var>
 #PBS -m ae
-#PBS -W x=PARTITION:haku:lena:taurus:lena:tane
+#PBS -W x=PARTITION:haku:taurus:lena:tane
 . $MODULESHOME/init/ksh
 module load GCC/4.9.3-2.25 OpenMPI/1.10.2 OpenFOAM/v1612+ && source $FOAM_BASH
 HOST=$(paste -s -d ',' ${PBS_NODEFILE})
