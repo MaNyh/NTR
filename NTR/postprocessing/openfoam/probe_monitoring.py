@@ -143,7 +143,10 @@ def make_averagevaluesplot(casepath, datname, monitorpath):
                     dat = np.asarray(rawdata[5:])
 
                     for idx, var in enumerate(timeseries.keys()):
-                        newdat = dat[:, idx]
+                        if idx < dat.shape[1]:
+                            newdat = dat[:, idx]
+                        else:
+                            newdat = ["0.0" for i in range(len(dat))]
                         for row in newdat:
                             if "(" in row:
                                 row = row.replace("(", "")
