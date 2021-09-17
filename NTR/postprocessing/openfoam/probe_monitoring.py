@@ -10,13 +10,13 @@ from NTR.postprocessing.openfoam.loginterpreter import logfilestats
 
 def show_monitors(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
-    if settings["simcase_settings"]["options"]["INOUT_FIELDAVE_PROBING"]:
+    if "INOUT_FIELDAVE_PROBING" in settings["simcase_settings"]["options"].keys():
         averagevaluesinlet(casesettings_yml)
         averagevaluesoutlet(casesettings_yml)
-    if settings["simcase_settings"]["options"]["INOUT_VELOCITY_PROBING"]:
+    if "INOUT_VELOCITY_PROBING" in settings["simcase_settings"]["options"]["INOUT_VELOCITY_PROBING"].keys():
         massflowoutlet(casesettings_yml)
         massflowinlet(casesettings_yml)
-    if settings["simcase_settings"]["options"]["XSCLICE_PROBING"]:
+    if "XSCLICE_PROBING" in settings["simcase_settings"]["options"]["XSCLICE_PROBING"].keys():
         xslices(casesettings_yml)
     #if "logfile" in settings["monitoring"].keys():
     logfilestats("case_settings.yml")
