@@ -3,6 +3,8 @@ import re
 import shutil
 from functools import reduce  # forward compatibility for Python 3
 import operator
+import itertools
+import copy
 
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
@@ -32,6 +34,10 @@ def appendInDictList(dataDict, mapList, value):
     """
     getFromDict(dataDict, mapList[:-1])[mapList[-1]].append(value)
 
+def nested_val_set(dic, keys, value):
+    for key in keys[:-1]:
+        dic = dic.setdefault(key, {})
+    dic[keys[-1]] = value
 
 def nested_dict_pairs_iterator(dict_obj):
     ''' This function accepts a nested dictionary as argument
@@ -87,6 +93,33 @@ def find_vars_opts(case_structure):
                         match = line[span[0]:span[1]]
                         line = line.replace(match, "")
     return case_structure
+
+def create_parastud(path_to_yaml_dict):
+
+    settings = yaml_dict_read("settings.yml")
+    keys = list(settings.keys())
+
+    allvals = list(nested_dict_pairs_iterator(settings))
+    allvals_aslist = [[i[-1]] if type(i[-1]) != list else i[-1] for i in allvals]
+    allstruct = [i[:-1] for i in allvals]
+
+    nok = len(settings.keys())
+    sets = list(itertools.product(*allvals_aslist))
+
+    settings_parastud = []
+
+    for vals in sets:
+        kwargs = settings.copy()
+        for idx, dict_struct in enumerate(allstruct):
+            val = vals[idx]
+            nested_val_set(kwargs, dict_struct, val)
+        settings_parastud.append(copy.deepcopy(kwargs))
+
+    for set in settings_parastud:
+        pass
+        #write settings-dict in temp-dir
+        #call create_simulationcase with temp
+        #move created sim to subdir
 
 
 def create_simulationcase(path_to_yaml_dict):
@@ -241,3 +274,4 @@ def create_simdirstructure(filetemplates, path):
             if not os.path.isdir(dpath):
                 os.mkdir(dpath)
     return 0
+
