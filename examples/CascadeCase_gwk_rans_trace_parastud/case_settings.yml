@@ -22,7 +22,7 @@ simcase_settings:
 
         INLET_TOTAL_PRESSURE:
             - "101325"
-            - "0"
+            - "110000"
         INLET_TEMP: "293.15"
         INLET_VELX: "35.392445"
         INLET_VELY: "58.06355"

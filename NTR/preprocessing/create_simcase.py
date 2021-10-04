@@ -5,6 +5,9 @@ from functools import reduce  # forward compatibility for Python 3
 import operator
 import itertools
 import copy
+import tempfile
+import yaml
+import glob
 
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
@@ -115,8 +118,26 @@ def read_parastudyaml(path_to_yaml_dict):
 
     return settings_parastud
 
+def create_parastudsims(path_to_parayaml):
+    settings = read_parastudyaml(path_to_parayaml)
+    casepath = os.path.abspath(os.path.dirname(path_to_parayaml))
 
-def create_simulationcase(path_to_yaml_dict):
+    for idx, settings_dict in enumerate(settings):
+        subname = "paracase_" + str(idx)
+        tmp_dir = tempfile.TemporaryDirectory()
+        target_dir = os.path.join(casepath, subname)
+        tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
+        with open(tmp_yml, "w") as handle:
+            yaml.dump(settings_dict, handle, default_flow_style=False)
+        create_simulationcase(tmp_yml, subname)
+        files = glob.glob(os.path.join(tmp_dir.name,"02_Simcase")+"/*")
+        for f in files:
+            shutil.move(f, target_dir)
+        #shutil.move(os.path.join(tmp_dir.name,"02_Simcase"), target_dir)
+        tmp_dir.cleanup()
+        print()
+
+def create_simulationcase(path_to_yaml_dict, subdir=False):
     case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
 
     case_structures = {}
@@ -133,8 +154,13 @@ def create_simulationcase(path_to_yaml_dict):
 
     case_type = settings["case_settings"]["case_type"]
     assert case_type in case_structures.keys(), "case_type " + case_type + " not found in templates."
-    path_to_sim = os.path.join(casepath, casedirs["simcase"])
 
+    if subdir==False:
+        path_to_sim = os.path.join(casepath, casedirs["simcase"])
+    else:
+        path_to_sim = os.path.join(casepath, casedirs["simcase"], subdir)
+        os.mkdir(os.path.join(casepath, casedirs["simcase"]))
+        os.mkdir(path_to_sim)
     # path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
     # assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
     # geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
