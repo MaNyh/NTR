@@ -11,7 +11,7 @@ simcase_settings:
         STAGPOINT_ANNOMALLYFIX: "KatoLaunder"
         QUASIUNSTEADYMODEL: "Off"
         WAVINESSMODEL: "Off"
-        VERSION2009: "Off"
+        VERSION_TWONULLNULLNINE: "Off"
         HEATFLUXMODEL: "ConstantPrandtl"
         PRANDTLTURBULENT: "0.900000"
         ROTATIONAL_EFF: "Off"

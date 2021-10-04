@@ -94,7 +94,7 @@ gmc -> set_reference Pressure to 1e6
 gmc -> set_equation_properties for machine : StagnationPointAnomallyFix to <var STAGPOINT_ANNOMALLYFIX var>
 gmc -> set_equation_properties for machine : QuasiUnsteadyModel to <var QUASIUNSTEADYMODEL var>
 gmc -> set_equation_properties for machine : WavinessModel to <var WAVINESSMODEL var>
-gmc -> set_equation_properties for machine : Version2009 to <var VERSION2009 var>
+gmc -> set_equation_properties for machine : Version2009 to <var VERSION_TWONULLNULLNINE var>
 gmc -> set_equation_properties for machine : HeatFluxModel to <var HEATFLUXMODEL var>
 gmc -> set_equation_properties for machine : PrandtlTurbulent to <var PRANDTLTURBULENT var>
 gmc -> set_equation_properties for machine : RotationalEffects to <var ROTATIONAL_EFF var>
