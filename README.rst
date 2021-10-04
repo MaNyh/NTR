@@ -30,11 +30,10 @@ Install package using pip
 'pip install PATH/TO/PACKAGE'
 
 Or install via
-'python setup.py install'
+'python -m setup install'
 
 As a developer, install development-requirements via
 'pip install -r requirements_dev.txt'
-
 
 Be aware that this package is in constant development.
 A test-module should keep things running. But not everything is tested and not everything can be tested within NTR itself.
@@ -54,9 +53,10 @@ postprocessing
 Examples
 ---------------------------
 
-Currently not all examples are working properly. The implementation of the examples in a test-module should ensure, that this is the case in the future
+I am working on the examples all the time. Thats why I started to use a test-module in my development-enviroment for the examples.
+Though I cant test all examples within the scope of a continious integration system, I am trying to keep the examples working.
 
-Most cases will work though. Try to find a case that is suitable for your work and try to figure out how you can make use of the NTR methods
+There should be a README as
 
 Usage meshing
 ---------------------------
