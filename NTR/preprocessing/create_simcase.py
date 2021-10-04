@@ -133,9 +133,8 @@ def create_parastudsims(path_to_parayaml):
         files = glob.glob(os.path.join(tmp_dir.name,"02_Simcase")+"/*")
         for f in files:
             shutil.move(f, target_dir)
-        #shutil.move(os.path.join(tmp_dir.name,"02_Simcase"), target_dir)
+        shutil.copyfile(tmp_yml, os.path.join(target_dir,subname+"_settings.yml"))
         tmp_dir.cleanup()
-        print()
 
 def create_simulationcase(path_to_yaml_dict, subdir=False):
     case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
