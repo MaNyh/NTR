@@ -1,0 +1,80 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |				
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8                                   	
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      sampleDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+type sets;
+libs ("libsampling.so");
+
+//interpolationScheme cellPointFace;
+//interpolationScheme cellPointWallModified;
+interpolationScheme cellPoint;
+//interpolationScheme cell;
+
+setFormat       raw;
+
+surfaceFormat raw;
+
+Wmid   #calc "1.5*constant::mathematical::pi"; // Lz --> Half Spanwise domain size in UTexas
+
+// Fields to sample.
+fields
+(
+    U
+        /*{
+            mean        on;
+            prime2Mean  on;
+            base        time;
+        } */
+    wallShearStress
+        /*{
+            mean        on;
+            prime2Mean  on;
+            base        time;
+        } */
+);
+
+sets
+(
+
+    profile0						
+    {							
+	//type	lineCell;
+	type	lineCellFace;					
+	//axis 	xyz;	//distance; //y;	
+	axis 	y;
+
+	start	(	20	0   $Wmid	);
+	end     (	20	2   $Wmid	);				
+    }							
+
+/*
+    profile1						
+    {							
+	//type	midPoint;
+	//type	midPointAndFace;			
+	//axis 	x; //y;		
+
+	type	uniform;
+	nPoints 1000;
+	axis 	distance; //y;	
+
+	start		(	-0.1	0	0	);
+	end		(	2	0	0	);				
+    }
+*/
+
+);
+
+// *********************************************************************** //
