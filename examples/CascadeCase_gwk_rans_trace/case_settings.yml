@@ -26,6 +26,7 @@ simcase_settings:
         INLET_VELY: "58.06355"
         INLET_VELZ: "0"
 
+        OUTLET_MFLOW: "0.010791667"
         OUTFLOW_PRESSURE: "100000"
         OUTFLOW_TEMP: "293.15"
         OUTFLOW_VELX: "35.392445"

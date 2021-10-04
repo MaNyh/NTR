@@ -104,7 +104,7 @@ gmc -> set_equation_properties for machine : VGJModel to <var VGJMODEL var>
 gmc -> set_equation_properties for row01 : StagnationPointAnomallyFix to <var STAGPOINT_ANNOMALLYFIX var>
 gmc -> set_equation_properties for row01 : QuasiUnsteadyModel to <var QUASIUNSTEADYMODEL var>
 gmc -> set_equation_properties for row01 : WavinessModel to <var WAVINESSMODEL var>
-gmc -> set_equation_properties for row01 : Version2009 to <var VERSION2009 var>
+gmc -> set_equation_properties for row01 : Version2009 to <var VERSION_TWONULLNULLNINE var>
 gmc -> set_equation_properties for row01 : HeatFluxModel to <var HEATFLUXMODEL var>
 gmc -> set_equation_properties for row01 : PrandtlTurbulent to <var PRANDTLTURBULENT var>
 gmc -> set_equation_properties for row01 : RotationalEffects to <var ROTATIONAL_EFF var>
@@ -117,7 +117,7 @@ gmc -> set_solver_properties for 'row01' : SpatialAccuracy to  <var ACCURACY_ORD
 gmc -> set_attributes of panel_group named 'BLADE' : set wall_treatment to low_Reynolds
 gmc -> set_attributes of panel_group named 'BLADE' : set translational_velocity to 0.0 0.0 0.0
 
-gmc -> set_attributes of panel_group named 'OUTLET' : set back_pressure to value <var OUTFLOW_PRESSURE var>
+gmc -> set_attributes of panel_group named 'OUTLET' : set massflow to <var OUTLET_MFLOW var>
 gmc -> set_attributes of panel_group named 'OUTLET' : set radial_equilibrium to Midspan
 gmc -> set_attributes of panel_group named 'OUTLET' : set create_radial_bands to On
 
