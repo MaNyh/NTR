@@ -23,3 +23,6 @@ implementation of new testfunction-module.
 
 partially fixed example-cases. need new version-incrementation for a finalized set of examples
 
+0.1.4 (2021-10-04)
+
+implementation of parastudy-creation. it is still necessary to implement options for the case-creation
