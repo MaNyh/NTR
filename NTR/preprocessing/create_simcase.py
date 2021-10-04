@@ -94,16 +94,14 @@ def find_vars_opts(case_structure):
                         line = line.replace(match, "")
     return case_structure
 
-def create_parastud(path_to_yaml_dict):
+def read_parastudyaml(path_to_yaml_dict):
 
-    settings = yaml_dict_read("settings.yml")
-    keys = list(settings.keys())
+    settings = yaml_dict_read(path_to_yaml_dict)
 
     allvals = list(nested_dict_pairs_iterator(settings))
     allvals_aslist = [[i[-1]] if type(i[-1]) != list else i[-1] for i in allvals]
     allstruct = [i[:-1] for i in allvals]
 
-    nok = len(settings.keys())
     sets = list(itertools.product(*allvals_aslist))
 
     settings_parastud = []
@@ -115,11 +113,7 @@ def create_parastud(path_to_yaml_dict):
             nested_val_set(kwargs, dict_struct, val)
         settings_parastud.append(copy.deepcopy(kwargs))
 
-    for set in settings_parastud:
-        pass
-        #write settings-dict in temp-dir
-        #call create_simulationcase with temp
-        #move created sim to subdir
+    return settings_parastud
 
 
 def create_simulationcase(path_to_yaml_dict):

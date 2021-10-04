@@ -5,9 +5,11 @@ import os
 
 import numpy as np
 import pyvista as pv
+import yaml
 
 import NTR
-from NTR.preprocessing.create_simcase import create_simulationcase, find_vars_opts, nested_dict_pairs_iterator
+from NTR.preprocessing.create_simcase import create_simulationcase, find_vars_opts, nested_dict_pairs_iterator, \
+    read_parastudyaml
 from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle, get_directory_structure
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
@@ -224,3 +226,27 @@ def test_create_simulationcase(tmpdir):
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)
         create_simulationcase(test_file)
+
+
+def test_read_fullfactorparastud_yaml(tmpdir):
+    keyword = "testsettings"
+
+    listname = "list"
+    listvalues = [0, 1]
+
+    integername = "integer"
+    integervalue = 1
+
+    test_dict = {keyword: {listname: listvalues,
+                           integername: integervalue}
+                 }
+
+    test_file = tmpdir / "test.yaml"
+    with open(test_file, "w") as handle:
+        yaml.dump(test_dict, handle, default_flow_style=False)
+
+    testsets = read_parastudyaml(test_file)
+    sets = [{keyword: {integername: integervalue, listname: listvalues[0]}},
+            {keyword: {integername: integervalue, listname: listvalues[1]}}]
+
+    assert testsets == sets, "parametrized dict is not interpreted right"
