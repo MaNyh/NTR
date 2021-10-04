@@ -53,7 +53,7 @@ simcase_settings:
 simcase_optiondef:
 
     INOUT_VELOCITY_PROBING:
-        func: "NTR.preprocessing.create_simcase_options.openFoam_createProbesInletOutlet"
+        func: "NTR.preprocessing.options.openfoam.openFoam_createProbesInletOutlet"
         args:
             sampling_rate: 1e5 #Hz
             start_time: 0 #s
@@ -61,7 +61,7 @@ simcase_optiondef:
         insert: '#include "Probes_InletOutlet_Dict"'
 
     INOUT_FIELDAVE_PROBING:
-        func: "NTR.preprocessing.create_simcase_options.openFoam_create_inletoutletave_probe_dict"
+        func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
         args:
             sampling_rate: 1e5 #Hz
             start_time: 0
@@ -69,7 +69,7 @@ simcase_optiondef:
         insert: '#include "Probes_inletoutletave_Dict"'
 
     XSCLICE_PROBING:
-        func: "NTR.preprocessing.create_simcase_options.openFoam_createXSliceProbes"
+        func: "NTR.preprocessing.options.openfoam.openFoam_createXSliceProbes"
         args:
             nop: 6
             sampling_rate: 1e5 #Hz
@@ -80,7 +80,7 @@ simcase_optiondef:
         insert: '#include "Probes_XSlices_Dict"'
 
     PROFILE_PROBING:
-        func: "NTR.preprocessing.create_simcase_options.openFoam_createProbesProfileDict"
+        func: "NTR.preprocessing.options.openfoam.openFoam_createProbesProfileDict"
         args:
             pden_ps : 10
             pden_ss : 10
@@ -92,7 +92,7 @@ simcase_optiondef:
 
 
     STREAMLINE_PROBING:
-        func: "NTR.preprocessing.create_simcase_options.openFoam_createProbesStreamlineDict"
+        func: "NTR.preprocessing.options.openfoam.openFoam_createProbesStreamlineDict"
         args:
             nop_streamline : 20
             sampling_rate: 1e6 #Hz
@@ -101,7 +101,7 @@ simcase_optiondef:
         insert: '#include "Probes_Streamline_Dict"'
 
     STAGNATIONPOINTFLOW_PROBING:
-        func: "NTR.preprocessing.create_simcase_options.openFoam_create_vk_stagflow_probes"
+        func: "NTR.preprocessing.options.openfoam.openFoam_create_vk_stagflow_probes"
         args:
             nop : 6
             sampling_rate: 1e5 #Hz
