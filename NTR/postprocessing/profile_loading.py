@@ -17,8 +17,8 @@ class profile_loading:
         assert os.path.isdir(self.datpath), "no data-directory found. either nothing was created or it got deleted."
         assert os.path.isdir(self.solutionpath), "no solution-directory found."
 
-    def calc_loading_from_volmesh(self):
-        meshname = self.settings[]
+#    def calc_loading_from_volmesh(self):
+#        meshname = self.settings[]
 
     def calc_x_c(self):
         x_ss = self.ssPoly.points[::,0]
