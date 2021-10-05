@@ -8,8 +8,8 @@ import pyvista as pv
 import yaml
 
 import NTR
-from NTR.preprocessing.create_simcase import create_simulationcase, find_vars_opts, nested_dict_pairs_iterator, \
-    read_parastudyaml
+from NTR.preprocessing.create_simcase import create_simulationcase, find_vars_opts, read_parastudyaml
+from NTR.utils.dicthandling import nested_dict_pairs_iterator
 from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle, get_directory_structure
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
