@@ -1,6 +1,8 @@
 import numpy as np
 import pyvista as pv
 import os
+from matplotlib import pyplot as plt
+import pandas as pd
 
 from NTR.utils.geom_functions.profileparas import calcMidPassageStreamLine
 from NTR.preprocessing.create_geom import extract_geo_paras
@@ -30,27 +32,7 @@ if not os.path.isfile(("geometry.pkl")):
 
     stagger_angle = np.rad2deg(np.arctan((y_mids[-1] - y_mids[-0]) / (x_mids[-1] - x_mids[-0])))
     chordlength = vecAbs(midsPoly.points[0] - midsPoly.points[-1])
-    pitch=1
-    x_mpsl, y_mpsl = calcMidPassageStreamLine(x_mids, y_mids, beta_meta_01, beta_meta_02,
-                                              sortedPoints[ind_vk][0], sortedPoints[ind_hk][0], pitch)
 
-    y_upper = np.array(y_mpsl)
-    per_y_upper = pv.lines_from_points(np.stack((np.array(x_mpsl),
-                                                 np.array(y_upper),
-                                                 np.zeros(len(x_mpsl)))).T)
-    y_lower = y_upper - pitch
-    per_y_lower = pv.lines_from_points(np.stack((np.array(x_mpsl),
-                                                 np.array(y_lower),
-                                                 np.zeros(len(x_mpsl)))).T)
-
-    inlet_pts = np.array([per_y_lower.points[per_y_lower.points[::, 0].argmin()],
-                          per_y_upper.points[per_y_upper.points[::, 0].argmin()]])
-
-    inletPoly = pv.Line(*inlet_pts)
-    outlet_pts = np.array([per_y_lower.points[per_y_lower.points[::, 0].argmax()],
-                           per_y_upper.points[per_y_upper.points[::, 0].argmax()]])
-
-    outletPoly = pv.Line(*outlet_pts)
 
     geo_dict = {"points": sortedPoints,
                 "sortedPoly": sortedPoints,
@@ -60,7 +42,6 @@ if not os.path.isfile(("geometry.pkl")):
                 "beta_metas": {"beta_meta_01": beta_meta_01, "beta_meta_02": beta_meta_02},
                 "stagger_angle": stagger_angle,
                 "camber_angle":camber_angle,
-                "midpassagestreamLine": {"x_mpsl": x_mpsl, "y_mpsl": y_mpsl},
                 }
 
     print("saving geometry.pkl")
@@ -97,3 +78,9 @@ p.add_mesh(sortedPoints)
 
 p.add_mesh(neu_pts)
 p.show()
+
+probe_camberposition_file = "raw_positions"
+probe_data_file = "raw_measuredata"
+
+position_arr = pd.read_csv(probe_camberposition_file,delimiter="\t")
+data_arr = pd.read_csv(probe_data_file,delimiter="\t")

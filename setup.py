@@ -27,6 +27,7 @@ requirements = ['Click>=7.0',
                 "pyvista>=0.25.0",
                 "PyYaml>=5.4.1",
                 "scikit-image>=0.18.3"
+                "pandas>=1.3.3"
                 ]
 
 setup_requirements = [ ]
