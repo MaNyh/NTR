@@ -4,7 +4,6 @@ import os
 from matplotlib import pyplot as plt
 import pandas as pd
 
-from NTR.utils.geom_functions.profileparas import calcMidPassageStreamLine
 from NTR.preprocessing.create_geom import extract_geo_paras
 from NTR.utils.mathfunctions import vecAbs
 from NTR.utils.filehandling import write_pickle, read_pickle
