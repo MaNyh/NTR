@@ -13,10 +13,10 @@ def show_monitors(casesettings_yml):
     if "INOUT_FIELDAVE_PROBING" in settings["simcase_settings"]["options"].keys():
         averagevaluesinlet(casesettings_yml)
         averagevaluesoutlet(casesettings_yml)
-    if "INOUT_VELOCITY_PROBING" in settings["simcase_settings"]["options"]["INOUT_VELOCITY_PROBING"].keys():
+    if "INOUT_VELOCITY_PROBING" in settings["simcase_settings"]["options"].keys():
         massflowoutlet(casesettings_yml)
         massflowinlet(casesettings_yml)
-    if "XSCLICE_PROBING" in settings["simcase_settings"]["options"]["XSCLICE_PROBING"].keys():
+    if "XSCLICE_PROBING" in settings["simcase_settings"]["options"].keys():
         xslices(casesettings_yml)
     #if "logfile" in settings["monitoring"].keys():
     logfilestats("case_settings.yml")
