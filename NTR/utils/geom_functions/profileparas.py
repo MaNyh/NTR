@@ -512,7 +512,7 @@ def angles_from_mids(midsPoly):
     metal_angle_vk = angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
     metal_angle_hk = angle_between(hk_tangent, np.array([0, 1, 0])) / np.pi * 180
     camber_angle = angle_between(camber, np.array([0, 1, 0])) / np.pi * 180
-    return metal_angle_hk, metal_angle_vk, camber
+    return metal_angle_hk, metal_angle_vk, camber_angle
 
 
 def calcMeanCamberLine(x, y, alpha):
