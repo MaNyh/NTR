@@ -2,6 +2,12 @@
 Credits
 =======
 
+Based on
+----------------
+
+* Numerical Test Rig <ziesse@tfd.uni-hannover.de>
+
+
 Development Lead
 ----------------
 
