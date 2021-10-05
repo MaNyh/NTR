@@ -2,3 +2,7 @@ igg:
     install_directory               : "C:/NUMECA_SOFTWARE/fine121/bin64"
     executable                      : "iggx86_64.exe"
     argument_pickle_dict            : "igg_args.pkl"
+paraview:
+    install_directory               : "E:/ParaView"
+    executable                      : "E:/ParaView/bin/paraview.exe"
+    pvpython                        : "E:/ParaView/bin/pvpython.exe"
