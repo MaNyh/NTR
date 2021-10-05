@@ -129,13 +129,15 @@ def calcConcaveHull(x, y, alpha):
             c = np.sqrt((pc[0] - pa[0]) ** 2 + (pc[1] - pa[1]) ** 2)
             s = (a + b + c) / 2.0
 
-            area = np.sqrt(s * (s - a) * (s - b) * (s - c))
+            A = (s * (s - a) * (s - b) * (s - c))
+            if A > 0:
+                area = np.sqrt(A)
 
-            circum_r = a * b * c / (4.0 * area)
-            if circum_r < alpha:
-                add_edge(edges, ia, ib)
-                add_edge(edges, ib, ic)
-                add_edge(edges, ic, ia)
+                circum_r = a * b * c / (4.0 * area)
+                if circum_r < alpha:
+                    add_edge(edges, ia, ib)
+                    add_edge(edges, ib, ic)
+                    add_edge(edges, ic, ia)
         return edges
 
     def find_edges_with(i, edge_set):
