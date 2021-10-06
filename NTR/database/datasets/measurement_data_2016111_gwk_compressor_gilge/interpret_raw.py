@@ -109,19 +109,23 @@ ss_x = []
 ss_p = []
 ss_cp = []
 
-def calc_cp(px,pt1,p2):
-    cp=(px-p2)/(pt1-p2)
+def calc_cp(px,pt1,p1):
+    cp=(px-pt1)/(p1-pt1)
     return cp
+
+pt1 = pu+pspr+popr
+p1 = pu+pspr
+p2 = pu
 
 for row in posvals:
     if row[1]==1:
         ps_x.append(row[0]*1e-3/camberlength)
         ps_p.append(row[-1]+pu)
-        ps_cp.append(calc_cp(ps_p[-1],pu,pu+popr))
+        ps_cp.append(calc_cp(ps_p[-1],pt1,p1))
     elif row[2]==1:
         ss_x.append(row[0]*1e-3/camberlength)
         ss_p.append(row[-1]+pu)
-        ss_cp.append(calc_cp(ss_p[-1],pu,pu+popr))
+        ss_cp.append(calc_cp(ss_p[-1],pt1,p1))
 
 fig, ax = plt.subplots()
 ax.plot(ps_x, ps_cp,label="ps")
@@ -129,5 +133,5 @@ ax.plot(ss_x, ss_cp,label="ss")
 ax.set(xlabel='x/c', ylabel='pressure',
        title='About as simple as it gets, folks')
 ax.grid()
-
+ax.legend()
 plt.show()
