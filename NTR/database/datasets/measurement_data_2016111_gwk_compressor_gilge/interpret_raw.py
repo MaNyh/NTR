@@ -83,3 +83,51 @@ probe_data_file = "raw_measuredata"
 
 position_arr = pd.read_csv(probe_camberposition_file,delimiter="\t")
 data_arr = pd.read_csv(probe_data_file,delimiter="\t")
+
+
+poskeys = position_arr.keys()
+posvals = [[float(f) for f in i[0].split()] for i in position_arr.values[:,:-2]]
+
+head = data_arr.keys()
+
+mean_channels = {}
+for idx,channel in enumerate(head[2:13]):
+    mean_channels[channel+"_mean"]=np.mean([float(i) for i in data_arr.loc[1:,channel].values])
+    posvals[idx].append(mean_channels[channel+"_mean"])
+
+mach = np.mean([float(i) for i in data_arr.loc[1:,"Machzahl"].values])
+pu = np.mean([float(i) for i in data_arr.loc[1:,"Pu"].values])
+
+popr = np.mean([float(i) for i in data_arr.loc[1:,"PoPr"].values])
+pspr = np.mean([float(i) for i in data_arr.loc[1:,"PsPr"].values])
+
+ps_x = []
+ps_p = []
+ps_cp = []
+
+ss_x = []
+ss_p = []
+ss_cp = []
+
+def calc_cp(px,pt1,p2):
+    cp=(px-p2)/(pt1-p2)
+    return cp
+
+for row in posvals:
+    if row[1]==1:
+        ps_x.append(row[0]*1e-3/camberlength)
+        ps_p.append(row[-1]+pu)
+        ps_cp.append(calc_cp(ps_p[-1],pu,pu+popr))
+    elif row[2]==1:
+        ss_x.append(row[0]*1e-3/camberlength)
+        ss_p.append(row[-1]+pu)
+        ss_cp.append(calc_cp(ss_p[-1],pu,pu+popr))
+
+fig, ax = plt.subplots()
+ax.plot(ps_x, ps_cp,label="ps")
+ax.plot(ss_x, ss_cp,label="ss")
+ax.set(xlabel='x/c', ylabel='pressure',
+       title='About as simple as it gets, folks')
+ax.grid()
+
+plt.show()
