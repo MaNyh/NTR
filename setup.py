@@ -26,7 +26,7 @@ requirements = ['Click>=7.0',
                 "scipy>=1.6.1",
                 "pyvista>=0.25.0",
                 "PyYaml>=5.4.1",
-                "scikit-image>=0.18.3"
+                "scikit-image>=0.18.3",
                 "pandas>=1.3.3"
                 ]
 
