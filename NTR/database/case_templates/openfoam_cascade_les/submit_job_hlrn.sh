@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A <var HLRN_JOB_ACCOUNT var>
 #SBATCH --job-name=<var CLUSTERJOBNAME var>
-#SBATCH -t <var RUNTIME \>
+#SBATCH -t <var RUNTIME var>
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=<var JOB_EMAIL var>
 #SBATCH --nodes=<var NODES var>

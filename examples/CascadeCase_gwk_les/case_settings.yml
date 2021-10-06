@@ -12,6 +12,7 @@ simcase_settings:
         JOB_NUMBERS: "12"
         HLRN_JOB_ACCOUNT: "niinyhma"
         JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
+        RUNTIME: "10:00:00"
         NODES: "8"
         TASKS_PER_NODE: "24"
         PINLET: "95000"

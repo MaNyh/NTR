@@ -3,7 +3,7 @@
 #SBATCH --nodes=<var NODES var>
 #SBATCH --ntasks-per-node=<var TASKS_PER_NODE var>
 #SBATCH --mem-per-cpu=2G
-#SBATCH --time=100:00:00
+#SBATCH --time=<var RUNTIME var>
 #SBATCH --constraint=[skylake|haswell]
 #SBATCH --mail-user=<var JOB_EMAIL var>
 #SBATCH --mail-type=BEGIN,END,FAIL
