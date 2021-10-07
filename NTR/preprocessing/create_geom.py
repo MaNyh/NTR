@@ -362,7 +362,7 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
     return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk, camber_angle
 
 
-def extract_geo_paras(points, alpha, verbose):
+def extract_geo_paras(points, alpha, verbose=False):
     """
     This function is extracting profile-data as stagger-angle, midline, psPoly, ssPoly and more from a set of points
     Be careful, you need a suitable alpha-parameter in order to get the right geometry

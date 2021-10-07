@@ -13,8 +13,8 @@ def convert_cgns_to_vtk(cgns_to_read, target):
     tmpvtk = "solution.vtk"
     #tmpcgnspath = os.path.join(cwd,tmpcgns)
     scriptname = "paraview_template_cgns_to_vtk.py"
-    #if os.path.isfile(os.path.join(cwd,))
-    shutil.copyfile(cgns_to_read, os.path.join(target,tmpcgns))
+    shutil.copyfile(cgns_to_read, os.path.join(os.path.dirname(__file__),tmpcgns))
     os.system(externals["paraview"]["pvpython"] + " " + os.path.join(os.path.dirname(__file__),scriptname))
-    shutil.copyfile(os.path.join(os.path.dirname(__file__),"solution.vtk"), os.path.join(target,tmpvtk))
-    os.remove(os.path.join(target,tmpcgns))
+    shutil.copyfile(os.path.join(os.path.dirname(__file__),"solution.vtk"), target)
+    os.remove(os.path.join(target,os.path.join(os.path.dirname(__file__),tmpcgns)))
+    os.remove(os.path.join(target,os.path.join(os.path.dirname(__file__),tmpvtk)))

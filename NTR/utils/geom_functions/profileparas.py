@@ -225,8 +225,23 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
                                 farpts.append(checkPoints[farpt[-1]])
 
                                 #find original id's from used pointset (sortedPoly) for further usage
-                                sortedPolyPointIds = [np.where((sortedPoly.points == i).all(axis=1))[0][0] for i in farpts]
-                                origPolyPointIds = [np.where((origPoly.points == i).all(axis=1))[0][0] for i in farpts]
+                                sortedPolyPointIds = []
+                                origPolyPointIds = []
+
+                                for fpt in farpts:
+                                    diff_sortedP = sortedPoly.points-fpt
+                                    normdiff  = np.linalg.norm(diff_sortedP, axis=1)
+                                    mindiff = np.argmin(normdiff)
+                                    sortedPolyPointIds.append(mindiff)
+
+                                for fpt in farpts:
+                                    diff_sortedO = origPoly.points - fpt
+                                    normdiff = np.linalg.norm(diff_sortedO, axis=1)
+                                    mindiff = np.argmin(normdiff)
+                                    origPolyPointIds.append(mindiff)
+
+                                #sortedPolyPointIds = [np.where((sortedPoly.points == i).all(axis=1))[0][0] for i in farpts]
+                                #origPolyPointIds = [np.where((origPoly.points == i).all(axis=1))[0][0] for i in farpts]
 
                                 found_limits[limit] = True
                                 valid_checkPoints.append(checkPoints)

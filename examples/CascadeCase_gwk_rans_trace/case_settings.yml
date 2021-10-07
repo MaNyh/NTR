@@ -68,3 +68,6 @@ mesh:
     shift_vk_block_xaxiscoeff       : 0.0475                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.0                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
+
+solution:
+    volmesh                         : "03_Solution/TRACE.cgns"
