@@ -1,5 +1,6 @@
 import os
 import tempfile
+import pyvista as pv
 
 from NTR.utils.externals.paraview.cgns_to_vtk import convert_cgns_to_vtk
 from NTR.utils.geom_functions.pyvista_utils import load_mesh
@@ -33,7 +34,6 @@ def extract_profile_from_volmesh(settings_yml,volmesh):
         closest = closest_node_index(pt, profilepoints.points)
         sspts.append(closest)
 
-
     psVals = profilepoints.extract_points(pspts)
     ssVals = profilepoints.extract_points(sspts)
     return psVals, ssVals, points, ind_vk, ind_vk, camber_angle
@@ -59,39 +59,45 @@ def calc_loading_volmesh(settings_yml):
     elif mesh_ext == ".vtk":
         volmesh(path_to_volmesh)
 
-    ssVals, psVals = extract_profile_from_volmesh(settings_yml,volmesh)
-    return ssVals, psVals
+    psVals, ssVals, points, ind_vk, ind_vk, camber_angle = extract_profile_from_volmesh(settings_yml,volmesh)
+
+    return psVals, ssVals, points, ind_vk, ind_vk, camber_angle
 
 
 ssVals, psVals, points, ind_vk, ind_hk, camber_angle= calc_loading_volmesh(settings_yaml_file)
 
 
-camber = pv.Line((0, 0, 0), -(points.points[ind_vk] - points.points[ind_hk]))
+camber = pv.Line((0, 0, 0), -(points[ind_vk] - points[ind_hk]))
 xLine = pv.Line((-1, 0, 0), (1, 0, 0))
 yLine = pv.Line((0, -1, 0), (0, 1, 0))
 
 # this must be the test-data!
-ssVals.points -= points.points[ind_vk]
-psVals.points -= points.points[ind_vk]
+ssVals.points -= points[ind_vk]
+psVals.points -= points[ind_vk]
 ssVals.rotate_z(-camber_angle + 90)
 psVals.rotate_z(-camber_angle + 90)
 
-array_ = np.zeros(neu_pts.number_of_points)
+ps_xc = np.zeros(neu_pts.number_of_points)
+camberlength = vecAbs(points[ind_vk] - points[ind_hk])
+
+for idx, pt in enumerate(points):
+    ps_xc[idx] = pt[0] / camberlength
+
+psVals["xc"] = ps_xc
+
+ss_xc = np.zeros(neu_pts.number_of_points)
 camberlength = vecAbs(points.points[ind_vk] - points.points[ind_hk])
 
 for idx, pt in enumerate(neu_pts.points):
-    array_[idx] = pt[0] / camberlength
+    ss_xc[idx] = pt[0] / camberlength
 
-neu_pts["xc"] = array_
+psVals["xc"] = ss_xc
 
-sortedPoints = geo_dict["points"]
 
 p = pv.Plotter()
-
 p.add_mesh(camber)
-p.add_mesh(xLine,color="black")
+p.add_mesh(ssVals)
+p.add_mesh(psVals)
+p.add_mesh(xLine,color="yellow")
 p.add_mesh(yLine)
-p.add_mesh(sortedPoints)
-
-p.add_mesh(neu_pts)
 p.show()

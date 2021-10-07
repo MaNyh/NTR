@@ -12,8 +12,6 @@ paraview.simple._DisableFirstRenderCameraReset()
 # create a new 'CGNS Series Reader'
 tRACEcgns = CGNSSeriesReader(FileNames=[os.path.join(os.path.dirname(__file__),"tmp.cgns")])
 
-print(tRACEcgns.CellArrayInfo())
-
 tRACEcgns.CellArrayStatus = ['Density', 'Mach', 'Pressure', 'Temperature', 'TurbulentDissipationRate', 'TurbulentDistance', 'TurbulentEnergyKinetic', 'Velocity', 'ViscosityEddy', 'ViscosityEddyRatio']
 
 # create a new 'Merge Blocks'
