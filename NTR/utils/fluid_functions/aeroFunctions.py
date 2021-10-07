@@ -22,21 +22,6 @@ def Ma_is_x(kappa, p, pt):
     return y
 
 
-# Druckbeiwert Wrapper
-def calcCp_casewrap(px, inte_p_tot1, p_k, inte_mag_u1, inte_rho1, inte_p1, case):
-    if case.machine_type == "compressor":
-        u1 = inte_mag_u1
-        px = px
-        p1 = inte_p1
-        rho1 = inte_rho1
-        return calcCp_compressor(px, p1, rho1, u1)
-
-    elif case.machine_type == "turbine":
-        px = px
-        p2 = p_k
-        pt1 = inte_p_tot1
-        return calcCp_compressor(px, pt1, p2)
-
 
 # Druckbeiwert Turbine
 def calcCp_turbine(px, pt1, p2):
@@ -324,3 +309,8 @@ def estimateBP(Re_2th_soll, Ma_2th_soll, l_chord, Tt1, pt1, pk, R=287.058, beta_
         q2th *= 1.0 + max(-0.2, min(0.2, 0.5 * (Ma_2th_soll - Ma2th) / Ma_2th_soll))
 
         pt1 = pk + q2th
+
+
+def calc_inflow_cp(px, pt1, p1):
+    cp = (px - pt1) / (p1 - pt1)
+    return cp

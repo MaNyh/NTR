@@ -1,13 +1,10 @@
 import numpy as np
-import pyvista as pv
-import os
 from matplotlib import pyplot as plt
 import pandas as pd
 
-from NTR.preprocessing.create_geom import extract_geo_paras
-from NTR.utils.mathfunctions import vecAbs
-from NTR.utils.filehandling import write_pickle, read_pickle
+from NTR.postprocessing.profile_loading import calc_cp
 
+"""
 if not os.path.isfile(("geometry.pkl")):
     print("no geometry.pkl found. will create one")
 
@@ -69,6 +66,7 @@ neu_pts["xc"] = array_
 
 sortedPoints = geo_dict["points"]
 """
+"""
 p = pv.Plotter()
 
 p.add_mesh(camber)
@@ -79,11 +77,6 @@ p.add_mesh(sortedPoints)
 p.add_mesh(neu_pts)
 p.show()
 """
-
-
-def calc_cp(px, pt1, p1):
-    cp = (px - pt1) / (p1 - pt1)
-    return cp
 
 
 def read_gilgegwk():
