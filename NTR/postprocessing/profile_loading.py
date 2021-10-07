@@ -1,9 +1,9 @@
 import os
 import tempfile
-import numpy as np
 
 from NTR.utils.externals.paraview.cgns_to_vtk import convert_cgns_to_vtk
 from NTR.utils.geom_functions.pyvista_utils import load_mesh
+from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.preprocessing.create_geom import extract_geo_paras
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
@@ -24,9 +24,19 @@ def extract_profile_from_volmesh(settings_yml,volmesh):
 
     points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk, camber_angle = extract_geo_paras(profilepoints.points, alpha)
 
+    pspts = []
     for pt in psPoly.points:
-        np.where(pt,profilepoints)
-    return 0
+        closest = closest_node_index(pt, profilepoints.points)
+        pspts.append(closest)
+    sspts = []
+    for pt in ssPoly.points:
+        closest = closest_node_index(pt, profilepoints.points)
+        sspts.append(closest)
+
+
+    psVals = profilepoints.extract_points(pspts)
+    ssVals = profilepoints.extract_points(sspts)
+    return psVals, ssVals, points, ind_vk, ind_vk, camber_angle
 
 
 def calc_loading_volmesh(settings_yml):
@@ -49,8 +59,39 @@ def calc_loading_volmesh(settings_yml):
     elif mesh_ext == ".vtk":
         volmesh(path_to_volmesh)
 
-    profilesolution = extract_profile_from_volmesh(settings_yml,volmesh)
-    return profilesolution
+    ssVals, psVals = extract_profile_from_volmesh(settings_yml,volmesh)
+    return ssVals, psVals
 
 
-profilesolution = calc_loading_volmesh(settings_yaml_file)
+ssVals, psVals, points, ind_vk, ind_hk, camber_angle= calc_loading_volmesh(settings_yaml_file)
+
+
+camber = pv.Line((0, 0, 0), -(points.points[ind_vk] - points.points[ind_hk]))
+xLine = pv.Line((-1, 0, 0), (1, 0, 0))
+yLine = pv.Line((0, -1, 0), (0, 1, 0))
+
+# this must be the test-data!
+ssVals.points -= points.points[ind_vk]
+psVals.points -= points.points[ind_vk]
+ssVals.rotate_z(-camber_angle + 90)
+psVals.rotate_z(-camber_angle + 90)
+
+array_ = np.zeros(neu_pts.number_of_points)
+camberlength = vecAbs(points.points[ind_vk] - points.points[ind_hk])
+
+for idx, pt in enumerate(neu_pts.points):
+    array_[idx] = pt[0] / camberlength
+
+neu_pts["xc"] = array_
+
+sortedPoints = geo_dict["points"]
+
+p = pv.Plotter()
+
+p.add_mesh(camber)
+p.add_mesh(xLine,color="black")
+p.add_mesh(yLine)
+p.add_mesh(sortedPoints)
+
+p.add_mesh(neu_pts)
+p.show()
