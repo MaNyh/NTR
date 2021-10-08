@@ -69,5 +69,9 @@ mesh:
     shift_hk_block_xaxiscoeff       : 0.0                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
 
-solution:
-    volmesh                         : "03_Solution/TRACE.cgns"
+post_settings:
+    paraview_convert_cgns_to_vtk:
+        cgns                        : "03_Solution/TRACE.cgns"
+        vtk_name                    : "volume.vtk"
+    profile_loading:
+        volmesh                     : "03_Solution/volume.vtk"
