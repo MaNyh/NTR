@@ -1,16 +1,18 @@
 import os
 import tempfile
 import pyvista as pv
+import numpy as np
+from matplotlib import pyplot as plt
 
 from NTR.utils.externals.paraview.cgns_to_vtk import convert_cgns_to_vtk
 from NTR.utils.geom_functions.pyvista_utils import load_mesh
 from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.preprocessing.create_geom import extract_geo_paras
+from NTR.utils.fluid_functions.aeroFunctions import calc_inflow_cp
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
 
 settings_yaml_file = "D:\\NTR\\examples\\CascadeCase_gwk_rans_trace\\case_settings.yml"
-
 
 def extract_profile_from_volmesh(settings_yml,volmesh):
     settings = yaml_dict_read(settings_yml)
@@ -36,7 +38,7 @@ def extract_profile_from_volmesh(settings_yml,volmesh):
 
     psVals = profilepoints.extract_points(pspts)
     ssVals = profilepoints.extract_points(sspts)
-    return psVals, ssVals, points, ind_vk, ind_vk, camber_angle
+    return psVals, ssVals, points, ind_vk, ind_hk, camber_angle
 
 
 def calc_loading_volmesh(settings_yml):
@@ -59,9 +61,9 @@ def calc_loading_volmesh(settings_yml):
     elif mesh_ext == ".vtk":
         volmesh(path_to_volmesh)
 
-    psVals, ssVals, points, ind_vk, ind_vk, camber_angle = extract_profile_from_volmesh(settings_yml,volmesh)
+    psVals, ssVals, points, ind_vk, ind_hk, camber_angle = extract_profile_from_volmesh(settings_yml,volmesh)
 
-    return psVals, ssVals, points, ind_vk, ind_vk, camber_angle
+    return psVals, ssVals, points, ind_vk, ind_hk, camber_angle
 
 
 ssVals, psVals, points, ind_vk, ind_hk, camber_angle= calc_loading_volmesh(settings_yaml_file)
@@ -77,21 +79,22 @@ psVals.points -= points[ind_vk]
 ssVals.rotate_z(-camber_angle + 90)
 psVals.rotate_z(-camber_angle + 90)
 
-ps_xc = np.zeros(neu_pts.number_of_points)
-camberlength = vecAbs(points[ind_vk] - points[ind_hk])
+psVals = psVals.cell_data_to_point_data("Pressure")
+ssVals = ssVals.cell_data_to_point_data("Pressure")
 
-for idx, pt in enumerate(points):
-    ps_xc[idx] = pt[0] / camberlength
+ps_xc = np.zeros(ssVals.number_of_points)
+
+for idx, pt in enumerate(psVals.points):
+    ps_xc[idx] = pt[0] / camber.length
 
 psVals["xc"] = ps_xc
 
-ss_xc = np.zeros(neu_pts.number_of_points)
-camberlength = vecAbs(points.points[ind_vk] - points.points[ind_hk])
+ss_xc = np.zeros(psVals.number_of_points)
 
-for idx, pt in enumerate(neu_pts.points):
-    ss_xc[idx] = pt[0] / camberlength
+for idx, pt in enumerate(ssVals.points):
+    ss_xc[idx] = pt[0] / camber.length
 
-psVals["xc"] = ss_xc
+ssVals["xc"] = ss_xc
 
 
 p = pv.Plotter()
@@ -101,3 +104,9 @@ p.add_mesh(psVals)
 p.add_mesh(xLine,color="yellow")
 p.add_mesh(yLine)
 p.show()
+
+
+fig = plt.figure()
+plt.plot(ssVals["xc"],ssVals.point_arrays["Pressure"])
+plt.plot(psVals["xc"],psVals.point_arrays["Pressure"])
+plt.show()
