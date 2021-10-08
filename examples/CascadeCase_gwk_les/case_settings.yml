@@ -27,7 +27,7 @@ simcase_settings:
         LINLET : "0.02"
 
         POUTLET: "101325"
-        POUT_LINF: "0.01"
+        POUT_LINF: "0.015"
 
         TOUTLET: "293.15"
         TOUT_LINF: "0.005"
