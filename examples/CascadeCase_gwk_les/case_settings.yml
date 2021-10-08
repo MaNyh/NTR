@@ -15,20 +15,22 @@ simcase_settings:
         RUNTIME: "10:00:00"
         NODES: "8"
         TASKS_PER_NODE: "24"
+
         PINLET: "95000"
         TINLET : "293.15"
         UINLET: "35.392445 58.06355 0"
-        UIN_LINF: "0.0075"
+        UIN_LINF: "0.015"
+
         EDDYDENSITY: "10"
         UDASHSCALING: "1"
         RINLET : "4 0 0 4 0 4"
         LINLET : "0.02"
 
         POUTLET: "101325"
-        POUT_LINF: "0.0075"
+        POUT_LINF: "0.01"
 
         TOUTLET: "293.15"
-        TOUT_LINF: "0.0075"
+        TOUT_LINF: "0.005"
         PITCHPER: "0.0765"
         SPANPER: "0.04"
         ZSPAN: "0.04"
