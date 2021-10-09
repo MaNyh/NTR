@@ -279,8 +279,9 @@ def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sam
 
                 fields
                 (
-                    U
-                    p
+                    Umean
+                    UPrime2Mean
+                    pMean
                 );
 
             // number of probes: """ + str(len(y1_probes) + len(y2_probes)) + """

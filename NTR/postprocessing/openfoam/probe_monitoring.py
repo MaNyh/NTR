@@ -82,17 +82,17 @@ def xslices(casesettings_yml):
                                                    item:[]}
 
                         for row in dats:
-                            if item=="U":
-                                readablerow = row[0].split("                       ")
-                                readablerow = list(filter(None, readablerow))
-                                floatrow = readablerow[1:]
-                                floatrow = [i.replace("(","").replace(")","").split(" ") for i in floatrow]
-                                floatrow = [[float(y) for y in i] for i in floatrow]
-                                floatrow = [vecAbs(np.array(i)) for i in floatrow]
-                            else:
-                                readablerow = row[0].split("       ")
-                                readablerow = list(filter(None,readablerow))
-                                floatrow = [float(i) for i in readablerow[1:]]
+                            #if item=="U":
+                            #    readablerow = row[0].split("                       ")
+                            #    readablerow = list(filter(None, readablerow))
+                            #    floatrow = readablerow[1:]
+                            #    floatrow = [i.replace("(","").replace(")","").split(" ") for i in floatrow]
+                            #    floatrow = [[float(y) for y in i] for i in floatrow]
+                            #    floatrow = [vecAbs(np.array(i)) for i in floatrow]
+                            #else:
+                            readablerow = row[0].split("       ")
+                            readablerow = list(filter(None,readablerow))
+                            floatrow = [float(i) for i in readablerow[1:]]
 
                             time = float(readablerow[0])
                             timeseries[datname][item].append(floatrow)
