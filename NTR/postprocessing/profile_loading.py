@@ -19,8 +19,6 @@ def extract_profile_from_volmesh(settings_yml, volmesh):
     midspan_z = (bounds[-1] - bounds[-2]) / 2
     z_slice = volmesh.slice(normal="z", origin=(0, 0, midspan_z))
 
-    inlet=z_slice.slice(origin=(z_slice.bounds[0] + 1e-12, 0, 0)).plot()
-
     edges = z_slice.extract_feature_edges()
     split = edges.connectivity()
     profilepoints_ids = [idx for idx, i in enumerate(split["RegionId"]) if i == 0]
