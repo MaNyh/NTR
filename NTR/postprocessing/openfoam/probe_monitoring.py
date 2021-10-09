@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import re
 
 from NTR.utils.filehandling import yaml_dict_read, read_csv
 from NTR.database.case_dirstructure import casedirs
@@ -66,6 +67,7 @@ def xslices(casesettings_yml):
         dirlistasfloats = [float(i) for i in dirlist]
         dirlistasfloats, dirlist = zip(*sorted(zip(dirlistasfloats, dirlist)))
 
+        vectorpattern = "\(\-{0,1}\d{1,}.\d{1,}\s\-{0,1}\d{1,}.\d{1,}\s\-{0,1}\d{1,}.\d{1,}"
 
         for timedirectory in dirlist:
             subdirlist = os.listdir(os.path.join(casepath, monitorpath, timedirectory))
@@ -82,17 +84,18 @@ def xslices(casesettings_yml):
                                                    item:[]}
 
                         for row in dats:
-                            #if item=="U":
-                            #    readablerow = row[0].split("                       ")
-                            #    readablerow = list(filter(None, readablerow))
-                            #    floatrow = readablerow[1:]
-                            #    floatrow = [i.replace("(","").replace(")","").split(" ") for i in floatrow]
-                            #    floatrow = [[float(y) for y in i] for i in floatrow]
-                            #    floatrow = [vecAbs(np.array(i)) for i in floatrow]
-                            #else:
-                            readablerow = row[0].split("       ")
-                            readablerow = list(filter(None,readablerow))
-                            floatrow = [float(i) for i in readablerow[1:]]
+
+                            if re.search(vectorpattern, row[0]):
+                                readablerow = row[0].split("                       ")
+                                readablerow = list(filter(None, readablerow))
+                                floatrow = readablerow[1:]
+                                floatrow = [i.replace("(","").replace(")","").split(" ") for i in floatrow]
+                                floatrow = [[float(y) for y in i] for i in floatrow]
+                                floatrow = [vecAbs(np.array(i)) for i in floatrow]
+                            else:
+                                readablerow = row[0].split("       ")
+                                readablerow = list(filter(None,readablerow))
+                                floatrow = [float(i) for i in readablerow[1:]]
 
                             time = float(readablerow[0])
                             timeseries[datname][item].append(floatrow)
