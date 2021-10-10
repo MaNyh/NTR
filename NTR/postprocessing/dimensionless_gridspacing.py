@@ -227,6 +227,8 @@ def gridSpacing():
 #################################################################################
 
 def calc(solutionVTK,WallSurfacesVTKs):
+    #TODO: delete globals
+    #TODO: yaml-dict as a parameter instead of strings
     global solutionMesh, surfaceMesh, processData
 
     print("reading solutionMesh...")
