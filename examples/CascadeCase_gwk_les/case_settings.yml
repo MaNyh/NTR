@@ -14,10 +14,12 @@ simcase_settings:
         JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
         RUNTIME: "10:00:00"
         NODES: "2"
+        AVE_START: "0"
+
         TASKS_PER_NODE: "96"
         PINLET: "95000"
         TINLET : "293.15"
-        TIN_LINF: "0.001"
+        TIN_LINF: "0.005"
         UINLET: "35.392445 58.06355 0"
         UIN_LINF: "0.02"
         EDDYDENSITY: "10"
@@ -74,7 +76,7 @@ simcase_optiondef:
         func: "NTR.preprocessing.options.openfoam.openFoam_createXSliceProbes"
         args:
             nop: 3
-            sampling_rate: 1e5 #Hz
+            sampling_rate: 1e6 #Hz
             x_slice_one : -0.08
             x_slice_two : 0.18
             start_time: 0.0 #s
