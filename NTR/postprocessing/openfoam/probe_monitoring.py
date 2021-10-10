@@ -54,9 +54,13 @@ def massflowinlet(casesettings_yml):
 
 def xslices(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
-    datnames = ["p", "U"]
+    datnames = ["pMean", "UPrime2Mean", "UMean"]
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
-    monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","Probes_XSlices")
+    monitorpath = os.path.join(casepath, casedirs["solution"], "postProcessing", "Probes_XSlices")
+
+    if not os.path.isdir(monitorpath):
+        print("no data found for func xslices")
+        return 0
 
     nop = settings["simcase_optiondef"]["XSCLICE_PROBING"]["args"]["nop"]
 
