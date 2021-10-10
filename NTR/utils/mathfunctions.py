@@ -223,3 +223,20 @@ def absVec(vec):
 
 def absvec_array(array):
     return [absVec(vec) for vec in array]
+
+
+def unitVec(vector):
+    vecLength = vecAbs(vector)
+    unitDir = vector / vecLength
+    return unitDir
+
+
+def vecProjection(direction, vector):
+    unitDir = unitVec(direction)
+    return np.dot(vector, unitDir) * unitDir
+
+
+def vecAngle(vec1, vec2):
+    absVec1 = vecAbs(vec1)
+    absVec2 = vecAbs(vec2)
+    return np.arccos(np.dot(vec1, vec2) / (absVec1 * absVec2))
