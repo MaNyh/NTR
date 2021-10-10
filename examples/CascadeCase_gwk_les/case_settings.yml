@@ -13,12 +13,13 @@ simcase_settings:
         HLRN_JOB_ACCOUNT: "niinyhma"
         JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
         RUNTIME: "10:00:00"
-        NODES: "8"
-        TASKS_PER_NODE: "24"
+        NODES: "2"
+        TASKS_PER_NODE: "96"
         PINLET: "95000"
         TINLET : "293.15"
+        TIN_LINF: "0.001"
         UINLET: "35.392445 58.06355 0"
-        UIN_LINF: "0.01"
+        UIN_LINF: "0.02"
         EDDYDENSITY: "10"
         UDASHSCALING: "1"
         RINLET : "4 0 0 4 0 4"
@@ -28,19 +29,18 @@ simcase_settings:
         POUT_LINF: "0.0075"
 
         TOUTLET: "293.15"
-        TOUT_LINF: "0.005"
         PITCHPER: "0.0765"
         SPANPER: "0.04"
         ZSPAN: "0.04"
 
-        DELTAT: "9e-8"
+        DELTAT: "8e-8"
 
         WRITEINTERVAL : "2000"
         PURGEWRITE: "2"
 
         ADUSTABLETIMESTEP : "off"
         PROCS: "192"
-        NOUTERCORRECTORS : "3"
+        NOUTERCORRECTORS : "2"
 
     options:
         INOUT_FIELDAVE_PROBING: True
@@ -77,7 +77,7 @@ simcase_optiondef:
             sampling_rate: 1e5 #Hz
             x_slice_one : -0.08
             x_slice_two : 0.18
-            start_time: 0.12 #s
+            start_time: 0.0 #s
             end_time: 1000 #s
         insert: '#include "Probes_XSlices_Dict"'
 
