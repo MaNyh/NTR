@@ -57,7 +57,7 @@ libs (
     "libDFSEM_WaveTransmissive_synthWake.so"
     );
 
-    functions
+functions
     {
         <opt INOUT_FIELDAVE_PROBING opt>
         <opt INOUT_VELOCITY_PROBING opt>
@@ -67,5 +67,41 @@ libs (
         <opt STREAMLINE_PROBING opt>
         <opt STAGNATIONPOINTFLOW_PROBING opt>
     }
+
+turbulenceFields1
+    {
+        type            turbulenceFields;
+        libs            ("libfieldFunctionObjects.so");
+        field		    R;
+		writeControl	writeTime;
+		startTime       <var AVE_START var>
+    }
+
+fieldAverage1
+    {
+        type            fieldAverage;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        startTime       <var AVE_START var>
+
+        fields
+        (
+
+            U
+            {
+                mean        on;
+                prime2Mean  on;
+                base        time;
+            }
+
+            p
+            {
+                mean        on;
+                prime2Mean  on;
+                base        time;
+            }
+        );
+    }
+
 
 // ************************************************************************* //

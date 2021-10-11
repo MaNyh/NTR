@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import re
 
 from NTR.utils.filehandling import yaml_dict_read, read_csv
 from NTR.database.case_dirstructure import casedirs
@@ -53,9 +54,13 @@ def massflowinlet(casesettings_yml):
 
 def xslices(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
-    datnames = ["p", "U"]
+    datnames = ["pMean", "UPrime2Mean", "UMean"]
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
-    monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","Probes_XSlices")
+    monitorpath = os.path.join(casepath, casedirs["solution"], "postProcessing", "Probes_XSlices")
+
+    if not os.path.isdir(monitorpath):
+        print("no data found for func xslices")
+        return 0
 
     nop = settings["simcase_optiondef"]["XSCLICE_PROBING"]["args"]["nop"]
 
@@ -66,6 +71,7 @@ def xslices(casesettings_yml):
         dirlistasfloats = [float(i) for i in dirlist]
         dirlistasfloats, dirlist = zip(*sorted(zip(dirlistasfloats, dirlist)))
 
+        vectorpattern = "\(\-{0,1}\d{1,}.\d{1,}\s\-{0,1}\d{1,}.\d{1,}\s\-{0,1}\d{1,}.\d{1,}"
 
         for timedirectory in dirlist:
             subdirlist = os.listdir(os.path.join(casepath, monitorpath, timedirectory))
@@ -82,7 +88,8 @@ def xslices(casesettings_yml):
                                                    item:[]}
 
                         for row in dats:
-                            if item=="U":
+
+                            if re.search(vectorpattern, row[0]):
                                 readablerow = row[0].split("                       ")
                                 readablerow = list(filter(None, readablerow))
                                 floatrow = readablerow[1:]

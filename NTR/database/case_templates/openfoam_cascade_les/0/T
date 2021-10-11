@@ -26,14 +26,14 @@ boundaryField
         type            waveTransmissive;
         gamma           1.4;
         value           uniform <var TINLET var>;
+        fieldInf        <var TINLET var>;
+        lInf            <var TIN_LINF var>;
     }
     OUTLET
     {
         type            waveTransmissive;
         gamma           1.4;
         value           uniform <var TOUTLET var>;
-        fieldInf        <var TOUTLET var>;
-        lInf            <var TOUT_LINF var>;
     }
     BLADE
     {

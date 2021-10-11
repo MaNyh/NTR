@@ -270,17 +270,21 @@ def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sam
 
     data_file.write("""    Probes_XSlices
         {
-            type                probes;
-            libs                ("libsampling.so");
-            writeControl        timeStep;
+            type probes;
+            functionObjectLibs ("libfieldFunctionObjects.so");
+            enabled true;
+            writeControl timeStep;
             writeInterval       """ + str(timestepinterval) + """;
             timeStart           """ + str(start_time) + """;
             timeEnd             """ + str(end_time) + """;
+            log                 true;
 
                 fields
                 (
-                    U
-                    p
+                    pMean
+                    UMean
+                    UPrime2Mean
+                    turbulenceProperties:R
                 );
 
             // number of probes: """ + str(len(y1_probes) + len(y2_probes)) + """
