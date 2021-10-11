@@ -19,7 +19,7 @@ examples_nacagen = os.path.join(base, "CascadeCase_NACA_airfoilgenerator", "case
 examples_turbine_seehausen = os.path.join(base, "CascadeCase_turbine_seehausen", "case_settings.yml")
 examples_gwkras_trace = os.path.join(base, "CascadeCase_gwk_rans_trace", "case_settings.yml")
 examples_gwkras_trace_parastud = os.path.join(base, "CascadeCase_gwk_rans_trace_parastud", "case_settings.yml")
-
+examples_channel_les = os.path.join(base, "ChannelCase_les", "case_settings.yml")
 
 igg_settings = yaml_dict_read(os.path.join(ntrpath, "utils", "externals", "externals_settings.yml"))
 iggdir = igg_settings["igg"]["install_directory"]
@@ -84,3 +84,8 @@ def test_example_gwkras_trace_parastud():
     run_create_geometry(examples_gwkras_trace_parastud)
     run_mesh_wrapper(examples_gwkras_trace_parastud)
     create_parastudsims(examples_gwkras_trace_parastud)
+
+@pytest.mark.skipif(ON_CI, reason="do not run in continuous integration environment due to limited ressources")
+def test_example_channelcase_les():
+    create_simulationcase(examples_gwkras)
+
