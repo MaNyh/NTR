@@ -54,6 +54,8 @@ libs (
 functions
 {
     <opt INOUT_FIELDAVE_PROBING opt>
+    <opt XSCLICE_PROBING opt>
+
 
 	yPlus
 	{
