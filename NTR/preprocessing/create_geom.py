@@ -10,6 +10,8 @@ from NTR.utils.filehandling import write_pickle, yaml_dict_read
 from NTR.utils.geom_functions.pyvista_utils import lines_from_points
 from NTR.database.data_generators.naca_airfoil_creator import naca
 from NTR.utils.mathfunctions import vecAbs
+from NTR.preprocessing.prep import prep_geo
+from NTR.database.case_dirstructure import casedirs
 
 
 def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verbose=False):
@@ -162,7 +164,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     p.show()
     """
     geo_filename = "geometry.pkl"
-    write_pickle(os.path.join(casepath, "04_Data", geo_filename), geo_dict)
+    write_pickle(os.path.join(casepath, casedirs["data"], geo_filename), geo_dict)
 
     if verbose:
         plotter = pv.Plotter()
@@ -198,6 +200,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
         plotter.add_mesh(ssPoly, label="ssPoly", color="green", point_size=5)
         plotter.add_mesh(psPoly_slice)
         plotter.add_mesh(ssPoly_slice)
+        """
         #plotter.add_mesh(pv.PolyData([(-0.004010, 0.048624, 0.000000)]), point_size=20, label="p1")
         #plotter.add_mesh(pv.PolyData([(0.110653, 0.053960, 0.000000)]), point_size=20, label="p2")
 
@@ -231,10 +234,11 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
         #plotter.add_mesh(pv.PolyData([(0.260000, 0.187453, 0.000000)]), point_size=20, label="pt20")
         plotter.add_mesh(pv.PolyData([(0.110653, 0.130460, 0.000000)]), point_size=20, label="pt21")
         plotter.add_mesh(pv.PolyData(outlet_yhigh), point_size=20, label="outlet_high = pt21")
-
+        """
         plotter.show_axes()
         plotter.add_legend()
         plotter.show()
+
     return geo_dict
 
 
@@ -303,7 +307,7 @@ def create_geometry_fromnacaairfoil(nacadigits, numberofpoints, finite_TE, half_
                 }
 
     geo_filename = "geometry.pkl"
-    write_pickle(os.path.join(casepath, "04_Data", geo_filename), geo_dict)
+    write_pickle(os.path.join(casepath, casedirs["data"], geo_filename), geo_dict)
 
     if verbose:
         plotter = pv.Plotter()
@@ -401,8 +405,8 @@ def run_create_geometry(settings_yaml):
     case_path = os.path.abspath(os.path.dirname(settings_yaml))
     settings = yaml_dict_read(settings_yaml)
 
-    meshpath = os.path.join(case_path, "01_Meshing")
-    datpath = os.path.join(case_path, "04_Data")
+    meshpath = os.path.join(case_path, casedirs["meshing"])
+    datpath = os.path.join(case_path, casedirs["data"])
     if not os.path.isdir(meshpath):
         os.mkdir(meshpath)
     if not os.path.isdir(datpath):
@@ -415,7 +419,7 @@ def run_create_geometry(settings_yaml):
         geo_dict = create_geometry_frompointcloud(ptstxtfile,
                                                   settings, case_path)
 
-    if settings["geometry"]["algorithm"] == "naca_airfoil_generator":
+    elif settings["geometry"]["algorithm"] == "naca_airfoil_generator":
         geo_dict = create_geometry_fromnacaairfoil(settings["geometry"]["naca_digits"],
                                                    settings["geometry"]["numberofpoints"],
                                                    settings["geometry"]["finite_TE"],
@@ -428,5 +432,9 @@ def run_create_geometry(settings_yaml):
                                                    settings["geometry"]["staggerangle"],
                                                    settings["mesh"]["extrudeLength"],
                                                    case_path, )
+
+    elif settings["geometry"]["algorithm"] == "prep":
+        geo_dict = prep_geo(settings_yaml)
+
     # blockpoints(geo_dict,settings)
     return 0

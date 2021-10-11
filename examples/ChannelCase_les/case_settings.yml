@@ -22,9 +22,19 @@ simcase_settings:
 
         ADUSTABLETIMESTEP : "off"
 
+        GEO_LENGTH : &GEO_LENGTH "25.1327412287183459"
+        GEO_WIDTH :  &GEO_WIDTH "9.4247779607693"
+        GEO_HALFHEIGHT : &GEO_HALFHEIGHT "1.0"
+
     options:
         INOUT_FIELDAVE_PROBING: True
         XSCLICE_PROBING: True
+
+geometry:
+    algorithm: "prep"
+    channel_length : *GEO_LENGTH
+    yper_width : *GEO_WIDTH
+    channel_halfheight : *GEO_HALFHEIGHT
 
 simcase_optiondef:
     INOUT_FIELDAVE_PROBING:
@@ -40,8 +50,8 @@ simcase_optiondef:
         args:
             nop: 3
             sampling_rate: 1e6 #Hz
-            x_slice_one : -0.08
-            x_slice_two : 0.18
+            x_slice_one : 1
+            x_slice_two : 25
             start_time: 0.0 #s
             end_time: 1000 #s
         insert: '#include "Probes_XSlices_Dict"'

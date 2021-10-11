@@ -18,18 +18,14 @@ convertToMeters 1;
 
 fastMerge   true;   // Use fast topological search
 
-//const scalar pi(M_PI);
-
-//Pi #calc "constant::mathematical::pi";
 
 scale   1;
 
-L   #calc "8*constant::mathematical::pi"; // Lx --> Streamwise domain size in UTexas
-//L   #calc "8*3.14156";
-H   1.0; // Channel half width as delta in UTexas
-H2  #calc "2*$H"; // Channel width 
-W   #calc "3*constant::mathematical::pi"; // Lz --> Spanwise domain size in UTexas
-//W   #calc "3*3.14156";
+L   "<var GEO_LENGTH var>; // Lx --> Streamwise domain size in UTexas
+H   <var GEO_HALFHEIGHT var>; // Channel half width as delta in UTexas
+W   <var GEO_WIDTH var>; // Lz --> Spanwise domain size in UTexas
+
+H2  #calc "2*$H"; // Channel width
 
 //------------------------- Parameterization for the Number of Cells ----------------------------------------------
 xmin 0;
@@ -48,7 +44,6 @@ ly 	#calc "$H2 - $ymin";
 lz 	#calc "$W - $zmin";
 
 xcells 	#calc "round(($lx)/($deltax))";
-// ycells 	#calc "round(($ly)/($deltay))"; // not needed due to simpleGrading in y-direction
 zcells 	#calc "round(($lz)/($deltaz))";
 
 //-----------------------------------------------------------------------
@@ -74,17 +69,15 @@ vertices
 /*
 blocks
 (
-    hex ( 0  1  2  5  6  7  8 11) (500 23 246) simpleGrading (1 25 1) //org was (500 23 82)
+    hex ( 0  1  2  5  6  7  8 11) (500 23 246) simpleGrading (1 25 1)
     hex ( 5  2  3  4 11  8  9 10) (500 23 246) simpleGrading (1 0.04 1)
 );
 
 */
 blocks
 (
-    hex ( 0  1  2  5  6  7  8 11) ($xcells 12 $zcells) simpleGrading (1 25 1) //org was (500 23 82)
+    hex ( 0  1  2  5  6  7  8 11) ($xcells 12 $zcells) simpleGrading (1 25 1)
     hex ( 5  2  3  4 11  8  9 10) ($xcells 12 $zcells) simpleGrading (1 0.04 1)
-    //hex ( 0  1  2  5  6  7  8 11) ($xcells 46 $zcells) simpleGrading (1 10 1) //Aspect ratio --> 9
-    //hex ( 5  2  3  4 11  8  9 10) ($xcells 46 $zcells) simpleGrading (1 0.1 1)
 );
 
 edges
@@ -119,12 +112,12 @@ boundary
 
     INLETper
     {
-        type            patch; //org was patch
+        type            patch;
         faces           ((0 5 11 6)(5 4 10 11));
     }
     OUTLETper
     {
-        type            patch; //org was patch
+        type            patch;
         faces           ((1 7 8 2)(2 8 9 3));
     }
 );

@@ -115,9 +115,6 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
         path_to_sim = os.path.join(casepath, casedirs["simcase"], subdir)
         os.mkdir(os.path.join(casepath, casedirs["simcase"]))
         os.mkdir(path_to_sim)
-    # path_to_geo_ressources = os.path.join(casepath, "04_Data", "geometry.pkl")
-    # assert os.path.isfile(path_to_geo_ressources), "no geometry.pkl found, create the geometry first"
-    # geo_ressources = read_pickle(os.path.join(path_to_geo_ressources))
 
     create_casedirstructure(casedirs, casepath)
     case_structure = case_structures[case_type]
