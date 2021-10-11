@@ -240,7 +240,7 @@ def openFoam_createProbesInletOutlet(geomdat_dict, sampling_rate, path_to_sim, s
 
 def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sampling_rate,
                                 path_to_sim, start_time, end_time, case_settings):
-
+    #TODO: XSliceProbes is not working with cases without geomdat_dict (from/for igg-mesh-creation). We need a workaround for this
     output_path = os.path.join(path_to_sim, "system")
     timestepinterval = int(
     float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
