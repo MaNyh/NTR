@@ -10,11 +10,13 @@ import os
 paraview.simple._DisableFirstRenderCameraReset()
 
 # create a new 'CGNS Series Reader'
-tRACEcgns = CGNSSeriesReader(FileNames=["tmp.cgns"])
+tRACEcgns = CGNSSeriesReader(FileNames=[os.path.join(os.path.dirname(__file__),"tmp.cgns")])
+
+tRACEcgns.CellArrayStatus = ['Density', 'Mach', 'Pressure', 'Temperature', 'TurbulentDissipationRate', 'TurbulentDistance', 'TurbulentEnergyKinetic', 'Velocity', 'ViscosityEddy', 'ViscosityEddyRatio']
 
 # create a new 'Merge Blocks'
 mergeBlocks1 = MergeBlocks(Input=tRACEcgns)
 
 # save data
-SaveData('solution.vtk', proxy=mergeBlocks1, FileType='Ascii')
+SaveData(os.path.join(os.path.dirname(__file__),'solution.vtk'), proxy=mergeBlocks1, FileType='Ascii')
 
