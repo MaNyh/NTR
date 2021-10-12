@@ -12,22 +12,8 @@ import numpy as np
 
 from NTR.utils.mathfunctions import vecAbs, unitVec, vecProjection, vecAngle
 from NTR.utils.geom_functions.pyvista_utils import load_mesh
+from NTR.utils.filehandling import yaml_dict_read
 
-#################################################################################
-#                                                                               #
-#                                                                               #
-#                               Globals                                         #
-#                                                                               #
-#                                                                               #
-#################################################################################
-
-cwd = os.getcwd()
-
-mu_0 = 2e-5
-
-solutionMesh = None
-surfaceMesh = None
-processData = {}
 
 
 #################################################################################
@@ -53,8 +39,6 @@ def cellDirections(cellUMean, wallNorm):
 #                                                                               #
 #                                                                               #
 #################################################################################
-
-
 
 
 def constructWallMesh(meshList):
@@ -93,8 +77,7 @@ def saveSolution(grid):
 #################################################################################
 
 
-def closestWallNormal(point):
-    global surfaceMesh
+def closestWallNormal(point,surfaceMesh):
 
     locator = vtk.vtkPointLocator()
     locator.SetDataSet(surfaceMesh)
@@ -121,8 +104,7 @@ def calcWallNormalVectors(labelChunk):
     return vectors
 
 
-def cellSpans(labelChunk):
-    global solutionMesh, processData
+def cellSpans(labelChunk, solutionMesh, processData):
 
     spans = []
 
@@ -172,8 +154,7 @@ def cellSpans(labelChunk):
 
 # def getWallVals()
 
-def getWalluTaus(labelChunk):
-    global solutionMesh, mu_0, processData
+def getWalluTaus(labelChunk, solutionMesh, mu_0, processData):
 
     uTaus = []
     for cellIdx in labelChunk:
@@ -198,12 +179,10 @@ def getWalluTaus(labelChunk):
         u_tau = (tauW / rhoW) ** 0.5
         uTaus.append(u_tau)
 
-        # pBarUpdate()
     return uTaus
 
 
-def gridSpacing():
-    global mu_0, processData
+def gridSpacing(mu_0, processData):
 
     xSpans = processData["xSpan"]
     ySpans = processData["ySpan"]
@@ -226,10 +205,19 @@ def gridSpacing():
 #                                                                               #
 #################################################################################
 
-def calc(solutionVTK,WallSurfacesVTKs):
-    #TODO: delete globals
-    #TODO: yaml-dict as a parameter instead of strings
-    global solutionMesh, surfaceMesh, processData
+def calc(settings_yml):
+
+    settings = yaml_dict_read(settings_yml)
+    case_path = os.path.abspath(os.path.dirname(settings_yml))
+
+    cwd = os.getcwd()
+
+    mu_0 = 2e-5
+
+    solutionMesh = None
+    surfaceMesh = None
+    processData = {}
+
 
     print("reading solutionMesh...")
     solutionMesh = load_mesh(solutionVTK)
@@ -254,11 +242,11 @@ def calc(solutionVTK,WallSurfacesVTKs):
     processData["zSpan"] = np.array([i[2] for i in spanS])  # calculate cell span in span direction
 
     print("calculating wall-shear and friction-velocity")
-    uTaus = getWalluTaus(cellIds)
+    uTaus = getWalluTaus(cellIds, solutionMesh, mu_0, processData)
     processData["uTaus"] = uTaus
 
     print("calculating grid spacing in singlethreaded")
-    gridSpacings = gridSpacing()
+    gridSpacings = gridSpacing(mu_0, processData)
 
     processData["DeltaXPlus"] = gridSpacings[0]
     print("min Dx+ : %.2f" % (min(processData["DeltaXPlus"])))
