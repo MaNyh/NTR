@@ -90,15 +90,13 @@ def closestWallNormal(point,surfaceMesh):
     return vector
 
 
-def calcWallNormalVectors(labelChunk):
+def calcWallNormalVectors(labelChunk,surfaceMesh):
     vectors = []
 
     for cellIdx in labelChunk:
         center = processData["cellCenters"][cellIdx]
-        wallNormal = closestWallNormal(center)
+        wallNormal = closestWallNormal(center, surfaceMesh)
         vectors.append(wallNormal)
-
-        # pBarUpdate()
 
     vectors = np.array(vectors)
     return vectors
@@ -152,7 +150,6 @@ def cellSpans(labelChunk, solutionMesh, processData):
     return spans
 
 
-# def getWallVals()
 
 def getWalluTaus(labelChunk, solutionMesh, mu_0, processData):
 
@@ -210,12 +207,8 @@ def calc(settings_yml):
     settings = yaml_dict_read(settings_yml)
     case_path = os.path.abspath(os.path.dirname(settings_yml))
 
-    cwd = os.getcwd()
-
     mu_0 = 2e-5
 
-    solutionMesh = None
-    surfaceMesh = None
     processData = {}
 
 
@@ -225,7 +218,6 @@ def calc(settings_yml):
     surfaceMesh = constructWallMesh(WallSurfacesVTKs)
 
     print("preparing processData from meshes")
-    # solutionMesh = solutionMesh.compute_gradient("UMean")
     solutionMesh = solutionMesh.compute_derivative(scalars="UMean")
     processData["UMean"] = readDataSet(solutionMesh, "UMean")
     processData["cellCenters"] = solutionMesh.cell_centers().points
@@ -236,7 +228,7 @@ def calc(settings_yml):
     processData["wallNormal"] = calcWallNormalVectors(cellIds)
 
     print("calculating cell spans from WallNormals and CellEdges...")
-    spanS = cellSpans(cellIds)
+    spanS = cellSpans(cellIds, surfaceMesh)
     processData["xSpan"] = np.array([i[0] for i in spanS])  # calculate cell span in flow direction
     processData["ySpan"] = np.array([i[1] for i in spanS])  # calculate cell span in wall normal direction
     processData["zSpan"] = np.array([i[2] for i in spanS])  # calculate cell span in span direction
@@ -245,7 +237,7 @@ def calc(settings_yml):
     uTaus = getWalluTaus(cellIds, solutionMesh, mu_0, processData)
     processData["uTaus"] = uTaus
 
-    print("calculating grid spacing in singlethreaded")
+    print("calculating grid spacing")
     gridSpacings = gridSpacing(mu_0, processData)
 
     processData["DeltaXPlus"] = gridSpacings[0]

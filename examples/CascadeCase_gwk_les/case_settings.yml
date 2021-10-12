@@ -4,7 +4,7 @@ case_settings:
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"
-    timestep : "10e-8"
+    timestep : &timestep "8e-8"
 
 simcase_settings:
     variables:
@@ -35,7 +35,7 @@ simcase_settings:
         SPANPER: "0.04"
         ZSPAN: "0.04"
 
-        DELTAT: "8e-8"
+        DELTAT: *timestep
 
         WRITEINTERVAL : "2000"
         PURGEWRITE: "2"
@@ -143,3 +143,11 @@ mesh:
     shift_vk_block_xaxiscoeff       : 0.045                                 #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.005                                 #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
+
+
+post_settings:
+    dimensionless_gridspacing:
+        volmesh                     : "03_Solution/volume.vtk"
+        wall                        : "03_Solution/surface.vtk"
+    profile_loading:
+        volmesh                     : "03_Solution/volume.vtk"
