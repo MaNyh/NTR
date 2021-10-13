@@ -17,19 +17,7 @@ FoamFile
 
 solvers
 {
-//Massenstrom
-	Phi
-	{
-	solver GAMG;
-	smoother DIC;
-	cacheAgglomeration on;
-	agglomerator faceAreaPair;
-	nCellsInCoarsestLevel 10;
-	mergeLevels 1;
 
-	tolerance 1e-12;
-	relTol 0.005;
-	}
 
 //Druck Dichte
     "(p|rho)"
