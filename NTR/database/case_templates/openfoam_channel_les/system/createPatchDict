@@ -44,7 +44,6 @@ FoamFile
 //       with transformations (i.e. cyclics).
 pointSync false;
 
-L   <var GEO_LENGTH var>; // Lx --> Streamwise domain size in UTexas
 
 
 // Patches to create.
@@ -64,7 +63,7 @@ patches
             neighbourPatch OUTLET;
 
             transform translational;
-            separationVector ($L 0 0);
+            separationVector (<var GEO_LENGTH var> 0 0);
             matchTolerance 0.02;
         }
 
@@ -86,7 +85,7 @@ patches
             neighbourPatch INLET;
 
             transform translational;
-            separationVector (-$L 0 0);
+            separationVector (-<var GEO_LENGTH var> 0 0);
             matchTolerance 0.02;
         }
 
