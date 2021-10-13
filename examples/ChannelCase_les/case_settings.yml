@@ -24,9 +24,10 @@ simcase_settings:
 
         ADUSTABLETIMESTEP : "off"
 
-        GEO_LENGTH : &GEO_LENGTH "25.1327412287183459"
-        GEO_WIDTH :  &GEO_WIDTH "9.4247779607693"
-        GEO_HALFHEIGHT : &GEO_HALFHEIGHT "1.0"
+        MESH_SCALING : 0.5
+        GEO_LENGTH : &GEO_LENGTH "10"
+        GEO_WIDTH :  &GEO_WIDTH "3"
+        GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
 
     options:
         INOUT_FIELDAVE_PROBING: True

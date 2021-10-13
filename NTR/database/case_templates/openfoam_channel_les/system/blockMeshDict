@@ -19,7 +19,7 @@ convertToMeters 1;
 fastMerge   true;   // Use fast topological search
 
 
-scale   1;
+scale   <var MESH_SCALING var>;
 
 L   <var GEO_LENGTH var>; // Lx --> Streamwise domain size in UTexas
 H   <var GEO_HALFHEIGHT var>; // Channel half width as delta in UTexas
