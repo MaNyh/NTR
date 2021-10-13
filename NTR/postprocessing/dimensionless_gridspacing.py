@@ -32,41 +32,6 @@ def cellDirections(cellUMean, wallNorm):
     return np.array([x, y, z])
 
 
-#################################################################################
-#                                                                               #
-#                                                                               #
-#                          VTK / VTKI Helper                                    #
-#                                                                               #
-#                                                                               #
-#################################################################################
-
-
-def constructWallMesh(meshList):
-    wallMesh = pv.UnstructuredGrid()
-
-    for mesh in meshList:
-        m = load_mesh(mesh)
-        wallMesh = wallMesh.merge(m)
-
-    return wallMesh
-
-
-def readDataSet(grid, dataName):
-    grid.set_active_scalars(dataName)
-    data = grid.active_scalars
-    return data
-
-
-def saveDataSets(grid, dataSets):
-    for dataName, values in dataSets.items():
-        grid[dataName] = values
-
-
-def saveSolution(grid):
-    # ÄNDERN in sinnvollen namen
-    saveFileName = "gridSpacing.vtk"
-    grid.save(saveFileName)
-
 
 #################################################################################
 #                                                                               #
