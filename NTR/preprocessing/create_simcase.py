@@ -14,20 +14,17 @@ from NTR.utils.functions import func_by_name
 from NTR.database.case_dirstructure import casedirs
 
 
-def find_vars_opts(case_structure):
+def find_vars_opts(case_structure,sign,all_pairs):
     # allowing names like JOB_NUMBERS, only capital letters and underlines - no digits, no whitespaces
-    varsignature = r"<var [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} var>"
-    optsignature = r"<opt [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} opt>"
+    varsignature = r"<PLACEHOLDER [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} PLACEHOLDER>".replace(r'PLACEHOLDER',sign)
     siglim = (5, -5)
 
-    all_pairs = list(nested_dict_pairs_iterator(case_structure))
     for pair in all_pairs:
         setInDict(case_structure, pair[:-1], {})
         filepath = os.path.join(*pair[:-1])
         with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
-                case_structure = search_paras(case_structure, line, pair, siglim, varsignature,"var")
-                case_structure = search_paras(case_structure, line, pair, siglim, optsignature,"opt")
+                case_structure = search_paras(case_structure, line, pair, siglim, varsignature,sign)
     return case_structure
 
 
@@ -122,11 +119,15 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
         os.mkdir(os.path.join(casepath, casedirs["simcase"]))
         os.mkdir(path_to_sim)
 
+
     create_casedirstructure(casedirs, casepath)
     case_structure = case_structures[case_type]
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
-    case_structure_parameters = find_vars_opts(case_structure)
+    # ToDo: what is the next variable about? this is not written nice
+    all_pairs = list(nested_dict_pairs_iterator(case_structure))
+    case_structure_parameters = find_vars_opts(case_structure,"var",all_pairs)
+    case_structure_parameters = find_vars_opts(case_structure_parameters,"opt",all_pairs)
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)

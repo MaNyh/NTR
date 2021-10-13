@@ -14,6 +14,7 @@ from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
+from NTR.database.case_dirstructure import casedirs
 
 
 def test_yamlDictRead(tmpdir):
@@ -200,13 +201,20 @@ def test_create_simulationcase(tmpdir):
     for indx in range(len(list(case_structures.keys()))):
         case_type = list(case_structures.keys())[indx]
         case_structure = case_structures[case_type]["case_templates"]
-        case_structure = find_vars_opts(case_structure)
+
+        all_pairs = list(nested_dict_pairs_iterator(case_structure))
+        case_structure = find_vars_opts(case_structure,"var",all_pairs)
+        case_structure = find_vars_opts(case_structure,"opt",all_pairs)
         case_structlist = list(nested_dict_pairs_iterator(case_structure))
         variables = [i[-2] for i in list(case_structlist) if i[-1] == "var"]
         options = [i[-2] for i in list(case_structlist) if i[-1] == "opt"]
 
         test_dict = {"case_settings": {"case_type": case_type,
-                                       "name": "testcase"},
+                                       "name": "testcase",
+                                       "type": "simulation",
+                                       "job":{
+                                           "job_script":""
+                                       },},
                      "simcase_settings": {"variables": {},
                                           "options": {}},
                      "simcase_optiondef": {},
@@ -220,9 +228,9 @@ def test_create_simulationcase(tmpdir):
 
         test_file = tmpdir / "test_create_simulationcase.yml"
         test_geo_dict = {}
-        if not os.path.isdir(tmpdir / "04_Data"):
-            os.mkdir(tmpdir / "04_Data")
-        test_geo_file = tmpdir / os.path.join("04_Data", "geometry.pkl")
+        if not os.path.isdir(tmpdir / casedirs["data"]):
+            os.mkdir(tmpdir / casedirs["data"])
+        test_geo_file = tmpdir / os.path.join(casedirs["data"], "geometry.pkl")
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)
         create_simulationcase(test_file)
