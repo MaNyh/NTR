@@ -9,13 +9,12 @@ simcase_settings:
     variables:
         CLUSTERJOBNAME: "channelflow_les"
         TASKS_PER_NODE: "16"
-        NODES: "3"
-        PROCS: "48"
+        NODES: "1"
+        PROCS: "16"
 
         HLRN_JOB_ACCOUNT: "niinyhma"
         RRZN_JOB_ACCOUNT: "nhkcmany"
         JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
-        TASKS_PER_NODE: "16"
         WALLTIME: "16:00:00"
         MEMORY: "16gb"
         DELTAT: "0.05"
