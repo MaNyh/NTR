@@ -2,6 +2,14 @@ case_settings:
     name : "GWK_Verdichterkaskade_LES"
     case_type : "openfoam_cascade_les"
     type: "simulation"
+    job:
+        job_mail: "nyhuis@tfd.uni-hannover.de"
+        job_script: "submit_sp_pbs_rrzn"
+        job_sources: >
+            ". $MODULESHOME/init/ksh
+             source ~/ModuleLoading/OpenFoam1612.sh
+             "
+        job_exe: "rhoPimpleFoam"
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"

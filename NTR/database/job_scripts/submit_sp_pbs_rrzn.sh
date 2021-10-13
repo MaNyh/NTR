@@ -1,14 +1,11 @@
 #PBS -S /bin/ksh
-#PBS -N TEST_mappedDFSEM__PipeFlow
+#PBS -N <var JOB_NAME var>
 #PBS -j oe
 #PBS -l nodes=1:ppn=1
-#PBS -l walltime=10:00:00,mem=16Gb
-#PBS -M nyhuis@tfd.uni-hannover.de
+#PBS -l walltime=<var JOB_RUNTIME var>,mem=16Gb
+#PBS -M <var JOB_EMAIL var>
 #PBS -m ae
 #PBS -W x=PARTITION:taurus:haku:lena
-. $MODULESHOME/init/ksh
-source ~/ModuleLoading/OpenFoam1612.sh
-HOST=$(paste -s -d ',' ${PBS_NODEFILE})
-
+<var JOB_SOURCECMD var>
 cd $PBS_O_WORKDIR
-rhoPimpleFoam > log.log
+<var JOB_EXE var> > log.log
