@@ -44,8 +44,8 @@ FoamFile
 //       with transformations (i.e. cyclics).
 pointSync false;
 
-L   #calc "8*constant::mathematical::pi"; // Lx --> Streamwise domain size in UTexas
-Lneg   #calc "-8*constant::mathematical::pi";
+L   <var GEO_LENGTH var>; // Lx --> Streamwise domain size in UTexas
+
 
 // Patches to create.
 patches
@@ -64,7 +64,7 @@ patches
             neighbourPatch OUTLET;
 
             transform translational;
-            separationVector ($L 0 0); //8pi --> for of8 type hier Lneg instead of L
+            separationVector ($L 0 0);
             matchTolerance 0.02;
         }
 
@@ -86,7 +86,7 @@ patches
             neighbourPatch INLET;
 
             transform translational;
-            separationVector ($Lneg 0 0); //-8pi --> for of8 type hier L instead of Lneg
+            separationVector (-$L 0 0);
             matchTolerance 0.02;
         }
 
