@@ -1,0 +1,3 @@
+blockMesh
+createPatch -overwrite
+decomposePar
