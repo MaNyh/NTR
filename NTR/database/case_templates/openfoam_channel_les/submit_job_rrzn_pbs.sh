@@ -13,5 +13,5 @@ HOST=$(paste -s -d ',' ${PBS_NODEFILE})
 echo $HOST
 echo $PBS_NODEFILE
 cd $PBS_O_WORKDIR
-mpirun --hostfile ${PBS_NODEFILE} -np <var JOB_NUMBERS var> pimpleFoam -parallel > log.log
+mpirun --hostfile ${PBS_NODEFILE} -np <var PROCS var> pimpleFoam -parallel > log.log
 

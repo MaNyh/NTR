@@ -14,4 +14,4 @@ module load GCC/4.9.3-2.25 OpenMPI/1.10.2 OpenFOAM/v1612+
 source $FOAM_BASH
 cd $SLURM_SUBMIT_DIR
 
-mpirun  -np <var JOB_NUMBERS var> pimpleFoam -case ./ -parallel > log.log
+mpirun  -np <var PROCS var> pimpleFoam -case ./ -parallel > log.log

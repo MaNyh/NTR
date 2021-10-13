@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains <var JOB_NUMBERS var>;
+numberOfSubdomains <var PROCS var>;
 method          hierarchical;
 
 preservePatches (INLET);
@@ -23,7 +23,7 @@ preservePatches (INLET);
 
 hierarchicalCoeffs
 {
-    n               (<var JOB_NUMBERS var> 1 1 );
+    n               (<var PROCS var> 1 1 );
     delta           0.001;
     order           xyz;
 }
