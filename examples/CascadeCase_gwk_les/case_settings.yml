@@ -19,7 +19,7 @@ simcase_settings:
         TASKS_PER_NODE: "96"
         PINLET: "95000"
         TINLET : "293.15"
-        TIN_LINF: "0.005"
+        TIN_LINF: "0.02"
         UINLET: "35.392445 58.06355 0"
         UIN_LINF: "0.02"
         EDDYDENSITY: "10"
@@ -28,7 +28,7 @@ simcase_settings:
         LINLET : "0.02"
 
         POUTLET: "101325"
-        POUT_LINF: "0.0075"
+        POUT_LINF: "0.02"
 
         TOUTLET: "293.15"
         PITCHPER: "0.0765"
