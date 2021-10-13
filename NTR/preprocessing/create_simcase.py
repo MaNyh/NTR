@@ -130,6 +130,7 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
+    create_jobmanagement(casetype, settings)
 
 
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):
