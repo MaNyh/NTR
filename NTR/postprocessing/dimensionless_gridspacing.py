@@ -12,22 +12,8 @@ import numpy as np
 
 from NTR.utils.mathfunctions import vecAbs, unitVec, vecProjection, vecAngle
 from NTR.utils.geom_functions.pyvista_utils import load_mesh
+from NTR.utils.filehandling import yaml_dict_read
 
-#################################################################################
-#                                                                               #
-#                                                                               #
-#                               Globals                                         #
-#                                                                               #
-#                                                                               #
-#################################################################################
-
-cwd = os.getcwd()
-
-mu_0 = 2e-5
-
-solutionMesh = None
-surfaceMesh = None
-processData = {}
 
 
 #################################################################################
@@ -46,43 +32,6 @@ def cellDirections(cellUMean, wallNorm):
     return np.array([x, y, z])
 
 
-#################################################################################
-#                                                                               #
-#                                                                               #
-#                          VTK / VTKI Helper                                    #
-#                                                                               #
-#                                                                               #
-#################################################################################
-
-
-
-
-def constructWallMesh(meshList):
-    wallMesh = pv.UnstructuredGrid()
-
-    for mesh in meshList:
-        m = load_mesh(mesh)
-        wallMesh = wallMesh.merge(m)
-
-    return wallMesh
-
-
-def readDataSet(grid, dataName):
-    grid.set_active_scalars(dataName)
-    data = grid.active_scalars
-    return data
-
-
-def saveDataSets(grid, dataSets):
-    for dataName, values in dataSets.items():
-        grid[dataName] = values
-
-
-def saveSolution(grid):
-    # ÄNDERN in sinnvollen namen
-    saveFileName = "gridSpacing.vtk"
-    grid.save(saveFileName)
-
 
 #################################################################################
 #                                                                               #
@@ -93,8 +42,7 @@ def saveSolution(grid):
 #################################################################################
 
 
-def closestWallNormal(point):
-    global surfaceMesh
+def closestWallNormal(point,surfaceMesh):
 
     locator = vtk.vtkPointLocator()
     locator.SetDataSet(surfaceMesh)
@@ -107,22 +55,19 @@ def closestWallNormal(point):
     return vector
 
 
-def calcWallNormalVectors(labelChunk):
+def calcWallNormalVectors(labelChunk,surfaceMesh):
     vectors = []
 
     for cellIdx in labelChunk:
         center = processData["cellCenters"][cellIdx]
-        wallNormal = closestWallNormal(center)
+        wallNormal = closestWallNormal(center, surfaceMesh)
         vectors.append(wallNormal)
-
-        # pBarUpdate()
 
     vectors = np.array(vectors)
     return vectors
 
 
-def cellSpans(labelChunk):
-    global solutionMesh, processData
+def cellSpans(labelChunk, solutionMesh, processData):
 
     spans = []
 
@@ -170,10 +115,8 @@ def cellSpans(labelChunk):
     return spans
 
 
-# def getWallVals()
 
-def getWalluTaus(labelChunk):
-    global solutionMesh, mu_0, processData
+def getWalluTaus(labelChunk, solutionMesh, mu_0, processData):
 
     uTaus = []
     for cellIdx in labelChunk:
@@ -198,12 +141,10 @@ def getWalluTaus(labelChunk):
         u_tau = (tauW / rhoW) ** 0.5
         uTaus.append(u_tau)
 
-        # pBarUpdate()
     return uTaus
 
 
-def gridSpacing():
-    global mu_0, processData
+def gridSpacing(mu_0, processData):
 
     xSpans = processData["xSpan"]
     ySpans = processData["ySpan"]
@@ -226,10 +167,15 @@ def gridSpacing():
 #                                                                               #
 #################################################################################
 
-def calc(solutionVTK,WallSurfacesVTKs):
-    #TODO: delete globals
-    #TODO: yaml-dict as a parameter instead of strings
-    global solutionMesh, surfaceMesh, processData
+def calc(settings_yml):
+
+    settings = yaml_dict_read(settings_yml)
+    case_path = os.path.abspath(os.path.dirname(settings_yml))
+
+    mu_0 = 2e-5
+
+    processData = {}
+
 
     print("reading solutionMesh...")
     solutionMesh = load_mesh(solutionVTK)
@@ -237,7 +183,6 @@ def calc(solutionVTK,WallSurfacesVTKs):
     surfaceMesh = constructWallMesh(WallSurfacesVTKs)
 
     print("preparing processData from meshes")
-    # solutionMesh = solutionMesh.compute_gradient("UMean")
     solutionMesh = solutionMesh.compute_derivative(scalars="UMean")
     processData["UMean"] = readDataSet(solutionMesh, "UMean")
     processData["cellCenters"] = solutionMesh.cell_centers().points
@@ -248,17 +193,17 @@ def calc(solutionVTK,WallSurfacesVTKs):
     processData["wallNormal"] = calcWallNormalVectors(cellIds)
 
     print("calculating cell spans from WallNormals and CellEdges...")
-    spanS = cellSpans(cellIds)
+    spanS = cellSpans(cellIds, surfaceMesh)
     processData["xSpan"] = np.array([i[0] for i in spanS])  # calculate cell span in flow direction
     processData["ySpan"] = np.array([i[1] for i in spanS])  # calculate cell span in wall normal direction
     processData["zSpan"] = np.array([i[2] for i in spanS])  # calculate cell span in span direction
 
     print("calculating wall-shear and friction-velocity")
-    uTaus = getWalluTaus(cellIds)
+    uTaus = getWalluTaus(cellIds, solutionMesh, mu_0, processData)
     processData["uTaus"] = uTaus
 
-    print("calculating grid spacing in singlethreaded")
-    gridSpacings = gridSpacing()
+    print("calculating grid spacing")
+    gridSpacings = gridSpacing(mu_0, processData)
 
     processData["DeltaXPlus"] = gridSpacings[0]
     print("min Dx+ : %.2f" % (min(processData["DeltaXPlus"])))

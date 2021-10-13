@@ -1,0 +1,234 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.2.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pimpleDyMFoam; //gibt den solver an, rho steht fuer compressibel
+
+startFrom       latestTime ; //gibt an vvon welchem zeitschritt aus simulation gestartet werden soll
+
+//startTime       0.073475;
+
+stopAt          endTime; //gibt an bis zu welchem Zeitschritt simuliert werden soll, Endzeit der Simualton entspricht endTime
+
+//stopAt          writeNow;
+
+endTime         0.14;
+
+deltaT          5e-7; //Zeitschritt der Simulation, bei variablem Zeitschritt ist dies die Zeitscrhittweite des erste Zeitrschritest 
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.0005;
+
+purgeWrite      4; // gibt an wie viele Zeitschritte maximal gleichzeitig gepsichert werden sollen, bei 0 werden alle Zeitschritt gespeiechert, bei 2 zb nur 2
+
+writeFormat     ascii; //Ausgabe Format ist binaer oder ascii
+
+writePrecision  12;
+
+writeCompression off; //ermoeglihct ergebnise in gzip packet zu packen
+
+timeFormat      general;
+
+timePrecision   12;
+
+runTimeModifiable yes; //bei yes wird conctroldict zu beginn jedes zeitschrittes neu eingelesen
+
+adjustTimeStep  no; //bei yes wird zeitschrittweite in abhaengigkeit der  maxCo angepasst
+
+maxCo           0.9;	//von 0.5 auf 0.4 reduziert da druckwellen in TE
+
+maxDeltaT       1.0; //maximale Solverzeitschrittweite
+
+
+libs
+(
+   // "libAdvectiveFields.so"
+
+    //"libWaveTransmissiveFields.so"
+
+    "libDFSEMMod_v10_newRand_B.so"
+);
+
+functions
+{    
+    tau
+    {
+        type            tau;
+        libs            ("libMTSFunctionObjects.so");
+        writeControl        writeTime;
+    }
+
+    gradU
+    {
+        type            gradU;
+        libs            ("libMTSFunctionObjects.so");
+        writeControl        writeTime;
+    }
+
+    tauGradU
+    {
+        type            tauGradU;
+        libs            ("libMTSFunctionObjects.so");
+        writeControl        writeTime;
+    }
+    
+    //Nachfolgende Funktion dient zum mitteln der Ergebnisse des gesamten Rechengebietes
+   
+    averaging
+    {
+        type                fieldAverage;
+        libs                ( "libfieldFunctionObjects.so" );
+        enabled             true;
+        writeControl        outputTime;
+        fixedLocations      false;
+        restartOnRestart    no;
+        fields
+        (
+            U
+            {
+                mean        on;
+                prime2Mean  on;
+                base        time;
+            }
+
+            p
+            {
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }
+
+            nut
+            {
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }
+
+            gradU
+            {
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }
+
+            tau
+            {
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }
+
+            tauGradU
+            {
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }
+        );
+    }
+    //Einbinden der Slices und Probes
+
+    #include "surfaceSampleDict"
+
+    #include "Probes_Inlet_Dict"
+    #include "Probes_SS_Dict"
+    #include "Probes_Passage_Dict"
+    #include "Probes_Wake_Dict"
+
+    //#include "Pos_Dict"
+
+    Blade_Pressure_SAMPLING
+    {
+
+        type                surfaces;
+        libs                ("libsampling.so");
+        enabled             true;
+        writeControl        timeStep;;
+        writeInterval       10;
+        //writeControl        writeTime;
+        //writeInterval       1;
+        writeFields         true;
+        log                 false;
+        valueOutput         true;
+        surfaceFormat       vtk;
+        regionType          sampledSurface;
+        operation           areaAverage;
+        interpolationScheme cellPoint;
+
+        fields
+        (
+                p
+                U
+                gradU
+        );
+
+        surfaces
+        (
+
+  	        blade	
+  		{
+			type            patch;
+			patches         (BLADE_WALL);
+			// Optional: whether to leave as faces (=default) or triangulate
+			// triangulate     false;
+		}
+
+        );
+    }
+    Blade_gradU_SAMPLING1
+    {
+
+        type                surfaces;
+        libs                ("libsampling.so");
+        enabled             true;
+        writeControl        timeStep;;
+        writeInterval       10;
+        //writeControl        writeTime;
+        //writeInterval       1;
+        writeFields         true;
+        log                 false;
+        valueOutput         true;
+        surfaceFormat       vtk;
+        regionType          sampledSurface;
+        operation           areaAverage;
+        interpolationScheme cellPoint;
+
+        fields
+        (
+                gradU
+                p
+                U
+        );	
+        surfaces
+        (
+  	        blade	
+  		{	
+	
+        	type            patchInternalField;
+        	patches         (BLADE_WALL);
+        	interpolate     true;
+        	offsetMode  normal;
+		distance 0.000005;
+		}
+
+        );
+    }
+}
+
+
+// ************************************************************************* //
