@@ -7,6 +7,7 @@ import tempfile
 import yaml
 import glob
 
+from NTR.database.job_management import create_jobmanagement
 from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
@@ -25,31 +26,23 @@ def find_vars_opts(case_structure):
         filepath = os.path.join(*pair[:-1])
         with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
+                case_structure = search_paras(case_structure, line, pair, siglim, varsignature,"var")
+                case_structure = search_paras(case_structure, line, pair, siglim, optsignature,"opt")
+    return case_structure
 
-                lookforvar = True
-                lookforopt = True
 
-                while (lookforvar):
-                    lookup_var = re.search(varsignature, line)
-                    if not lookup_var:
-                        lookforvar = False
-                    else:
-                        span = lookup_var.span()
-                        parameter = line[span[0] + siglim[0]:span[1] + siglim[1]]
-                        setInDict(case_structure, list(pair[:-1]) + [parameter], "var")
-                        match = line[span[0]:span[1]]
-                        line = line.replace(match, "")
-
-                while (lookforopt):
-                    lookup_opt = re.search(optsignature, line)
-                    if not lookup_opt:
-                        lookforopt = False
-                    else:
-                        span = lookup_opt.span()
-                        opt_name = line[span[0] + siglim[0]:span[1] + siglim[1]]
-                        setInDict(case_structure, list(pair[:-1]) + [opt_name], "opt")
-                        match = line[span[0]:span[1]]
-                        line = line.replace(match, "")
+def search_paras(case_structure, line,  pair, siglim, varsignature,varsign):
+    lookforvar = True
+    while (lookforvar):
+        lookup_var = re.search(varsignature, line)
+        if not lookup_var:
+            lookforvar = False
+        else:
+            span = lookup_var.span()
+            parameter = line[span[0] + siglim[0]:span[1] + siglim[1]]
+            setInDict(case_structure, list(pair[:-1]) + [parameter], varsign)
+            match = line[span[0]:span[1]]
+            line = line.replace(match, "")
     return case_structure
 
 
@@ -72,22 +65,6 @@ def read_parastudyaml(path_to_yaml_dict):
         settings_parastud.append(copy.deepcopy(kwargs))
 
     return settings_parastud
-
-
-def mgmt_parastud(settings):
-    return 0
-
-
-def mgmt_simulation(settings):
-    return 0
-
-
-def create_jobmanagement(casetype, settings):
-    if casetype == "parameterstudy":
-        mgmt_parastud(settings)
-    if casetype == "simulation":
-        mgmt_simulation(settings)
-    return 0
 
 
 def create_parastudsims(path_to_parayaml):
@@ -128,7 +105,7 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
         case_structures[cname] = cstruct
 
     settings = yaml_dict_read(path_to_yaml_dict)
-    casetype = yamldict["case_settings"]["type"]
+    casetype = settings["case_settings"]["type"]
     assert casetype == "simulation", "check your yaml-dict. the case is not defined as a simulation"
 
     assert "name" in settings["case_settings"], "no name for the case defined"
