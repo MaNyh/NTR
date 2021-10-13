@@ -1,6 +1,7 @@
 case_settings:
     name : "GWK_Verdichterkaskade_LES"
     case_type : "openfoam_cascade_les"
+    type: "simulation"
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"

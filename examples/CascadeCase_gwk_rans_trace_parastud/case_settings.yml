@@ -1,8 +1,11 @@
 case_settings:
     name : "GWK_Verdichterkaskade_LES"
     case_type : "trace_cascade_ras"
+    type : "parameterstudy"
 
 simcase_settings:
+    job:
+        job_script: ""
     variables:
 
         TURBMODEL_IDENTIFIER: "Wilcox1988"   # MenterSST2003 // Wilcox1988

@@ -26,13 +26,13 @@ def find_vars_opts(case_structure):
         with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
 
-                lookforvar=True
-                lookforopt=True
+                lookforvar = True
+                lookforopt = True
 
-                while(lookforvar):
+                while (lookforvar):
                     lookup_var = re.search(varsignature, line)
                     if not lookup_var:
-                        lookforvar=False
+                        lookforvar = False
                     else:
                         span = lookup_var.span()
                         parameter = line[span[0] + siglim[0]:span[1] + siglim[1]]
@@ -40,10 +40,10 @@ def find_vars_opts(case_structure):
                         match = line[span[0]:span[1]]
                         line = line.replace(match, "")
 
-                while(lookforopt):
+                while (lookforopt):
                     lookup_opt = re.search(optsignature, line)
                     if not lookup_opt:
-                        lookforopt=False
+                        lookforopt = False
                     else:
                         span = lookup_opt.span()
                         opt_name = line[span[0] + siglim[0]:span[1] + siglim[1]]
@@ -52,8 +52,8 @@ def find_vars_opts(case_structure):
                         line = line.replace(match, "")
     return case_structure
 
-def read_parastudyaml(path_to_yaml_dict):
 
+def read_parastudyaml(path_to_yaml_dict):
     settings = yaml_dict_read(path_to_yaml_dict)
 
     allvals = list(nested_dict_pairs_iterator(settings))
@@ -73,11 +73,34 @@ def read_parastudyaml(path_to_yaml_dict):
 
     return settings_parastud
 
-def create_parastudsims(path_to_parayaml):
-    settings = read_parastudyaml(path_to_parayaml)
-    casepath = os.path.abspath(os.path.dirname(path_to_parayaml))
 
+def mgmt_parastud(settings):
+    return 0
+
+
+def mgmt_simulation(settings):
+    return 0
+
+
+def create_jobmanagement(casetype, settings):
+    if casetype == "parameterstudy":
+        mgmt_parastud(settings)
+    if casetype == "simulation":
+        mgmt_simulation(settings)
+    return 0
+
+
+def create_parastudsims(path_to_parayaml):
+    yamldict = yaml_dict_read(path_to_parayaml)
+    casetype = yamldict["case_settings"]["type"]
+    assert casetype == "parameterstudy", "check your yaml-dict. the case is not defined as a parameterstudy"
+
+    settings = read_parastudyaml(path_to_parayaml)
+
+    casepath = os.path.abspath(os.path.dirname(path_to_parayaml))
+    sim_dirs = []
     for idx, settings_dict in enumerate(settings):
+        settings_dict["case_settings"]["type"] = "simulation"
         subname = "paracase_" + str(idx)
         tmp_dir = tempfile.TemporaryDirectory()
         target_dir = os.path.join(casepath, subname)
@@ -85,11 +108,15 @@ def create_parastudsims(path_to_parayaml):
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml, subname)
-        files = glob.glob(os.path.join(tmp_dir.name,"02_Simcase")+"/*")
+        files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
         for f in files:
             shutil.move(f, target_dir)
-        shutil.copyfile(tmp_yml, os.path.join(target_dir,subname+"_settings.yml"))
+        shutil.copyfile(tmp_yml, os.path.join(target_dir, subname + "_settings.yml"))
         tmp_dir.cleanup()
+        sim_dirs.append(target_dir)
+
+    create_jobmanagement(casetype, settings)
+
 
 def create_simulationcase(path_to_yaml_dict, subdir=False):
     case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
@@ -101,6 +128,8 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
         case_structures[cname] = cstruct
 
     settings = yaml_dict_read(path_to_yaml_dict)
+    casetype = yamldict["case_settings"]["type"]
+    assert casetype == "simulation", "check your yaml-dict. the case is not defined as a simulation"
 
     assert "name" in settings["case_settings"], "no name for the case defined"
 
@@ -109,7 +138,7 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
     case_type = settings["case_settings"]["case_type"]
     assert case_type in case_structures.keys(), "case_type " + case_type + " not found in templates."
 
-    if subdir==False:
+    if subdir == False:
         path_to_sim = os.path.join(casepath, casedirs["simcase"])
     else:
         path_to_sim = os.path.join(casepath, casedirs["simcase"], subdir)
@@ -245,4 +274,3 @@ def create_simdirstructure(filetemplates, path):
             if not os.path.isdir(dpath):
                 os.mkdir(dpath)
     return 0
-
