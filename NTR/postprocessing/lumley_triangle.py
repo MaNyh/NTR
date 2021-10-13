@@ -13,32 +13,6 @@ import matplotlib.pyplot as plt
 meshPath = os.path.join("d:", "simulationsergebnisse", "tmpSolutions", "VTK", "1_Coarsest_462000.vtk")
 
 
-def readVTKUnstructuredGrid(gridName):
-    print("reading %s", gridName)
-    meshData = pv.UnstructuredGrid(gridName)
-    return meshData
-
-
-def dataSetNames(grid):
-    names = grid.array_names
-    return names
-
-
-def readDataSet(grid, name):
-    grid.set_active_scalars(name)
-    scalars = grid.active_scalars
-    processData[name] = scalars
-
-
-def readAllDataSets(grid):
-    names = dataSetNames(grid)
-    for name in names:
-        readDataSet(grid, name)
-
-
-def getSliceFromVTKGrid(grid, normalVec):
-    vtkiSlice = grid.slice(normal=normalVec)
-    return vtkiSlice
 
 
 def calcRField(processData):
