@@ -6,18 +6,18 @@
 ###                                                                         ###
 ###############################################################################
 
-JOBNAME="GWK-Tutorial"
-EMAIL="nyhuis@tfd.uni-hannover.de"
-NODES="1"
+JOBNAME=<var JOB_NAME var>
+EMAIL=<var JOB_MAIL var>
+NODES=<var JOB_NODES var>
 #NODES="knoten-10.tfd.uni-hannover.de"
-NPROCS="1"
+NPROCS=<var JOB_PPN var>
 
 
 ################################################################################
 #DON'T CHANGE PART BELOW
 ################################################################################
-WALLTIME="100:00:00"
-QUEUE="TFD-Cluster"
+WALLTIME=<var JOB_RUNTIME var>
+QUEUE="all"
 BASENAME="TRACE.cgns"
 CONTROLFILE="TRACE_control.input"
 #

@@ -89,7 +89,7 @@ def create_parastudsims(path_to_parayaml):
         tmp_dir.cleanup()
         sim_dirs.append(target_dir)
 
-    create_jobmanagement(casetype, settings)
+    create_jobmanagement(casetype, settings,casepath)
 
 
 def create_simulationcase(path_to_yaml_dict, subdir=False):
@@ -131,7 +131,7 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
-    create_jobmanagement(casetype, settings)
+    create_jobmanagement(casetype, settings, casepath)
 
 
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):

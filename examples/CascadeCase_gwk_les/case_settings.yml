@@ -1,15 +1,21 @@
 case_settings:
-    name : "GWK_Verdichterkaskade_LES"
+    name : &name "GWK_Verdichterkaskade_LES"
     case_type : "openfoam_cascade_les"
     type: "simulation"
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
         job_script: "submit_sp_pbs_rrzn"
-        job_sources: >
-            ". $MODULESHOME/init/ksh
+        job_sourcecmd: >
+            . $MODULESHOME/init/ksh
              source ~/ModuleLoading/OpenFoam1612.sh
-             "
         job_exe: "rhoPimpleFoam"
+        job_name: *name
+        job_runtime: "10:00:00" #h
+        job_nodes : "1"
+        job_ppn : "1"
+        job_mem : "12"
+        account : "niinyhma"
+
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"
@@ -17,12 +23,6 @@ openfoam_cascade_les_settings:
 
 simcase_settings:
     variables:
-        CLUSTERJOBNAME: "gkw_p14profile_cascadecase_les"
-        JOB_NUMBERS: "12"
-        HLRN_JOB_ACCOUNT: "niinyhma"
-        JOB_EMAIL: "nyhuis@tfd.uni-hannover.de"
-        RUNTIME: "10:00:00"                                     #h
-        NODES: "2"
 
         EDDYDENSITY: "10"
         UDASHSCALING: "1"
