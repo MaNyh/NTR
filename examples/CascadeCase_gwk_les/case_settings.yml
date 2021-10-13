@@ -42,7 +42,10 @@ simcase_settings:
 
         ADUSTABLETIMESTEP : "off"
         PROCS: "192"
+
         NOUTERCORRECTORS : "2"
+        NCORRECTORS : "1"
+        NNONORTHOGONALCORRECTORS: "2"
 
     options:
         INOUT_FIELDAVE_PROBING: True
