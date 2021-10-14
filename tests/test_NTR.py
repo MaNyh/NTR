@@ -213,7 +213,12 @@ def test_create_simulationcase(tmpdir):
                                        "name": "testcase",
                                        "type": "simulation",
                                        "job":{
-                                           "job_script":""
+                                           "job_script":"submit_sp_pbs_rrzn",
+                                           "job_nodes":"1",
+                                           "job_ppn":"1",
+                                            "job_mail":"asd@asd.asd",
+                                           "job_mem":"12",
+
                                        },},
                      "simcase_settings": {"variables": {},
                                           "options": {}},

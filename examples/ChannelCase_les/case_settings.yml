@@ -1,18 +1,22 @@
 case_settings:
     name : &name "channelflow_les"
-    case_type : "openfoam_cascade_les"
+    case_type : "openfoam_channel_les"
     type: "simulation"
+    prep: |
+        blockMesh
+        createPatch -overwrite
+        decomposePar
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
-        job_script: "openfoam_cascade_les"
+        job_script: "submit_mpi_job_slurm_rrzn"
         job_sourcecmd: |
-                        . $MODULESHOME/init/ksh
-                        source ~/ModuleLoading/OpenFoam1612.sh
+            . $MODULESHOME/init/ksh
+            source ~/ModuleLoading/OpenFoam1612.sh
 
         job_exe: "pimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : "1"
+        job_nodes : "2"
         job_ppn : "16"
         job_mem : "12"
         account : "niinyhma"
@@ -59,7 +63,7 @@ simcase_optiondef:
             nop: 3
             sampling_rate: 1e6 #Hz
             x_slice_one : 1
-            x_slice_two : 25
+            x_slice_two : 9
             start_time: 0.0 #s
             end_time: 1000 #s
         insert: '#include "Probes_XSlices_Dict"'

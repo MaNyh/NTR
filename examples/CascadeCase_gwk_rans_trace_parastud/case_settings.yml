@@ -1,7 +1,19 @@
 case_settings:
-    name : "GWK_Verdichterkaskade_LES"
+    name : &name "GWK_Verdichterkaskade_TRACE_RAS"
     case_type : "trace_cascade_ras"
-    type : "parameterstudy"
+    type: "parameterstudy"
+    prep: >
+        gmcplay verdichter.jou
+    job:
+        job_mail: "nyhuis@tfd.uni-hannover.de"
+        job_script: "jobTRACE"
+        job_exe: "TRACE"
+        job_name: *name
+        job_runtime: "10:00:00" #h
+        job_nodes : "1"
+        job_ppn : "1"
+        job_mem : "12"
+        account : "niinyhma"
 
 simcase_settings:
     job:

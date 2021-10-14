@@ -64,7 +64,7 @@ def read_parastudyaml(path_to_yaml_dict):
     return settings_parastud
 
 
-def create_parastudsims(path_to_parayaml):
+def                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      create_parastudsims(path_to_parayaml):
     yamldict = yaml_dict_read(path_to_parayaml)
     casetype = yamldict["case_settings"]["type"]
     assert casetype == "parameterstudy", "check your yaml-dict. the case is not defined as a parameterstudy"
@@ -89,7 +89,7 @@ def create_parastudsims(path_to_parayaml):
         tmp_dir.cleanup()
         sim_dirs.append(target_dir)
 
-    create_jobmanagement(casetype, settings,casepath)
+        create_jobmanagement(casetype, settings,casepath)
 
 
 def create_simulationcase(path_to_yaml_dict, subdir=False):
