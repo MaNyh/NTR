@@ -2,21 +2,30 @@ case_settings:
     name : &name "GWK_Verdichterkaskade_LES"
     case_type : "openfoam_cascade_les"
     type: "simulation"
+    prep : |
+        cp ../01_Meshing/fluent.msh .
+        fluent3dMeshToFoam fluent.msh
+        createPatch -overwrite
+        topoSet
+        mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
+        decomposePar
+
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
-        job_script: "submit_sp_pbs_rrzn"
+        job_script: "submit_mpi_job_slurm_hlrn"
         job_sourcecmd: |
-                        . $MODULESHOME/init/ksh
-                        source ~/ModuleLoading/OpenFoam1612.sh
+            . $MODULESHOME/init/ksh
+            source ~/ModuleLoading/OpenFoam1612.sh
 
         job_exe: "rhoPimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : "1"
-        job_ppn : "1"
-        job_mem : "12"
+        job_nodes : "2"
+        job_ppn : "96"
+        job_mem : "192"
         account : "niinyhma"
 
+    sub_cmd: "sbatch"
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"

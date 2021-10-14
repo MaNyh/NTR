@@ -7,7 +7,7 @@ import tempfile
 import yaml
 import glob
 
-from NTR.database.job_management import create_jobmanagement
+from NTR.database.job_management import create_jobmanagement, write_runsim_bash
 from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
@@ -77,16 +77,20 @@ def create_parastudsims(path_to_parayaml):
         settings_dict["case_settings"]["type"] = "simulation"
         subname = "paracase_" + str(idx)
         tmp_dir = tempfile.TemporaryDirectory()
-        target_dir = os.path.join(casepath, subname)
+        target_dir = os.path.join(casepath,casedirs["simcase"], subname)
         tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml, subname)
         files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
-        files = [i for i in files if not os.path.isdir(i)]
+        #files = [i for i in files if not os.path.isdir(i)]
         for f in files:
-            shutil.move(f, target_dir)
-        shutil.copyfile(tmp_yml, os.path.join(target_dir, subname + "_settings.yml"))
+            if not os.path.isdir(target_dir):
+                os.makedirs(os.path.join(target_dir), exist_ok=True)
+            target_file = os.path.join(target_dir,os.path.basename(f))
+            shutil.move(f, target_file)
+        yamltarget = os.path.join(target_dir, subname + "_settings.yml")
+        shutil.copy(tmp_yml, yamltarget)
         tmp_dir.cleanup()
         sim_dirs.append(target_dir)
 
@@ -132,7 +136,7 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
     create_jobmanagement(casetype, settings, casepath)
-
+    write_runsim_bash(settings,casepath)
 
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):
     walk_casefile_list = nested_dict_pairs_iterator(case_structure_parameters)

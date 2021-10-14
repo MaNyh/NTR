@@ -18,4 +18,5 @@ Usage
 Features
 -------------
 
-Can be used for
+The shown methods be used for parameterstudies that are defined with ascii-files.
+This makes it suitable for any kind of numerical solver

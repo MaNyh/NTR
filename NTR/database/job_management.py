@@ -39,10 +39,21 @@ def mgmt_simulation(settings, scriptpath, casepath):
 
 def write_prep_bash(settings, targetpath):
     prepfile = "prep.sh"
+    if "prep" not in settings["case_settings"].keys():
+        return 0
     target = os.path.join(targetpath, prepfile)
     prep_text = settings["case_settings"]["prep"]
     write_file(target, prep_text)
+    return 0
 
+def write_runsim_bash(settings,targetpath):
+    assert "sub_cmd" in settings["case_settings"].keys(), "run_cmd (job-submission-command) not defined in settings"
+    targetpath = os.path.join(targetpath,casedirs["simcase"])
+    runfile = "runsim.sh"
+    runcmd = settings["case_settings"]["sub_cmd"]
+    text = "sh prep.sh"
+    text+="\n"+runcmd+" "+ settings["case_settings"]["job"]["job_script"]+".sh"
+    write_file(os.path.join(targetpath,runfile),text)
 
 def create_jobmanagement(casetype, settings, casepath):
     templatedir = os.path.join(os.path.dirname(NTR.__file__), "database", "job_scripts")
@@ -51,7 +62,7 @@ def create_jobmanagement(casetype, settings, casepath):
 
     scriptname = job_settings["job_script"]
     scriptfile = scriptname + ".sh"
-    assert scriptfile in case_templates, "chosen script is not available"
+    assert scriptfile in case_templates, "chosen script is not available. allowed: "+ str(case_templates)
     scriptpath = os.path.join(templatedir, scriptfile)
 
     if casetype == "parameterstudy":

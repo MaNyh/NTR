@@ -2,12 +2,15 @@ case_settings:
     name : &name "GWK_Verdichterkaskade_TRACE_RAS"
     case_type : "trace_cascade_ras"
     type: "simulation"
+    prep: |
+        cd input
+        gmcplay verdichter.jou
+        cd ..
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
-        job_script: "jobTRACE"
+        job_script: "submit_mpi_job_trace_sp_pbs"
         job_sourcecmd: |
-                        . $MODULESHOME/init/ksh
-                        source ~/ModuleLoading/OpenFoam1612.sh
+            TRACEown
 
         job_exe: "TRACE"
         job_name: *name
@@ -15,8 +18,9 @@ case_settings:
         job_nodes : "1"
         job_ppn : "1"
         job_mem : "12"
-        account : "niinyhma"
+        account : "nhkcmany"
 
+    sub_cmd: "sh"
 
 simcase_settings:
     variables:
