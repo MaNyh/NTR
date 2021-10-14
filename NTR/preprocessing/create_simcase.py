@@ -7,7 +7,7 @@ import tempfile
 import yaml
 import glob
 
-from NTR.database.job_management import create_jobmanagement, write_runsim_bash
+from NTR.database.job_management import create_jobmanagement, write_runsim_bash, mgmt_parastud
 from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
@@ -101,7 +101,7 @@ def create_parastudsims(path_to_parayaml):
         sim_dirs.append(target_dir)
 
         create_jobmanagement(casetype, settings_dict, os.path.join(casepath,subname))
-
+    mgmt_parastud(settings,casepath)
 
 def create_simulationcase(path_to_yaml_dict):
     case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))

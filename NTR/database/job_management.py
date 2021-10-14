@@ -6,7 +6,19 @@ from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import write_file
 
 
-def mgmt_parastud(settings, scriptname, casepath):
+def mgmt_parastud(settings, casepath):
+    parastudsh_fname = "parastud.sh"
+    txt = ""
+    prepsh = "prep.sh"
+
+    for setting in settings:
+        scriptname = setting["case_settings"]["job"]["job_script"]
+        subcmd = setting["case_settings"]["sub_cmd"]
+        txt += "#haha info \n"
+        txt += "sh " + prepsh+ "\n"
+        txt += subcmd + " " + scriptname + "\n"
+
+    write_file(os.path.join(casepath, casedirs["simcase"], parastudsh_fname), txt)
     return 0
 
 
@@ -46,14 +58,16 @@ def write_prep_bash(settings, targetpath):
     write_file(target, prep_text)
     return 0
 
-def write_runsim_bash(settings,targetpath):
+
+def write_runsim_bash(settings, targetpath):
     assert "sub_cmd" in settings["case_settings"].keys(), "run_cmd (job-submission-command) not defined in settings"
-    targetpath = os.path.join(targetpath,casedirs["simcase"])
+    targetpath = os.path.join(targetpath, casedirs["simcase"])
     runfile = "runsim.sh"
     runcmd = settings["case_settings"]["sub_cmd"]
     text = "sh prep.sh"
-    text+="\n"+runcmd+" "+ settings["case_settings"]["job"]["job_script"]+".sh"
-    write_file(os.path.join(targetpath,runfile),text)
+    text += "\n" + runcmd + " " + settings["case_settings"]["job"]["job_script"] + ".sh"
+    write_file(os.path.join(targetpath, runfile), text)
+
 
 def create_jobmanagement(casetype, settings, casepath):
     templatedir = os.path.join(os.path.dirname(NTR.__file__), "database", "job_scripts")
@@ -62,11 +76,12 @@ def create_jobmanagement(casetype, settings, casepath):
 
     scriptname = job_settings["job_script"]
     scriptfile = scriptname + ".sh"
-    assert scriptfile in case_templates, "chosen script is not available. allowed: "+ str(case_templates)
+    assert scriptfile in case_templates, "chosen script is not available. allowed: " + str(case_templates)
     scriptpath = os.path.join(templatedir, scriptfile)
 
-    if casetype == "parameterstudy":
-        mgmt_parastud(settings, scriptpath, casepath)
+    # ToDo: this is stupid
+    # if casetype == "parameterstudy":
+    #    mgmt_parastud(settings, casepath)
     if casetype == "simulation":
         mgmt_simulation(settings, scriptpath, casepath)
     return 0
