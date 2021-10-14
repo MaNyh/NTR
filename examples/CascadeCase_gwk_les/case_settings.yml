@@ -5,9 +5,10 @@ case_settings:
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
         job_script: "submit_sp_pbs_rrzn"
-        job_sourcecmd: >
-            . $MODULESHOME/init/ksh
-             source ~/ModuleLoading/OpenFoam1612.sh
+        job_sourcecmd: |
+                        . $MODULESHOME/init/ksh
+                        source ~/ModuleLoading/OpenFoam1612.sh
+
         job_exe: "rhoPimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
