@@ -3,7 +3,8 @@ case_settings:
     case_type : "trace_cascade_ras"
     type: "simulation"
     prep: |
-        cd input
+        cp ../01_Meshing input/.
+        cd input/
         gmcplay verdichter.jou
         cd ..
     job:

@@ -81,23 +81,29 @@ def create_parastudsims(path_to_parayaml):
         tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
-        create_simulationcase(tmp_yml, subname)
+        create_simulationcase(tmp_yml)
         files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
         #files = [i for i in files if not os.path.isdir(i)]
+
         for f in files:
-            if not os.path.isdir(target_dir):
-                os.makedirs(os.path.join(target_dir), exist_ok=True)
-            target_file = os.path.join(target_dir,os.path.basename(f))
-            shutil.move(f, target_file)
+            if os.path.isdir(f):
+                if not os.path.isdir(os.path.join(target_dir,os.path.basename(f))):
+                    os.makedirs(os.path.join(target_dir,os.path.basename(f)), exist_ok=True)
+
+        for f in files:
+            if not os.path.isdir(f):
+                target_file = os.path.join(target_dir,os.path.basename(f))
+                shutil.move(f, target_file)
+
         yamltarget = os.path.join(target_dir, subname + "_settings.yml")
         shutil.copy(tmp_yml, yamltarget)
         tmp_dir.cleanup()
         sim_dirs.append(target_dir)
 
-        create_jobmanagement(casetype, settings, casepath)
+        create_jobmanagement(casetype, settings_dict, os.path.join(casepath,subname))
 
 
-def create_simulationcase(path_to_yaml_dict, subdir=False):
+def create_simulationcase(path_to_yaml_dict):
     case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
 
     case_structures = {}
@@ -117,12 +123,8 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
     case_type = settings["case_settings"]["case_type"]
     assert case_type in case_structures.keys(), "case_type " + case_type + " not found in templates."
 
-    if subdir == False:
-        path_to_sim = os.path.join(casepath, casedirs["simcase"])
-    else:
-        path_to_sim = os.path.join(casepath, casedirs["simcase"], subdir)
-        os.mkdir(os.path.join(casepath, casedirs["simcase"]))
-        os.mkdir(path_to_sim)
+    path_to_sim = os.path.join(casepath, casedirs["simcase"])
+
 
     create_casedirstructure(casedirs, casepath)
     case_structure = case_structures[case_type]
