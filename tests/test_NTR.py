@@ -217,9 +217,10 @@ def test_create_simulationcase(tmpdir):
                                            "job_nodes":"1",
                                            "job_ppn":"1",
                                             "job_mail":"asd@asd.asd",
-                                           "job_mem":"12",
+                                            "job_mem":"12",
 
-                                       },},
+                                       },
+                                       "sub_cmd":"qsub",},
                      "simcase_settings": {"variables": {},
                                           "options": {}},
                      "simcase_optiondef": {},

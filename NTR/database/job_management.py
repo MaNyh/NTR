@@ -62,7 +62,7 @@ def write_prep_bash(settings, targetpath):
 
 
 def write_runsim_bash(settings, targetpath):
-    assert "sub_cmd" in settings["case_settings"].keys(), "run_cmd (job-submission-command) not defined in settings"
+    assert "sub_cmd" in settings["case_settings"].keys(), "sub_cmd (job-submission-command) not defined in settings"
     targetpath = os.path.join(targetpath, casedirs["simcase"])
     runfile = "runsim.sh"
     runcmd = settings["case_settings"]["sub_cmd"]
