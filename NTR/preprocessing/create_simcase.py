@@ -14,9 +14,9 @@ from NTR.utils.functions import func_by_name
 from NTR.database.case_dirstructure import casedirs
 
 
-def find_vars_opts(case_structure,sign,all_pairs):
+def find_vars_opts(case_structure, sign, all_pairs):
     # allowing names like JOB_NUMBERS, only capital letters and underlines - no digits, no whitespaces
-    varsignature = r"<PLACEHOLDER [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} PLACEHOLDER>".replace(r'PLACEHOLDER',sign)
+    varsignature = r"<PLACEHOLDER [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} PLACEHOLDER>".replace(r'PLACEHOLDER', sign)
     siglim = (5, -5)
 
     for pair in all_pairs:
@@ -24,11 +24,11 @@ def find_vars_opts(case_structure,sign,all_pairs):
         filepath = os.path.join(*pair[:-1])
         with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
-                case_structure = search_paras(case_structure, line, pair, siglim, varsignature,sign)
+                case_structure = search_paras(case_structure, line, pair, siglim, varsignature, sign)
     return case_structure
 
 
-def search_paras(case_structure, line,  pair, siglim, varsignature,varsign):
+def search_paras(case_structure, line, pair, siglim, varsignature, varsign):
     lookforvar = True
     while (lookforvar):
         lookup_var = re.search(varsignature, line)
@@ -64,7 +64,7 @@ def read_parastudyaml(path_to_yaml_dict):
     return settings_parastud
 
 
-def                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      create_parastudsims(path_to_parayaml):
+def create_parastudsims(path_to_parayaml):
     yamldict = yaml_dict_read(path_to_parayaml)
     casetype = yamldict["case_settings"]["type"]
     assert casetype == "parameterstudy", "check your yaml-dict. the case is not defined as a parameterstudy"
@@ -83,13 +83,14 @@ def                                                                             
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml, subname)
         files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
+        files = [i for i in files if not os.path.isdir(i)]
         for f in files:
             shutil.move(f, target_dir)
         shutil.copyfile(tmp_yml, os.path.join(target_dir, subname + "_settings.yml"))
         tmp_dir.cleanup()
         sim_dirs.append(target_dir)
 
-        create_jobmanagement(casetype, settings,casepath)
+        create_jobmanagement(casetype, settings, casepath)
 
 
 def create_simulationcase(path_to_yaml_dict, subdir=False):
@@ -119,15 +120,14 @@ def create_simulationcase(path_to_yaml_dict, subdir=False):
         os.mkdir(os.path.join(casepath, casedirs["simcase"]))
         os.mkdir(path_to_sim)
 
-
     create_casedirstructure(casedirs, casepath)
     case_structure = case_structures[case_type]
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
     # ToDo: what is the next variable about? this is not written nice
     all_pairs = list(nested_dict_pairs_iterator(case_structure))
-    case_structure_parameters = find_vars_opts(case_structure,"var",all_pairs)
-    case_structure_parameters = find_vars_opts(case_structure_parameters,"opt",all_pairs)
+    case_structure_parameters = find_vars_opts(case_structure, "var", all_pairs)
+    case_structure_parameters = find_vars_opts(case_structure_parameters, "opt", all_pairs)
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
