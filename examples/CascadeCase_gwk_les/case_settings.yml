@@ -3,7 +3,7 @@ case_settings:
     case_type : "openfoam_cascade_les"
     type: "simulation"
     prep : |
-        cp ../01_Meshing/fluent.msh .
+        cp /scratch/usr/niinyhma/14_CascadeCase_gwk_les//01_Meshing/fluent.msh .
         fluent3dMeshToFoam fluent.msh
         createPatch -overwrite
         topoSet

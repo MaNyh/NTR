@@ -387,34 +387,26 @@ cuttingPlane
     timeEnd             """ + str(end_time) + """;
     log                 true;
 
-    setFormat raw;
-    surfaceFormat   vtk;
+    surfaceFormat   raw; // you can change this to "vtk"
+    fields          ( p U rho T); // chose the fields you need
 
-    interpolationScheme cellPointFace;
-
-    fields(
-            U
-            p
-            T
-            nut
-            rho
-    );
+    interpolationScheme cellPoint;
 
     surfaces
     (
-        cutPlane
+        constantPlane
         {
             type            cuttingPlane;
-            planeType pointAndNormal;
+            planeType       pointAndNormal;
             pointAndNormalDict
             {
-                basePoint       +""" +basepoint+ """+;
-                normalVector    +""" +normal+ """+;
+                basePoint       """+basepoint+""";
+                normalVector    """+normal+""";
             }
             interpolate     true;
         }
-
     );
+}
     """)
     return 0
 
