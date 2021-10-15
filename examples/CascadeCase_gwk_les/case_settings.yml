@@ -4,7 +4,7 @@ case_settings:
     type: "simulation"
     prep : |
         cp /scratch/usr/niinyhma/14_CascadeCase_gwk_les//01_Meshing/fluent.msh .
-        fluent3dMeshToFoam fluent.msh
+        fluent3DMeshToFoam fluent.msh
         createPatch -overwrite
         topoSet
         mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
@@ -114,10 +114,10 @@ simcase_optiondef:
     SLICE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
         args:
-            origin : "(0 0 0)"
+            origin : "(0 0 0.02)"
             normal : "(0 0 1)"
             sampling_rate: 1e5
-            start_time: *AVE_START #s
+            start_time: 0 # *AVE_START #s
             end_time: 1000
         insert: '#include "Probes_Slicing_Dict"'
 
