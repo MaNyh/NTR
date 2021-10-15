@@ -83,17 +83,28 @@ def create_parastudsims(path_to_parayaml):
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml)
-        files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
+
+        files = []
+        rd = os.path.join(tmp_dir.name, "02_Simcase")
+        for r, d, f in os.walk(rd):
+            for file in f:
+                files.append(os.path.join(os.path.relpath(r,rd), file))
+
+        if not os.path.isdir(target_dir):
+            os.makedirs(target_dir, exist_ok=True)
 
         for f in files:
-            if os.path.isdir(f):
-                if not os.path.isdir(os.path.join(target_dir, os.path.basename(f))):
-                    os.makedirs(os.path.join(target_dir, os.path.basename(f)), exist_ok=True)
-
-        for f in files:
-            if not os.path.isdir(f):
-                target_file = os.path.join(target_dir, os.path.basename(f))
-                shutil.move(f, target_file)
+            target_file = os.path.join(target_dir, os.path.basename(f))
+            target_fdir = os.path.dirname(target_file)
+            if not os.path.isdir(target_fdir):
+                os.makedirs(target_fdir, exist_ok=True)
+            relpath = os.path.dirname(f)
+            if not os.path.isdir(os.path.join(target_fdir,relpath)):
+                os.makedirs(os.path.join(target_fdir,relpath), exist_ok=True)
+            if relpath == "":
+                shutil.move(os.path.join(rd,os.path.basename(f)), target_file)
+            else:
+                shutil.move(os.path.join(rd,relpath, os.path.basename(f)), os.path.join(target_dir,relpath, os.path.basename(f)))
 
         yamltarget = os.path.join(target_dir, subname + "_settings.yml")
         shutil.copy(tmp_yml, yamltarget)
@@ -130,7 +141,6 @@ def create_simulationcase(path_to_yaml_dict):
     case_structure = case_structures[case_type]
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
-    # ToDo: what is the next variable about? this is not written nice
     all_pairs = list(nested_dict_pairs_iterator(case_structure))
     case_structure_parameters_var = find_vars_opts(case_structure, "var", all_pairs)
     case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_pairs)

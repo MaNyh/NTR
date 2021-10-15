@@ -3,9 +3,9 @@ case_settings:
     case_type : "trace_cascade_ras"
     type: "parameterstudy"
     prep: |
-        cp ../01_Meshing input/.
+        cp ../../01_Meshing/mesh.cgns input/.
         cd input/
-        gmcplay verdichter.jou
+        /bigwork/nhkckcen/sw/GMC/gmc_9_3_4/gmcPlay_v9_3_4 verdichter.jou
         cd ..
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
