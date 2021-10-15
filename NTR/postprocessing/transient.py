@@ -46,6 +46,7 @@ class signal_generator:
         if stat_tanh[-1] < self.transientlimit:
             print("tanh still transient ", str(stat_tanh[-1]))
 
+
         signal = sinus + tanh + rausch
 
         return sinus, tanh, rausch, signal, stat_sin , stat_tanh
@@ -71,11 +72,11 @@ def test_transientcheck():
 
 
 def transientcheck():
+    """
+    https://link.springer.com/content/pdf/10.1007/s00162-018-0474-0.pdf
+    :return:
+    """
     return 0
 
 
-def signalcreator():
-    return 0
 
-
-transientcheck()
