@@ -13,6 +13,8 @@ class signal_generator:
 
         self.timesteps = np.arange(0, self.time, self.datalen ** -1)
 
+        self.transientlimit = 0.95
+
     def tanh_signal(self):
         """
         :param time:
@@ -32,16 +34,16 @@ class signal_generator:
         return sinus, 1 - abate
 
     def noise(self):
-        return np.random.rand(len(self.timesteps))
+        return np.random.rand(len(self.timesteps))*np.random.rand()
 
     def generate(self):
         sinus, stat_sin = self.sin_signal(self.sin_lasting)
         tanh, stat_tanh = self.tanh_signal()
         rausch = self.noise()
 
-        if stat_sin[-1] < 0.95:
+        if stat_sin[-1] < self.transientlimit:
             print("sin still transient ", str(stat_sin[-1]))
-        if stat_tanh[-1] < 0.95:
+        if stat_tanh[-1] < self.transientlimit:
             print("tanh still transient ", str(stat_tanh[-1]))
 
         signal = sinus + tanh + rausch
@@ -62,8 +64,9 @@ class signal_generator:
 
 
 def test_transientcheck():
-    sinus, tanh, rausch, signal, stat_sin , stat_tanh = signal_generator()
-    siggen.plot()
+    siggen=signal_generator()
+    sinus, tanh, rausch, signal, stat_sin , stat_tanh = siggen.generate()
+    siggen.plot(sinus, tanh, rausch, signal, stat_sin , stat_tanh)
     return 0
 
 
