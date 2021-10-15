@@ -69,7 +69,8 @@ echo -e "cd $RUNDIR" >> $RUNDIR/tempscript.sh;
 ##### Mit Controle-File
 echo -e "mpirun -d -machinefile \$PBS_NODEFILE TRACE -cgns $WORKDIR/input/$BASENAME -lb $WORKDIR/input/$BALANCE_FILE -o TRACE.lst." >> $RUNDIR/tempscript.sh;
 
+mv $RUNDIR/tempscript.sh $RUNDIR/input/tempscript.sh
 #################################################################################
 #submit job to queue
-qsub $RUNDIR/tempscript.sh
+qsub $RUNDIR/input/tempscript.sh
 

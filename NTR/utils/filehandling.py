@@ -76,3 +76,11 @@ def get_directory_structure(rootdir):
         parent = reduce(dict.get, folders[:-1], dir)
         parent[folders[-1]] = subdir
     return dir
+
+def walk_file_or_dir(root):
+    if os.path.isfile(root):
+        dirname, basename = os.path.split(root)
+        yield dirname, [], [basename]
+    else:
+        for path, dirnames, filenames in os.walk(root):
+            yield path, dirnames, filenames

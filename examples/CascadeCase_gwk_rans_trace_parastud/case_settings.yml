@@ -3,7 +3,7 @@ case_settings:
     case_type : "trace_cascade_ras"
     type: "parameterstudy"
     prep: |
-        cp ../01_Meshing input/.
+        cp ../../01_Meshing/mesh.cgns input/.
         cd input/
         gmcplay verdichter.jou
         cd ..

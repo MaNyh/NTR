@@ -83,22 +83,21 @@ def create_parastudsims(path_to_parayaml):
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml)
-        files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
-        # files = [i for i in files if not os.path.isdir(i)]
+        tmpsimdir = os.path.join(tmp_dir.name, "02_Simcase")
 
-        for f in files:
-            if os.path.isdir(f):
-                if not os.path.isdir(os.path.join(target_dir, os.path.basename(f))):
-                    os.makedirs(os.path.join(target_dir, os.path.basename(f)), exist_ok=True)
-
-        for f in files:
-            if not os.path.isdir(f):
-                target_file = os.path.join(target_dir, os.path.basename(f))
-                shutil.move(f, target_file)
-
+        # create dirstructure and move files from teampdir
+        datlist = [[os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)), os.path.basename(i)] for i in glob.glob(os.path.join(tmp_dir.name, "02_Simcase\\**\\*"), recursive=True) if os.path.isfile(i)]
+        for path, dir, file in datlist:
+            if not os.path.isdir(os.path.join(target_dir,dir)):
+                os.makedirs(os.path.join(target_dir,dir), exist_ok=True)
+            target_file = os.path.join(target_dir,dir, os.path.basename(file))
+            shutil.move(os.path.join(path,file), target_file)
         yamltarget = os.path.join(target_dir, subname + "_settings.yml")
         shutil.copy(tmp_yml, yamltarget)
+        #clean up after yourself
         tmp_dir.cleanup()
+
+
         sim_dirs.append(target_dir)
 
         create_jobmanagement(casetype, settings_dict, os.path.join(casepath, subname))
@@ -131,10 +130,9 @@ def create_simulationcase(path_to_yaml_dict):
     case_structure = case_structures[case_type]
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
-    # ToDo: what is the next variable about? this is not written nice
-    all_pairs = list(nested_dict_pairs_iterator(case_structure))
-    case_structure_parameters_var = find_vars_opts(case_structure, "var", all_pairs)
-    case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_pairs)
+    all_parameters = list(nested_dict_pairs_iterator(case_structure))
+    case_structure_parameters_var = find_vars_opts(case_structure, "var", all_parameters)
+    case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_parameters)
     case_structure_parameters = merge(case_structure_parameters_var, case_structure_parameters_opt)
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
