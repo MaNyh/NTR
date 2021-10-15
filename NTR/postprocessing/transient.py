@@ -48,9 +48,9 @@ class signal_generator:
 
         return sinus, tanh, rausch, signal, stat_sin , stat_tanh
 
-    def plot(self):
+    def plot(self,sinus, tanh, rausch, signal, stat_sin , stat_tanh):
         fig, axs = plt.subplots(6, 1)
-        sinus, tanh, rausch, signal, stat_sin , stat_tanh = self.generate()
+
         axs[0].plot(np.arange(0, self.time, self.datalen ** -1), sinus)
         axs[1].plot(np.arange(0, self.time, self.datalen ** -1), stat_sin)
         axs[2].plot(np.arange(0, self.time, self.datalen ** -1), tanh)
@@ -62,7 +62,7 @@ class signal_generator:
 
 
 def test_transientcheck():
-    siggen = signal_generator()
+    sinus, tanh, rausch, signal, stat_sin , stat_tanh = signal_generator()
     siggen.plot()
     return 0
 
