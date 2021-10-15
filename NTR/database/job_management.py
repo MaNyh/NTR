@@ -34,10 +34,8 @@ def mgmt_simulation(settings, scriptpath, casepath):
     settings["case_settings"]["job"]["JOB_PROCS"] = str(job_procs)
     settings["case_settings"]["job"]["JOB_MEMPERCPU"] = str(job_mempercpu)
     for parameter in settings["case_settings"]["job"]:
-        if not parameter == "account":
-            lookfor = parameter.upper()
-        else:
-            lookfor = parameter
+
+        lookfor = parameter.upper()
 
         variable = settings["case_settings"]["job"][parameter]
         with open(targetpath) as fobj:
