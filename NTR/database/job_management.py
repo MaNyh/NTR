@@ -29,7 +29,7 @@ def mgmt_simulation(settings, scriptpath, casepath):
     shutil.copy(scriptpath, targetpath)
 
     job_procs = int(settings["case_settings"]["job"]["job_nodes"]) * int(settings["case_settings"]["job"]["job_ppn"])
-    job_mempercpu = int(settings["case_settings"]["job"]["job_mem"]) / job_procs
+    job_mempercpu = int(int(settings["case_settings"]["job"]["job_mem"]) / job_procs)
 
     settings["case_settings"]["job"]["JOB_PROCS"] = str(job_procs)
     settings["case_settings"]["job"]["JOB_MEMPERCPU"] = str(job_mempercpu)

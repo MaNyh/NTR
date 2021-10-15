@@ -84,7 +84,6 @@ def create_parastudsims(path_to_parayaml):
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml)
         files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
-        # files = [i for i in files if not os.path.isdir(i)]
 
         for f in files:
             if os.path.isdir(f):
