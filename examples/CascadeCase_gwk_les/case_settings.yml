@@ -98,6 +98,7 @@ simcase_optiondef:
             sampling_rate: 1e5 #Hz
             start_time: 0
             end_time: 1000
+            fields : "(U p T)"
         insert: '#include "Probes_inletoutletave_Dict"'
 
     XSCLICE_PROBING:

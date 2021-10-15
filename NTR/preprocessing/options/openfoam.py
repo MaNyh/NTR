@@ -411,7 +411,7 @@ cuttingPlane
     return 0
 
 
-def openFoam_create_inletoutletave_probe_dict(start_time, end_time, sampling_rate, case_settings, path_to_sim, geomdat_dict):
+def openFoam_create_inletoutletave_probe_dict(start_time, end_time,fields, sampling_rate, case_settings, path_to_sim, geomdat_dict):
     output_path = os.path.join(path_to_sim,"system")
     timestepinterval = int(
         float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
@@ -456,13 +456,7 @@ AverValuesInlet
         operation               areaAverage;
 
             fields
-            (
-                U
-                p
-                rho
-                T
-
-            );
+            """+fields+""";
     }
 
 
@@ -503,13 +497,7 @@ AverValuesOutlet
         operation               areaAverage;
 
             fields
-            (
-                U
-                p
-                rho
-                T
-
-            );
+            """+fields+""";
     }
     """)
     return 0
