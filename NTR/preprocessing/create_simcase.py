@@ -8,7 +8,7 @@ import yaml
 import glob
 
 from NTR.database.job_management import create_jobmanagement, write_runsim_bash, mgmt_parastud
-from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator
+from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator, merge
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
 from NTR.database.case_dirstructure import casedirs
@@ -16,16 +16,17 @@ from NTR.database.case_dirstructure import casedirs
 
 def find_vars_opts(case_structure, sign, all_pairs):
     # allowing names like JOB_NUMBERS, only capital letters and underlines - no digits, no whitespaces
+    datadict = copy.deepcopy(case_structure)
     varsignature = r"<PLACEHOLDER [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} PLACEHOLDER>".replace(r'PLACEHOLDER', sign)
     siglim = (5, -5)
 
     for pair in all_pairs:
-        setInDict(case_structure, pair[:-1], {})
+        setInDict(datadict, pair[:-1], {})
         filepath = os.path.join(*pair[:-1])
         with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
             for line in fhandle.readlines():
-                case_structure = search_paras(case_structure, line, pair, siglim, varsignature, sign)
-    return case_structure
+                datadict = search_paras(datadict, line, pair, siglim, varsignature, sign)
+    return datadict
 
 
 def search_paras(case_structure, line, pair, siglim, varsignature, varsign):
@@ -77,22 +78,22 @@ def create_parastudsims(path_to_parayaml):
         settings_dict["case_settings"]["type"] = "simulation"
         subname = "paracase_" + str(idx)
         tmp_dir = tempfile.TemporaryDirectory()
-        target_dir = os.path.join(casepath,casedirs["simcase"], subname)
+        target_dir = os.path.join(casepath, casedirs["simcase"], subname)
         tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml)
         files = glob.glob(os.path.join(tmp_dir.name, "02_Simcase") + "/*")
-        #files = [i for i in files if not os.path.isdir(i)]
+        # files = [i for i in files if not os.path.isdir(i)]
 
         for f in files:
             if os.path.isdir(f):
-                if not os.path.isdir(os.path.join(target_dir,os.path.basename(f))):
-                    os.makedirs(os.path.join(target_dir,os.path.basename(f)), exist_ok=True)
+                if not os.path.isdir(os.path.join(target_dir, os.path.basename(f))):
+                    os.makedirs(os.path.join(target_dir, os.path.basename(f)), exist_ok=True)
 
         for f in files:
             if not os.path.isdir(f):
-                target_file = os.path.join(target_dir,os.path.basename(f))
+                target_file = os.path.join(target_dir, os.path.basename(f))
                 shutil.move(f, target_file)
 
         yamltarget = os.path.join(target_dir, subname + "_settings.yml")
@@ -100,8 +101,9 @@ def create_parastudsims(path_to_parayaml):
         tmp_dir.cleanup()
         sim_dirs.append(target_dir)
 
-        create_jobmanagement(casetype, settings_dict, os.path.join(casepath,subname))
-    mgmt_parastud(settings,casepath)
+        create_jobmanagement(casetype, settings_dict, os.path.join(casepath, subname))
+    mgmt_parastud(settings, casepath)
+
 
 def create_simulationcase(path_to_yaml_dict):
     case_templates = os.listdir(os.path.join(os.path.dirname(__file__), "../database/case_templates"))
@@ -125,20 +127,21 @@ def create_simulationcase(path_to_yaml_dict):
 
     path_to_sim = os.path.join(casepath, casedirs["simcase"])
 
-
     create_casedirstructure(casedirs, casepath)
     case_structure = case_structures[case_type]
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
     # ToDo: what is the next variable about? this is not written nice
     all_pairs = list(nested_dict_pairs_iterator(case_structure))
-    case_structure_parameters = find_vars_opts(case_structure, "var", all_pairs)
-    case_structure_parameters = find_vars_opts(case_structure_parameters, "opt", all_pairs)
+    case_structure_parameters_var = find_vars_opts(case_structure, "var", all_pairs)
+    case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_pairs)
+    case_structure_parameters = merge(case_structure_parameters_var, case_structure_parameters_opt)
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
     create_jobmanagement(casetype, settings, casepath)
-    write_runsim_bash(settings,casepath)
+    write_runsim_bash(settings, casepath)
+
 
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):
     walk_casefile_list = nested_dict_pairs_iterator(case_structure_parameters)

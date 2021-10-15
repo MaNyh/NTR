@@ -368,6 +368,48 @@ probeLocations
 
     return outprobes
 
+def openfoam_createSlicingDict(origin,normal, sampling_rate, start_time, end_time, case_settings, path_to_sim, geomdat_dict):
+    output_path = os.path.join(path_to_sim, "system")
+    timestepinterval = int(
+        float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
+    basepoint = origin
+    normal = normal
+    with open(os.path.join(output_path, 'Probes_Slicing_Dict'), 'w') as data_file:
+        data_file.write("""
+cuttingPlane
+{
+    type            surfaces;
+    functionObjectLibs ("libsampling.so");
+    enabled true;
+    writeControl timeStep;
+    writeInterval       """ + str(timestepinterval) + """;
+    timeStart           """ + str(start_time) + """;
+    timeEnd             """ + str(end_time) + """;
+    log                 true;
+
+    surfaceFormat   raw; // you can change this to "vtk"
+    fields          ( p U rho T); // chose the fields you need
+
+    interpolationScheme cellPoint;
+
+    surfaces
+    (
+        constantPlane
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            pointAndNormalDict
+            {
+                basePoint       """+basepoint+""";
+                normalVector    """+normal+""";
+            }
+            interpolate     true;
+        }
+    );
+}
+    """)
+    return 0
+
 
 def openFoam_create_inletoutletave_probe_dict(start_time, end_time, sampling_rate, case_settings, path_to_sim, geomdat_dict):
     output_path = os.path.join(path_to_sim,"system")
