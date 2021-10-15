@@ -9,7 +9,7 @@ import yaml
 
 import NTR
 from NTR.preprocessing.create_simcase import create_simulationcase, find_vars_opts, read_parastudyaml
-from NTR.utils.dicthandling import nested_dict_pairs_iterator
+from NTR.utils.dicthandling import nested_dict_pairs_iterator, merge
 from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle, get_directory_structure
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
@@ -203,8 +203,9 @@ def test_create_simulationcase(tmpdir):
         case_structure = case_structures[case_type]["case_templates"]
 
         all_pairs = list(nested_dict_pairs_iterator(case_structure))
-        case_structure = find_vars_opts(case_structure,"var",all_pairs)
-        case_structure = find_vars_opts(case_structure,"opt",all_pairs)
+        case_structure_var = find_vars_opts(case_structure,"var",all_pairs)
+        case_structure_opt = find_vars_opts(case_structure,"opt",all_pairs)
+        case_structure = merge(case_structure_var,case_structure_opt)
         case_structlist = list(nested_dict_pairs_iterator(case_structure))
         variables = [i[-2] for i in list(case_structlist) if i[-1] == "var"]
         options = [i[-2] for i in list(case_structlist) if i[-1] == "opt"]
@@ -231,6 +232,7 @@ def test_create_simulationcase(tmpdir):
         for opt in options:
             test_dict["simcase_settings"]["options"][opt] = "1"
             test_dict["simcase_optiondef"][opt] = "1"
+
 
         test_file = tmpdir / "test_create_simulationcase.yml"
         test_geo_dict = {}
