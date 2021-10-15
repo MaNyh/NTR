@@ -14,8 +14,10 @@ case_settings:
         job_mail: "nyhuis@tfd.uni-hannover.de"
         job_script: "submit_mpi_job_slurm_hlrn"
         job_sourcecmd: |
-            . $MODULESHOME/init/ksh
-            source ~/ModuleLoading/OpenFoam1612.sh
+            module load  gcc/7.5.0 cmake/3.16.2; source /home/niikceng/OpenFOAM/OpenFOAM-v1612+/etc/bashrc
+            export FOAM_USER_PATH='$HOME/OpenFOAM/niinyhma-v1612+/'
+            #. $MODULESHOME/init/ksh
+            #source ~/ModuleLoading/OpenFoam1612.sh
 
         job_exe: "rhoPimpleFoam"
         job_name: *name
