@@ -15,10 +15,10 @@ def mgmt_parastud(settings, casepath):
         subname = "paracase_" + str(idx)
         scriptname = setting["case_settings"]["job"]["job_script"]
         subcmd = setting["case_settings"]["sub_cmd"]
-        txt += "# "+subname+".sh"+"\n"
+        txt += "# "+subname+"\n"
         txt += "cd "+subname + "\n"
         txt += "sh " + prepsh+ "\n"
-        txt += subcmd + " " + scriptname + "\n"
+        txt += subcmd + " " + scriptname+".sh" + "\n"
         txt += "cd ..\n"
     write_file(os.path.join(casepath, casedirs["simcase"], parastudsh_fname), txt)
     return 0
