@@ -6,6 +6,7 @@ case_settings:
         blockMesh
         createPatch -overwrite
         decomposePar
+        dos2unix submit_mpi_job_slurm_rrzn
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
         job_script: "submit_mpi_job_slurm_rrzn"
@@ -16,10 +17,12 @@ case_settings:
         job_exe: "pimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : "2"
+        job_nodes : "1"
         job_ppn : "16"
         job_mem : "12"
         account : "niinyhma"
+
+    sub_cmd : "sbatch"
 
 openfoam_cascade_les_settings:
     timestep : &timestep "0.5"
@@ -38,6 +41,7 @@ simcase_settings:
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
 
+        PROCS : 16
     options:
         INOUT_FIELDAVE_PROBING: True
         XSCLICE_PROBING: True
