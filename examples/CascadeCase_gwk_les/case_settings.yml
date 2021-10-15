@@ -74,7 +74,7 @@ simcase_settings:
         INOUT_FIELDAVE_PROBING: True
         INOUT_VELOCITY_PROBING: True
         XSCLICE_PROBING : True
-        MIDSPANSLICE_PROBING : True
+        SLICE_PROBING : True
         PROFILE_PROBING : True
         STREAMLINE_PROBING : True
         STAGNATIONPOINTFLOW_PROBING : True
@@ -109,6 +109,16 @@ simcase_optiondef:
             end_time: 1000 #s
         insert: '#include "Probes_XSlices_Dict"'
 
+    SLICE_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
+        args:
+            origin : "(0 0 0)"
+            normal : "(0 0 1)"
+            sampling_rate: 1e5
+            start_time: *AVE_START #s
+            end_time: 1000
+        insert: '#include "Probes_Slicing_Dict"'
+
     PROFILE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createProbesProfileDict"
         args:
@@ -119,7 +129,6 @@ simcase_optiondef:
             end_time : 1000 #s
             tolerance : 0.000005
         insert: '#include "Probes_Profile_Dict"'
-
 
     STREAMLINE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createProbesStreamlineDict"
