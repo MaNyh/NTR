@@ -21,6 +21,8 @@ case_settings:
         job_mem : "12"
         account : "niinyhma"
 
+    sub_cmd : "sbatch"
+
 openfoam_cascade_les_settings:
     timestep : &timestep "0.5"
 
@@ -33,10 +35,13 @@ simcase_settings:
 
         ADUSTABLETIMESTEP : "off"
 
+        UMEAN : "1"
         MESH_SCALING : 0.5
         GEO_LENGTH : &GEO_LENGTH "10"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
+
+        PROCS : 16
 
     options:
         INOUT_FIELDAVE_PROBING: True
