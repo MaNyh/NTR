@@ -4,7 +4,6 @@
 #SBATCH --ntasks-per-node=<var JOB_PPN var>
 #SBATCH --mem-per-cpu=<var JOB_MEMPERCPU var>G
 #SBATCH --time=<var JOB_RUNTIME var>
-#SBATCH --constraint=[skylake|haswell]
 #SBATCH --mail-user=<var JOB_MAIL var>
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --output batch.out
