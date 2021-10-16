@@ -44,9 +44,10 @@ class signal_generator:
         return sinus
 
     def noise_signal(self):
-        mu, sigma = 0, 1 # mean and standard deviation
+        mu, sigma = 0, np.random.rand() # mean and standard deviation
         s = np.random.normal(mu, sigma, size=len(self.timesteps))
-        s /= max(s)
+        if max(s)>1:
+            s /= max(s)
         return s
 
     def generate(self):
