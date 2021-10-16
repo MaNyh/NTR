@@ -62,6 +62,7 @@ simcase_settings:
         ZSPAN: "0.04"
 
         DELTAT: *timestep
+        MAX_CFC: "0.4"
 
         WRITEINTERVAL : "2000"
         PURGEWRITE: "2"
@@ -96,6 +97,7 @@ simcase_optiondef:
     INOUT_FIELDAVE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
         args:
+            fields: "(U p T)"
             sampling_rate: 1e5 #Hz
             start_time: 0
             end_time: 1000
@@ -115,6 +117,7 @@ simcase_optiondef:
     SLICE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
         args:
+            fields: "(U p rho T)"
             origin : "(0 0 0.02)"
             normal : "(0 0 1)"
             sampling_rate: 1e5

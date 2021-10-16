@@ -31,10 +31,11 @@ simcase_settings:
     variables:
 
         DELTAT: *timestep
+        MAX_CFC: "0.4"
         WRITEINTERVAL : "200"
         PURGEWRITE: "2"
 
-        ADUSTABLETIMESTEP : "off"
+        ADUSTABLETIMESTEP : "on"
 
         MESH_SCALING : 0.5
         GEO_LENGTH : &GEO_LENGTH "10"
@@ -57,6 +58,7 @@ simcase_optiondef:
     INOUT_FIELDAVE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
         args:
+            fields: "(U p)"
             sampling_rate: 1e5 #Hz
             start_time: 0
             end_time: 1000
@@ -76,9 +78,10 @@ simcase_optiondef:
     SLICE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
         args:
+            fields: "(U p)"
             origin : "(0 0 0.5)"
             normal : "(0 0 1)"
-            sampling_rate: 1e5
+            sampling_rate: 1e0
             start_time: 0 # *AVE_START #s
             end_time: 1000
         insert: '#include "Probes_Slicing_Dict"'
