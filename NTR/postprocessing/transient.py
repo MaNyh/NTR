@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 this method must check when a steady-state is
 Ries 2018
 https://link.springer.com/content/pdf/10.1007/s00162-018-0474-0.pdf
+
+numerical solutions have a transient behaviour at the initial process
+it is assumed that this initial transient can be reproduced by a sine, tanh and a noise-function
+with these functions given, we can analytically define where the transient process ends
 """
 
 class signal_generator:
