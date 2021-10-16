@@ -15,8 +15,7 @@ class signal_generator:
 
         self.timesteps = np.arange(0, self.time, self.datalen ** -1)
 
-        self.sinabate =np.e ** (-self.timesteps * self.sin_lasting ** -1)
-        self.sinabate /= max(self.sinabate)
+        self.sinabate =np.e ** (-self.timesteps * self.sin_lasting ** -1) / np.e
 
         self.sin_stationary = np.argmax(self.sinabate<(1-self.transientlimit))
         self.tanh_stationarity = np.argmax(np.sinh(self.timesteps * self.tanh_lasting ** -1) / np.cosh(self.timesteps * self.tanh_lasting ** -1)>self.transientlimit)
@@ -66,15 +65,10 @@ class signal_generator:
 
 def test_transientcheck():
     siggen=signal_generator()
-    infval = siggen.turn
 
-    sin_stationary_ts = -siggen.sin_lasting**-1*np.log(1-siggen.transientlimit)
-    print(sin_stationary_ts)
-    tanh_stationary_ts = np.arctanh(siggen.transientlimit)*siggen.tanh_lasting**-1
-    print(tanh_stationary_ts)
+    sin_stationary_ts = -siggen.sin_lasting*(1+np.log(1-siggen.transientlimit))
+    tanh_stationary_ts = np.arctanh(siggen.transientlimit)*siggen.tanh_lasting
 
-    print(siggen.timesteps)
-    print(siggen.time)
 
     sinus, tanh, rausch, signal, stat_sin , stat_tanh = siggen.generate()
     siggen.plot(sinus, tanh, rausch, signal, stat_sin , stat_tanh)
