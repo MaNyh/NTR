@@ -1,26 +1,41 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+"""
+this method must check when a steady-state is
+Ries 2018
+https://link.springer.com/content/pdf/10.1007/s00162-018-0474-0.pdf
+"""
 
 class signal_generator:
+    # resolution
     datalen = 10000 # length of timeseries
+    # value between [0;1]  defines when a signal is stationary
     transientlimit = 0.95
 
     def __init__(self):
+        #some kind of factor for the duration of an abating signal
         self.sin_lasting = np.random.randint(0, 100)
         self.tanh_lasting = np.random.randint(0, 100)
+
         self.sin_stationary_ts = -self.sin_lasting * (1 + np.log(1 - self.transientlimit))
         self.tanh_stationary_ts = np.arctanh(self.transientlimit) * self.tanh_lasting
 
+        # as defined in Ries 2018, the signal must be at least two times as long as the transient process
         if self.sin_stationary_ts > self.tanh_stationary_ts:
             self.time = 2*self.sin_stationary_ts
         else:
             self.time = 2*self.tanh_stationary_ts
 
+        #defining the used timesteps (unnesessary, the signal-length could be normed to 1!)
         self.timesteps = np.arange(0, self.time, self.datalen ** -1)
 
+        #damping the sine with euler
         self.sin_abate = np.e ** (-self.timesteps * self.sin_lasting ** -1) / np.e
+        #randomising the sign of tanh
         self.tanh_sign = np.random.choice([-1, 1])
+
+        #values for the 'stationarity'. this can be defined because the function is analytical. but is this correct?
         self.sin_stationary = np.argmax(self.sin_abate < (1 - self.transientlimit))
         self.tanh_stationarity = np.argmax( np.tanh(self.timesteps * self.tanh_lasting ** -1) > self.transientlimit)
 
@@ -77,12 +92,8 @@ class signal_generator:
         axs[4].plot(np.arange(0, self.time, self.datalen ** -1), rausch, color="black", label="noise")
         axs[5].plot(np.arange(0, self.time, self.datalen ** -1), signal, color="red",label="signal")
 
-        axs[0].legend(loc="upper right")
-        axs[1].legend(loc="upper right")
-        axs[2].legend(loc="upper right")
-        axs[3].legend(loc="upper right")
-        axs[4].legend(loc="upper right")
-        axs[5].legend(loc="upper right")
+        for a in axs:
+            a.legend(loc="upper right")
 
         plt.show()
 
@@ -97,10 +108,7 @@ def test_transientcheck():
 
 
 def transientcheck():
-    """
-    this method must check when a steady-state is
-    https://link.springer.com/content/pdf/10.1007/s00162-018-0474-0.pdf
-    """
+
     return 0
 
 
