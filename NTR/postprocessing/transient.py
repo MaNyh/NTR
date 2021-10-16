@@ -31,7 +31,8 @@ class signal_generator:
         self.timesteps = np.arange(0, self.time, self.datalen ** -1)
 
         #damping the sine with euler
-        self.sin_abate = np.e ** (-self.timesteps * self.sin_lasting ** -1) / np.e
+        abate = np.e ** (-self.timesteps * self.sin_lasting ** -1)
+        self.sin_abate = abate / max(abate)
         #randomising the sign of tanh
         self.tanh_sign = np.random.choice([-1, 1])
 
@@ -55,7 +56,7 @@ class signal_generator:
         return ans * self.tanh_sign
 
     def sin_signal(self):
-        sinus = np.sin(self.timesteps) * self.sin_abate
+        sinus = np.sin(self.timesteps*np.random.rand()) * self.sin_abate
         return sinus
 
     def noise_signal(self):
@@ -111,5 +112,11 @@ def test_transientcheck():
 
 
 def transientcheck(signal):
-
+    """
+    Hello Berk
+    This function needs to analyze a time-series.
+    It should return a value for the time, that equals the
+    :param signal: timeseries
+    :return: time_of_stationarity
+    """
     return 0
