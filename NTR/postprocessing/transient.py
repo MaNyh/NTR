@@ -47,13 +47,18 @@ class signal_generator:
 
         print()
         print("time when stationary")
-        ts = self.sin_stationary_ts
-        ss = self.tanh_stationary_ts
-        print("sin : ", ts)
-        print("tanh : ", ss)
-        self.stat_time = ts if ts > ss else ss
+        self.ss = self.sin_stationary_ts
+        self.ts = self.tanh_stationary_ts
+        print("sin : ", self.ts)
+        print("tanh : ", self.ss)
+        self.stat_time = self.ts if self.ts > self.ss else self.ss
         print("signal stationary at", self.stat_time)
-        print("this equals a timestep of ", int(self.stat_time/self.time*len(self.timesteps)), " from ", len(self.timesteps) , " or " , round(int(self.stat_time/self.time*len(self.timesteps))/len(self.timesteps),1))
+
+        self.stationarity_relt = round(int(self.stat_time/self.time*len(self.timesteps))/len(self.timesteps),1)
+        self.stationarity_time = self.stationarity_relt * self.time
+
+        print("this equals a timestep of ", int(self.stat_time / self.time * len(self.timesteps)), " from ",
+              len(self.timesteps), " or ", self.stationarity_relt)
 
 
     def tanh_signal(self):
@@ -78,11 +83,13 @@ class signal_generator:
 
         sin_stats = (-1 + self.sin_abate) * -1
         tanh_stats = np.sinh(self.timesteps * self.tanh_lasting ** -1) / np.cosh(self.timesteps * self.tanh_lasting ** -1)
+
+        """
         if sin_stats[-1] < self.transientlimit:
             print("sin still transient ", str(sin_stats[-1]))
         if tanh_stats[-1] < self.transientlimit:
             print("tanh still transient ", str(tanh_stats[-1]))
-
+        """
         signal = sinus + tanh + rausch
 
         return sinus, tanh, rausch, signal, sin_stats , tanh_stats
@@ -92,11 +99,18 @@ class signal_generator:
         fig, axs = plt.subplots(6, 1)
 
         axs[0].plot(np.arange(0, self.time, self.datalen ** -1), sinus, color="orange", label="abating sine signal")
+        axs[0].axvline(self.ss)
         axs[1].plot(np.arange(0, self.time, self.datalen ** -1), stat_sin, color="orange", label="stationarity sine signal")
+        axs[1].axvline(self.ss)
+        axs[1].fill_between(np.arange(0, self.time, self.datalen ** -1),stat_sin, color="orange")
         axs[2].plot(np.arange(0, self.time, self.datalen ** -1), tanh, color="blue", label="tanh signal")
+        axs[2].axvline(self.ts)
         axs[3].plot(np.arange(0, self.time, self.datalen ** -1), stat_tanh, color="blue", label="stationarity tanh signal")
+        axs[3].axvline(self.ts)
+        axs[3].fill_between(np.arange(0, self.time, self.datalen ** -1),stat_tanh, color="blue")
         axs[4].plot(np.arange(0, self.time, self.datalen ** -1), rausch, color="black", label="noise")
         axs[5].plot(np.arange(0, self.time, self.datalen ** -1), signal, color="red", label="signal")
+        axs[5].axvline(self.stationarity_time)
 
         for a in axs:
             a.legend(loc="upper right")
@@ -104,11 +118,12 @@ class signal_generator:
         plt.show()
 
 
-def test_transientcheck():
+def test_transientcheck(verbose=True):
     siggen=signal_generator()
 
     sinus, tanh, rausch, signal, stat_sin , stat_tanh = siggen.generate()
-    siggen.plot(sinus, tanh, rausch, signal, stat_sin, stat_tanh)
+    if verbose:
+        siggen.plot(sinus, tanh, rausch, signal, stat_sin, stat_tanh)
 
     timestationarity_ries = transientcheck(signal)
     print("transientcheck-rückgabe (ries2018): ",timestationarity_ries)
