@@ -67,6 +67,15 @@ class signal_generator:
 def test_transientcheck():
     siggen=signal_generator()
     infval = siggen.turn
+
+    sin_stationary_ts = -siggen.sin_lasting**-1*np.log(1-siggen.transientlimit)
+    print(sin_stationary_ts)
+    tanh_stationary_ts = np.arctanh(siggen.transientlimit)*siggen.tanh_lasting**-1
+    print(tanh_stationary_ts)
+
+    print(siggen.timesteps)
+    print(siggen.time)
+
     sinus, tanh, rausch, signal, stat_sin , stat_tanh = siggen.generate()
     siggen.plot(sinus, tanh, rausch, signal, stat_sin , stat_tanh)
 
