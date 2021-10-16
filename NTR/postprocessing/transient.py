@@ -45,9 +45,9 @@ class signal_generator:
         ss = self.tanh_stationary_ts
         print("sin : ", ts)
         print("tanh : ", ss)
-        stat_time = ts if ts > ss else ss
-        print("signal stationary at", stat_time)
-        print("this equals a timestep of ", int(stat_time/self.time*len(self.timesteps)), " from ", len(self.timesteps) , " or " , round(int(stat_time/self.time*len(self.timesteps))/len(self.timesteps),1))
+        self.stat_time = ts if ts > ss else ss
+        print("signal stationary at", self.stat_time)
+        print("this equals a timestep of ", int(self.stat_time/self.time*len(self.timesteps)), " from ", len(self.timesteps) , " or " , round(int(self.stat_time/self.time*len(self.timesteps))/len(self.timesteps),1))
 
 
     def tanh_signal(self):
@@ -90,7 +90,7 @@ class signal_generator:
         axs[2].plot(np.arange(0, self.time, self.datalen ** -1), tanh, color="blue", label="tanh signal")
         axs[3].plot(np.arange(0, self.time, self.datalen ** -1), stat_tanh, color="blue", label="stationarity tanh signal")
         axs[4].plot(np.arange(0, self.time, self.datalen ** -1), rausch, color="black", label="noise")
-        axs[5].plot(np.arange(0, self.time, self.datalen ** -1), signal, color="red",label="signal")
+        axs[5].plot(np.arange(0, self.time, self.datalen ** -1), signal, color="red", label="signal")
 
         for a in axs:
             a.legend(loc="upper right")
@@ -102,14 +102,14 @@ def test_transientcheck():
     siggen=signal_generator()
 
     sinus, tanh, rausch, signal, stat_sin , stat_tanh = siggen.generate()
-    siggen.plot(sinus, tanh, rausch, signal, stat_sin , stat_tanh)
+    siggen.plot(sinus, tanh, rausch, signal, stat_sin, stat_tanh)
 
+    timestationarity_ries = transientcheck(signal)
+    print("transientcheck-rückgabe (ries2018): ",timestationarity_ries)
+    assert siggen.stat_time < timestationarity_ries, "von transientcheck zurückgegebene zeit der stationarität zu klein"
     return 0
 
 
-def transientcheck():
+def transientcheck(signal):
 
     return 0
-
-
-
