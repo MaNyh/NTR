@@ -18,7 +18,7 @@ def mgmt_parastud(settings, casepath):
         txt += "# "+subname+ "\n"
         txt += "cd "+subname + "\n"
         txt += "sh " + prepsh+ "\n"
-        txt += subcmd + " " + scriptname + "\n"
+        txt += subcmd + " " + scriptname +".sh"+ "\n"
         txt += "cd ..\n"
     write_file(os.path.join(casepath, casedirs["simcase"], parastudsh_fname), txt)
     return 0
