@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 """
-this method must check when a steady-state is
+this module is supposed to return a timesstamp from a time-series, that equals the time when the transient signal ends
+
 Ries 2018
 https://link.springer.com/content/pdf/10.1007/s00162-018-0474-0.pdf
 
