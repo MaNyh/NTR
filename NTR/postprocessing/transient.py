@@ -47,11 +47,11 @@ class signal_generator:
 
         print()
         print("time when stationary")
-        self.ss = self.sin_stationary_ts
-        self.ts = self.tanh_stationary_ts
-        print("sin : ", self.ts)
-        print("tanh : ", self.ss)
-        self.stat_time = self.ts if self.ts > self.ss else self.ss
+        sin_statts = int(self.sin_stationary_ts / self.time * len(self.timesteps))
+        tanh_statts = int(self.tanh_stationary_ts / self.time * len(self.timesteps))
+        print("sin : ", self.sin_stationary_ts , " timestep ", sin_statts)
+        print("tanh : ", self.tanh_stationary_ts , " timestep ", tanh_statts)
+        self.stat_time = self.tanh_stationary_ts if self.tanh_stationary_ts > self.sin_stationary_ts else self.sin_stationary_ts
         print("signal stationary at", self.stat_time)
 
         self.stationarity_relt = round(int(self.stat_time/self.time*len(self.timesteps))/len(self.timesteps),1)
@@ -84,12 +84,6 @@ class signal_generator:
         sin_stats = (-1 + self.sin_abate) * -1
         tanh_stats = np.sinh(self.timesteps * self.tanh_lasting ** -1) / np.cosh(self.timesteps * self.tanh_lasting ** -1)
 
-        """
-        if sin_stats[-1] < self.transientlimit:
-            print("sin still transient ", str(sin_stats[-1]))
-        if tanh_stats[-1] < self.transientlimit:
-            print("tanh still transient ", str(tanh_stats[-1]))
-        """
         signal = sinus + tanh + rausch
 
         return sinus, tanh, rausch, signal, sin_stats , tanh_stats
@@ -99,14 +93,14 @@ class signal_generator:
         fig, axs = plt.subplots(6, 1)
 
         axs[0].plot(np.arange(0, self.time, self.datalen ** -1), sinus, color="orange", label="abating sine signal")
-        axs[0].axvline(self.ss)
+        axs[0].axvline(self.sin_stationary_ts)
         axs[1].plot(np.arange(0, self.time, self.datalen ** -1), stat_sin, color="orange", label="stationarity sine signal")
-        axs[1].axvline(self.ss)
+        axs[1].axvline(self.sin_stationary_ts)
         axs[1].fill_between(np.arange(0, self.time, self.datalen ** -1),stat_sin, color="orange")
         axs[2].plot(np.arange(0, self.time, self.datalen ** -1), tanh, color="blue", label="tanh signal")
-        axs[2].axvline(self.ts)
+        axs[2].axvline(self.tanh_stationary_ts)
         axs[3].plot(np.arange(0, self.time, self.datalen ** -1), stat_tanh, color="blue", label="stationarity tanh signal")
-        axs[3].axvline(self.ts)
+        axs[3].axvline(self.tanh_stationary_ts)
         axs[3].fill_between(np.arange(0, self.time, self.datalen ** -1),stat_tanh, color="blue")
         axs[4].plot(np.arange(0, self.time, self.datalen ** -1), rausch, color="black", label="noise")
         axs[5].plot(np.arange(0, self.time, self.datalen ** -1), signal, color="red", label="signal")
