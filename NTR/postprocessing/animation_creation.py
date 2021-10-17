@@ -23,17 +23,21 @@ def create(path_to_yaml_dict):
     assert "post_settings" in settings.keys(), "no post_settings defined"
     assert "animation_creation" in settings["post_settings"].keys(), "no animation_creation defined"
     assert "variable" in settings["post_settings"]["animation_creation"].keys(), "no variable for animation defined"
+    assert "resolution_x" in settings["post_settings"]["animation_creation"].keys(), "no resolution for animation defined"
+    assert "resolution_y" in settings["post_settings"]["animation_creation"].keys(), "no resolution for animation defined"
     var = settings["post_settings"]["animation_creation"]["variable"]
+    resolution_x = int(settings["post_settings"]["animation_creation"]["resolution_x"])
+    resolution_y = int(settings["post_settings"]["animation_creation"]["resolution_y"])
 
     dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath,i))]
     vtkname = var+"_constantPlane.vtk"
     frame = "frame.jpg"
 
-    with imageio.get_writer("animation.gif", mode='I') as writer:
+    pv.set_plot_theme("document")
+    with imageio.get_writer(os.path.join(casedirs["data"],"animation.gif"), mode='I') as writer:
         for d in dirs:
             target = os.path.join(cutplanepath,d,vtkname)
             plotter = pv.Plotter(off_screen=True)
-            plotter.background_color = (1,1,1)
 
             mesh = pv.PolyData(target)
             mesh.rotate_z(90)
@@ -41,7 +45,7 @@ def create(path_to_yaml_dict):
             plotter.add_mesh(mesh,cmap="coolwarm")
             plotter.show_axes()
             plotter.update_scalar_bar_range((0,120))
-            plotter.show(screenshot=frame, window_size=[800, 800],cpos=[0,0,1])
+            plotter.show(screenshot=frame, window_size=[resolution_x,resolution_y],cpos=[0,0,1])
             plotter.close()
             image = imageio.imread(frame)
             writer.append_data(image)

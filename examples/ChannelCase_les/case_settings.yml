@@ -95,3 +95,5 @@ post_settings:
 
     animation_creation:
         variable                    : "U"
+        resolution_x                : 400
+        resolution_y                : 400
