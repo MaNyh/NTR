@@ -114,17 +114,6 @@ simcase_optiondef:
             end_time: 1000 #s
         insert: '#include "Probes_XSlices_Dict"'
 
-    SLICE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
-        args:
-            fields: "(U p rho T)"
-            origin : "(0 0 0.02)"
-            normal : "(0 0 1)"
-            sampling_rate: 1e5
-            start_time: 0 # *AVE_START #s
-            end_time: 1000
-        insert: '#include "Probes_Slicing_Dict"'
-
     PROFILE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createProbesProfileDict"
         args:
@@ -154,6 +143,17 @@ simcase_optiondef:
             start_time: *AVE_START #s
             end_time: 1000 #s
         insert: '#include "Probes_VKstagnation_Dict"'
+
+    SLICE_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
+        args:
+            fields: "(U p gradU)"
+            origin: "(0 0 0.02)"
+            normal: "(0 0 1)"
+            sampling_rate: 5e4
+            start_time: 0 # *AVE_START #s
+            end_time: 1000
+        insert: '#include "Probes_Slicing_Dict"'
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
@@ -187,8 +187,15 @@ mesh:
 
 
 post_settings:
+
     dimensionless_gridspacing:
         volmesh                     : "03_Solution/volume.vtk"
         wall                        : "03_Solution/surface.vtk"
+
     profile_loading:
         volmesh                     : "03_Solution/volume.vtk"
+
+    animation_creation:
+        variable                    : "U"
+        resolution_x                : 400
+        resolution_y                : 400
