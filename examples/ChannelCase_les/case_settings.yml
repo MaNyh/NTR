@@ -85,3 +85,13 @@ simcase_optiondef:
             start_time: 0 # *AVE_START #s
             end_time: 1000
         insert: '#include "Probes_Slicing_Dict"'
+
+post_settings:
+    dimensionless_gridspacing:
+        volmesh                     : "03_Solution/volume.vtk"
+        wall                        : "03_Solution/surface.vtk"
+    profile_loading:
+        volmesh                     : "03_Solution/volume.vtk"
+
+    animation_creation:
+        variable                    : "U"
