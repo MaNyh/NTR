@@ -63,7 +63,7 @@ PIMPLE
     momentumPredictor yes;
     nOuterCorrectors <var NOUTERCORRECTORS var>;  // 1;	1=PISO 1<PIMPLE
     nCorrectors      <var NCORRECTORS var>; // 1;	//outer loops
-    nNonOrthogonalCorrectors <var NNONORTHOGONALCORRECTORS>;	//p loops
+    nNonOrthogonalCorrectors <var NNONORTHOGONALCORRECTORS var>;	//p loops
     rhoMin          0.2;
     rhoMax          3;
     transonic	no;
