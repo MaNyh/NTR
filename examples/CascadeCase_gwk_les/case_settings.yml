@@ -187,13 +187,18 @@ mesh:
 
 
 post_settings:
+    sim_values:
+        volmesh                     : "VTK/02_Simcase_15.vtk"
+        wallpatches:
+            blade                   : "VTK/BLADE/BLADE_15.vtk"
 
     dimensionless_gridspacing:
-        volmesh                     : "03_Solution/volume.vtk"
-        wall                        : "03_Solution/surface.vtk"
-
+        from_var                    : "U"
+        volmesh                     : "VTK/02_Simcase_15.vtk"
+        wallpatches:
+            blade                   : "VTK/BLADE/BLADE_15.vtk"
     profile_loading:
-        volmesh                     : "03_Solution/volume.vtk"
+        volmesh                     : "VTK/02_Simcase_15.vtk"
 
     animation_creation:
         variable                    : "U"

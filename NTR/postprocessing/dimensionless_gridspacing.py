@@ -13,8 +13,24 @@ import numpy as np
 from NTR.utils.mathfunctions import vecAbs, unitVec, vecProjection, vecAngle
 from NTR.utils.geom_functions.pyvista_utils import load_mesh
 from NTR.utils.filehandling import yaml_dict_read
+from NTR.database.case_dirstructure import casedirs
 
 
+
+def constructWallMesh(meshList):
+    print("constructing surfacemesh from wall meshes ...")
+    wallMesh = pv.UnstructuredGrid()
+
+    for mesh in meshList:
+        m = load_mesh(mesh)
+        wallMesh = wallMesh.merge(m)
+
+    return wallMesh
+
+def readDataSet(grid,dataName):
+    grid.set_active_scalars(dataName)
+    data = grid.active_scalars
+    return data
 
 #################################################################################
 #                                                                               #
@@ -55,7 +71,7 @@ def closestWallNormal(point,surfaceMesh):
     return vector
 
 
-def calcWallNormalVectors(labelChunk,surfaceMesh):
+def calcWallNormalVectors(labelChunk,surfaceMesh,processData):
     vectors = []
 
     for cellIdx in labelChunk:
@@ -67,7 +83,7 @@ def calcWallNormalVectors(labelChunk,surfaceMesh):
     return vectors
 
 
-def cellSpans(labelChunk, solutionMesh, processData):
+def cellSpans(labelChunk, solutionMesh, processData, calcFrom):
 
     spans = []
 
@@ -83,7 +99,7 @@ def cellSpans(labelChunk, solutionMesh, processData):
         z_weight = 0
 
         wallNormal = processData["wallNormal"][cellIdx]
-        uMean = processData["UMean"][cellIdx]
+        uMean = processData[calcFrom][cellIdx]
 
         cellDirs = cellDirections(uMean, wallNormal)
         xx = cellDirs[0]
@@ -172,28 +188,30 @@ def calc(settings_yml):
     settings = yaml_dict_read(settings_yml)
     case_path = os.path.abspath(os.path.dirname(settings_yml))
 
+    calcFrom = settings["post_settings"]["dimensionless_gridspacing"]["from_var"]
     mu_0 = 2e-5
 
     processData = {}
 
-
+    solutionVTK = os.path.join(case_path,casedirs["solution"],settings["post_settings"]["dimensionless_gridspacing"]["volmesh"])
+    WallSurfacesVTKs = [os.path.join(case_path,casedirs["solution"],i) for i in settings["post_settings"]["dimensionless_gridspacing"]["wallpatches"].values()]
     print("reading solutionMesh...")
     solutionMesh = load_mesh(solutionVTK)
     print("constructing surfacemesh from wall meshes ...")
     surfaceMesh = constructWallMesh(WallSurfacesVTKs)
 
     print("preparing processData from meshes")
-    solutionMesh = solutionMesh.compute_derivative(scalars="UMean")
-    processData["UMean"] = readDataSet(solutionMesh, "UMean")
+    solutionMesh = solutionMesh.compute_derivative(scalars=calcFrom)
+    processData[calcFrom] = readDataSet(solutionMesh, calcFrom)
     processData["cellCenters"] = solutionMesh.cell_centers().points
 
     cellIds = [i for i in range(solutionMesh.GetNumberOfCells())]
 
     print("calculating wall-normal vectors...")
-    processData["wallNormal"] = calcWallNormalVectors(cellIds)
+    processData["wallNormal"] = calcWallNormalVectors(cellIds, surfaceMesh, processData)
 
     print("calculating cell spans from WallNormals and CellEdges...")
-    spanS = cellSpans(cellIds, surfaceMesh)
+    spanS = cellSpans(cellIds, surfaceMesh, processData, calcFrom)
     processData["xSpan"] = np.array([i[0] for i in spanS])  # calculate cell span in flow direction
     processData["ySpan"] = np.array([i[1] for i in spanS])  # calculate cell span in wall normal direction
     processData["zSpan"] = np.array([i[2] for i in spanS])  # calculate cell span in span direction
