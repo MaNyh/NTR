@@ -36,7 +36,7 @@ purgeWrite      <var PURGEWRITE var>;
 
 writeFormat     ascii;
 
-writePrecision  6;
+writePrecision  12;
 
 writeCompression off;
 
@@ -45,6 +45,10 @@ timeFormat      general;
 timePrecision   12;
 
 runTimeModifiable true;
+
+adjustTimeStep  <var ADUSTABLETIMESTEP var>;
+
+maxCo           <var MAX_CFC var>;
 
 libs (
 "libfieldFunctionObjects.so"
@@ -55,6 +59,7 @@ functions
 {
     <opt INOUT_FIELDAVE_PROBING opt>
     <opt XSCLICE_PROBING opt>
+    <opt SLICE_PROBING opt>
 
 
 	yPlus

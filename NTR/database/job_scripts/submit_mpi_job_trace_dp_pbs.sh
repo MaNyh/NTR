@@ -10,7 +10,7 @@ NODES=<var JOB_NODES var>
 NPROCS=<var JOB_PROCS var>
 MEMORY=<var JOB_MEM var>
 QUEUE="all"
-WALLTIME=<var JOB_WALLTIME var>
+WALLTIME=<var JOB_RUNTIME var>
 #single or double precision TRACE version: "sp" or "dp"?
 PRECISION="sp"
 #Architecture is optional. Either leave blank or: haswell,nehalem,sandybridge,skylake
@@ -24,6 +24,7 @@ BASENAME="TRACE.cgns"
 let CPUS=($NPROCS \* $NODES)
 BALANCE_FILE="BALANCE_"$CPUS"PROC"
 
+cd input/
 RUNDIR=$PWD
 cd ../
 WORKDIR=$PWD

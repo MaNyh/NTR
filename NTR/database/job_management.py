@@ -15,10 +15,10 @@ def mgmt_parastud(settings, casepath):
         subname = "paracase_" + str(idx)
         scriptname = setting["case_settings"]["job"]["job_script"]
         subcmd = setting["case_settings"]["sub_cmd"]
-        txt += "# "+subname+"\n"
+        txt += "# "+subname+ "\n"
         txt += "cd "+subname + "\n"
         txt += "sh " + prepsh+ "\n"
-        txt += subcmd + " " + scriptname+".sh" + "\n"
+        txt += subcmd + " " + scriptname +".sh"+ "\n"
         txt += "cd ..\n"
     write_file(os.path.join(casepath, casedirs["simcase"], parastudsh_fname), txt)
     return 0
@@ -29,15 +29,13 @@ def mgmt_simulation(settings, scriptpath, casepath):
     shutil.copy(scriptpath, targetpath)
 
     job_procs = int(settings["case_settings"]["job"]["job_nodes"]) * int(settings["case_settings"]["job"]["job_ppn"])
-    job_mempercpu = int(int(settings["case_settings"]["job"]["job_mem"]) / job_procs)
+    job_mempercpu = int(int(settings["case_settings"]["job"]["job_mem"])/ job_procs)
 
     settings["case_settings"]["job"]["JOB_PROCS"] = str(job_procs)
     settings["case_settings"]["job"]["JOB_MEMPERCPU"] = str(job_mempercpu)
     for parameter in settings["case_settings"]["job"]:
-        if not parameter == "account":
-            lookfor = parameter.upper()
-        else:
-            lookfor = parameter
+
+        lookfor = parameter.upper()
 
         variable = settings["case_settings"]["job"][parameter]
         with open(targetpath) as fobj:

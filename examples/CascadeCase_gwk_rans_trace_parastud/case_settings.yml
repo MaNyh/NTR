@@ -4,6 +4,7 @@ case_settings:
     type: "parameterstudy"
     prep: |
         cp ../../01_Meshing/mesh.cgns input/.
+        dos2unix submit_mpi_job_trace_sp_pbs.sh
         cd input/
         /bigwork/nhkckcen/sw/GMC/gmc_9_3_4/gmcPlay_v9_3_4 verdichter.jou
         cd ..

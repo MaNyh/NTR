@@ -9,6 +9,7 @@ case_settings:
         topoSet
         mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
         decomposePar
+        dos2unix submit_mpi_job_slurm_hlrn.sh
 
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
@@ -25,7 +26,7 @@ case_settings:
         job_nodes : "2"
         job_ppn : "96"
         job_mem : "192"
-        account : "niinyhma"
+        job_account : "niinyhma"
 
     sub_cmd: "sbatch"
 
@@ -61,6 +62,7 @@ simcase_settings:
         ZSPAN: "0.04"
 
         DELTAT: *timestep
+        MAX_CFC: "0.4"
 
         WRITEINTERVAL : "2000"
         PURGEWRITE: "2"
@@ -95,6 +97,7 @@ simcase_optiondef:
     INOUT_FIELDAVE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
         args:
+            fields: "(U p T)"
             sampling_rate: 1e5 #Hz
             start_time: 0
             end_time: 1000
@@ -111,16 +114,6 @@ simcase_optiondef:
             start_time: *AVE_START #s
             end_time: 1000 #s
         insert: '#include "Probes_XSlices_Dict"'
-
-    SLICE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
-        args:
-            origin : "(0 0 0.02)"
-            normal : "(0 0 1)"
-            sampling_rate: 1e5
-            start_time: 0 # *AVE_START #s
-            end_time: 1000
-        insert: '#include "Probes_Slicing_Dict"'
 
     PROFILE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createProbesProfileDict"
@@ -151,6 +144,17 @@ simcase_optiondef:
             start_time: *AVE_START #s
             end_time: 1000 #s
         insert: '#include "Probes_VKstagnation_Dict"'
+
+    SLICE_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
+        args:
+            fields: "(U p gradU)"
+            origin: "(0 0 0.02)"
+            normal: "(0 0 1)"
+            sampling_rate: 5e4
+            start_time: 0 # *AVE_START #s
+            end_time: 1000
+        insert: '#include "Probes_Slicing_Dict"'
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
@@ -184,8 +188,15 @@ mesh:
 
 
 post_settings:
+
     dimensionless_gridspacing:
         volmesh                     : "03_Solution/volume.vtk"
         wall                        : "03_Solution/surface.vtk"
+
     profile_loading:
         volmesh                     : "03_Solution/volume.vtk"
+
+    animation_creation:
+        variable                    : "U"
+        resolution_x                : 400
+        resolution_y                : 400

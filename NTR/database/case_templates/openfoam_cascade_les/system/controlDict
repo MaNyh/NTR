@@ -47,7 +47,7 @@ runTimeModifiable true;
 
 adjustTimeStep  <var ADUSTABLETIMESTEP var>;
 
-maxCo           0.4; //maximale courant number
+maxCo           <var MAX_CFC var>; //maximale courant number
 
 libs (
     "libfieldFunctionObjects.so"

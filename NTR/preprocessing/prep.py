@@ -12,7 +12,7 @@ def prep_channelflow_geometry(settings_yml):
     halfheight = float(settings["geometry"]["yper_width"])
 
     yper_low = pv.Line((0,0,0),(length,0,0))
-    yper_high = pv.Line((0,width,0),(length,width,0))
+    yper_high = pv.Line((0,0,width),(length,0,width))
     span_z = halfheight
 
     geo_dict = {
