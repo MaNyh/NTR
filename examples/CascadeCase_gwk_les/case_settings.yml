@@ -47,7 +47,7 @@ simcase_settings:
         UIN_LINF: "0.03"                                        #m
         RUNTIME: "10:00:00"
         NODES: "2"
-        AVE_START: &AVE_START "0"
+        AVE_START: &AVE_START "0.04"
 
         RINLET : "4 0 0 4 0 4"                                  #m^2/s^2
         LINLET : "0.02"                                         #m
@@ -151,7 +151,7 @@ simcase_optiondef:
             origin: "(0 0 0.02)"
             normal: "(0 0 1)"
             sampling_rate: 5e4
-            start_time: 0 # *AVE_START #s
+            start_time:  *AVE_START #s
             end_time: 1000
         insert: '#include "Probes_Slicing_Dict"'
 
@@ -167,17 +167,17 @@ geometry:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.04                                   #Mesh-density factor
+    factor                          : 1.1                                   #Mesh-density factor
     ogrid_factor                    : 5.5                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.0000070                             #first cell height when factor=1
-    le_firstcellheight_coeff        : 0.8
-    te_firstcellheight_coeff        : 0.8
+    first_cell_width                : 0.00001                             #first cell height when factor=1
+    le_firstcellheight_coeff        : 1
+    te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 10                                    #fixed cells in boundary layer
     extrudeLength                   : 0.04                                  #length of extruded span
     blockStartFromChord             : 0.011                                 #LE and TE-Block Meshing
-    cellwidthcoeff                  : 0.4                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    cellwidthcoeff                  : 0.5                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.5                                  #move high-y-per-block along y-pitch
@@ -187,16 +187,15 @@ mesh:
 
 
 post_settings:
-    sim_values:
-        volmesh                     : "VTK/02_Simcase_15.vtk"
+    use_vtk_meshes:
+        volmesh: "VTK/02_Simcase_15.vtk"
         wallpatches:
-            blade                   : "VTK/BLADE/BLADE_15.vtk"
+            blade: "VTK/BLADE/BLADE_15.vtk"
 
     dimensionless_gridspacing:
-        from_var                    : "U"
-        volmesh                     : "VTK/02_Simcase_15.vtk"
-        wallpatches:
-            blade                   : "VTK/BLADE/BLADE_15.vtk"
+        use_velfield: "U"
+        use_rhofield: "rho"
+
     profile_loading:
         volmesh                     : "VTK/02_Simcase_15.vtk"
 

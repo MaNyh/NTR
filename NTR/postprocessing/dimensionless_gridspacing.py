@@ -134,7 +134,7 @@ def cellSpans(labelChunk, solutionMesh, processData, calcFrom):
 
 
 
-def getWalluTaus(labelChunk, solutionMesh, mu_0, processData):
+def getWalluTaus(labelChunk, solutionMesh, mu_0, processData, rhofieldname):
 
     uTaus = []
     for cellIdx in labelChunk:
@@ -153,7 +153,7 @@ def getWalluTaus(labelChunk, solutionMesh, mu_0, processData):
 
         yDirection = unitVec(cellNormal)
         gradUyW = vecAbs(np.dot(yDirection, gradUWall))
-        PT.set_active_scalars("rhoMean")
+        PT.set_active_scalars(rhofieldname)
         rhoW = PT.active_scalars[0]
         tauW = gradUyW * mu_0 * rhoW
         u_tau = (tauW / rhoW) ** 0.5
@@ -190,21 +190,22 @@ def calc(settings_yml):
     settings = yaml_dict_read(settings_yml)
     case_path = os.path.abspath(os.path.dirname(settings_yml))
 
-    calcFrom = settings["post_settings"]["dimensionless_gridspacing"]["from_var"]
+    use_velfield = settings["post_settings"]["dimensionless_gridspacing"]["use_velfield"]
+    use_rhofield = settings["post_settings"]["dimensionless_gridspacing"]["use_rhofield"]
     mu_0 = 2e-5
 
     processData = {}
 
-    solutionVTK = os.path.join(case_path,casedirs["solution"],settings["post_settings"]["dimensionless_gridspacing"]["volmesh"])
-    WallSurfacesVTKs = [os.path.join(case_path,casedirs["solution"],i) for i in settings["post_settings"]["dimensionless_gridspacing"]["wallpatches"].values()]
+    solutionVTK = os.path.join(case_path,casedirs["solution"],settings["post_settings"]["use_vtk_meshes"]["volmesh"])
+    WallSurfacesVTKs = [os.path.join(case_path,casedirs["solution"],i) for i in settings["post_settings"]["use_vtk_meshes"]["wallpatches"].values()]
     print("reading solutionMesh...")
     solutionMesh = load_mesh(solutionVTK)
     print("constructing surfacemesh from wall meshes ...")
     surfaceMesh = constructWallMesh(WallSurfacesVTKs)
 
     print("preparing processData from meshes")
-    solutionMesh = solutionMesh.compute_derivative(scalars=calcFrom)
-    processData[calcFrom] = readDataSet(solutionMesh, calcFrom)
+    solutionMesh = solutionMesh.compute_derivative(scalars=use_velfield)
+    processData[use_velfield] = readDataSet(solutionMesh, use_velfield)
     processData["cellCenters"] = solutionMesh.cell_centers().points
 
     cellIds = [i for i in range(solutionMesh.GetNumberOfCells())]
@@ -213,13 +214,13 @@ def calc(settings_yml):
     processData["wallNormal"] = calcWallNormalVectors(cellIds, surfaceMesh, processData)
 
     print("calculating cell spans from WallNormals and CellEdges...")
-    spanS = cellSpans(cellIds, solutionMesh, processData, calcFrom)
+    spanS = cellSpans(cellIds, solutionMesh, processData, use_velfield)
     processData["xSpan"] = np.array([i[0] for i in spanS])  # calculate cell span in flow direction
     processData["ySpan"] = np.array([i[1] for i in spanS])  # calculate cell span in wall normal direction
     processData["zSpan"] = np.array([i[2] for i in spanS])  # calculate cell span in span direction
 
     print("calculating wall-shear and friction-velocity")
-    uTaus = getWalluTaus(cellIds, solutionMesh, mu_0, processData)
+    uTaus = getWalluTaus(cellIds, solutionMesh, mu_0, processData, use_rhofield)
     processData["uTaus"] = uTaus
 
     print("calculating grid spacing")
@@ -236,7 +237,4 @@ def calc(settings_yml):
     processData["DeltaZPlus"] = gridSpacings[2]
     print("min Dz+ : %.2f" % (min(processData["DeltaZPlus"])))
     print("max Dz+ : %.2f" % (max(processData["DeltaZPlus"])))
-
-    print("calculation done, saving data to grid")
-    solutionMesh = saveDataSets(solutionMesh, processData)
 
