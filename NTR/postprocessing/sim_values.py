@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import pyvista as pv
 
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import yaml_dict_read
@@ -25,7 +24,6 @@ def calc_yplus(path_to_yaml_dict,verbose=True):
     volmesh_centers = volmesh.cell_centers()
     wall = constructWallMesh(wallpatches_namelist)
     wall_centers = wall.cell_centers().points
-    wall_normals = wall["Normals"]
 
     print("extracting near-wall cells...")
     nearwall_ids = []
@@ -52,10 +50,7 @@ def calc_yplus(path_to_yaml_dict,verbose=True):
         nearwall_mesh.set_active_scalars("yplus")
         nearwall_mesh.plot()
     return Deltay
-# calc yplus
 
-# calc AVE massflow
-# calc AVE massflow diff
 
 def getWalluTaus( mu_0, rhoW, gradUWall):
 
