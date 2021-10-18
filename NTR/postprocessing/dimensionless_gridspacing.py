@@ -109,7 +109,9 @@ def cellSpans(labelChunk, solutionMesh, processData, calcFrom):
         egdeVectors = []
 
         CELL = solutionMesh.GetCell(cellIdx)
+
         edgeNumbers = CELL.GetNumberOfEdges()
+
         for edgeIdx in range(edgeNumbers):
             EDGE = CELL.GetEdge(edgeIdx)
             EDGE = EDGE.GetPoints()
@@ -211,7 +213,7 @@ def calc(settings_yml):
     processData["wallNormal"] = calcWallNormalVectors(cellIds, surfaceMesh, processData)
 
     print("calculating cell spans from WallNormals and CellEdges...")
-    spanS = cellSpans(cellIds, surfaceMesh, processData, calcFrom)
+    spanS = cellSpans(cellIds, solutionMesh, processData, calcFrom)
     processData["xSpan"] = np.array([i[0] for i in spanS])  # calculate cell span in flow direction
     processData["ySpan"] = np.array([i[1] for i in spanS])  # calculate cell span in wall normal direction
     processData["zSpan"] = np.array([i[2] for i in spanS])  # calculate cell span in span direction
@@ -237,5 +239,4 @@ def calc(settings_yml):
 
     print("calculation done, saving data to grid")
     solutionMesh = saveDataSets(solutionMesh, processData)
-    saveSolution(solutionMesh)
 
