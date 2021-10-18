@@ -35,8 +35,8 @@ mixture
     }
     thermodynamics
     {
-//        Cv          717.5;	//air 
-	Cp 	    1000.5;
+//        Cv          717.5;	//air
+	    Cp 	    1000.5;
         Hf          0;
     }
     transport
