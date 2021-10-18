@@ -37,6 +37,7 @@ openfoam_cascade_les_settings:
 simcase_settings:
     variables:
 
+        DYNVISK: "20e-6"
         EDDYDENSITY: "10"
         UDASHSCALING: "1"
         TASKS_PER_NODE: "96"
@@ -195,6 +196,11 @@ post_settings:
     dimensionless_gridspacing:
         use_velfield: "U"
         use_rhofield: "rho"
+
+    yplus_calc:
+        use_velfield: "U"
+        use_rhofield: "rho"
+
 
     profile_loading:
         volmesh                     : "VTK/02_Simcase_15.vtk"

@@ -1,4 +1,4 @@
-from NTR.postprocessing.sim_values import calcvals
+from NTR.postprocessing.sim_values import calc_yplus
 
 
-calcvals("case_settings.yml")
+calc_yplus("case_settings.yml")
