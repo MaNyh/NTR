@@ -41,8 +41,8 @@ mixture
     }
     transport
     {
-        mu	    20e-6;     	//dynamische viskositaet, aehnlich Luft
-	Pr	    0.7;      	//prandtl-zahl, aehnlich Luft
+        mu	    <var DYNVISK var>;     	//dynamische viskositaet, aehnlich Luft
+	    Pr	    0.7;      	//prandtl-zahl, aehnlich Luft
     }
 }
 
