@@ -25,9 +25,14 @@ def create(path_to_yaml_dict):
     assert "variable" in settings["post_settings"]["animation_creation"].keys(), "no variable for animation defined"
     assert "resolution_x" in settings["post_settings"]["animation_creation"].keys(), "no resolution for animation defined"
     assert "resolution_y" in settings["post_settings"]["animation_creation"].keys(), "no resolution for animation defined"
+    assert "low_scale_limit" in settings["post_settings"]["animation_creation"].keys(), "no low_scale_limit for animation defined"
+    assert "high_scale_limit" in settings["post_settings"]["animation_creation"].keys(), "no high_scale_limit for animation defined"
     var = settings["post_settings"]["animation_creation"]["variable"]
     resolution_x = int(settings["post_settings"]["animation_creation"]["resolution_x"])
     resolution_y = int(settings["post_settings"]["animation_creation"]["resolution_y"])
+
+    low_scale = settings["post_settings"]["animation_creation"]["low_scale_limit"]
+    high_scale = settings["post_settings"]["animation_creation"]["high_scale_limit"]
 
     dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath,i))]
     vtkname = var+"_constantPlane.vtk"
@@ -44,7 +49,7 @@ def create(path_to_yaml_dict):
             #mesh.plot(cpos=[0,0,1])
             plotter.add_mesh(mesh,cmap="coolwarm")
             plotter.show_axes()
-            plotter.update_scalar_bar_range((0,120))
+            plotter.update_scalar_bar_range((low_scale,high_scale))
             plotter.show(screenshot=frame, window_size=[resolution_x,resolution_y],cpos=[0,0,1])
             plotter.close()
             image = imageio.imread(frame)
