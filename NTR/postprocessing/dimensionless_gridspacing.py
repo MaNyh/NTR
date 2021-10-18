@@ -11,21 +11,10 @@ import vtk
 import numpy as np
 
 from NTR.utils.mathfunctions import vecAbs, unitVec, vecProjection, vecAngle
-from NTR.utils.geom_functions.pyvista_utils import load_mesh
+from NTR.utils.pyvista_utils import load_mesh
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
 
-
-
-def constructWallMesh(meshList):
-    print("constructing surfacemesh from wall meshes ...")
-    wallMesh = pv.UnstructuredGrid()
-
-    for mesh in meshList:
-        m = load_mesh(mesh)
-        wallMesh = wallMesh.merge(m)
-
-    return wallMesh
 
 def readDataSet(grid,dataName):
     grid.set_active_scalars(dataName)
@@ -192,7 +181,7 @@ def calc(settings_yml):
 
     use_velfield = settings["post_settings"]["dimensionless_gridspacing"]["use_velfield"]
     use_rhofield = settings["post_settings"]["dimensionless_gridspacing"]["use_rhofield"]
-    mu_0 = 2e-5
+    mu_0 = float(settings["simcase_settings"]["variables"]["DYNVISK"])
 
     processData = {}
 
