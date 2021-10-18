@@ -49,6 +49,9 @@ def calc_yplus(path_to_yaml_dict,verbose=True):
         nearwall_mesh["yplus"]=Deltay
         nearwall_mesh.set_active_scalars("yplus")
         nearwall_mesh.plot()
+    print("min : "+str(min(Deltay)))
+    print("mean : "+str(np.mean(Deltay)))
+    print("max : "+str(max(Deltay)))
     return Deltay
 
 
