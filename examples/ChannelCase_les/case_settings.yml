@@ -31,7 +31,8 @@ simcase_settings:
     variables:
 
         DELTAT: *timestep
-        MAX_CFC: "0.4"
+        AVE_START: &AVE_START : "10"
+        MAX_CFL: "0.4"
         WRITEINTERVAL : "200"
         PURGEWRITE: "2"
 
@@ -82,7 +83,7 @@ simcase_optiondef:
             origin : "(0 0 0.5)"
             normal : "(0 0 1)"
             sampling_rate: 1e0
-            start_time: 0 # *AVE_START #s
+            start_time: *AVE_START #s
             end_time: 1000
         insert: '#include "Probes_Slicing_Dict"'
 

@@ -63,7 +63,7 @@ simcase_settings:
         ZSPAN: "0.04"
 
         DELTAT: *timestep
-        MAX_CFC: "0.4"
+        MAX_CFL: "0.4"
 
         WRITEINTERVAL : "2000"
         PURGEWRITE: "2"
@@ -206,6 +206,8 @@ post_settings:
         volmesh                     : "VTK/02_Simcase_15.vtk"
 
     animation_creation:
-        variable                    : "U"
-        resolution_x                : 400
-        resolution_y                : 400
+        variable                    : "p"
+        low_scale_limit             : 90000
+        high_scale_limit            : 120000
+        resolution_x                : 2600
+        resolution_y                : 2600
