@@ -22,6 +22,6 @@ Ubar            [0 1 -1 0 0 0 0] (1 0 0); //UTexas -> U_mean
 transportModel  Newtonian;
 
 //nu              [0 2 -1 0 0 0 0] 2e-05; //org_tut
-nu              [0 2 -1 0 0 0 0] 3.5e-04; //UTexas -> nu
+nu              [0 2 -1 0 0 0 0] <var DYNVISK var>; //UTexas -> nu
 
 // ************************************************************************* //

@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import pyvista as pv
+
 
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import yaml_dict_read
@@ -9,7 +9,13 @@ from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.utils.mathfunctions import vecAbs
 
 
-def calc_yplus(path_to_yaml_dict, verbose=True):
+def calc_yplus(path_to_yaml_dict,verbose=True):
+    """
+    only suitable for structured meshes with orthogonal cells
+    :param path_to_yaml_dict:
+    :param verbose:
+    :return:
+    """
     settings = yaml_dict_read(path_to_yaml_dict)
     case_path = os.path.abspath(os.path.dirname(path_to_yaml_dict))
 
@@ -22,6 +28,7 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
                             settings["post_settings"]["use_vtk_meshes"]["wallpatches"].values()]
 
     volmesh = load_mesh(volmesh_path)
+    volmesh = volmesh.extract_cells([i for idx, i in enumerate(range(volmesh.number_of_cells)) if idx not in volmesh.surface_indices()])
     volmesh_centers = volmesh.cell_centers()
     wall = constructWallMesh(wallpatches_namelist)
     wall_centers = wall.cell_centers().points
@@ -46,6 +53,12 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
     mu_0 = float(settings["simcase_settings"]["variables"]["DYNVISK"])
 
     uTaus = getWalluTaus(mu_0, nearwall_mesh[use_rhofield], nearwall_mesh["dudy"])
+    if use_rhofield in nearwall_mesh.array_names:
+        uTaus = getWalluTaus(mu_0, nearwall_mesh[use_rhofield],nearwall_mesh["dudy"])
+    else:
+        print("no rho found, assuming rho=1")
+        uTaus = getWalluTaus(mu_0, np.ones(nearwall_mesh.number_of_cells), nearwall_mesh["dudy"])
+
     Deltay = nearwall_mesh["dist"] * uTaus / mu_0
     if verbose:
         nearwall_mesh["yplus"] = Deltay
