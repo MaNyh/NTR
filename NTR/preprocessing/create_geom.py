@@ -7,7 +7,7 @@ from NTR.utils.geom_functions.profileparas import calcMidPassageStreamLine, extr
     midline_from_sides, angles_from_mids
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle, yaml_dict_read
-from NTR.utils.geom_functions.pyvista_utils import lines_from_points
+from NTR.utils.pyvista_utils import lines_from_points
 from NTR.database.data_generators.naca_airfoil_creator import naca
 from NTR.utils.mathfunctions import vecAbs
 from NTR.preprocessing.prep import prep_geo

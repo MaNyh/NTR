@@ -207,5 +207,7 @@ post_settings:
 
     animation_creation:
         variable                    : "U"
+        low_scale_limit             : 0
+        high_scale_limit            : 100
         resolution_x                : 400
         resolution_y                : 400

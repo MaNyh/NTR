@@ -4,7 +4,7 @@ import numpy as np
 import pyvista as pv
 
 from NTR.utils.geom_functions.geom_utils import equi_points, getBoundaryValues
-from NTR.utils.geom_functions.pyvista_utils import polyline_from_points
+from NTR.pyvista_utils import polyline_from_points
 from NTR.utils.geom_functions.spline import refine_spline
 
 
