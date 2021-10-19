@@ -6,10 +6,10 @@ from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.pyvista_utils import load_mesh, constructWallMesh
 from NTR.utils.geom_functions.distance import closest_node_index
-from NTR.utils.mathfunctions import vecAbs, vecDir
+from NTR.utils.mathfunctions import vecAbs
 
 
-def calc_yplus(path_to_yaml_dict,verbose=True):
+def calc_yplus(path_to_yaml_dict, verbose=True):
     settings = yaml_dict_read(path_to_yaml_dict)
     case_path = os.path.abspath(os.path.dirname(path_to_yaml_dict))
 
@@ -41,24 +41,25 @@ def calc_yplus(path_to_yaml_dict,verbose=True):
     nearwall_mesh = volmesh.extract_cells(nearwall_ids)
     nearwall_mesh[use_velvar] = np.array(nearwall_vel)
     nearwall_mesh["dist"] = np.array(center_ortho_walldist)
-    nearwall_mesh["dudy"] = np.array([vecAbs(i) for i in nearwall_mesh[use_velvar]])
+    nearwall_mesh["dudy"] = np.array([vecAbs(i) for i in nearwall_mesh[use_velvar]])/np.array(center_ortho_walldist)
 
     mu_0 = float(settings["simcase_settings"]["variables"]["DYNVISK"])
 
-    uTaus = getWalluTaus(mu_0, nearwall_mesh[use_rhofield],nearwall_mesh["dudy"])
+    uTaus = getWalluTaus(mu_0, nearwall_mesh[use_rhofield], nearwall_mesh["dudy"])
     Deltay = nearwall_mesh["dist"] * uTaus / mu_0
     if verbose:
-        nearwall_mesh["yplus"]=Deltay
+        nearwall_mesh["yplus"] = Deltay
         nearwall_mesh.set_active_scalars("yplus")
         nearwall_mesh.plot()
     return Deltay
+
+
 # calc yplus
 
 # calc AVE massflow
 # calc AVE massflow diff
 
-def getWalluTaus( mu_0, rhoW, gradUWall):
-
+def getWalluTaus(mu_0, rhoW, gradUWall):
     tauW = gradUWall * mu_0 * rhoW
     u_tau = (tauW / rhoW) ** 0.5
 

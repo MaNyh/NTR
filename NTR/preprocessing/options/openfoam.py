@@ -4,7 +4,7 @@ import numpy as np
 import pyvista as pv
 
 from NTR.utils.geom_functions.geom_utils import equi_points, getBoundaryValues
-from NTR.pyvista_utils import polyline_from_points
+from NTR.utils.pyvista_utils import polyline_from_points
 from NTR.utils.geom_functions.spline import refine_spline
 
 
@@ -412,7 +412,7 @@ cuttingPlane
 
 
 def openFoam_create_inletoutletave_probe_dict(fields,start_time, end_time, sampling_rate, case_settings, path_to_sim, geomdat_dict):
-    output_path = os.path.join(path_to_sim,"system")
+    output_path = os.path.join(path_to_sim, "system")
     timestepinterval = int(
         float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
 
@@ -447,8 +447,8 @@ AverValuesInlet
         libs                    ("libfieldFunctionObjects.so");
         writeControl            timeStep;
         writeInterval           """ + str(timestepinterval) + """;
-        timeStart           """ + str(start_time) + """;
-        timeEnd             """ + str(end_time) + """;
+        timeStart               """ + str(start_time) + """;
+        timeEnd                 """ + str(end_time) + """;
         log                     true;
         writeFields             false;
         regionType              patch;
