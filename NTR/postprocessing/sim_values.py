@@ -47,8 +47,8 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
 
             found = False
             for edge_pt in edges.points:
-                wallpt_idxs = closest_node_index(edge_pt, wall_center.points)
-                wall_pt = wall_center.points[wallpt_idxs]
+                wallpt_idxs = closest_node_index(edge_pt, wall.points)
+                wall_pt = wall.points[wallpt_idxs]
                 if np.array_equal(edge_pt, wall_pt):
                     if wallname not in nearwalls.keys():
                         nearwalls[wallname] = cell
