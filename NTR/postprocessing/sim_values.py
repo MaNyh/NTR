@@ -1,15 +1,17 @@
 import os
 import numpy as np
-
+import pyvista as pv
+from tqdm import tqdm
+import itertools
 
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import yaml_dict_read
-from NTR.utils.pyvista_utils import load_mesh, constructWallMesh
+from NTR.utils.pyvista_utils import load_mesh, constructWallMesh, calc_dist_from_surface
 from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.utils.mathfunctions import vecAbs
 
 
-def calc_yplus(path_to_yaml_dict,verbose=True):
+def calc_yplus(path_to_yaml_dict, verbose=True):
     """
     only suitable for structured meshes with orthogonal cells
     :param path_to_yaml_dict:
@@ -24,51 +26,70 @@ def calc_yplus(path_to_yaml_dict,verbose=True):
 
     volmesh_name = settings["post_settings"]["use_vtk_meshes"]["volmesh"]
     volmesh_path = os.path.join(case_path, casedirs["solution"], volmesh_name)
-    wallpatches_namelist = [os.path.join(case_path, casedirs["solution"], i) for i in
+    wallnames = [os.path.join(case_path, casedirs["solution"], i) for i in
                             settings["post_settings"]["use_vtk_meshes"]["wallpatches"].values()]
 
     volmesh = load_mesh(volmesh_path)
-    volmesh = volmesh.extract_cells([i for idx, i in enumerate(range(volmesh.number_of_cells)) if idx not in volmesh.surface_indices()])
-    volmesh_centers = volmesh.cell_centers()
-    wall = constructWallMesh(wallpatches_namelist)
-    wall_centers = wall.cell_centers().points
-    wall_normals = wall["Normals"]
 
-    print("extracting near-wall cells...")
-    nearwall_ids = []
-    nearwall_vel = []
-    center_ortho_walldist = []
+    print("collecting walls...")
+    walls = [load_mesh(w) for w in wallnames]
+    walls_centers = [w.cell_centers() for w in walls]
 
-    for idx, cellcenter in enumerate(wall_centers):
-        nearwall_idx = closest_node_index(cellcenter, volmesh_centers.points)
-        nearwall_ids.append(nearwall_idx)
-        nearwall_vel.append(volmesh_centers[use_velvar][nearwall_idx])
-        center_ortho_walldist.append(vecAbs(cellcenter - volmesh_centers.points[nearwall_idx]))
+    print("constructing near-wall-patches...")
 
-    nearwall_mesh = volmesh.extract_cells(nearwall_ids)
-    nearwall_mesh[use_velvar] = np.array(nearwall_vel)
-    nearwall_mesh["dist"] = np.array(center_ortho_walldist)
-    nearwall_mesh["dudy"] = np.array([vecAbs(i) for i in nearwall_mesh[use_velvar]])/np.array(center_ortho_walldist)
 
-    mu_0 = float(settings["simcase_settings"]["variables"]["DYNVISK"])
+    nearwalls = {}
 
-    uTaus = getWalluTaus(mu_0, nearwall_mesh[use_rhofield], nearwall_mesh["dudy"])
-    if use_rhofield in nearwall_mesh.array_names:
-        uTaus = getWalluTaus(mu_0, nearwall_mesh[use_rhofield],nearwall_mesh["dudy"])
-    else:
-        print("no rho found, assuming rho=1")
-        uTaus = getWalluTaus(mu_0, np.ones(nearwall_mesh.number_of_cells), nearwall_mesh["dudy"])
+    for idx in tqdm(range(volmesh.number_of_cells)):
+        cell = volmesh.extract_cells(idx)
+        edges = cell.extract_all_edges()
+        for wallname, wall, wall_center in zip(wallnames, walls, walls_centers):
 
-    Deltay = nearwall_mesh["dist"] * uTaus / mu_0
-    if verbose:
-        nearwall_mesh["yplus"] = Deltay
-        nearwall_mesh.set_active_scalars("yplus")
-        nearwall_mesh.plot()
-    print("min : "+str(min(Deltay)))
-    print("mean : "+str(np.mean(Deltay)))
-    print("max : "+str(max(Deltay)))
-    return Deltay
+            found = False
+            for edge_pt in edges.points:
+                wallpt_idxs = closest_node_index(edge_pt, wall_center.points)
+                wall_pt = wall_center.points[wallpt_idxs]
+                if np.array_equal(edge_pt, wall_pt):
+                    if wallname not in nearwalls.keys():
+                        nearwalls[wallname] = cell
+                    else:
+                        nearwalls[wallname] = nearwalls[wallname].merge(cell)
+                    found = True
+                    break
+            if found:
+                break
 
+    for nw_item, wall in zip(nearwalls.items(), walls):
+        nw_name, nw_wall = nw_item
+        nearwall_distancemap = calc_dist_from_surface(nw_wall.delaunay_2d(), wall)
+        nearwall_dists = nearwall.sample(nearwall_distancemap)
+        nearwalls[nw_name] = nearwall_dists
+
+    for patchname, nearwall_mesh in nearwalls.items():
+        print(patchname)
+        #nearwall_mesh[use_velvar] = np.array(nearwall_vel)
+        #nearwall_mesh["distances"] = np.array(center_ortho_walldist)
+        nearwall_mesh["dudy"] = np.array([vecAbs(i) for i in nearwall_mesh[use_velvar]]) / np.array(
+            center_ortho_walldist)
+
+        mu_0 = float(settings["simcase_settings"]["variables"]["DYNVISK"])
+
+        if use_rhofield in nearwall_mesh.array_names:
+            uTaus = getWalluTaus(mu_0, nearwall_mesh[use_rhofield], nearwall_mesh["dudy"])
+        else:
+            print("no rho found, assuming rho=1 (for incompressible flows set rho=1 and mu => nu)")
+            uTaus = getWalluTaus(mu_0, np.ones(nearwall_mesh.number_of_cells), nearwall_mesh["dudy"])
+
+        Deltay = nearwall_mesh["distances"] * uTaus / mu_0
+        if verbose:
+            nearwall_mesh["yplus"] = Deltay
+            nearwall_mesh.set_active_scalars("yplus")
+            nearwall_mesh.plot()
+        print(wall)
+        print("min : " + str(min(Deltay)))
+        print("mean : " + str(np.mean(Deltay)))
+        print("max : " + str(max(Deltay)))
+    return 0 #Deltay
 
 
 def getWalluTaus(mu_0, rhoW, gradUWall):
