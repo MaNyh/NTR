@@ -44,8 +44,7 @@ def write_yaml_dict(fpath,data):
 
 
 def readtxtfile(path_to_file):
-    basepath = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(basepath, os.path.basename(path_to_file)), "r") as fobj:
+    with open(path_to_file, "r") as fobj:
         content = fobj.readlines()
     return content
 

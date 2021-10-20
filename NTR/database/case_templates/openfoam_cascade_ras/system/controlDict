@@ -56,101 +56,73 @@ libs (
 );
 
 
+
 functions
-{
-    #includeFunc flowRatePatch(name=INLET)
-    #includeFunc flowRatePatch(name=OUTLET)
-    #includeFunc resudials
-
-
-sclice
     {
-
-    type        			surfaces;
-//    writeControl              	writeTime;
-    interpolationScheme 		cellPoint;
-    functionObjectLibs 			( "libsampling.so" );
-    enabled         			true;
-    writeControl   			timeStep;
-    writeInterval  			100; // the surface will be stored every 2nd time step (for example)
-    surfaceFormat    			vtk;
-    surfaces
-    (
-        zCut
-        {
-        // Cutingplane using iso surface
-        type            cuttingPlane;
-        planeType       pointAndNormal;
-        pointAndNormalDict
-        {
-            basePoint       (0.06645314767956734 0.015346363186836243 0.02);
-            normalVector    (0.0 0.0 1.0);
-        }
-        interpolate     true;
-        }
-    );
-
-    fields
-    (
-    U
-    );
+        <opt INOUT_FIELDAVE_PROBING opt>
+        <opt INOUT_VELOCITY_PROBING opt>
+        <opt XSCLICE_PROBING opt>
+        <opt SLICE_PROBING opt>
+        <opt PROFILE_PROBING opt>
+        <opt STREAMLINE_PROBING opt>
+        <opt STAGNATIONPOINTFLOW_PROBING opt>
     }
 
 
-fieldAverage
-   {
-        type            	  fieldAverage;
-       	writeControl    	  writeTime;
-        restartOnOutput           false;
-        restartOnRestart          false;
-	    enabled			  true;
+fieldAverage1
+    {
+        type            fieldAverage;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        startTime       <var AVE_START var>
+
 
         fields
         (
-	  wallShearStress
-	  {
-		mean true;
-		prime2Mean false;
-		base time;
-	  }
-	  rho
-	  {
-		mean true;
-		prime2Mean false;
-		base	time;
-	  }
+              wallShearStress
+              {
+                mean true;
+                prime2Mean false;
+                base time;
+              }
+              rho
+              {
+                mean true;
+                prime2Mean false;
+                base	time;
+              }
 
-	  U
-          {
+	        U
+            {
                 mean        true;
                 prime2Mean  true;
                 base        time;
-          }
+            }
 
-          p
-          {
+            p
+            {
               mean        true;
               prime2Mean  true;
               base        time;
-          }
-          T
-          {
+            }
+            T
+            {
               mean        true;
               prime2Mean  true;
               base        time;
-          }
-          nut
-          {
+            }
+            nut
+            {
               mean        true;
-	      prime2Mean  true;
+	          prime2Mean  true;
               base        time;
-          }
-          alphat
-          {
-	     mean 	true;
-	     prime2Mean	true;
-	     base 	time;
-	  }
+            }
+            alphat
+            {
+             mean 	      true;
+             prime2Mean	  true;
+             base 	      time;
+	        }
 
 	);
   }

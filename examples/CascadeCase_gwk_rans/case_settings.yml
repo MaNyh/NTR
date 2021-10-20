@@ -4,33 +4,43 @@ case_settings:
     type: "simulation"
     prep: |
         cp ../01_Meshing/fluent.msh .
-        fluent3dMeshToFoam fluent.msh
+        fluent3DMeshToFoam fluent.msh
         createPatch -overwrite
         topoSet
         decomposePar
+        dos2unix submit_mpi_job_slurm_hlrn.sh
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
-        job_script: "submit_mpi_job_slurm_rrzn"
+        job_script: "submit_mpi_job_slurm_hlrn"
         job_sourcecmd: |
-            . $MODULESHOME/init/ksh
-            source ~/ModuleLoading/OpenFoam1612.sh
+            module load  gcc/7.5.0 cmake/3.16.2; source /home/niikceng/OpenFOAM/OpenFOAM-v1612+/etc/bashrc
+            export FOAM_USER_PATH='$HOME/OpenFOAM/niinyhma-v1612+/'
+            #. $MODULESHOME/init/ksh
+            #source ~/ModuleLoading/OpenFoam1612.sh
         job_exe: "rhoPimpleFoam"
         job_name: *name
-        job_runtime: "10:00:00" #h
+        job_runtime: "2:00:00" #h
         job_nodes : "1"
-        job_ppn : "16"
-        job_mem : "12"
-        account : "nhkcmany"
+        job_ppn : "96"
+        job_mem : "16"
+        job_account : "niinyhma"
 
     sub_cmd: "sbatch"
 
-openfoam_cascade_ras_settings:
+#ToDo: this is stupid. make this a general dict for global vars
+openfoam_cascade_les_settings:
     timestep : "10e-8"
 
 simcase_settings:
     variables:
-        NOUTER_CORR: "3"
-        NCORR: "2"
+        DYNVISK: "20e-6"
+        AVE_START : &AVE_START "10"
+        MAX_CFL: "0.4"
+
+        PROCS: "96"
+        NOUTERCORRECTORS: "3"
+        NCORRECTORS: "2"
+        NNONORTHOGONALCORRECTORS: "2"
         PCORR: "2"
         TURBULENCE_MODEL: "kOmega"
 
@@ -46,35 +56,85 @@ simcase_settings:
         TOUT_LINF: "0.005"
 
         PITCHPER: "0.0765"
-        SPANPER: "0.0025"
+        SPANPER: "0.04"
     options:
+        INOUT_FIELDAVE_PROBING: True
+        INOUT_VELOCITY_PROBING: True
+        XSCLICE_PROBING : True
+        SLICE_PROBING : True
+        PROFILE_PROBING : False
+        STREAMLINE_PROBING : False
+        STAGNATIONPOINTFLOW_PROBING : False
+
+simcase_optiondef:
+
+    INOUT_VELOCITY_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openFoam_createProbesInletOutlet"
+        args:
+            sampling_rate: 1e5 #Hz
+            start_time: 0 #s
+            end_time: 1000 #s
+        insert: '#include "Probes_InletOutlet_Dict"'
+
+    INOUT_FIELDAVE_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
+        args:
+            fields: "(U p T)"
+            sampling_rate: 1e5 #Hz
+            start_time: 0
+            end_time: 1000
+        insert: '#include "Probes_inletoutletave_Dict"'
+
+    XSCLICE_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openFoam_createXSliceProbes"
+        args:
+            nop: 3
+            sampling_rate: 1e6 #Hz
+            x_slice_one : -0.08
+            x_slice_two : 0.18
+            start_time: *AVE_START #s
+            end_time: 1000 #s
+        insert: '#include "Probes_XSlices_Dict"'
+
+
+    SLICE_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
+        args:
+            fields: "(U p gradU)"
+            origin: "(0 0 0.02)"
+            normal: "(0 0 1)"
+            sampling_rate: 5e4
+            start_time:  *AVE_START #s
+            end_time: 1000
+        insert: '#include "Probes_Slicing_Dict"'
+
 
 geometry:
     pitch                           : 0.0765                                #Pitch [m]
     alpha                           : 0.01                                  #Geometric parameter used for hull-calculations
+    midline_tolerance               : 5                                     #Tolerance coefficient for midline-generation
     algorithm                       : "from_pointcloud"
-    ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"              #Name of the pointcloud-file
-    ptcloud_profile_unit            : "mm"                                   #m vs mm
-    x_inlet                         : -0.1                                  #Shift Inlet along x [m]
-    x_outlet                        : 0.27                                  #Shift Outlet along x [m]
-    pitch                           : 0.0765                                #Pitch [m]
-    shift_domain                    : 0.01                                 #Shift Domain to have probes inside domain [m]
+    ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"   #Name of the pointcloud-file
+    ptcloud_profile_unit            : "mm"                                  #m vs mm
+    x_inlet                         : -0.13                                  #Shift Inlet along x [m]
+    x_outlet                        : 0.26                              #Shift Outlet along x [m]
+    shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.7                                   #Mesh-density factor
-    ogrid_factor                    : 4                                 #o-grid-node-ratio
+    factor                          : 1.1                                   #Mesh-density factor
+    ogrid_factor                    : 5.5                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.0000075                              #first cell height when factor=1
-    le_firstcellheight_coeff        : 0.4
-    te_firstcellheight_coeff        : 0.8
+    first_cell_width                : 0.00001                             #first cell height when factor=1
+    le_firstcellheight_coeff        : 1
+    te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
-    layers                          : 2                                     #fixed cells in boundary layer
-    extrudeLength                   : 0.0025                                  #length of extruded span
-    blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
-    cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
-    streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
-    yPerLowHGridBlockPitchStart     : 0.3                                 #move low-y-per-block along y-pitch
-    yPerHighHGridBlockPitchStart    : 0.6                                  #move high-y-per-block along y-pitch
-    shift_vk_block_xaxiscoeff       : 0.0475                                  #move periodic vertices (yPer from LE) along x
-    shift_hk_block_xaxiscoeff       : 0.0                                  #move periodic vertices (yPer from TE) along x
+    layers                          : 10                                    #fixed cells in boundary layer
+    extrudeLength                   : 0.04                                  #length of extruded span
+    blockStartFromChord             : 0.011                                 #LE and TE-Block Meshing
+    cellwidthcoeff                  : 0.5                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
+    yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
+    yPerHighHGridBlockPitchStart    : 0.5                                  #move high-y-per-block along y-pitch
+    shift_vk_block_xaxiscoeff       : 0.045                                 #move periodic vertices (yPer from LE) along x
+    shift_hk_block_xaxiscoeff       : 0.005                                 #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations

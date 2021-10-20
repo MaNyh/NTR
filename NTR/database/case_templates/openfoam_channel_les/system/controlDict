@@ -48,7 +48,7 @@ runTimeModifiable true;
 
 adjustTimeStep  <var ADUSTABLETIMESTEP var>;
 
-maxCo           <var MAX_CFC var>;
+maxCo           <var MAX_CFL var>;
 
 libs (
 "libfieldFunctionObjects.so"

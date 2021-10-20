@@ -47,7 +47,7 @@ runTimeModifiable true;
 
 adjustTimeStep  <var ADUSTABLETIMESTEP var>;
 
-maxCo           <var MAX_CFC var>; //maximale courant number
+maxCo           <var MAX_CFL var>; //maximale courant number
 
 libs (
     "libfieldFunctionObjects.so"
@@ -84,22 +84,53 @@ fieldAverage1
         writeControl    writeTime;
         startTime       <var AVE_START var>
 
+
         fields
         (
+              wallShearStress
+              {
+                mean true;
+                prime2Mean false;
+                base time;
+              }
+              rho
+              {
+                mean true;
+                prime2Mean false;
+                base	time;
+              }
 
-            U
+	        U
             {
-                mean        on;
-                prime2Mean  on;
+                mean        true;
+                prime2Mean  true;
                 base        time;
             }
 
             p
             {
-                mean        on;
-                prime2Mean  on;
-                base        time;
+              mean        true;
+              prime2Mean  true;
+              base        time;
             }
+            T
+            {
+              mean        true;
+              prime2Mean  true;
+              base        time;
+            }
+            nut
+            {
+              mean        true;
+	          prime2Mean  true;
+              base        time;
+            }
+            alphat
+            {
+             mean 	      true;
+             prime2Mean	  true;
+             base 	      time;
+	        }
         );
     }
 

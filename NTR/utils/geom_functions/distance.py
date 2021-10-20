@@ -24,3 +24,14 @@ def closest_node_index(node, nodes):
 def distant_node_index(node, nodes):
     closest_index = distance.cdist([node], nodes).argmax()
     return closest_index
+
+def closest_pair_problem_twopointlists(plist_one,plist_two):
+    """
+    experimental - NOT TESTED YET
+    :param plist_one: array of points
+    :param plist_two: array of points
+    :return: ???
+    """
+    dist_matrix = distance.cdist(plist_one, plist_two, 'euclidean')
+    result = np.count_nonzero(dist_matrix<=r)
+    return result
