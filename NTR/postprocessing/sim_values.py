@@ -59,18 +59,20 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
             if found:
                 break
 
+    assert len(nearwalls.values())>0, "no connection from wall-meshes to the domain has been found"
     for nw_item, wall in zip(nearwalls.items(), walls):
         nw_name, nw_wall = nw_item
         nearwall_distancemap = calc_dist_from_surface(nw_wall.delaunay_2d(), wall)
-        nearwall_dists = nearwall.sample(nearwall_distancemap)
-        nearwalls[nw_name] = nearwall_dists
+        nearwall_dists = nw_wall.sample(nearwall_distancemap)
+        nearwalls[nw_name].point_arrays["distances"] = nearwall_dists["distances"]
+        nearwalls[nw_name] = nearwalls[nw_name].point_data_to_cell_data("distanes")
 
     for patchname, nearwall_mesh in nearwalls.items():
         print(patchname)
         #nearwall_mesh[use_velvar] = np.array(nearwall_vel)
         #nearwall_mesh["distances"] = np.array(center_ortho_walldist)
         nearwall_mesh["dudy"] = np.array([vecAbs(i) for i in nearwall_mesh[use_velvar]]) / np.array(
-            center_ortho_walldist)
+            nearwall_mesh["distances"])
 
         mu_0 = float(settings["simcase_settings"]["variables"]["DYNVISK"])
 
