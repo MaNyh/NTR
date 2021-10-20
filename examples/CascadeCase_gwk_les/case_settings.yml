@@ -32,7 +32,7 @@ case_settings:
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"
-    timestep : &timestep "8e-8"
+    timestep : &timestep "4e-8"
 
 simcase_settings:
     variables:
@@ -43,12 +43,12 @@ simcase_settings:
         TASKS_PER_NODE: "96"
         PINLET: "95000"                                         #Pa
         TINLET : "293.15"                                       #K
-        TIN_LINF: "0.005"                                       #m
+        TIN_LINF: "0.02"                                       #m
         UINLET: "35.392445 58.06355 0"                          #m/s
-        UIN_LINF: "0.03"                                        #m
+        UIN_LINF: "0.02"                                        #m
         RUNTIME: "10:00:00"
         NODES: "2"
-        AVE_START: &AVE_START "0.04"
+        AVE_START: &AVE_START "0.0"
 
         RINLET : "4 0 0 4 0 4"                                  #m^2/s^2
         LINLET : "0.02"                                         #m
@@ -151,7 +151,7 @@ simcase_optiondef:
             fields: "(U p gradU)"
             origin: "(0 0 0.02)"
             normal: "(0 0 1)"
-            sampling_rate: 5e4
+            sampling_rate: 4e4
             start_time:  *AVE_START #s
             end_time: 1000
         insert: '#include "Probes_Slicing_Dict"'
@@ -171,11 +171,11 @@ mesh:
     factor                          : 1.1                                   #Mesh-density factor
     ogrid_factor                    : 5.5                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.00001                             #first cell height when factor=1
-    le_firstcellheight_coeff        : 1
+    first_cell_width                : 0.0000025                             #first cell height when factor=1
+    le_firstcellheight_coeff        : 0.8
     te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
-    layers                          : 10                                    #fixed cells in boundary layer
+    layers                          : 18                                    #fixed cells in boundary layer
     extrudeLength                   : 0.04                                  #length of extruded span
     blockStartFromChord             : 0.011                                 #LE and TE-Block Meshing
     cellwidthcoeff                  : 0.5                                 #cell width-coeff at LT and TE (stagnation-point-flow)
