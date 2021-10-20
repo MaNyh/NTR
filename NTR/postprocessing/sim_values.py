@@ -27,7 +27,7 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
     volmesh_name = settings["post_settings"]["use_vtk_meshes"]["volmesh"]
     volmesh_path = os.path.join(case_path, casedirs["solution"], volmesh_name)
     wallnames = [os.path.join(case_path, casedirs["solution"], i) for i in
-                            settings["post_settings"]["use_vtk_meshes"]["wallpatches"].values()]
+                 settings["post_settings"]["use_vtk_meshes"]["wallpatches"].values()]
 
     volmesh = load_mesh(volmesh_path)
 
@@ -37,7 +37,6 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
 
     print("constructing near-wall-patches...")
 
-
     nearwalls = {}
 
     for idx in tqdm(range(volmesh.number_of_cells)):
@@ -46,6 +45,7 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
         for wallname, wall, wall_center in zip(wallnames, walls, walls_centers):
 
             found = False
+            # TODO: we can be faster when using the NTR.utils.geom_functions.dists.closest_pair_problem... method
             for edge_pt in edges.points:
                 wallpt_idxs = closest_node_index(edge_pt, wall.points)
                 wall_pt = wall.points[wallpt_idxs]
@@ -59,18 +59,19 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
             if found:
                 break
 
-    assert len(nearwalls.values())>0, "no connection from wall-meshes to the domain has been found"
+    assert len(nearwalls.values()) > 0, "no connection from wall-meshes to the domain has been found"
     for nw_item, wall in zip(nearwalls.items(), walls):
         nw_name, nw_wall = nw_item
-        nearwall_distancemap = calc_dist_from_surface(nw_wall.delaunay_2d(), wall)
-        nearwall_dists = nw_wall.sample(nearwall_distancemap)
-        nearwalls[nw_name].point_arrays["distances"] = nearwall_dists["distances"]
-        nearwalls[nw_name] = nearwalls[nw_name].point_data_to_cell_data("distanes")
+        nw_centers = nw_wall.cell_centers()
+        nw_center_surf = nw_centers.delaunay_2d()
+
+        nearwall_distancemap = calc_dist_from_surface(nw_center_surf, wall)
+        nearwall_dists = nearwall_distancemap.interpolate(nw_wall)
+        nearwall_dists.point_arrays["distances"] = nearwall_dists["distances"]
+        nearwalls[nw_name] = nearwall_dists.point_data_to_cell_data("distanes")
 
     for patchname, nearwall_mesh in nearwalls.items():
         print(patchname)
-        #nearwall_mesh[use_velvar] = np.array(nearwall_vel)
-        #nearwall_mesh["distances"] = np.array(center_ortho_walldist)
         nearwall_mesh["dudy"] = np.array([vecAbs(i) for i in nearwall_mesh[use_velvar]]) / np.array(
             nearwall_mesh["distances"])
 
@@ -91,7 +92,7 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
         print("min : " + str(min(Deltay)))
         print("mean : " + str(np.mean(Deltay)))
         print("max : " + str(max(Deltay)))
-    return 0 #Deltay
+    return 0  # Deltay
 
 
 def getWalluTaus(mu_0, rhoW, gradUWall):
