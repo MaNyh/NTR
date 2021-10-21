@@ -1,6 +1,6 @@
 case_settings:
     name : &name "GWK_Verdichterkaskade_TRACE_RAS"
-    case_type : "trace_cascade_ras"
+    case_type : "trace_cascade_ras_WAKE_PARASTUD"
     type: "parameterstudy"
     prep: |
         cp ../../01_Meshing/mesh.cgns input/.
@@ -21,8 +21,6 @@ case_settings:
     sub_cmd : "sh"
 
 simcase_settings:
-    job:
-        job_script: ""
     variables:
 
         TURBMODEL_IDENTIFIER: "Wilcox1988"   # MenterSST2003 // Wilcox1988
@@ -40,13 +38,8 @@ simcase_settings:
 
         LENGTH_YPER: "0.0765"
 
-        INLET_TOTAL_PRESSURE:
-            - "101325"
-            - "100900"
-            - "101500"
-        INLET_TEMP:
-            - "293.15"
-            - "298.15"
+        INLET_TOTAL_PRESSURE: "101325"
+        INLET_TEMP: "293.15"
         INLET_VELX: "35.392445"
         INLET_VELY: "58.06355"
         INLET_VELZ: "0"
@@ -60,11 +53,6 @@ simcase_settings:
 
         VEL_YANGLE: "48.05"
         GLOBAL_TOLERANCE: "0.0000001"
-
-        TRACE_CONTROLINPUT: |
-            #all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988
-            #all immediate Update_kw_tdr_tdp tdr_param "0.8"
-            #all immediate Update_kw_tdr_tdp tpr_param "1.2"
 
     options:
 simcase_optiondef:
