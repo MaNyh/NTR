@@ -189,9 +189,9 @@ mesh:
 
 post_settings:
     use_vtk_meshes:
-        volmesh: "VTK/02_Simcase_15.vtk"
+        volmesh: "VTK/02_Simcase_224000.vtk"
         wallpatches:
-            blade: "VTK/BLADE/BLADE_15.vtk"
+            blade: "VTK/BLADE/BLADE_224000.vtk"
 
     dimensionless_gridspacing:
         use_velfield: "U"
@@ -203,7 +203,7 @@ post_settings:
 
 
     profile_loading:
-        volmesh                     : "VTK/02_Simcase_15.vtk"
+        volmesh: "VTK/02_Simcase_224000.vtk"
 
     animation_creation:
         variable                    : "p"
@@ -211,3 +211,9 @@ post_settings:
         high_scale_limit            : 120000
         resolution_x                : 2600
         resolution_y                : 2600
+
+#        variable                    : "U"
+#        low_scale_limit             : 0
+#        high_scale_limit            : 90
+#        resolution_x                : 2600
+#        resolution_y                : 2600
