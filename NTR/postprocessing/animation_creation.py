@@ -39,7 +39,7 @@ def create(path_to_yaml_dict):
     frame = "frame.jpg"
 
     pv.set_plot_theme("document")
-    with imageio.get_writer(os.path.join(casepath,casedirs["data"],"animation.gif"), mode='I') as writer:
+    with imageio.get_writer(os.path.join(casepath,casedirs["data"],var + "_animation.gif"), mode='I') as writer:
         for d in dirs:
             target = os.path.join(cutplanepath,d,vtkname)
             plotter = pv.Plotter(off_screen=True)
