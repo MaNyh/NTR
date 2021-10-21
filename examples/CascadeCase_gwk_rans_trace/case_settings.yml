@@ -57,6 +57,11 @@ simcase_settings:
         VEL_YANGLE: "48.05"
         GLOBAL_TOLERANCE: "0.0000001"
 
+        TRACE_CONTROLINPUT: |
+            #all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988
+            #all immediate Update_kw_tdr_tdp tdr_param "0.8"
+            #all immediate Update_kw_tdr_tdp tpr_param "1.2"
+
     options:
 simcase_optiondef:
 
