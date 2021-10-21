@@ -1,14 +1,12 @@
-all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988
+#all immediate ChangeTurbulenceSettings --model Wilcox1988 -spaf KatoLaunder
 
-all immediate Update_kw_tdr_tdp tdr_param "1"
-all immediate Update_kw_tdr_tdp tpr_param "1"
 
-block 10 ChangeTurbulenceSettings --model MNEDITWilcox1988
+block 10 immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
 
 block 10 Update_kw_tdr_tdp tdr_param "<var BLOCK_ONE_TDR var>"
 block 10 Update_kw_tdr_tdp tpr_param "<var BLOCK_ONE_TPR var>"
 
-block 11 ChangeTurbulenceSettings --model MNEDITWilcox1988
+block 11 immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
 
 block 11 Update_kw_tdr_tdp tdr_param "<var BLOCK_TWO_TDR var>"
 block 11 Update_kw_tdr_tdp tpr_param "<var BLOCK_TWO_TPR var>"
