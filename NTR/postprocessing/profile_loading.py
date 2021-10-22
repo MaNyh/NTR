@@ -9,7 +9,6 @@ from NTR.utils.pyvista_utils import load_mesh
 from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.preprocessing.create_geom import extract_geo_paras
 from NTR.utils.filehandling import yaml_dict_read
-from NTR.database.case_dirstructure import casedirs
 
 
 def extract_profile_from_volmesh(settings_yml, volmesh):
@@ -49,7 +48,7 @@ def calc_loading_volmesh(settings_yml):
 
     assert os.path.isfile(path_to_volmesh), "file " + path_to_volmesh + " does not exist"
 
-    volmesh =load_mesh(path_to_volmesh)
+    volmesh = load_mesh(path_to_volmesh)
 
     psVals, ssVals, sortedPoints, ind_vk, ind_hk, camber_angle = extract_profile_from_volmesh(settings_yml, volmesh)
 
