@@ -53,8 +53,8 @@ def calc_loading_volmesh(settings_yml):
     psVals, ssVals, sortedPoints, ind_vk, ind_hk, camber_angle = extract_profile_from_volmesh(settings_yml, volmesh)
 
     camber = pv.Line((0, 0, 0), -(sortedPoints[ind_vk] - sortedPoints[ind_hk]))
-    xLine = pv.Line((-1, 0, 0), (1, 0, 0))
-    yLine = pv.Line((0, -1, 0), (0, 1, 0))
+    #xLine = pv.Line((-1, 0, 0), (1, 0, 0))
+    #yLine = pv.Line((0, -1, 0), (0, 1, 0))
 
     shift = sortedPoints[ind_vk]
     shift -= psVals.points[0][-1]
@@ -82,6 +82,8 @@ def calc_loading_volmesh(settings_yml):
 
     for idx, pt in enumerate(ssVals.points):
         ss_xc[idx] = pt[0] / camber.length
+        ss_cp[idx] = calc_inflow_cp(ssVals.point_arrays["Pressure"][idx], 101315, 98000)
+
 
     ssVals["xc"] = ss_xc
     psVals["xc"] = ps_xc
