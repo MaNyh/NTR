@@ -1,0 +1,17 @@
+block 4 group 1
+block 3 group 1
+block 12 group 1
+
+block 2 group 2
+block 10 group 2
+block 8 group 2
+block 9 group 2
+
+group 1 immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
+group 2 immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
+
+group 1 immediate Update_kw_tdr_tpr tdr_param "<var BLOCK_ONE_TDR var>"
+group 1 immediate Update_kw_tdr_tpr tpr_param "<var BLOCK_ONE_TPR var>"
+
+group 2 immediate Update_kw_tdr_tpr tdr_param "<var BLOCK_TWO_TDR var>"
+group 2 immediate Update_kw_tdr_tpr tpr_param "<var BLOCK_TWO_TPR var>"

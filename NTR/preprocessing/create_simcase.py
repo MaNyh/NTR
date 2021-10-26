@@ -6,6 +6,7 @@ import copy
 import tempfile
 import yaml
 import glob
+from tqdm import tqdm
 
 from NTR.database.job_management import create_jobmanagement, write_runsim_bash, mgmt_parastud
 from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator, merge
@@ -74,7 +75,7 @@ def create_parastudsims(path_to_parayaml):
 
     casepath = os.path.abspath(os.path.dirname(path_to_parayaml))
     sim_dirs = []
-    for idx, settings_dict in enumerate(settings):
+    for idx, settings_dict in tqdm(enumerate(settings)):
         settings_dict["case_settings"]["type"] = "simulation"
         subname = "paracase_" + str(idx)
         tmp_dir = tempfile.TemporaryDirectory()
