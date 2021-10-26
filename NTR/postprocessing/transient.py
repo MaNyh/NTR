@@ -14,7 +14,7 @@ with these functions given, we can analytically define where the transient proce
 
 from scipy.integrate import simps
 import scipy.fftpack as fftpack
-import copy
+
 
 class signal_generator:
     """
@@ -35,17 +35,17 @@ class signal_generator:
         self.sin_omega = np.random.rand()
 
         self.tanh_stationary_ts = np.arctanh(self.transientlimit) * self.tanh_lasting
-        #self.tanh_sign = np.random.choice([-1, 1])
+        # self.tanh_sign = np.random.choice([-1, 1])
 
         self.sin_stationary_ts = -self.sin_lasting * (1 + np.log(1 - self.transientlimit))
 
         # as defined in Ries 2018, the signal must be at least two times as long as the transient process
-        #todo current calculation of self.time is not according ries2018
+        # todo current calculation of self.time is not according ries2018
         if self.sin_stationary_ts > self.tanh_stationary_ts:
             self.time = 2 * self.sin_stationary_ts
         else:
             self.time = 2 * self.tanh_stationary_ts
-        #todo we need to correct the wrong calculated self.time. this is not nice
+        # todo we need to correct the wrong calculated self.time. this is not nice
         self.time *= 2
 
         # defining the used timesteps (unnesessary, the signal-length could be normed to 1!)
@@ -81,11 +81,11 @@ class signal_generator:
 
     def tanh_signal(self):
         ans = np.tanh(self.timesteps * self.tanh_lasting ** -1)
-        return ans #* self.tanh_sign
+        return ans  # * self.tanh_sign
 
     def sin_signal(self):
         sinus = np.sin(self.timesteps * self.sin_omega) * self.sin_abate
-        return sinus*0.5
+        return sinus * 0.5
 
     def noise_signal(self):
         mu, sigma = 0, np.random.rand()  # mean and standard deviation
@@ -93,15 +93,15 @@ class signal_generator:
 
         t = self.time
         Dt = t / len(self.timesteps)
-        #dt is the timescale of the noisy signal --> emulated length scale!
+        # dt is the timescale of the noisy signal --> emulated length scale!
         dt = t / 1000
         timescale = int(dt / Dt)
         weights = np.repeat(1.0, timescale) / timescale
         out = np.convolve(s, weights, 'same')
-        #todo: when a sine is applied, the integral scale fits. but the signal is not that noisy anymore. whats the best solution?
+        # todo: when a sine is applied, the integral scale fits. but the signal is not that noisy anymore. whats the best solution?
         out /= max(out)
-        out += np.sin(self.timesteps * dt ** -1)*0.5
-        out /= max(out)
+        out += np.sin(self.timesteps * dt ** -1) * 0.5
+        out /= max(out)*0.5
         return out
 
     def generate(self):
@@ -148,11 +148,6 @@ def test_transientcheck(verbose=True):
 
     sinus, tanh, rausch, signal, stat_sin, stat_tanh = sig_gen.generate()
 
-    # todo: it must be an assumption, that the frequency of the noise must be way higher then the sine-frequency
-    rausch_freq = dominant_freq(rausch, sig_gen.timesteps)
-    sin_freq = dominant_freq(sinus, sig_gen.timesteps)
-
-    timescales = rausch_freq * sig_gen.time
     if verbose:
         sig_gen.plot(sinus, tanh, rausch, signal, stat_sin, stat_tanh)
 
@@ -179,6 +174,7 @@ def transientcheck(signal, timesteps):
     second_half_of_signal = np.copy(signal[second_half_id:])
     second_half_mean = np.mean(second_half_of_signal)
     second_half_of_signal -= second_half_mean
+    second_half_timesteps = np.copy(timesteps[second_half_id:])
     autocorrelated = autocorr(second_half_of_signal)
 
     # we are integrating from zero to zero-crossing in the autocorrelation, we need the time to begin with zeros
@@ -198,25 +194,41 @@ def transientcheck(signal, timesteps):
     windows = []
 
     window_upperlimit = time_window
-    window_rms = []
-    window_mean = []
+    windows_rms = []
+    windows_mean = []
     window_signal = []
+    window_std = []
     for signal_at_time, time in zip(signal, timesteps):
         if time >= window_upperlimit:
             window_upperlimit += time_window
+
             windows.append(np.array(window_signal))
-            window_mean.append(np.mean(window_signal))
-            window_rms.append(np.sqrt(np.sum(windows[-1] ** 2) / len(windows[-1])))
+            window_std.append(np.std(window_signal))
+            windows_mean.append(np.mean(window_signal))
+            windows_rms.append(np.sqrt(np.sum(windows[-1] ** 2) / len(windows[-1])))
+
             window_signal = []
         else:
             window_signal.append(signal_at_time)
-    signal_rms = np.sqrt(np.sum(second_half_of_signal ** 2) / len(second_half_of_signal))
-    eps_time_mean = np.std(second_half_of_signal) / second_half_mean * (2 * integral_scale / (timesteps[-1]-timesteps[0]) )** .5
-    eps_time_rms = (integral_scale / (timesteps[-1]-timesteps[0]) )** .5
-    confidence_mean_high = second_half_mean * (1 + 1.96 * eps_time_mean )
+
+    #signal_rms = np.sqrt(np.sum(second_half_of_signal ** 2) / len(second_half_of_signal))
+    eps_time_mean = np.std(second_half_of_signal) / second_half_mean * (
+                2 * integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+    eps_time_rms = (integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+
+    confidence_mean_high = second_half_mean * (1 + 1.96 * eps_time_mean)
     confidence_mean_low = second_half_mean * (1 - 1.96 * eps_time_mean)
-    confidence_rms_high = np.mean(signal_rms) * (1 + 1.96 * eps_time_rms)
-    confidence_rms_low = np.mean(signal_rms) * (1 - 1.96 * eps_time_rms)
+    confidence_rms_high = np.mean(windows_rms) * (1 + 1.96 * eps_time_rms)
+    confidence_rms_low = np.mean(windows_rms) * (1 - 1.96 * eps_time_rms)
+
+    fig, axs = plt.subplots(2, 1)
+    axs[0].plot(windows_mean)
+    axs[0].hlines(confidence_mean_high, xmin=0, xmax=len(windows_mean))
+    axs[0].hlines(confidence_mean_low, xmin=0, xmax=len(windows_mean))
+    axs[1].plot(windows_rms)
+    axs[1].hlines(confidence_rms_high, xmin=0, xmax=len(windows_mean))
+    axs[1].hlines(confidence_rms_low, xmin=0, xmax=len(windows_mean))
+    plt.show()
 
     return 0
 
