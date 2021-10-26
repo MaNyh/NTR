@@ -55,7 +55,7 @@ echo -e "#PBS -l walltime=$WALLTIME" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -l mem=$MEMORY" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -q $QUEUE" >> $RUNDIR/tempscript.sh;
 echo -e "module purge" >> $RUNDIR/tempscript.sh;
-echo -e "source $HOME/TRACE/trace94_${PRECISION}_profile.sh" >> $RUNDIR/tempscript.sh;
+echo -e "source $HOME/TRACE/trace94_${PRECISION}_profile_own.sh" >> $RUNDIR/tempscript.sh;
 
 #Special MPI configuration for the enos cluster:
 echo -e "[[ $HOSTNAME =~ ^enos-.* ]] && export MPI_IB_PKEY=0x8001" >> $RUNDIR/tempscript.sh;
