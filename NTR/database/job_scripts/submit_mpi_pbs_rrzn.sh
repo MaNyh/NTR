@@ -9,5 +9,5 @@
 <var JOB_SOURCECMD var>
 cd $PBS_O_WORKDIR
 HOST=$(paste -s -d ',' ${PBS_NODEFILE})
-mpirun --hostfile ${PBS_NODEFILE} -np <var JOB_PROCS var> rhoPimpleFoam -parallel > log.log
+mpirun --hostfile ${PBS_NODEFILE} -np <var JOB_PROCS var> <var JOB_EXE var> -parallel > log.log
 
