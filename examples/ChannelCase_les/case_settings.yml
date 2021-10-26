@@ -29,6 +29,7 @@ openfoam_cascade_les_settings:
 
 simcase_settings:
     variables:
+        UMEAN: "1"
         DYNVISK: "3.5e-04" #ACHTUNG, DAS HIER IST NICHT DIE DYNAMISCHE VISKOSITÄT
         DELTAT: *timestep
         AVE_START: &AVE_START "10"
@@ -104,5 +105,7 @@ post_settings:
 
     animation_creation:
         variable                    : "U"
-        resolution_x                : 400
-        resolution_y                : 400
+        low_scale_limit             : 0
+        high_scale_limit            : 2
+        resolution_x                : 2600
+        resolution_y                : 2600

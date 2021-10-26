@@ -3,11 +3,11 @@ case_settings:
     case_type : "openfoam_cascade_les"
     type: "simulation"
     prep : |
-        cp /scratch/usr/niinyhma/14_CascadeCase_gwk_les//01_Meshing/fluent.msh .
+        cp ../01_Meshing/fluent.msh .
         fluent3DMeshToFoam fluent.msh
         createPatch -overwrite
         topoSet
-        mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
+        #mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
         decomposePar
         dos2unix submit_mpi_job_slurm_hlrn.sh
 
@@ -38,8 +38,8 @@ simcase_settings:
     variables:
 
         DYNVISK: "20e-6"
-        EDDYDENSITY: "10"
-        UDASHSCALING: "1"
+        EDDYDENSITY: "0"
+        UDASHSCALING: "0"
         TASKS_PER_NODE: "96"
         PINLET: "95000"                                         #Pa
         TINLET : "293.15"                                       #K
