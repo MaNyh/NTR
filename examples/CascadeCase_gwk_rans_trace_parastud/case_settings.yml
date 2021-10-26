@@ -15,7 +15,7 @@ case_settings:
         job_name: *name
         job_runtime: "10:00:00" #h
         job_nodes : "1"
-        job_ppn : "1"
+        job_ppn : "12"
         job_mem : "12"
         account : "niinyhma"
     sub_cmd : "sh"
