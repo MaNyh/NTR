@@ -19,9 +19,10 @@ fluxScheme      Kurganov;
 
 ddtSchemes
 {
-   default           backward;  //implizit zweiter ordnung
-//   default	      Euler;	 //implizit erster ordnung
-   //default	       CrankNicolson 0.1; //implizit (1) zweiter ordnung (0) erster ordnung, Blending
+    default           <var TIMEDTTSCHEME var>;
+//  default           backward;  //implizit zweiter ordnung
+//  default	          Euler;	 //implizit erster ordnung
+//  default	          CrankNicolson 0.1; //implizit (1) zweiter ordnung (0) erster ordnung, Blending
 }
 
 gradSchemes

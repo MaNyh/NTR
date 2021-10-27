@@ -41,26 +41,25 @@ simcase_settings:
         EDDYDENSITY: "1"
         UDASHSCALING: "1"
         TASKS_PER_NODE: "96"
+
+        RUNTIME: "10:00:00"
+        NODES: "2"
+        AVE_START: &AVE_START "0.0"
+
         PINLET: "95000"                                         #Pa
         TINLET : "293.15"                                       #K
         TIN_LINF: "0.02"                                       #m
         UINLET: "35.392445 58.06355 0"                          #m/s
         UIN_LINF: "0.02"                                        #m
-        RUNTIME: "10:00:00"
-        NODES: "2"
-        AVE_START: &AVE_START "0.0"
-
         RINLET : "4 0 0 4 0 4"                                  #m^2/s^2
         LINLET : "0.02"                                         #m
 
         POUTLET: "101325"
-        POUT_LINF: "0.005"
-
+        POUT_LINF: "0.01"
         TOUTLET: "293.15"
-        TOUT_LINF: "0.005"
+        TOUT_LINF: "0.01"
 
         PITCHPER: "0.0765"
-        SPANPER: "0.04"
         ZSPAN: "0.04"
 
         DELTAT: *timestep
@@ -70,6 +69,8 @@ simcase_settings:
         PURGEWRITE: "2"
 
         ADUSTABLETIMESTEP : "off"
+        TIMEDTTSCHEME : "Euler"
+
         PROCS: "192"
 
         NOUTERCORRECTORS : "2"
@@ -164,22 +165,22 @@ geometry:
     algorithm                       : "from_pointcloud"
     ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
-    x_inlet                         : -0.13                                  #Shift Inlet along x [m]
-    x_outlet                        : 0.26                              #Shift Outlet along x [m]
+    x_inlet                         : -0.13                                 #Shift Inlet along x [m]
+    x_outlet                        : 0.26                                  #Shift Outlet along x [m]
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.1                                   #Mesh-density factor
-    ogrid_factor                    : 6.5                                     #o-grid-node-ratio
-    delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.000002                             #first cell height when factor=1
+    factor                          : 0.7                                   #Mesh-density factor
+    ogrid_factor                    : 4.5                                   #o-grid-node-ratio
+    delta_i                         : 0.0005                                #node-distribution along fixed edges
+    first_cell_width                : 0.00001                               #first cell height when factor=1
     le_firstcellheight_coeff        : 1
     te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 18                                    #fixed cells in boundary layer
     extrudeLength                   : 0.04                                  #length of extruded span
-    blockStartFromChord             : 0.014                                 #LE and TE-Block Meshing
-    cellwidthcoeff                  : 0.75                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    blockStartFromChord             : 0.010                                 #LE and TE-Block Meshing
+    cellwidthcoeff                  : 0.5                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.5                                  #move high-y-per-block along y-pitch
