@@ -38,8 +38,8 @@ simcase_settings:
     variables:
 
         DYNVISK: "20e-6"
-        EDDYDENSITY: "0"
-        UDASHSCALING: "0"
+        EDDYDENSITY: "1"
+        UDASHSCALING: "1"
         TASKS_PER_NODE: "96"
         PINLET: "95000"                                         #Pa
         TINLET : "293.15"                                       #K
@@ -54,10 +54,11 @@ simcase_settings:
         LINLET : "0.02"                                         #m
 
         POUTLET: "101325"
-        POUT_LINF: "0.02"
+        POUT_LINF: "0.005"
 
         TOUTLET: "293.15"
-        TOUT_LINF: "0.02"
+        TOUT_LINF: "0.005"
+
         PITCHPER: "0.0765"
         SPANPER: "0.04"
         ZSPAN: "0.04"
@@ -72,7 +73,7 @@ simcase_settings:
         PROCS: "192"
 
         NOUTERCORRECTORS : "2"
-        NCORRECTORS : "1"
+        NCORRECTORS : "2"
         NNONORTHOGONALCORRECTORS: "2"
 
     options:
@@ -148,7 +149,7 @@ simcase_optiondef:
     SLICE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
         args:
-            fields: "(U p gradU)"
+            fields: "(U p)"
             origin: "(0 0 0.02)"
             normal: "(0 0 1)"
             sampling_rate: 4e4
@@ -172,13 +173,13 @@ mesh:
     ogrid_factor                    : 6.5                                     #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
     first_cell_width                : 0.000002                             #first cell height when factor=1
-    le_firstcellheight_coeff        : 0.8
+    le_firstcellheight_coeff        : 1
     te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 18                                    #fixed cells in boundary layer
     extrudeLength                   : 0.04                                  #length of extruded span
-    blockStartFromChord             : 0.011                                 #LE and TE-Block Meshing
-    cellwidthcoeff                  : 0.5                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    blockStartFromChord             : 0.014                                 #LE and TE-Block Meshing
+    cellwidthcoeff                  : 0.75                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.5                                  #move high-y-per-block along y-pitch
@@ -206,14 +207,14 @@ post_settings:
         volmesh: "VTK/02_Simcase_224000.vtk"
 
     animation_creation:
-#        variable                    : "p"
-#        low_scale_limit             : 90000
-#        high_scale_limit            : 120000
-#        resolution_x                : 2600
-#        resolution_y                : 2600
-
-        variable                    : "U"
-        low_scale_limit             : 0
-        high_scale_limit            : 90
+        variable                    : "p"
+        low_scale_limit             : 90000
+        high_scale_limit            : 120000
         resolution_x                : 2600
         resolution_y                : 2600
+
+#        variable                    : "U"
+#        low_scale_limit             : 0
+#        high_scale_limit            : 90
+#        resolution_x                : 2600
+#        resolution_y                : 2600
