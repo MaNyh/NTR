@@ -40,7 +40,7 @@ simcase_settings:
         ADUSTABLETIMESTEP : "on"
 
         MESH_SCALING : 0.5
-        GEO_LENGTH : &GEO_LENGTH "10"
+        GEO_LENGTH : &GEO_LENGTH "5"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
 
