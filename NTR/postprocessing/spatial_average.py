@@ -6,7 +6,7 @@ from tqdm import tqdm
 from NTR.utils.pyvista_utils import load_mesh
 
 
-def vol_to_line(vtkmesh, array_name, ave_direction, verbose=False):
+def vol_to_line(vtkmesh, ave_direction, verbose=False):
     """
     this function is assuming a structured grid without curved gridlines
     it extracts layers and averages them. currently the face-normals have to be alligned with the global coordinate system
@@ -16,12 +16,14 @@ def vol_to_line(vtkmesh, array_name, ave_direction, verbose=False):
     :return:
     """
     mesh = vtkmesh
+    array_names = mesh.array_names
+
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
 
     rest = mesh.copy()
     pts = []
-    meanvals = []
+    meanvals = {}
     pbar = tqdm(total=mesh.number_of_cells)
 
     while (rest.number_of_cells > 0):
@@ -45,23 +47,21 @@ def vol_to_line(vtkmesh, array_name, ave_direction, verbose=False):
         else:
             rest = pv.UniformGrid()
         layer = mesh.extract_cells(ids[0])
-        mean = np.average(layer[array_name], axis=0)
+        for array_name in array_names:
+            mean = np.average(layer[array_name], axis=0)
+            meanvals[array_name] = mean
         pts.append(bnd)
-        meanvals.append(mean)
         pbar.update(layer.number_of_points)
     pbar.close()
     pos = np.array(pts)
-    vals = np.array(meanvals)
+    vals = {}
+    for array_name in array_names:
+        vals[array_name] = np.array(meanvals[array_name])
 
     return pos, vals
 
 
 vtkmesh = load_mesh(r"D:\CodingProjects\NTR\examples\ChannelCase_les\03_Solution\mittelung99Domain_148000.vtk")
 
-array_name = "UPrime2Mean"
 line_direction = "y"
 pos, vals = vol_to_line(vtkmesh, array_name, line_direction, verbose=False)
-pos, vals2 = vol_to_line(vtkmesh, "turbulenceProperties:RMean", line_direction, verbose=False)
-vals += vals2
-# vals können auch tensoren oder vektoren sein. hier nur für skalare getestet
-plt.plot(pos, vals)
