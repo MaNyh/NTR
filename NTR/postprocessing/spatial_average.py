@@ -49,31 +49,30 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
         bnd = bounds[interpol_dir]
 
         ids = np.where(
-            np.equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))
+            np.equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[0]
 
         ids_negative = np.where(
-            np.not_equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))
+            np.not_equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[0]
 
-        if len(ids_negative[0]) > 0:
-            rest = rest.extract_cells(np.array([i for i in range(len(centers.points)) if not np.isin(i, ids[0])]))
+        if len(ids_negative) > 0:
+            rest = rest.extract_cells(np.array([i for i in range(len(centers.points)) if not np.isin(i, ids)]))
         else:
             rest = pv.UniformGrid()
-        layer = mesh.extract_cells(ids[0])
+        layer = mesh.extract_cells(ids)
+
+        for array_name in array_names:
+            meanvals[array_name] = []
+
         for array_name in array_names:
             mean = np.average(layer[array_name], axis=0)
-            meanvals[array_name] = mean
+            meanvals[array_name].append(mean)
+
         pts.append(bnd)
-        pbar.update(layer.number_of_points)
+        pbar.update(len(ids))
     pbar.close()
     pos = np.array(pts)
     vals = {}
     for array_name in array_names:
-        vals[array_name] = np.array(meanvals[array_name])
+        vals[array_name] = nnp.array(meanvals[array_name])
 
     return pos, vals
-
-
-#vtkmesh = load_mesh(r"D:\CodingProjects\NTR\examples\ChannelCase_les\03_Solution\mittelung99Domain_148000.vtk")
-
-#line_direction = "y"
-#pos, vals = vol_to_line(vtkmesh, array_name, line_direction, verbose=False)
