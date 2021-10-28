@@ -45,7 +45,7 @@ def vol_to_line(vtkmesh, array_name, ave_direction, verbose=False):
         else:
             rest = pv.UniformGrid()
         layer = mesh.extract_cells(ids[0])
-        mean = np.average(layer[array_name],axis=0)
+        mean = np.average(layer[array_name], axis=0)
         pts.append(bnd)
         meanvals.append(mean)
         pbar.update(layer.number_of_points)
@@ -57,7 +57,6 @@ def vol_to_line(vtkmesh, array_name, ave_direction, verbose=False):
 
 
 vtkmesh = load_mesh(r"D:\CodingProjects\NTR\examples\ChannelCase_les\03_Solution\mittelung99Domain_148000.vtk")
-vtkmesh = vtkmesh.clip(origin=(1,0,0))
 
 array_name = "UPrime2Mean"
 line_direction = "y"
