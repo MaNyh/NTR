@@ -9,6 +9,7 @@ Created on Mon May  3 00:33:31 2021
 import pyvista as pv
 import imageio
 import os
+from tqdm import tqdm
 
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import yaml_dict_read
@@ -40,13 +41,12 @@ def create(path_to_yaml_dict):
 
     pv.set_plot_theme("document")
     with imageio.get_writer(os.path.join(casepath,casedirs["data"],var + "_animation.gif"), mode='I') as writer:
-        for d in dirs:
+        for d in tqdm(dirs):
             target = os.path.join(cutplanepath,d,vtkname)
             plotter = pv.Plotter(off_screen=True)
 
             mesh = pv.PolyData(target)
             mesh.rotate_z(90)
-            #mesh.plot(cpos=[0,0,1])
             plotter.add_mesh(mesh,cmap="coolwarm")
             plotter.show_axes()
             plotter.update_scalar_bar_range((low_scale,high_scale))
