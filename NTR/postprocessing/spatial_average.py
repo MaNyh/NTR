@@ -2,9 +2,21 @@ import pyvista as pv
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import os
 
 from NTR.utils.pyvista_utils import load_mesh
+from NTR.utils.filehandling import yaml_dict_read
+from NTR.database.case_dirstructure import casedirs
 
+def vol_to_line_fromsettings(settings_yml_path):
+    settings = yaml_dict_read(settings_yml_path)
+    casepath = os.path.abspath(os.path.dirname(settings_yml_path))
+    meshpath = os.path.join(casepath,casedirs["solution"],settings["post_settings"]["use_vtk_meshes"]["volmesh"])
+    line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
+
+    mesh = load_mesh(meshpath)
+    ans = vol_to_line(mesh,line_direction)
+    print(ans)
 
 def vol_to_line(vtkmesh, ave_direction, verbose=False):
     """
@@ -61,7 +73,7 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
     return pos, vals
 
 
-vtkmesh = load_mesh(r"D:\CodingProjects\NTR\examples\ChannelCase_les\03_Solution\mittelung99Domain_148000.vtk")
+#vtkmesh = load_mesh(r"D:\CodingProjects\NTR\examples\ChannelCase_les\03_Solution\mittelung99Domain_148000.vtk")
 
-line_direction = "y"
-pos, vals = vol_to_line(vtkmesh, array_name, line_direction, verbose=False)
+#line_direction = "y"
+#pos, vals = vol_to_line(vtkmesh, array_name, line_direction, verbose=False)

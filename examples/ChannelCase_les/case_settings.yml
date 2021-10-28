@@ -39,7 +39,7 @@ simcase_settings:
         ADUSTABLETIMESTEP : "on"
 
         MESH_SCALING : 0.5
-        GEO_LENGTH : &GEO_LENGTH "10"
+        GEO_LENGTH : &GEO_LENGTH "4"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
 
@@ -89,10 +89,10 @@ simcase_optiondef:
 
 post_settings:
     use_vtk_meshes:
-        volmesh: "VTK/02_Simcase_800.vtk"
+        volmesh: "VTK/02_Simcase_404800.vtk"
         wallpatches:
-            buttomWall: "VTK/bottomWall/bottomWall_800.vtk"
-            topWall: "VTK/topWall/topWall_800.vtk"
+            buttomWall: "VTK/bottomWall/bottomWall_404800.vtk"
+            topWall: "VTK/topWall/topWall_404800.vtk"
 
     dimensionless_gridspacing:
         use_velfield: "U"
@@ -106,3 +106,6 @@ post_settings:
         variable                    : "U"
         resolution_x                : 400
         resolution_y                : 400
+
+    average_volumeonline:
+        line_dir : y
