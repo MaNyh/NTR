@@ -43,7 +43,7 @@ class signal_generator:
         else:
             self.time = 2 * self.tanh_stationary_ts
 
-        #time equals approx 300 timescales, adjust to approx 1000
+        # time equals approx 300 timescales, adjust to approx 1000
         self.time *= 4
         # defining the used timesteps (unnesessary, the signal-length could be normed to 1!)
         self.timesteps = np.arange(0, self.time, self.timeresolution ** -1)
@@ -190,7 +190,7 @@ def transientcheck(signal, timesteps):
             window_signal.append(signal_at_time)
 
     eps_time_mean = np.std(second_half_of_signal) / second_half_mean * (
-        2 * integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+            2 * integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
     eps_time_rms = (integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
 
     no_windows_mean = len(windows_mean)
@@ -201,14 +201,16 @@ def transientcheck(signal, timesteps):
     confidence_rms_high = np.mean(windows_rms) * (1 + 1.96 * eps_time_rms)
     confidence_rms_low = np.mean(windows_rms) * (1 - 1.96 * eps_time_rms)
 
-    mean_in_ci_range = [True if (confidence_mean_high >= i >= confidence_mean_low) else False for i in windows_mean  ]
-    rms_in_ci_range = [True if (confidence_rms_high >= i >= confidence_rms_low) else False for i in windows_rms  ]
+    mean_in_ci_range = [True if (confidence_mean_high >= i >= confidence_mean_low) else False for i in windows_mean]
+    rms_in_ci_range = [True if (confidence_rms_high >= i >= confidence_rms_low) else False for i in windows_rms]
 
-    mean_stationarity_fraction = np.array([sum(mean_in_ci_range[pt:])/(no_windows_mean-pt) for pt in range(len(mean_in_ci_range))])
-    rms_stationarity_fraction = np.array([sum(rms_in_ci_range[pt:])/(no_windows_rms-pt) for pt in range(len(rms_in_ci_range))])
+    mean_stationarity_fraction = np.array(
+        [sum(mean_in_ci_range[pt:]) / (no_windows_mean - pt) for pt in range(len(mean_in_ci_range))])
+    rms_stationarity_fraction = np.array(
+        [sum(rms_in_ci_range[pt:]) / (no_windows_rms - pt) for pt in range(len(rms_in_ci_range))])
 
-    statwindow_mean = np.where(mean_stationarity_fraction>0.95)[0][0]
-    statwindow_rms = np.where(rms_stationarity_fraction>0.95)[0][0]
+    statwindow_mean = np.where(mean_stationarity_fraction > 0.95)[0][0]
+    statwindow_rms = np.where(rms_stationarity_fraction > 0.95)[0][0]
 
     fig, axs = plt.subplots(2, 1)
 
