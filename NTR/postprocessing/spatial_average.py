@@ -1,6 +1,7 @@
 import pyvista as pv
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from NTR.utils.pyvista_utils import load_mesh
 
@@ -15,13 +16,14 @@ def vol_to_line(vtkmesh, array_name, ave_direction, verbose=False):
     :return:
     """
     mesh = vtkmesh
-    mesh.set_active_scalars(array_name)
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
 
     rest = mesh.copy()
     pts = []
     meanvals = []
+    pbar = tqdm(total=mesh.number_of_cells)
+
     while (rest.number_of_cells > 0):
         if verbose:
             p = pv.Plotter()
@@ -46,6 +48,8 @@ def vol_to_line(vtkmesh, array_name, ave_direction, verbose=False):
         mean = np.average(layer[array_name],axis=0)
         pts.append(bnd)
         meanvals.append(mean)
+        pbar.update(layer.number_of_points)
+    pbar.close()
     pos = np.array(pts)
     vals = np.array(meanvals)
 
