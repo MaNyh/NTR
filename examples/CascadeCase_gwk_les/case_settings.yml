@@ -203,12 +203,12 @@ post_settings:
         use_velfield: "U"
         use_rhofield: "rho"
 
-
     profile_loading:
         volmesh: "VTK/02_Simcase_224000.vtk"
 
     animation_creation:
         variable                    : "p"
+        cpos                        : [0,0,1]
         low_scale_limit             : 90000
         high_scale_limit            : 120000
         resolution_x                : 2600

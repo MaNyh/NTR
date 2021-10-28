@@ -31,6 +31,8 @@ def create(path_to_yaml_dict):
     resolution_x = int(settings["post_settings"]["animation_creation"]["resolution_x"])
     resolution_y = int(settings["post_settings"]["animation_creation"]["resolution_y"])
 
+    cpos = settings["post_settings"]["animation_creation"]["cpos"]
+
     low_scale = settings["post_settings"]["animation_creation"]["low_scale_limit"]
     high_scale = settings["post_settings"]["animation_creation"]["high_scale_limit"]
 
@@ -50,7 +52,7 @@ def create(path_to_yaml_dict):
             plotter.add_mesh(mesh,cmap="coolwarm")
             plotter.show_axes()
             plotter.update_scalar_bar_range((low_scale,high_scale))
-            plotter.show(screenshot=frame, window_size=[resolution_x,resolution_y],cpos=[0,0,1])
+            plotter.show(screenshot=frame, window_size=[resolution_x,resolution_y],cpos=cpos)
             plotter.close()
             image = imageio.imread(frame)
             writer.append_data(image)
