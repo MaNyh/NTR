@@ -13,7 +13,6 @@ with these functions given, we can analytically define where the transient proce
 """
 
 from scipy.integrate import simps
-import scipy.fftpack as fftpack
 
 
 class signal_generator:
@@ -23,20 +22,18 @@ class signal_generator:
     only parameters for
     """
     # resolution
-    timeresolution = 1000  # resolution of times
+    timeresolution = 100  # resolution of times
 
     transientlimit = 0.95
 
     def __init__(self):
         # some kind of factor for the duration of an abating signal
         self.tanh_lasting = np.random.randint(0, 100)
-
         self.sin_lasting = np.random.randint(0, 100)
+
         self.sin_omega = np.random.rand()
 
         self.tanh_stationary_ts = np.arctanh(self.transientlimit) * self.tanh_lasting
-        # self.tanh_sign = np.random.choice([-1, 1])
-
         self.sin_stationary_ts = -self.sin_lasting * (1 + np.log(1 - self.transientlimit))
 
         # as defined in Ries 2018, the signal must be at least two times as long as the transient process
@@ -45,9 +42,9 @@ class signal_generator:
             self.time = 2 * self.sin_stationary_ts
         else:
             self.time = 2 * self.tanh_stationary_ts
-        # todo we need to correct the wrong calculated self.time. this is not nice
-        self.time *= 2
 
+        #time equals approx 300 timescales, adjust to approx 1000
+        self.time *= 4
         # defining the used timesteps (unnesessary, the signal-length could be normed to 1!)
         self.timesteps = np.arange(0, self.time, self.timeresolution ** -1)
 
@@ -61,23 +58,6 @@ class signal_generator:
 
         sin_freq = self.sin_omega ** -1
         sig_time = self.time
-
-        sin_timescales = sig_time * sin_freq
-
-        print()
-        print("time when stationary")
-        sin_statts = int(self.sin_stationary_ts / self.time * len(self.timesteps))
-        tanh_statts = int(self.tanh_stationary_ts / self.time * len(self.timesteps))
-        print("sin : ", self.sin_stationary_ts, " timestep ", sin_statts)
-        print("sin frequency ", sin_freq, " ; timescales in whole dataset ", round(sin_timescales, 2))
-        print("tanh : ", self.tanh_stationary_ts, " timestep ", tanh_statts)
-        self.stat_time = self.tanh_stationary_ts if self.tanh_stationary_ts > self.sin_stationary_ts else self.sin_stationary_ts
-        print("signal stationary at", self.stat_time)
-        self.stationarity_relt = round(int(self.stat_time / self.time * len(self.timesteps)) / len(self.timesteps), 1)
-        self.stationarity_time = self.stationarity_relt * self.time
-        print("this equals a timestep of ", int(self.stat_time / self.time * len(self.timesteps)), " from ",
-              len(self.timesteps), " or ", self.stationarity_relt)
-        print("time emulated signal ", self.time)
 
     def tanh_signal(self):
         ans = np.tanh(self.timesteps * self.tanh_lasting ** -1)
@@ -100,8 +80,8 @@ class signal_generator:
         out = np.convolve(s, weights, 'same')
         # todo: when a sine is applied, the integral scale fits. but the signal is not that noisy anymore. whats the best solution?
         out /= max(out)
-        out += np.sin(self.timesteps * dt ** -1) * 0.5
-        out /= max(out)*0.5
+        out += np.sin(self.timesteps * dt ** -1) * 0.25
+        out /= max(out) * 2
         return out
 
     def generate(self):
@@ -131,11 +111,9 @@ class signal_generator:
         axs[2].axvline(self.tanh_stationary_ts)
         axs[3].plot(np.arange(0, self.time, self.timeresolution ** -1), stat_tanh, color="blue",
                     label="stationarity tanh signal")
-        axs[3].axvline(self.tanh_stationary_ts)
         axs[3].fill_between(np.arange(0, self.time, self.timeresolution ** -1), stat_tanh, color="blue")
         axs[4].plot(np.arange(0, self.time, self.timeresolution ** -1), rausch, color="black", label="noise")
         axs[5].plot(np.arange(0, self.time, self.timeresolution ** -1), signal, color="red", label="signal")
-        axs[5].axvline(self.stationarity_time)
 
         for a in axs:
             a.legend(loc="upper right")
@@ -153,7 +131,7 @@ def test_transientcheck(verbose=True):
 
     timestationarity_ries = transientcheck(signal, sig_gen.timesteps)
     print("transientcheck-rückgabe (ries2018): ", timestationarity_ries)
-    assert sig_gen.stat_time < timestationarity_ries, "von transientcheck zurückgegebene zeit der stationarität zu klein"
+    assert False, "Funktion nicht vollständig"
     return 0
 
 
@@ -211,23 +189,35 @@ def transientcheck(signal, timesteps):
         else:
             window_signal.append(signal_at_time)
 
-    #signal_rms = np.sqrt(np.sum(second_half_of_signal ** 2) / len(second_half_of_signal))
     eps_time_mean = np.std(second_half_of_signal) / second_half_mean * (
-                2 * integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+        2 * integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
     eps_time_rms = (integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+
+    no_windows_mean = len(windows_mean)
+    no_windows_rms = len(windows_rms)
 
     confidence_mean_high = second_half_mean * (1 + 1.96 * eps_time_mean)
     confidence_mean_low = second_half_mean * (1 - 1.96 * eps_time_mean)
     confidence_rms_high = np.mean(windows_rms) * (1 + 1.96 * eps_time_rms)
     confidence_rms_low = np.mean(windows_rms) * (1 - 1.96 * eps_time_rms)
 
+    mean_in_ci_range = [True if (confidence_mean_high >= i >= confidence_mean_low) else False for i in windows_mean  ]
+    rms_in_ci_range = [True if (confidence_rms_high >= i >= confidence_rms_low) else False for i in windows_rms  ]
+
+    mean_stationarity_fraction = np.array([sum(mean_in_ci_range[pt:])/(no_windows_mean-pt) for pt in range(len(mean_in_ci_range))])
+    rms_stationarity_fraction = np.array([sum(rms_in_ci_range[pt:])/(no_windows_rms-pt) for pt in range(len(rms_in_ci_range))])
+
+    statwindow_mean = np.where(mean_stationarity_fraction>0.95)[0][0]
+    statwindow_rms = np.where(rms_stationarity_fraction>0.95)[0][0]
+
     fig, axs = plt.subplots(2, 1)
+
     axs[0].plot(windows_mean)
-    axs[0].hlines(confidence_mean_high, xmin=0, xmax=len(windows_mean))
-    axs[0].hlines(confidence_mean_low, xmin=0, xmax=len(windows_mean))
+    axs[0].hlines(confidence_mean_high, xmin=0, xmax=no_windows_mean)
+    axs[0].hlines(confidence_mean_low, xmin=0, xmax=no_windows_mean)
     axs[1].plot(windows_rms)
-    axs[1].hlines(confidence_rms_high, xmin=0, xmax=len(windows_mean))
-    axs[1].hlines(confidence_rms_low, xmin=0, xmax=len(windows_mean))
+    axs[1].hlines(confidence_rms_high, xmin=0, xmax=no_windows_rms)
+    axs[1].hlines(confidence_rms_low, xmin=0, xmax=no_windows_rms)
     plt.show()
 
     return 0
@@ -236,19 +226,3 @@ def transientcheck(signal, timesteps):
 def zero_crossings(data_series):
     zcs = np.where(np.diff(np.sign(data_series)))[0]
     return zcs
-
-
-def dominant_freq(signal, timesteps):
-    times = timesteps
-    length = int(len(times) / 2)
-
-    forcez = signal
-    Nev = 1
-    N = len(signal)
-    t = np.linspace(times[length], times[-1], len(signal))
-    forcezint = np.interp(t, times, forcez)
-
-    fourier = fftpack.fft(forcezint[Nev - 1:N - 1])
-    frequencies = fftpack.fftfreq(forcezint[Nev - 1:N - 1].size, d=t[1] - t[0])
-    freq = frequencies[np.argmax(np.abs(fourier))]
-    return freq
