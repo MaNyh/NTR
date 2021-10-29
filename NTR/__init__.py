@@ -2,5 +2,5 @@
 
 __author__ = """Numerical Test Rig"""
 __email__ = 'nyhuis@tfd.uni-hannover.de'
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
