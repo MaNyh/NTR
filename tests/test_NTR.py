@@ -219,8 +219,8 @@ def test_create_simulationcase(tmpdir):
                                            "job_ppn":"1",
                                             "job_mail":"asd@asd.asd",
                                             "job_mem":"12",
-
                                        },
+                                       "description": "this is a test-function",
                                        "sub_cmd":"qsub",},
                      "simcase_settings": {"variables": {},
                                           "options": {}},
