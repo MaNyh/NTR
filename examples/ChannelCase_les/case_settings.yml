@@ -9,13 +9,15 @@ case_settings:
             mesh only for test-cases
         boundarycondition-status:
             bc randomly set
+            fitting cfl
         solution-status:
             stable solution
         postprocessing-status:
-            need of more postprocessing and evaluation methods
+            this sim is used to define new postprocessing methods
     prep: |
         blockMesh
         createPatch -overwrite
+        mapFields ../../04_ChannelCase_les/02_Simcase/ -sourceTime 'latestTime' -consistent
         decomposePar
         dos2unix submit_mpi_job_slurm_rrzn.sh
     job:
