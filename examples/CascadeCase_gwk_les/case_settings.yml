@@ -170,7 +170,7 @@ geometry:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 0.6                                   #Mesh-density factor
+    factor                          : 0.7                                   #Mesh-density factor
     ogrid_factor                    : 5                                   #o-grid-node-ratio
     delta_i                         : 0.0005                                #node-distribution along fixed edges
     first_cell_width                : 0.000015                               #first cell height when factor=1
