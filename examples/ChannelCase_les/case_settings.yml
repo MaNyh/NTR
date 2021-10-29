@@ -17,10 +17,10 @@ case_settings:
         blockMesh
         createPatch -overwrite
         decomposePar
-        dos2unix submit_mpi_pbs_rrzn.sh
+        dos2unix submit_mpi_job_slurm_rrzn.sh
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
-        job_script: "submit_mpi_pbs_rrzn"
+        job_script: "submit_mpi_job_slurm_rrzn"
         job_sourcecmd: |
             . $MODULESHOME/init/ksh
             source ~/ModuleLoading/OpenFoam1612.sh
@@ -36,19 +36,24 @@ case_settings:
     sub_cmd : "qsub"
 
 openfoam_cascade_les_settings:
-    timestep : &timestep "0.5"
+    timestep : &timestep "0.04"
 
 simcase_settings:
     variables:
         UMEAN: "1"
         DYNVISK: "3.5e-04" #ACHTUNG, DAS HIER IST NICHT DIE DYNAMISCHE VISKOSITÄT
         DELTAT: *timestep
-        AVE_START: &AVE_START "10"
-        MAX_CFL: "0.4"
-        WRITEINTERVAL: "200"
+        AVE_START: &AVE_START "200"
+        MAX_CFL: "0.75"
+        WRITEINTERVAL: "1000"
         PURGEWRITE: "2"
 
-        ADUSTABLETIMESTEP : "on"
+        ADUSTABLETIMESTEP : "off"
+        TIMEDTTSCHEME : "backward"
+
+        NOUTERCORRECTORS: "1"
+        NCORRECTORS: "2"
+        NNONORTHOGONALCORRECTORS: "0"
 
         MESH_SCALING : 0.5
         GEO_LENGTH : &GEO_LENGTH "5"
@@ -94,7 +99,7 @@ simcase_optiondef:
             fields: "(U p)"
             origin : "(0 0 0.5)"
             normal : "(0 0 1)"
-            sampling_rate: 0.01
+            sampling_rate: 0.005
             start_time: *AVE_START #s
             end_time: 1000
         insert: '#include "Probes_Slicing_Dict"'

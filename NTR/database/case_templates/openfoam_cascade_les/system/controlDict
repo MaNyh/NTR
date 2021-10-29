@@ -74,7 +74,7 @@ turbulenceFields1
         libs            ("libfieldFunctionObjects.so");
         field		    R;
 		writeControl	writeTime;
-		startTime       <var AVE_START var>
+		startTime       <var AVE_START var>;
     }
 
 fieldAverage1
@@ -82,7 +82,7 @@ fieldAverage1
         type            fieldAverage;
         libs            ("libfieldFunctionObjects.so");
         writeControl    writeTime;
-        startTime       <var AVE_START var>
+        startTime       <var AVE_START var>;
 
 
         fields
