@@ -15,8 +15,8 @@ def vol_to_line_fromsettings(settings_yml_path):
     line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
 
     mesh = load_mesh(meshpath)
-    ans = vol_to_line(mesh,line_direction)
-    print(ans)
+    points, data = vol_to_line(mesh,line_direction)
+    return points, data
 
 def vol_to_line(vtkmesh, ave_direction, verbose=False):
     """
