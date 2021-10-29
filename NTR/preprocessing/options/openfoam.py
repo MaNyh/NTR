@@ -6,7 +6,7 @@ import pyvista as pv
 from NTR.utils.geom_functions.geom_utils import equi_points, getBoundaryValues
 from NTR.utils.pyvista_utils import polyline_from_points
 from NTR.utils.geom_functions.spline import refine_spline
-
+from NTR.utils.mathfunctions import angle_between
 
 def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_rate, path_to_sim, start_time, end_time,
                                      tolerance, case_settings):
@@ -316,13 +316,14 @@ def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sam
 def openFoam_create_vk_stagflow_probes(geomdat_dict, nop, length, sampling_rate,
                                        path_to_sim, start_time, end_time, case_settings):
 
+    #todo: does this work? evaluate!
     output_path = os.path.join(path_to_sim, "system")
     timestepinterval = int(
         float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
 
     vk_point = geomdat_dict["sortedPoly"][geomdat_dict["hk_vk_idx"]["ind_vk"]]
     u_inlet = np.array([float(i) for i in case_settings["simcase_settings"]["variables"]["UINLET"].split(" ")])
-    angle = np.arccos(u_inlet[0] / u_inlet[1]) * 180 / np.pi
+    angle = angle_between(u_inlet,(1,0,0)) * 180 / np.pi
     stagnationLine = pv.Line((0, 0, 0), (-length, 0, 0), nop - 1)
     stagnationLine.rotate_z(angle)
     stagnationLine.translate(vk_point)
