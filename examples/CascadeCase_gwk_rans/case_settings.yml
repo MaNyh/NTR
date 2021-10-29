@@ -2,6 +2,16 @@ case_settings:
     name : &name "GWK_Verdichterkaskade_RAS"
     case_type : "openfoam_cascade_ras"
     type: "simulation"
+    description : |
+        mesh-status:
+            good quality mesh
+            no meshstudy until now
+        boundarycondition-status:
+            bc not evaluated
+        solution-status:
+            stable solution?
+        postprocessing-status:
+            need of more postprocessing and evaluation methods
     prep: |
         cp ../01_Meshing/fluent.msh .
         fluent3DMeshToFoam fluent.msh
