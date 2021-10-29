@@ -207,15 +207,16 @@ post_settings:
         volmesh: "VTK/02_Simcase_224000.vtk"
 
     animation_creation:
-        variable                    : "p"
         cpos                        : [0,0,1]
-        low_scale_limit             : 90000
-        high_scale_limit            : 120000
-        resolution_x                : 2600
-        resolution_y                : 2600
 
-#        variable                    : "U"
-#        low_scale_limit             : 0
-#        high_scale_limit            : 90
+#        variable                    : "p"
+#        low_scale_limit             : 90000
+#        high_scale_limit            : 120000
 #        resolution_x                : 2600
 #        resolution_y                : 2600
+
+        variable                    : "U"
+        low_scale_limit             : 0
+        high_scale_limit            : 90
+        resolution_x                : 2600
+        resolution_y                : 2600
