@@ -49,7 +49,7 @@ simcase_settings:
         PINLET: "95000"                                         #Pa
         TINLET : "293.15"                                       #K
         TIN_LINF: "0.02"                                       #m
-        UINLET: "45.45676481 50.5735359 0.0"                          #m/s
+        UINLET: "51.2137514 44.73423373  0"                          #m/s
         UIN_LINF: "0.02"                                        #m
         RINLET : "4 0 0 4 0 4"                                  #m^2/s^2
         LINLET : "0.02"                                         #m
@@ -170,17 +170,17 @@ geometry:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 0.7                                   #Mesh-density factor
-    ogrid_factor                    : 4.5                                   #o-grid-node-ratio
+    factor                          : 0.6                                   #Mesh-density factor
+    ogrid_factor                    : 5                                   #o-grid-node-ratio
     delta_i                         : 0.0005                                #node-distribution along fixed edges
-    first_cell_width                : 0.00001                               #first cell height when factor=1
+    first_cell_width                : 0.00002                               #first cell height when factor=1
     le_firstcellheight_coeff        : 1
     te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 18                                    #fixed cells in boundary layer
     extrudeLength                   : 0.04                                  #length of extruded span
     blockStartFromChord             : 0.010                                 #LE and TE-Block Meshing
-    cellwidthcoeff                  : 0.5                                 #cell width-coeff at LT and TE (stagnation-point-flow)
+    cellwidthcoeff                  : 0.1                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.5                                  #move high-y-per-block along y-pitch
