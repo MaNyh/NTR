@@ -34,18 +34,33 @@ def gradToRad(angle):
 
 
 def Rx(xAngle):
+    """
+    using radiant
+    :param xAngle:
+    :return:
+    """
     return np.array([[1, 0, 0],
                      [0, np.cos(xAngle), np.sin(xAngle)],
                      [0, -np.sin(xAngle), np.cos(xAngle)]])
 
 
 def Ry(yAngle):
+    """
+    using radiant
+    :param xAngle:
+    :return:
+    """
     return np.array([[np.cos(yAngle), 0, np.sin(yAngle)],
                      [0, 1, 0],
                      [np.sin(yAngle), 0, np.cos(yAngle)]])
 
 
 def Rz(zAngle):
+    """
+    using radiant
+    :param xAngle:
+    :return:
+    """
     return np.array([[np.cos(zAngle), np.sin(zAngle), 0],
                      [-np.sin(zAngle), np.cos(zAngle), 0],
                      [0, 0, 1]])
