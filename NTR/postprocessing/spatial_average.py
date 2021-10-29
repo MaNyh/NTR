@@ -67,11 +67,12 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
         assert mesh.number_of_cells == (
                 len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), "somethings wrong"
 
+        layer = rest.extract_cells(ids)
+
         if len(ids_negative) > 0:
             rest = rest.extract_cells(np.array([i for i in range(len(centers.points)) if not np.isin(i, ids)]))
         else:
             rest = pv.UniformGrid()
-        layer = mesh.extract_cells(ids)
 
         for array_name in array_names:
             mean = layer[array_name].mean(axis=0)
