@@ -255,8 +255,8 @@ def set_nodedistribution():
     segment("Block_2", 1, 3, 1).cluster_uniform()
     segment("Block_1", 1, 3, 1).cluster_uniform()
 
-    segment("Block_10", 1, 2, 1).cluster_tanh(cellwidthcoeff / factor ** 2, cellwidthcoeff / factor ** 2)
-    segment("Block_9", 1, 4, 1).cluster_tanh(cellwidthcoeff / factor ** 2, cellwidthcoeff / factor ** 2)
+    segment("Block_10", 1, 2, 1).cluster_tanh(2*delta_i, 2*delta_i)
+    segment("Block_9", 1, 4, 1).cluster_tanh(2*delta_i, 2*delta_i)
     segment("Block_12", 1, 1, 1).cluster_uniform()
     segment("Block_11", 1, 2, 1).cluster_uniform()
 
