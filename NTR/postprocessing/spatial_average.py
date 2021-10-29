@@ -15,8 +15,6 @@ def vol_to_line_fromsettings(settings_yml_path):
     line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
 
     mesh = load_mesh(meshpath)
-    stuff = [i[1] for i in mesh.cell_centers().points]
-    mesh["stuff"]=np.asarray(stuff)
     ans = vol_to_line(mesh,line_direction)
     print(ans)
 
