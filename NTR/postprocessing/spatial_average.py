@@ -8,15 +8,17 @@ from NTR.utils.pyvista_utils import load_mesh
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
 
+
 def vol_to_line_fromsettings(settings_yml_path):
     settings = yaml_dict_read(settings_yml_path)
     casepath = os.path.abspath(os.path.dirname(settings_yml_path))
-    meshpath = os.path.join(casepath,casedirs["solution"],settings["post_settings"]["use_vtk_meshes"]["volmesh"])
+    meshpath = os.path.join(casepath, casedirs["solution"], settings["post_settings"]["use_vtk_meshes"]["volmesh"])
     line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
 
     mesh = load_mesh(meshpath)
-    points, data = vol_to_line(mesh,line_direction)
+    points, data = vol_to_line(mesh, line_direction)
     return points, data
+
 
 def vol_to_line(vtkmesh, ave_direction, verbose=False):
     """
@@ -60,10 +62,11 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
             np.equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[0]
 
         ids_negative = np.where(
-            np.not_equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[0]
+            np.not_equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[
+            0]
 
         assert mesh.number_of_cells == (
-                len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), "somethings wrong"
+            len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), "somethings wrong"
 
         layer = rest.extract_cells(ids)
 
