@@ -15,6 +15,8 @@ def vol_to_line_fromsettings(settings_yml_path):
     line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
 
     mesh = load_mesh(meshpath)
+    stuff = [i[1] for i in mesh.cell_centers().points]
+    mesh["stuff"]=np.asarray(stuff)
     ans = vol_to_line(mesh,line_direction)
     print(ans)
 
@@ -28,14 +30,22 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
     :return:
     """
     mesh = vtkmesh
-    array_names = mesh.array_names
+    array_names_raw = mesh.array_names
+    array_names = []
+    for key in array_names_raw:
+        if key not in array_names:
+            array_names.append(key)
 
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
 
     rest = mesh.copy()
+
     pts = []
     meanvals = {}
+    for array_name in array_names:
+        meanvals[array_name] = []
+
     pbar = tqdm(total=mesh.number_of_cells)
 
     while (rest.number_of_cells > 0):
@@ -54,6 +64,9 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
         ids_negative = np.where(
             np.not_equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[0]
 
+        assert mesh.number_of_cells == (
+                len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), "somethings wrong"
+
         if len(ids_negative) > 0:
             rest = rest.extract_cells(np.array([i for i in range(len(centers.points)) if not np.isin(i, ids)]))
         else:
@@ -61,10 +74,7 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
         layer = mesh.extract_cells(ids)
 
         for array_name in array_names:
-            meanvals[array_name] = []
-
-        for array_name in array_names:
-            mean = np.average(layer[array_name], axis=0)
+            mean = layer[array_name].mean(axis=0)
             meanvals[array_name].append(mean)
 
         pts.append(bnd)
@@ -73,6 +83,6 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
     pos = np.array(pts)
     vals = {}
     for array_name in array_names:
-        vals[array_name] = nnp.array(meanvals[array_name])
+        vals[array_name] = np.array(meanvals[array_name])
 
     return pos, vals
