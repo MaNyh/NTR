@@ -120,7 +120,8 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     slices = []
     for slice_pt in pts:
         slice = volume.slice(origin=slice_pt,normal=ave_direction)
-        slices.append(slice)
+        if slice.number_of_points>0:
+            slices.append(slice)
 
     ave_slice = slices[0].copy()
 
