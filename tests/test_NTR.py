@@ -15,8 +15,7 @@ from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
 from NTR.database.case_dirstructure import casedirs
-from NTR.postprocessing.spatial_average import vol_to_plane,vol_to_line
-from NTR.utils.mathfunctions import vecAbs
+from NTR.postprocessing.spatial_average import vol_to_plane, vol_to_line
 
 def test_yamlDictRead(tmpdir):
     """
