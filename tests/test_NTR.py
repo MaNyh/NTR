@@ -326,4 +326,4 @@ def test_vol_to_line():
 
     meanval = (grid_cl_high +grid_cl_low)/2
     meanvar = np.mean(var["var"])
-    assert meanvar==meanval
+    assert np.isclose(meanvar,meanval)
