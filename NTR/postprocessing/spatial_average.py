@@ -153,10 +153,11 @@ def vol_to_plane_fromsettings(settings_yml_path):
     settings = yaml_dict_read(settings_yml_path)
     casepath = os.path.abspath(os.path.dirname(settings_yml_path))
     meshpath = os.path.join(casepath, casedirs["solution"], settings["post_settings"]["use_vtk_meshes"]["volmesh"])
-    line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
+    line_direction = settings["post_settings"]["average_volumeonplane"]["line_dir"]
+    cellcentered = settings["post_settings"]["average_volumeonplane"]["cellcentered"]
     mesh = load_mesh(meshpath)
 
-    ave_slice = vol_to_plane(mesh,line_direction,cell_centered=True)
+    ave_slice = vol_to_plane(mesh,line_direction,cell_centered=cellcentered)
     return ave_slice
 
 def vol_to_line_fromsettings(settings_yml_path):
