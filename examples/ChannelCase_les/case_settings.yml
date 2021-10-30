@@ -130,3 +130,7 @@ post_settings:
 
     average_volumeonline:
         line_dir : y
+
+    average_volumeonplane:
+        line_dir: y
+        cell_centered: True
