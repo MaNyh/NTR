@@ -108,10 +108,10 @@ simcase_optiondef:
 
 post_settings:
     use_vtk_meshes:
-        volmesh: "VTK/02_Simcase_404800.vtk"
+        volmesh: "VTK/02_Simcase_88000.vtk"
         wallpatches:
-            buttomWall: "VTK/bottomWall/bottomWall_404800.vtk"
-            topWall: "VTK/topWall/topWall_404800.vtk"
+            buttomWall: "VTK/bottomWall/bottomWall_88000.vtk"
+            topWall: "VTK/topWall/topWall_88000.vtk"
 
     dimensionless_gridspacing:
         use_velfield: "U"
@@ -133,4 +133,4 @@ post_settings:
 
     average_volumeonplane:
         line_dir: y
-        cell_centered: True
+        cellcentered: True
