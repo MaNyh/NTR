@@ -45,7 +45,7 @@ simcase_settings:
         UMEAN: "1"
         DYNVISK: "3.5e-04" #ACHTUNG, DAS HIER IST NICHT DIE DYNAMISCHE VISKOSITÄT
         DELTAT: *timestep
-        AVE_START: &AVE_START "200"
+        AVE_START: &AVE_START "0"
         MAX_CFL: "0.75"
         WRITEINTERVAL: "1000"
         PURGEWRITE: "2"
@@ -67,6 +67,7 @@ simcase_settings:
         INOUT_FIELDAVE_PROBING: True
         XSCLICE_PROBING: True
         SLICE_PROBING: True
+        STREAMLINE_PROBING: True
 
 geometry:
     algorithm: "prep"
@@ -79,20 +80,20 @@ simcase_optiondef:
         func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
         args:
             fields: "(U p)"
-            sampling_rate: 1e5 #Hz
+            sampling_rate: 10 #Hz
             start_time: 0
-            end_time: 1000
+            end_time: 100000000
         insert: '#include "Probes_inletoutletave_Dict"'
 
     XSCLICE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createXSliceProbes"
         args:
             nop: 3
-            sampling_rate: 1e6 #Hz
+            sampling_rate: 10 #Hz
             x_slice_one : 1
-            x_slice_two : 9
+            x_slice_two : 4
             start_time: 0.0 #s
-            end_time: 1000 #s
+            end_time: 100000000 #s
         insert: '#include "Probes_XSlices_Dict"'
 
     SLICE_PROBING:
@@ -101,10 +102,20 @@ simcase_optiondef:
             fields: "(U p)"
             origin : "(0 0 0.5)"
             normal : "(0 0 1)"
-            sampling_rate: 0.005
+            sampling_rate: 10
             start_time: *AVE_START #s
-            end_time: 1000
+            end_time: 100000000
         insert: '#include "Probes_Slicing_Dict"'
+
+    STREAMLINE_PROBING:
+        func: "NTR.preprocessing.options.openfoam.openFoam_createProbesStreamlineDict"
+        args:
+            fields: "(U p)"
+            nop_streamline: 20
+            sampling_rate: 10 #Hz
+            start_time: *AVE_START #s
+            end_time: 100000000 #s
+        insert: '#include "Probes_Streamline_Dict"'
 
 post_settings:
     use_vtk_meshes:
@@ -123,6 +134,7 @@ post_settings:
 
     animation_creation:
         variable                    : "U"
+        cpos                        : [0,0,1]
         low_scale_limit             : 0
         high_scale_limit            : 2
         resolution_x                : 2600
@@ -134,3 +146,4 @@ post_settings:
     average_volumeonplane:
         line_dir: y
         cellcentered: True
+

@@ -104,7 +104,7 @@ def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_r
     return outprobes
 
 
-def openFoam_createProbesStreamlineDict(nop_streamline, sampling_rate, path_to_sim,
+def openFoam_createProbesStreamlineDict(fields, nop_streamline, sampling_rate, path_to_sim,
                                         start_time, end_time, geomdat_dict, case_settings):
     output_path = os.path.join(path_to_sim,"system")
     timestepinterval = int(
@@ -152,14 +152,8 @@ writeInterval       """ + str(timestepinterval) + """;
 timeStart           """ + str(start_time) + """;
 timeEnd             """ + str(end_time) + """;
 
-fields
-(
-    U
-    p
-    T
-    nut
-    rho
-);
+fields """+fields+""";
+
 
 // number of probes: """ + str(nop) + """
 

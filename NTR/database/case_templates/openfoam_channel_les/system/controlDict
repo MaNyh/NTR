@@ -59,6 +59,7 @@ functions
     <opt INOUT_FIELDAVE_PROBING opt>
     <opt XSCLICE_PROBING opt>
     <opt SLICE_PROBING opt>
+    <opt STREAMLINE_PROBING opt>
 
 	yPlus
 	{
