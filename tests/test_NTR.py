@@ -15,7 +15,7 @@ from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoints, extractSidePolys, midline_from_sides
 from NTR.utils.geom_functions.spline import splineCurvature
 from NTR.database.case_dirstructure import casedirs
-
+from NTR.postprocessing.spatial_average import vol_to_plane, vol_to_line
 
 def test_yamlDictRead(tmpdir):
     """
@@ -219,8 +219,8 @@ def test_create_simulationcase(tmpdir):
                                            "job_ppn":"1",
                                             "job_mail":"asd@asd.asd",
                                             "job_mem":"12",
-
                                        },
+                                       "description": "this is a test-function",
                                        "sub_cmd":"qsub",},
                      "simcase_settings": {"variables": {},
                                           "options": {}},
@@ -266,3 +266,64 @@ def test_read_fullfactorparastud_yaml(tmpdir):
             {keyword: {integername: integervalue, listname: listvalues[1]}}]
 
     assert testsets == sets, "parametrized dict is not interpreted right"
+
+
+def test_vol_to_plane():
+    dirs = ["x","y","z"]
+    dir_idx_dict = np.random.choice(range(len(dirs)))
+    dir = dirs[dir_idx_dict]
+
+    values = np.linspace(0, 10, 1000).reshape((20, 5, 10))
+    values.shape
+
+    # Create the spatial reference
+    grid = pv.UniformGrid()
+
+    # Set the grid dimensions: shape + 1 because we want to inject our values on
+    #   the CELL data
+    grid.dimensions = np.array(values.shape) + 1
+
+    # Edit the spatial reference
+    grid.origin = (100, 33, 55.6)  # The bottom left corner of the data set
+    grid.spacing = (1, 5, 2)  # These are the cell sizes along each axis
+    grid.clear_arrays()
+    grid.point_arrays["var"] = grid.points[::,dir_idx_dict]
+    grid = grid.point_data_to_cell_data()
+    plane = vol_to_plane(grid,dir)
+
+    grid_cl_high = grid.bounds[dir_idx_dict * 2 + 1]
+    grid_cl_low = grid.bounds[dir_idx_dict * 2]
+
+    meanval = (grid_cl_high +grid_cl_low)/2
+    assert len(np.where(np.isclose(plane["var"],meanval))[0])==plane.number_of_points
+
+
+def test_vol_to_line():
+    dirs = ["x","y","z"]
+    dir_idx_dict = np.random.choice(range(len(dirs)))
+    dir = dirs[dir_idx_dict]
+
+    values = np.linspace(0, 10, 1000).reshape((20, 5, 10))
+    values.shape
+
+    # Create the spatial reference
+    grid = pv.UniformGrid()
+
+    # Set the grid dimensions: shape + 1 because we want to inject our values on
+    #   the CELL data
+    grid.dimensions = np.array(values.shape) + 1
+
+    # Edit the spatial reference
+    grid.origin = (100, 33, 55.6)  # The bottom left corner of the data set
+    grid.spacing = (1, 5, 2)  # These are the cell sizes along each axis
+    grid.clear_arrays()
+    grid.point_arrays["var"] = grid.points[::,dir_idx_dict]
+    grid = grid.point_data_to_cell_data()
+    pts, var = vol_to_line(grid,dir)
+
+    grid_cl_high = grid.bounds[dir_idx_dict * 2 + 1]
+    grid_cl_low = grid.bounds[dir_idx_dict * 2]
+
+    meanval = (grid_cl_high +grid_cl_low)/2
+    meanvar = np.mean(var["var"])
+    assert np.isclose(meanvar,meanval)

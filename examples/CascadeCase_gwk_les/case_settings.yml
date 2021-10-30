@@ -2,6 +2,17 @@ case_settings:
     name : &name "GWK_Verdichterkaskade_LES"
     case_type : "openfoam_cascade_les"
     type: "simulation"
+    description : |
+        mesh-status:
+            good quality mesh
+            leading- and trailingedge problematic because of the slim blade
+        boundarycondition-status:
+            trying to supress a seperation on the suction side of the leading edge,
+            therefore using a negative incedence. also trigonometric functions should be checked for correctness
+        solution-status:
+            trying to supress oscillations. BC are probably not physically correct
+        postprocessing-status:
+            need of more postprocessing and evaluation methods
     prep : |
         cp ../01_Meshing/fluent.msh .
         fluent3DMeshToFoam fluent.msh
@@ -92,6 +103,7 @@ simcase_optiondef:
     INOUT_VELOCITY_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createProbesInletOutlet"
         args:
+            fields : "(U p T nut rho)"
             sampling_rate: 1e5 #Hz
             start_time: 0 #s
             end_time: 1000 #s
@@ -131,6 +143,7 @@ simcase_optiondef:
     STREAMLINE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createProbesStreamlineDict"
         args:
+            fields : "(U p T nut rho)"
             nop_streamline : 20
             sampling_rate: 1e6 #Hz
             start_time: *AVE_START #s

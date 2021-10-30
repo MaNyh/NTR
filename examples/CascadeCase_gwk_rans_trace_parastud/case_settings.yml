@@ -2,6 +2,16 @@ case_settings:
     name : &name "GWK_Verdichterkaskade_TRACE_RAS"
     case_type : "trace_cascade_ras_WAKE_PARASTUD"
     type: "parameterstudy"
+    description: |
+        mesh-status:
+            good quality mesh
+            no meshstudy until now
+        boundarycondition-status:
+            bc not evaluated
+        solution-status:
+            model not working !!
+        postprocessing-status:
+            need of more postprocessing and evaluation methods
     prep: |
         cp ../../01_Meshing/mesh.cgns input/.
         dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh

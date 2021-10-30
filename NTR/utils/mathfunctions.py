@@ -255,3 +255,26 @@ def vecAngle(vec1, vec2):
     absVec1 = vecAbs(vec1)
     absVec2 = vecAbs(vec2)
     return np.arccos(np.dot(vec1, vec2) / (absVec1 * absVec2))
+
+
+def lineseg_dist(p, a, b):
+    """
+    :param p: point
+    :param a: line point a
+    :param b: line point b
+    :return: distance
+    """
+       # normalized tangent vector
+    d = np.divide(b - a, np.linalg.norm(b - a))
+
+    # signed parallel distance components
+    s = np.dot(a - p, d)
+    t = np.dot(p - b, d)
+
+    # clamped parallel distance
+    h = np.maximum.reduce([s, t, 0])
+
+    # perpendicular distance component
+    c = np.cross(p - a, d)
+
+    return np.hypot(h, np.linalg.norm(c))

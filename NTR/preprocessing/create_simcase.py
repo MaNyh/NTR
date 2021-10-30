@@ -117,12 +117,13 @@ def create_simulationcase(path_to_yaml_dict):
     settings = yaml_dict_read(path_to_yaml_dict)
     casetype = settings["case_settings"]["type"]
     assert casetype == "simulation", "check your yaml-dict. the case is not defined as a simulation"
-
+    assert "description" in settings["case_settings"].keys() , "no description set for the simulation"
     assert "name" in settings["case_settings"], "no name for the case defined"
 
     casepath = os.path.abspath(os.path.dirname(path_to_yaml_dict))
 
     case_type = settings["case_settings"]["case_type"]
+    case_description = settings["case_settings"]["description"]
     assert case_type in case_structures.keys(), "case_type " + case_type + " not found in templates."
 
     path_to_sim = os.path.join(casepath, casedirs["simcase"])
@@ -140,6 +141,20 @@ def create_simulationcase(path_to_yaml_dict):
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
     create_jobmanagement(casetype, settings, casepath)
     write_runsim_bash(settings, casepath)
+    writeout_readme(case_type,path_to_sim,case_description)
+
+def writeout_readme(case_type,path_to_sim,description):
+    charlen = len(case_type)
+    txt = ""
+    txt += "="*charlen
+    txt += "\n"
+    txt += case_type
+    txt += "\n"
+    txt += "="*charlen
+    txt += "\n"
+    txt += description
+    with open(os.path.join(path_to_sim,"README.rst"),"w") as fobj:
+        fobj.write(txt)
 
 
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):
