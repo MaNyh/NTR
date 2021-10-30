@@ -1,13 +1,12 @@
 import pyvista as pv
 import numpy as np
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
 
 from NTR.utils.pyvista_utils import load_mesh
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
-
+from NTR.utils.mathfunctions import vecAbs
 
 def vol_to_line_fromsettings(settings_yml_path):
     settings = yaml_dict_read(settings_yml_path)
@@ -88,3 +87,105 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
         vals[array_name] = np.array(meanvals[array_name])
 
     return pos, vals
+
+
+def lineseg_dist(p, a, b):
+    """
+    :param p: point
+    :param a: line point a
+    :param b: line point b
+    :return: distance
+    """
+       # normalized tangent vector
+    d = np.divide(b - a, np.linalg.norm(b - a))
+
+    # signed parallel distance components
+    s = np.dot(a - p, d)
+    t = np.dot(p - b, d)
+
+    # clamped parallel distance
+    h = np.maximum.reduce([s, t, 0])
+
+    # perpendicular distance component
+    c = np.cross(p - a, d)
+
+    return np.hypot(h, np.linalg.norm(c))
+
+
+def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
+    volume = volmesh
+    if cell_centered:
+        cell_centers = volume.cell_centers()
+        mesh = cell_centers
+    else:
+        mesh = volume
+    dirs = {"x": 0, "y": 2, "z": 4}
+    interpol_dir = dirs[ave_direction]
+    boundshigh = mesh.bounds[interpol_dir]
+    boundslow = mesh.bounds[interpol_dir+1]
+
+    helper_one = (interpol_dir+2)%6
+    helper_one_low = mesh.bounds[helper_one+1]
+
+    helper_two = (interpol_dir+4)%6
+    helper_two_low = mesh.bounds[helper_two + 1]
+
+    end =[None,None,None]
+    end[int(interpol_dir/2)] = boundslow
+    end[int(helper_one/2)] = helper_one_low
+    end[int(helper_two/2)] = helper_two_low
+    end = np.array(end)
+
+    base =[None,None,None]
+    base[int(interpol_dir/2)] = boundshigh
+    base[int(helper_one/2)] = helper_one_low
+    base[int(helper_two/2)] = helper_two_low
+    base = np.array(base)
+
+    pts = []
+    tolerance = vecAbs(base-end)/1000
+    for pt in mesh.points:
+        dist = lineseg_dist(pt,base,end)
+        if dist< tolerance:
+            pts.append(pt)
+
+    slices = []
+    for slice_pt in pts:
+        slice = volume.slice(origin=slice_pt,normal=ave_direction)
+        slices.append(slice)
+
+    ave_slice = slices[0].copy()
+
+    for arrayname in ave_slice.array_names:
+        ave_slice[arrayname]=ave_slice[arrayname]*0
+
+    for sl in slices:
+        for arrayname in sl.array_names:
+            ave_slice[arrayname] += sl[arrayname]
+
+    for arrayname in ave_slice.array_names:
+        ave_slice[arrayname]= ave_slice[arrayname] * 1/len(slices)
+
+    ave_slice = ave_slice.cell_data_to_point_data()
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(pv.PolyData(np.array(pts)))
+        p.add_mesh(volume, show_edges=True, opacity=0.1)
+        for sl in slices:
+            if sl.number_of_cells > 0:
+                p.add_mesh(sl, opacity=0.1)
+        p.show()
+
+    return ave_slice
+
+def vol_to_plane_fromsettings(settings_yml_path):
+
+    settings = yaml_dict_read(settings_yml_path)
+    casepath = os.path.abspath(os.path.dirname(settings_yml_path))
+    meshpath = os.path.join(casepath, casedirs["solution"], settings["post_settings"]["use_vtk_meshes"]["volmesh"])
+    line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
+    mesh = load_mesh(meshpath)
+
+    ave_slice = vol_to_plane(mesh,line_direction,cell_centered=True)
+    return ave_slice
