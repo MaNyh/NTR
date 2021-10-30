@@ -173,7 +173,7 @@ probeLocations
     return outprobes
 
 
-def openFoam_createProbesInletOutlet(geomdat_dict, sampling_rate, path_to_sim, start_time, end_time, case_settings):
+def openFoam_createProbesInletOutlet(geomdat_dict, fields, sampling_rate, path_to_sim, start_time, end_time, case_settings):
     output_path = os.path.join(path_to_sim,"system")
     timestepinterval = int(
         float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))
@@ -207,11 +207,7 @@ def openFoam_createProbesInletOutlet(geomdat_dict, sampling_rate, path_to_sim, s
             timeStart           """ + str(start_time) + """;
             timeEnd             """ + str(end_time) + """;
 
-                fields
-                (
-                    U
-                    p
-                );
+                fields """+fields+""";
 
             probeLocations
             (\n""")

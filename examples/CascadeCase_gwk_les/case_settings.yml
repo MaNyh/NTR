@@ -143,6 +143,7 @@ simcase_optiondef:
     STREAMLINE_PROBING:
         func: "NTR.preprocessing.options.openfoam.openFoam_createProbesStreamlineDict"
         args:
+            fields : "(U p T nut rho)"
             nop_streamline : 20
             sampling_rate: 1e6 #Hz
             start_time: *AVE_START #s
