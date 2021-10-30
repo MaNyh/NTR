@@ -66,7 +66,7 @@ simcase_settings:
         TOUT_LINF: "0.005"
 
         PITCHPER: "0.0765"
-        SPANPER: "0.04"
+        ZSPAN: "0.04"
     options:
         INOUT_FIELDAVE_PROBING: True
         INOUT_VELOCITY_PROBING: True
