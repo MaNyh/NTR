@@ -6,17 +6,8 @@ import os
 from NTR.utils.pyvista_utils import load_mesh
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
-from NTR.utils.mathfunctions import vecAbs
+from NTR.utils.mathfunctions import vecAbs, lineseg_dist
 
-def vol_to_line_fromsettings(settings_yml_path):
-    settings = yaml_dict_read(settings_yml_path)
-    casepath = os.path.abspath(os.path.dirname(settings_yml_path))
-    meshpath = os.path.join(casepath, casedirs["solution"], settings["post_settings"]["use_vtk_meshes"]["volmesh"])
-    line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
-
-    mesh = load_mesh(meshpath)
-    points, data = vol_to_line(mesh, line_direction)
-    return points, data
 
 
 def vol_to_line(vtkmesh, ave_direction, verbose=False):
@@ -89,29 +80,6 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
     return pos, vals
 
 
-def lineseg_dist(p, a, b):
-    """
-    :param p: point
-    :param a: line point a
-    :param b: line point b
-    :return: distance
-    """
-       # normalized tangent vector
-    d = np.divide(b - a, np.linalg.norm(b - a))
-
-    # signed parallel distance components
-    s = np.dot(a - p, d)
-    t = np.dot(p - b, d)
-
-    # clamped parallel distance
-    h = np.maximum.reduce([s, t, 0])
-
-    # perpendicular distance component
-    c = np.cross(p - a, d)
-
-    return np.hypot(h, np.linalg.norm(c))
-
-
 def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     volume = volmesh
     if cell_centered:
@@ -145,7 +113,7 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     pts = []
     tolerance = vecAbs(base-end)/1000
     for pt in mesh.points:
-        dist = lineseg_dist(pt,base,end)
+        dist = lineseg_dist(pt, base, end)
         if dist< tolerance:
             pts.append(pt)
 
@@ -179,6 +147,7 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
 
     return ave_slice
 
+
 def vol_to_plane_fromsettings(settings_yml_path):
 
     settings = yaml_dict_read(settings_yml_path)
@@ -189,3 +158,13 @@ def vol_to_plane_fromsettings(settings_yml_path):
 
     ave_slice = vol_to_plane(mesh,line_direction,cell_centered=True)
     return ave_slice
+
+def vol_to_line_fromsettings(settings_yml_path):
+    settings = yaml_dict_read(settings_yml_path)
+    casepath = os.path.abspath(os.path.dirname(settings_yml_path))
+    meshpath = os.path.join(casepath, casedirs["solution"], settings["post_settings"]["use_vtk_meshes"]["volmesh"])
+    line_direction = settings["post_settings"]["average_volumeonline"]["line_dir"]
+
+    mesh = load_mesh(meshpath)
+    points, data = vol_to_line(mesh, line_direction)
+    return points, data
