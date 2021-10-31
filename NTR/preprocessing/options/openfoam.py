@@ -192,11 +192,12 @@ probeLocations
 
     probes_to_plot = {"streamline_probes": streamline_probesPoly,}
 
-    geometry_plots = {"psPoly":geomdat_dict["sidePolys"]["psPoly"],
-                      "ssPoly":geomdat_dict["sidePolys"]["ssPoly"],
-                      "ylower": y_lower,
+    geometry_plots = {"ylower": y_lower,
                       "yupper": y_upper}
 
+    if "sidePolys" in geomdat_dict.keys():
+        geometry_plots["psPoly"]= geomdat_dict["sidePolys"]["psPoly"]
+        geometry_plots["ssPoly"]= geomdat_dict["sidePolys"]["ssPoly"]
     plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "streamline_probes.jpg",point_size=40)
 
     return outprobes
@@ -354,10 +355,12 @@ def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sam
     probes_to_plot = {"xslice_one": xslice_one_3dprobes,
                       "xslice_two": xslice_two_3dprobes,}
 
-    geometry_plots = {"psPoly":geomdat_dict["sidePolys"]["psPoly"],
-                      "ssPoly":geomdat_dict["sidePolys"]["ssPoly"],
-                      "ylower": y_lower,
+    geometry_plots = {"ylower": y_lower,
                       "yupper": y_upper}
+
+    if "sidePolys" in geomdat_dict.keys():
+        geometry_plots["psPoly"]= geomdat_dict["sidePolys"]["psPoly"]
+        geometry_plots["ssPoly"]= geomdat_dict["sidePolys"]["ssPoly"]
 
     plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "xsliceprobes.jpg",point_size=40)
 
