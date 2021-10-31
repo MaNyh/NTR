@@ -87,7 +87,12 @@ def create_parastudsims(path_to_parayaml):
         tmpsimdir = os.path.join(tmp_dir.name, "02_Simcase")
 
         # create dirstructure and move files from teampdir
-        datlist = [[os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)), os.path.basename(i)] for i in glob.glob(os.path.join(tmp_dir.name, "02_Simcase\\**\\*"), recursive=True) if os.path.isfile(i)]
+        datlist = []
+        for i in glob.glob(os.path.join(tmp_dir.name, "02_Simcase\\**\\*"), recursive=True):
+            if os.path.isfile(i):
+                datlist.append([os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)),
+                                os.path.basename(i)])
+
         for path, dir, file in datlist:
             if not os.path.isdir(os.path.join(target_dir,dir)):
                 os.makedirs(os.path.join(target_dir,dir), exist_ok=True)
