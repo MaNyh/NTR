@@ -38,7 +38,7 @@ case_settings:
     sub_cmd : "qsub"
 
 openfoam_cascade_les_settings:
-    timestep : &timestep "0.04"
+    timestep : &timestep "0.0001"
 
 simcase_settings:
     variables:
@@ -57,7 +57,7 @@ simcase_settings:
         NCORRECTORS: "2"
         NNONORTHOGONALCORRECTORS: "0"
 
-        MESH_SCALING : 0.5
+        MESH_SCALING : 0.05
         GEO_LENGTH : &GEO_LENGTH "5"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
@@ -112,7 +112,7 @@ simcase_optiondef:
         args:
             fields: "(U p)"
             nop_streamline: 20
-            sampling_rate: 10 #Hz
+            sampling_rate: 5 #Hz
             start_time: *AVE_START #s
             end_time: 100000000 #s
         insert: '#include "Probes_Streamline_Dict"'

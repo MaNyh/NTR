@@ -35,9 +35,9 @@ ymin 0;
 zmin 0;
 //zmax 1;
 
-deltax 0.10;	//0.05 - 0.01
-deltay 0.08;	//0.05 - 0.01 // not needed due to simpleGrading in y-direction
-deltaz 0.10;	//0.05 - 0.01
+deltax #calc "0.10*$scale";	//0.05 - 0.01
+deltay #calc "0.08*$scale";	//0.05 - 0.01 // not needed due to simpleGrading in y-direction
+deltaz #calc "0.10*$scale";	//0.05 - 0.01
 
 lx 	#calc "$L - $xmin";	//abs($xmax - $xmin)"
 ly 	#calc "$H2 - $ymin";
@@ -66,14 +66,7 @@ vertices
 );
 
 // Grading Calculator: https://openfoamwiki.net/index.php/Scripts/blockMesh_grading_calculation
-/*
-blocks
-(
-    hex ( 0  1  2  5  6  7  8 11) (500 23 246) simpleGrading (1 25 1)
-    hex ( 5  2  3  4 11  8  9 10) (500 23 246) simpleGrading (1 0.04 1)
-);
 
-*/
 blocks
 (
     hex ( 0  1  2  5  6  7  8 11) ($xcells 12 $zcells) simpleGrading (1 25 1)
