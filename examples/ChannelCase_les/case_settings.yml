@@ -30,15 +30,15 @@ case_settings:
         job_exe: "pimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : "1"
+        job_nodes : "2"
         job_ppn : "16"
-        job_mem : "12"
+        job_mem : "32"
         account : "niinyhma"
 
     sub_cmd : "qsub"
 
 openfoam_cascade_les_settings:
-    timestep : &timestep "0.04"
+    timestep : &timestep "0.003"
 
 simcase_settings:
     variables:
