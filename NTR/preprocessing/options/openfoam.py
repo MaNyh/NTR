@@ -7,7 +7,6 @@ from NTR.utils.geom_functions.geom_utils import equi_points, getBoundaryValues
 from NTR.utils.pyvista_utils import polyline_from_points
 from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.mathfunctions import angle_between
-from NTR.database.case_dirstructure import casedirs
 
 
 def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_rate, path_to_sim, start_time, end_time,
@@ -120,27 +119,6 @@ def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_r
     plot_probes(path_to_sim, probes_to_plot, geometry_plots, "profile_probes.jpg",zoom=3)
 
     return outprobes
-
-
-def plot_probes(path_to_sim, probes_to_plot, geometry_plots, plotname, zoom=1):
-    my_theme = pv.themes.DefaultTheme()
-    my_theme.background = 'white'
-    my_theme.color = "black"
-    pv.global_theme.load_theme(my_theme)
-    p = pv.Plotter(off_screen=True)
-    probe_colors = ["red","blue","green"]
-    for probename,probepoly in probes_to_plot.items():
-
-        p.add_mesh(probepoly,label=probename, point_size=20, color=probe_colors.pop(0))
-
-    for geomname,geompoly in geometry_plots.items():
-        p.add_mesh(geompoly)
-
-    p.add_legend(bcolor=(1, 1, 1), )
-    p.camera.position = (0, 0, 1)
-    p.camera.roll += 270
-    p.camera.zoom(zoom)
-    p.show(screenshot=os.path.join(path_to_sim, "..", casedirs["data"], plotname))
 
 
 def openFoam_createProbesStreamlineDict(fields, nop_streamline, sampling_rate, path_to_sim,
