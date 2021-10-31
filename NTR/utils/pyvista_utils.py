@@ -129,7 +129,7 @@ def plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, plotname, 
     my_theme.color = "black"
     pv.global_theme.load_theme(my_theme)
     p = pv.Plotter(off_screen=True)
-    probe_colors = ["red","blue","green"]
+    probe_colors = ["red","blue","green","yellow"]
     for probename,probepoly in probes_to_plot.items():
 
         p.add_mesh(probepoly,label=probename, point_size=20, color=probe_colors.pop(0))
