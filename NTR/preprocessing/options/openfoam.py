@@ -4,7 +4,7 @@ import numpy as np
 import pyvista as pv
 
 from NTR.utils.geom_functions.geom_utils import equi_points, getBoundaryValues
-from NTR.utils.pyvista_utils import polyline_from_points
+from NTR.utils.pyvista_utils import polyline_from_points, plot_geometry_tofile
 from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.mathfunctions import angle_between
 
@@ -116,7 +116,7 @@ def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_r
                         "ylower":geomdat_dict["periodics"]["ylower"],
                         "yupper":geomdat_dict["periodics"]["yupper"]}
 
-    plot_probes(path_to_sim, probes_to_plot, geometry_plots, "profile_probes.jpg",zoom=3)
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "profile_probes.jpg",zoom=3,point_size=20)
 
     return outprobes
 
@@ -197,7 +197,7 @@ probeLocations
                       "ylower": y_lower,
                       "yupper": y_upper}
 
-    plot_probes(path_to_sim, probes_to_plot, geometry_plots, "streamline_probes.jpg")
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "streamline_probes.jpg",point_size=20)
 
     return outprobes
 
@@ -268,7 +268,7 @@ def openFoam_createProbesInletOutlet(geomdat_dict, fields, sampling_rate, path_t
                       "ylower": y_lower,
                       "yupper": y_upper}
 
-    plot_probes(path_to_sim, probes_to_plot, geometry_plots, "inout_probes.jpg")
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "inout_probes.jpg",point_size=20)
 
     return outprobes
 
@@ -359,7 +359,7 @@ def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sam
                       "ylower": y_lower,
                       "yupper": y_upper}
 
-    plot_probes(path_to_sim, probes_to_plot, geometry_plots, "xsliceprobes.jpg")
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "xsliceprobes.jpg",point_size=20)
 
 
     return outprobes
@@ -430,7 +430,7 @@ probeLocations
                       "ylower": geomdat_dict["periodics"]["ylower"],
                       "yupper": geomdat_dict["periodics"]["yupper"],}
 
-    plot_probes(path_to_sim, probes_to_plot, geometry_plots, "stagnation_probes.jpg",zoom=3)
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "stagnation_probes.jpg",zoom=3,point_size=20)
 
     return outprobes
 

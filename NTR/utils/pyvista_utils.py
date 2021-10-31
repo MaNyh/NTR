@@ -123,7 +123,7 @@ def calc_dist_from_surface(surface_primary, surface_secondary, verbose=False):
     return h0n
 
 
-def plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, plotname, zoom=1):
+def plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, plotname, zoom=1, point_size=1):
     my_theme = pv.themes.DefaultTheme()
     my_theme.background = 'white'
     my_theme.color = "black"
@@ -132,7 +132,7 @@ def plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, plotname, 
     probe_colors = ["red","blue","green","yellow"]
     for probename,probepoly in probes_to_plot.items():
 
-        p.add_mesh(probepoly,label=probename, point_size=20, color=probe_colors.pop(0))
+        p.add_mesh(probepoly,label=probename, point_size=point_size, color=probe_colors.pop(0))
 
     for geomname,geompoly in geometry_plots.items():
         p.add_mesh(geompoly)

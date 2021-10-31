@@ -169,7 +169,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     geometries_wlegend = {"psPoly":psPoly,"ssPoly":ssPoly,"hk":sortedPoints[ind_hk],"vk":sortedPoints[ind_vk]}
     geometries_nlegend = {"per_y_lower":per_y_lower,"per_y_upper":per_y_upper,}
     plot_geometry_tofile(os.path.join(casepath, casedirs["data"]), geometries_wlegend, geometries_nlegend,
-                         "geometry.jpg")
+                         "geometry.jpg",zoom=1,point_size=1)
 
     if verbose:
         plotter = pv.Plotter()
