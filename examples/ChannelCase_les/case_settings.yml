@@ -17,7 +17,7 @@ case_settings:
     prep: |
         blockMesh
         createPatch -overwrite
-        mapFields ../../04_ChannelCase_les/02_Simcase/ -sourceTime 'latestTime' -consistent
+        mapFields ../../06_ChannelCase_les/02_Simcase/ -sourceTime 'latestTime' -consistent
         decomposePar
         dos2unix submit_mpi_job_slurm_rrzn.sh
     job:
@@ -57,7 +57,7 @@ simcase_settings:
         NCORRECTORS: "2"
         NNONORTHOGONALCORRECTORS: "0"
 
-        MESH_SCALING : 0.5
+        MESH_SCALING : 0.05
         GEO_LENGTH : &GEO_LENGTH "5"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
