@@ -7,7 +7,7 @@ from NTR.utils.geom_functions.profileparas import calcMidPassageStreamLine, extr
     midline_from_sides, angles_from_mids
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.utils.filehandling import write_pickle, yaml_dict_read
-from NTR.utils.pyvista_utils import lines_from_points
+from NTR.utils.pyvista_utils import lines_from_points, plot_geometry_tofile
 from NTR.database.data_generators.naca_airfoil_creator import naca
 from NTR.utils.mathfunctions import vecAbs
 from NTR.preprocessing.prep import prep_geo
@@ -165,6 +165,11 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     """
     geo_filename = "geometry.pkl"
     write_pickle(os.path.join(casepath, casedirs["data"], geo_filename), geo_dict)
+
+    geometries_wlegend = {"psPoly":psPoly,"ssPoly":ssPoly,"hk":sortedPoints[ind_hk],"vk":sortedPoints[ind_vk]}
+    geometries_nlegend = {"per_y_lower":per_y_lower,"per_y_upper":per_y_upper,}
+    plot_geometry_tofile(os.path.join(casepath, casedirs["data"]), geometries_wlegend, geometries_nlegend,
+                         "geometry.jpg")
 
     if verbose:
         plotter = pv.Plotter()
