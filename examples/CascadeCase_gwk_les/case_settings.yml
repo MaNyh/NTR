@@ -36,8 +36,8 @@ case_settings:
         job_exe: "rhoPimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : &JOBNODES "4"
-        job_ppn : &JOBPPN "96"
+        job_nodes : "4"
+        job_ppn : "96"
         job_mem : "384"
         job_account : "niinyhma"
 
