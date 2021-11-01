@@ -221,7 +221,7 @@ def writeout_simulation_options(case_structure_parameters, path_to_sim, settings
 
 def copy_template(case_type, case_structure, path_to_sim):
     commonpath = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
-    files = walk_file_or_dir(commonpath)
+    files = list(walk_file_or_dir(commonpath))
     for file in nested_dict_pairs_iterator(case_structure):
         filename = file[-2]
         dirstructure = file[1:-2]
@@ -234,7 +234,8 @@ def copy_template(case_type, case_structure, path_to_sim):
             sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
             shutil.copyfile(template_fpath, sim_fpath)
         else:
-            idx = [i[-1] for i in files].index(filename.split(".")[0])
+            #todo: schöner schreiben
+            idx = [i[-1] for i in files].index([filename.split(".")[0]])
             shutil.copyfile(*files[idx], sim_fpath)
 
 
