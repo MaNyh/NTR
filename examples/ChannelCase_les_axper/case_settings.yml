@@ -38,7 +38,7 @@ case_settings:
     sub_cmd : "qsub"
 
 openfoam_cascade_les_settings:
-    timestep : &timestep "0.003"
+    timestep : &timestep "0.015"
 
 simcase_settings:
     variables:
@@ -57,7 +57,7 @@ simcase_settings:
         NCORRECTORS: "2"
         NNONORTHOGONALCORRECTORS: "0"
 
-        MESH_SCALING : 0.05
+        MESH_SCALING : 0.3
         GEO_LENGTH : &GEO_LENGTH "5"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
