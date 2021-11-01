@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  plus                                  |
+|  \\    /   O peration     | Version:  v1612+                                |
 |   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,44 +9,40 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volVectorField;
-    location    "1";
-    object      U;
+    class       volScalarField;
+    location    "0.042";
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
+dimensions      [0 0 0 1 0 0 0];
 
-//internalField   uniform (0.1335 0 0); //org_tut
-internalField   uniform (1 0 0); //UTexas -> U_mean
+internalField   uniform 293.15;
 
-boundaryField
-{
-    bottomWall
-    {
-        type            noSlip;
-    }
-    topWall
-    {
-        type            noSlip;
-    }
-    sides_half0
-    {
-        type            cyclic;
-    }
-    sides_half1
-    {
-        type            cyclic;
-    }
     INLET
     {
-        type            cyclic;
+        type            waveTransmissive;
+        gamma           1.4;
+        fieldInf        293.15;
+        lInf            0.005;
+        value           uniform 293.15;
     }
     OUTLET
     {
-        type            cyclic;
+        type            waveTransmissive;
+        gamma           1.4;
+        value           uniform 293.15;
     }
-
+    bottomWall
+    {
+	type	zeroGradient;
+	value	293.15;
+    }
+    topWall
+    {
+	type	zeroGradient;
+	value	293.15;
+    }
 }
 
 

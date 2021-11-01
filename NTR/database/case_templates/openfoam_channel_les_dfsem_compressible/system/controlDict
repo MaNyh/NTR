@@ -1,0 +1,139 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     rhoPimpleFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         100000;
+
+deltaT          <var DELTAT var>;
+
+writeControl    timeStep;
+
+writeInterval   <var WRITEINTERVAL var>;
+
+purgeWrite      <var PURGEWRITE var>;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   12;
+
+runTimeModifiable true;
+
+adjustTimeStep  <var ADUSTABLETIMESTEP var>;
+
+maxCo           <var MAX_CFL var>;
+
+
+libs (
+"libfieldFunctionObjects.so"
+"libsampling.so"
+"libAdvectiveFields.so"
+"libWaveTransmissiveFields.so"
+"libDFSEMWaveTransmissive_synthWake_v20_cylindricalPer.so"
+);
+
+functions
+{
+    <opt INOUT_FIELDAVE_PROBING opt>
+    <opt XSCLICE_PROBING opt>
+    <opt SLICE_PROBING opt>
+    <opt STREAMLINE_PROBING opt>
+
+	yPlus
+	{
+		type		    yPlus;
+		writeControl	writeTime;
+        startTime       <var AVE_START var>;
+	}
+}
+
+    turbulenceFields1
+    {
+        type            turbulenceFields;
+        libs            ("libfieldFunctionObjects.so");
+        field		    R;
+		writeControl	writeTime;
+        startTime       <var AVE_START var>;
+    }
+    fieldAverage1
+    {
+        type            fieldAverage;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        startTime       <var AVE_START var>;
+        fields
+        (
+          wallShearStress
+          {
+                mean true;
+                prime2Mean false;
+                base time;
+          }
+          rho
+          {
+                mean true;
+                prime2Mean false;
+                base	time;
+          }
+	      U
+          {
+               mean        true;
+               prime2Mean  true;
+               base        time;
+          }
+          p
+          {
+              mean        true;
+              prime2Mean  false;
+              base        time;
+          }
+          T
+          {
+              mean        true;
+              prime2Mean  false;
+              base        time;
+          }
+          nut
+          {
+              mean        true;
+	          prime2Mean  false;
+              base        time;
+          }
+          alphat
+          {
+	          mean 	true;
+	          prime2Mean false;
+	          base 	time;
+	      }
+        );
+    }
+
+}
+
+// ************************************************************************* //

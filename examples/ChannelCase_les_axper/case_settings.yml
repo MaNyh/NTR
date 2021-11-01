@@ -1,6 +1,6 @@
 case_settings:
     name : &name "channelflow_les"
-    case_type : "openfoam_channel_les"
+    case_type : "openfoam_channel_les_axper"
     type: "simulation"
     description: |
         mesh-status:
