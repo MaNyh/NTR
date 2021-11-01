@@ -36,8 +36,8 @@ case_settings:
         job_exe: "rhoPimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : "4"
-        job_ppn : "96"
+        job_nodes : &JOBNODES "4"
+        job_ppn : &JOBPPN "96"
         job_mem : "384"
         job_account : "niinyhma"
 
@@ -45,7 +45,7 @@ case_settings:
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"
-    timestep : &timestep "12e-8"
+    timestep : &timestep "8e-8"
 
 simcase_settings:
     variables:
@@ -53,10 +53,7 @@ simcase_settings:
         DYNVISK: "20e-6"
         EDDYDENSITY: "1"
         UDASHSCALING: "0"
-        TASKS_PER_NODE: "96"
 
-        RUNTIME: "10:00:00"
-        NODES: "2"
         AVE_START: &AVE_START "0.0"
 
         PINLET: "95000"                                         #Pa
