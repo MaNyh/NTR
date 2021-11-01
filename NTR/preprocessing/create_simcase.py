@@ -237,7 +237,8 @@ def copy_template(case_type, case_structure, path_to_sim):
         else:
             #todo: schöner schreiben
             idx = [i[-1] for i in files].index([filename.split(".")[0]])
-            shutil.copyfile(*files[idx], sim_fpath)
+            filepath =os.path.join(files[idx][0],*files[idx][1],*files[idx][2])
+            shutil.copyfile(filepath, sim_fpath)
 
 
 def check_settings_necessarities(case_structure, settings_dict):
