@@ -1,0 +1,76 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "1";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (<var UMEAN var> 0 0); //UTexas -> U_mean
+
+boundaryField
+{
+    bottomWall
+    {
+        type            noSlip;
+    }
+    topWall
+    {
+        type            noSlip;
+    }
+    sides_half0
+    {
+        type            cyclic;
+    }
+    sides_half1
+    {
+        type            cyclic;
+    }
+    INLET
+    {
+   type                            turbulentDFSEMWaveTransmissiveInletMod;
+   boxScale                        1;
+   d                               10;
+   pitchSpeed                      0.0;
+   shapeWake                       0.0;
+   stretchWake                      0.0;
+   uDashScaling                    480;
+   nCellPerEddy                    8;
+   lastUPrime                      uniform (0.0001 0.0001 0.0001);
+   gamma                           1.4;
+   lInf                            0.001;
+   fieldInf                        uniform (<var UMEAN var> 0 0);
+   y_min                           0;
+   y_max                           1;
+   relax                           0.0001;
+   L                               uniform 0.0015;
+   numberOfWakes                   1;
+   mapMethod                       cellVolumeWeight;
+   startBlendRelChannelHeight       1;
+   endBlendRelChannelHeight       1;
+   value                           uniform (<var UMEAN var> 0 0);
+
+    }
+
+    OUTLET
+    {
+     	type            waveTransmissive;
+        gamma           1.4;
+        value           uniform (<var UMEAN var> 0 0);
+    }
+
+}
+
+
+// ************************************************************************* //

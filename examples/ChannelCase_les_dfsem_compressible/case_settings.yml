@@ -1,6 +1,6 @@
 case_settings:
     name : &name "channelflow_les"
-    case_type : "openfoam_channel_les"
+    case_type : "openfoam_channel_les_dfsem_compressible"
     type: "simulation"
     description: |
         mesh-status:
@@ -17,7 +17,7 @@ case_settings:
     prep: |
         blockMesh
         createPatch -overwrite
-        mapFields ../../04_ChannelCase_les/02_Simcase/ -sourceTime 'latestTime' -consistent
+        mapFields ../../06_ChannelCase_les/02_Simcase/ -sourceTime 'latestTime' -consistent
         decomposePar
         dos2unix submit_mpi_job_slurm_rrzn.sh
     job:
@@ -30,15 +30,15 @@ case_settings:
         job_exe: "pimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : "1"
+        job_nodes : "2"
         job_ppn : "16"
-        job_mem : "12"
+        job_mem : "32"
         account : "niinyhma"
 
     sub_cmd : "qsub"
 
 openfoam_cascade_les_settings:
-    timestep : &timestep "0.0001"
+    timestep : &timestep "0.003"
 
 simcase_settings:
     variables:
@@ -112,7 +112,7 @@ simcase_optiondef:
         args:
             fields: "(U p)"
             nop_streamline: 20
-            sampling_rate: 5 #Hz
+            sampling_rate: 10 #Hz
             start_time: *AVE_START #s
             end_time: 100000000 #s
         insert: '#include "Probes_Streamline_Dict"'

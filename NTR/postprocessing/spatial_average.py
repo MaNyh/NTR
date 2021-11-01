@@ -44,19 +44,19 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
             p.add_mesh(mesh, opacity=0.5)
             p.add_mesh(rest)
             p.show()
+
         centers = rest.cell_centers()
         bounds = centers.bounds
         bnd = bounds[interpol_dir]
 
-        ids = np.where(
-            np.equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[0]
+        centers_poi = centers.points[::, int(interpol_dir - interpol_dir / 2)]
+        points_bnd = np.ones(len(centers.points)) * bnd
 
-        ids_negative = np.where(
-            np.not_equal(centers.points[::, int(interpol_dir - interpol_dir / 2)], np.ones(len(centers.points)) * bnd))[
-            0]
+        ids = np.where(np.equal(centers_poi, points_bnd))[0]
+        ids_negative = np.where(np.not_equal(centers_poi, points_bnd))[0]
 
-        assert mesh.number_of_cells == (
-            len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), "somethings wrong"
+        assert mesh.number_of_cells == (len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells),\
+            "somethings wrong"
 
         layer = rest.extract_cells(ids)
 

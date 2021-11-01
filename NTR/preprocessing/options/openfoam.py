@@ -4,9 +4,10 @@ import numpy as np
 import pyvista as pv
 
 from NTR.utils.geom_functions.geom_utils import equi_points, getBoundaryValues
-from NTR.utils.pyvista_utils import polyline_from_points
+from NTR.utils.pyvista_utils import polyline_from_points, plot_geometry_tofile
 from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.mathfunctions import angle_between
+
 
 def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_rate, path_to_sim, start_time, end_time,
                                      tolerance, case_settings):
@@ -97,9 +98,25 @@ def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_r
 \t}""")
     data_file.close()
 
-    outprobes = {"probes pressure-side": np.stack((x_bl_ss, y_bl_ss)),
-                 "probes suction-side": np.stack((x_bl_ps, y_bl_ps)),
+    probes_ps = np.stack((x_bl_ss, y_bl_ss))
+    probes_ss = np.stack((x_bl_ps, y_bl_ps))
+
+    outprobes = {"probes pressure-side": probes_ps,
+                 "probes suction-side": probes_ss,
                  }
+
+    probes_psPoly = pv.PolyData(np.stack([probes_ps.T[::, 0], probes_ps.T[::, 1], np.zeros(len(probes_ps.T))]).T)
+    probes_ssPoly = pv.PolyData(np.stack([probes_ss.T[::, 0], probes_ss.T[::, 1], np.zeros(len(probes_ss.T))]).T)
+
+    probes_to_plot = {"probes_ps":probes_psPoly,
+                        "probes_ss":probes_ssPoly}
+
+    geometry_plots = {"psPoly":psPoly,
+                        "ssPoly":ssPoly,
+                        "ylower":geomdat_dict["periodics"]["ylower"],
+                        "yupper":geomdat_dict["periodics"]["yupper"]}
+
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "profile_probes.jpg",zoom=3,point_size=40)
 
     return outprobes
 
@@ -167,8 +184,21 @@ probeLocations
 }""")
     data_file.close()
 
-    outprobes = {"probes streamline": np.stack((x_probes, y_probes)),
+    streamline_probes = np.stack((x_probes, y_probes))
+    outprobes = {"probes streamline": streamline_probes,
                  }
+
+    streamline_probesPoly = pv.PolyData(np.stack([streamline_probes.T[::, 0], streamline_probes.T[::, 1], np.zeros(len(streamline_probes.T))]).T)
+
+    probes_to_plot = {"streamline_probes": streamline_probesPoly,}
+
+    geometry_plots = {"ylower": y_lower,
+                      "yupper": y_upper}
+
+    if "sidePolys" in geomdat_dict.keys():
+        geometry_plots["psPoly"]= geomdat_dict["sidePolys"]["psPoly"]
+        geometry_plots["ssPoly"]= geomdat_dict["sidePolys"]["ssPoly"]
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "streamline_probes.jpg",point_size=40)
 
     return outprobes
 
@@ -221,9 +251,25 @@ def openFoam_createProbesInletOutlet(geomdat_dict, fields, sampling_rate, path_t
     \t}""")
     data_file.close()
 
-    outprobes = {"probes inlet": np.stack((x_probe_inlet, y_probe_inlet)),
-                 "probes outlet": np.stack((x_probe_outlet, y_probe_outlet)),
+    probes_inlet = np.stack((x_probe_inlet, y_probe_inlet))
+    probes_outlet = np.stack((x_probe_outlet, y_probe_outlet))
+
+    outprobes = {"probes inlet": probes_inlet,
+                 "probes outlet": probes_outlet,
                  }
+
+    probes_inletPoly = pv.PolyData(np.stack([probes_inlet.T[0], probes_inlet.T[1], 0]).T)
+    probes_outletPoly = pv.PolyData(np.stack([probes_outlet.T[0], probes_outlet.T[1], 0]).T)
+
+    probes_to_plot = {"probes_inletPoly": probes_inletPoly,
+                      "probes_outletPoly": probes_outletPoly,}
+
+    geometry_plots = {"psPoly":geomdat_dict["sidePolys"]["psPoly"],
+                      "ssPoly":geomdat_dict["sidePolys"]["ssPoly"],
+                      "ylower": y_lower,
+                      "yupper": y_upper}
+
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "inout_probes.jpg",point_size=40)
 
     return outprobes
 
@@ -296,9 +342,28 @@ def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sam
     \t}""")
     data_file.close()
 
-    outprobes = {"probes xslice1": np.stack((x_slice_one * np.ones(len(y1_probes)), y1_probes)),
-                 "probes xslice2": np.stack((x_slice_two * np.ones(len(y1_probes)), y2_probes)),
+    xslice_one_2dprobes = np.stack((x_slice_one * np.ones(len(y1_probes)), y1_probes))
+    xslice_two_2dprobes = np.stack((x_slice_two * np.ones(len(y1_probes)), y2_probes))
+
+    outprobes = {"probes xslice1": xslice_one_2dprobes,
+                 "probes xslice2": xslice_two_2dprobes,
                  }
+
+    xslice_one_3dprobes = pv.PolyData(np.stack([xslice_one_2dprobes.T[::, 0], xslice_one_2dprobes.T[::, 1], np.zeros(len(xslice_one_2dprobes.T))]).T)
+    xslice_two_3dprobes = pv.PolyData(np.stack([xslice_two_2dprobes.T[::, 0], xslice_two_2dprobes.T[::, 1], np.zeros(len(xslice_two_2dprobes.T))]).T)
+
+    probes_to_plot = {"xslice_one": xslice_one_3dprobes,
+                      "xslice_two": xslice_two_3dprobes,}
+
+    geometry_plots = {"ylower": y_lower,
+                      "yupper": y_upper}
+
+    if "sidePolys" in geomdat_dict.keys():
+        geometry_plots["psPoly"]= geomdat_dict["sidePolys"]["psPoly"]
+        geometry_plots["ssPoly"]= geomdat_dict["sidePolys"]["ssPoly"]
+
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "xsliceprobes.jpg",point_size=40)
+
 
     return outprobes
 
@@ -354,8 +419,21 @@ probeLocations
     }""")
     data_file.close()
 
-    outprobes = {"Probes_VK_StagnationLine": np.stack((x_probes, y_probes)),
+    stagnation_probes = np.stack((x_probes, y_probes))
+    outprobes = {"Probes_VK_StagnationLine": stagnation_probes,
                  }
+
+    stagnation_probes_3d = pv.PolyData(np.stack([stagnation_probes.T[::, 0], stagnation_probes.T[::, 1], np.zeros(len(stagnation_probes.T))]).T)
+
+    probes_to_plot = {"stagnation_probes": stagnation_probes_3d,
+                      }
+
+    geometry_plots = {"psPoly":geomdat_dict["sidePolys"]["psPoly"],
+                      "ssPoly":geomdat_dict["sidePolys"]["ssPoly"],
+                      "ylower": geomdat_dict["periodics"]["ylower"],
+                      "yupper": geomdat_dict["periodics"]["yupper"],}
+
+    plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, "stagnation_probes.jpg",zoom=3,point_size=40)
 
     return outprobes
 

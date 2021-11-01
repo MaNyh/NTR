@@ -17,8 +17,7 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-//internalField   uniform (0.1335 0 0); //org_tut
-internalField   uniform (1 0 0); //UTexas -> U_mean
+internalField   uniform (<var UMEAN var> 0 0);
 
 boundaryField
 {
@@ -38,14 +37,21 @@ boundaryField
     {
         type            cyclic;
     }
-    INLET
+    inlet
     {
-        type            cyclic;
+        type        turbulentDFSEMInlet;
+        delta       2;
+        R           uniform (xx xy xz yy yz zz);
+        U           uniform (x y z);
+        L           uniform x;
+        value       (0 0 0);
     }
     OUTLET
     {
-        type            cyclic;
+        type            advective;
+        value           $internalField;
     }
+
 
 }
 

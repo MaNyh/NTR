@@ -9,27 +9,25 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
+    class       volVectorField;
     location    "1";
-    object      nuTilda;
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
+dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform 0;
+internalField   uniform (<var UMEAN var> 0 0);
 
 boundaryField
 {
     bottomWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            noSlip;
     }
     topWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            noSlip;
     }
     sides_half0
     {

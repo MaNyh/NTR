@@ -8,9 +8,10 @@ import yaml
 import glob
 from tqdm import tqdm
 
+import NTR
 from NTR.database.job_management import create_jobmanagement, write_runsim_bash, mgmt_parastud
 from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator, merge
-from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
+from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle, walk_file_or_dir
 from NTR.utils.functions import func_by_name
 from NTR.database.case_dirstructure import casedirs
 
@@ -87,7 +88,12 @@ def create_parastudsims(path_to_parayaml):
         tmpsimdir = os.path.join(tmp_dir.name, "02_Simcase")
 
         # create dirstructure and move files from teampdir
-        datlist = [[os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)), os.path.basename(i)] for i in glob.glob(os.path.join(tmp_dir.name, "02_Simcase\\**\\*"), recursive=True) if os.path.isfile(i)]
+        datlist = []
+        for i in glob.glob(os.path.join(tmp_dir.name, "02_Simcase\\**\\*"), recursive=True):
+            if os.path.isfile(i):
+                datlist.append([os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)),
+                                os.path.basename(i)])
+
         for path, dir, file in datlist:
             if not os.path.isdir(os.path.join(target_dir,dir)):
                 os.makedirs(os.path.join(target_dir,dir), exist_ok=True)
@@ -214,6 +220,8 @@ def writeout_simulation_options(case_structure_parameters, path_to_sim, settings
 
 
 def copy_template(case_type, case_structure, path_to_sim):
+    commonpath = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
+    files = list(walk_file_or_dir(commonpath))
     for file in nested_dict_pairs_iterator(case_structure):
         filename = file[-2]
         dirstructure = file[1:-2]
@@ -223,7 +231,14 @@ def copy_template(case_type, case_structure, path_to_sim):
         template_fpath = os.path.join(os.path.dirname(__file__), "../database/case_templates", case_type, *dirstructure,
                                       filename)
         sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
-        shutil.copyfile(template_fpath, sim_fpath)
+
+        if filename.split(".")[-1] != "common":
+            shutil.copyfile(template_fpath, sim_fpath)
+        else:
+            #todo: schöner schreiben
+            idx = [i[-1] for i in files].index([filename.split(".")[0]])
+            filepath =os.path.join(files[idx][0],*files[idx][1],*files[idx][2])
+            shutil.copyfile(filepath, sim_fpath)
 
 
 def check_settings_necessarities(case_structure, settings_dict):

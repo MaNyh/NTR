@@ -2,6 +2,9 @@ import numpy as np
 import pyvista as pv
 import os
 
+from NTR.database.case_dirstructure import casedirs
+
+
 def load_mesh(path_to_mesh):
     assert os.path.isfile(path_to_mesh),path_to_mesh + " is not a valid file"
     try:
@@ -118,3 +121,25 @@ def calc_dist_from_surface(surface_primary, surface_secondary, verbose=False):
 
 
     return h0n
+
+
+def plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, plotname, zoom=1, point_size=6):
+    my_theme = pv.themes.DefaultTheme()
+    my_theme.background = 'white'
+    my_theme.color = "black"
+    pv.global_theme.load_theme(my_theme)
+
+    p = pv.Plotter(off_screen=True,window_size=[4800, 4800])
+    probe_colors = ["red","blue","green","yellow"]
+    for probename,probepoly in probes_to_plot.items():
+
+        p.add_mesh(probepoly,label=probename, point_size=point_size, color=probe_colors.pop(0))
+
+    for geomname,geompoly in geometry_plots.items():
+        p.add_mesh(geompoly)
+
+    p.add_legend(bcolor=(1, 1, 1), )
+    p.camera.position = (0, 0, 1)
+    p.camera.roll += 270
+    p.camera.zoom(zoom)
+    p.show(screenshot=os.path.join(path_to_sim, "..", casedirs["data"], plotname))
