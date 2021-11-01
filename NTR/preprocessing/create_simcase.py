@@ -247,7 +247,7 @@ def copy_template(case_type, case_structure, path_to_sim):
                     flist.append(entry)
             idx = [i[-1] for i in flist].index(filename.split(".")[0]+".common")
             filepath = os.path.join(*flist[idx])
-            shutil.copyfile(filepath, sim_fpath)
+            shutil.copyfile(filepath, sim_fpath.replace(".common",""))
 
 
 def check_settings_necessarities(case_structure, settings_dict):
