@@ -45,7 +45,7 @@ case_settings:
 
 openfoam_cascade_les_settings:
     var_type : "openfoam_timeaverage"
-    timestep : &timestep "4e-8"
+    timestep : &timestep "12e-8"
 
 simcase_settings:
     variables:
@@ -84,7 +84,7 @@ simcase_settings:
         ADUSTABLETIMESTEP : "off"
         TIMEDTTSCHEME : "Euler"
 
-        PROCS: "192"
+        PROCS: "384"
 
         NOUTERCORRECTORS : "2"
         NCORRECTORS : "2"
