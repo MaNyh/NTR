@@ -34,7 +34,7 @@ def prep_geo(settings_yml):
     settings = yaml_dict_read(settings_yml)
     casepath = os.path.abspath(os.path.dirname(settings_yml))
 
-    if settings["case_settings"]["case_type"] == "openfoam_channel_les":
+    if "openfoam_channel" in settings["case_settings"]["case_type"]:
         geo_dict = prep_channelflow_geometry(settings_yml)
 
     geo_filename = "geometry.pkl"
