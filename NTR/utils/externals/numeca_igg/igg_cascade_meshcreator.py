@@ -44,7 +44,7 @@ exp_ratio = args["exp_ratio"]
 layers = args["layers"]
 layers = int(layers * factor)
 
-extrudeLength = args["extrudeLength"]
+extrudeLength = float(args["extrudeLength"])
 extrudeNodes = int(extrudeLength / delta_i * factor)  # int(factor * args["extrudeNodes"])
 
 smoothing_iterations = args["smoothing"]
@@ -255,8 +255,10 @@ def set_nodedistribution():
     segment("Block_2", 1, 3, 1).cluster_uniform()
     segment("Block_1", 1, 3, 1).cluster_uniform()
 
-    segment("Block_10", 1, 2, 1).cluster_tanh(2*delta_i, 2*delta_i)
-    segment("Block_9", 1, 4, 1).cluster_tanh(2*delta_i, 2*delta_i)
+#    segment("Block_10", 1, 2, 1).cluster_tanh(2*delta_i*1.2**-1, 2*delta_i*1.2**-1)
+#    segment("Block_9", 1, 4, 1).cluster_tanh(2*delta_i*1.2**-1, 2*delta_i*1.2**-1)
+    segment("Block_10", 1, 2, 1).cluster_both_ends(delta_i*1.2**-1)
+    segment("Block_9", 1, 4, 1).cluster_both_ends(delta_i*1.2**-1)
     segment("Block_12", 1, 1, 1).cluster_uniform()
     segment("Block_11", 1, 2, 1).cluster_uniform()
 
