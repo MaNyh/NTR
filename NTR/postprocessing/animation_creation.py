@@ -52,7 +52,8 @@ def create(path_to_yaml_dict):
             plotter.add_mesh(mesh,cmap="coolwarm")
             plotter.show_axes()
             plotter.update_scalar_bar_range((low_scale,high_scale))
-            plotter.show(screenshot=frame, window_size=[resolution_x,resolution_y],cpos=cpos)
+            plotter.camera.position = cpos
+            plotter.show(screenshot=frame, window_size=[resolution_x,resolution_y])
             plotter.close()
             image = imageio.imread(frame)
             writer.append_data(image)
