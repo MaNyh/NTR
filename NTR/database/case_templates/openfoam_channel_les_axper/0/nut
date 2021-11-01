@@ -9,21 +9,43 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "constant";
-    object      postChannelDict;
+    class       volScalarField;
+    location    "1";
+    object      nut;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// Seed patches to start layering from
-patches         ( bottomWall );
+dimensions      [0 2 -1 0 0 0 0];
 
-// Direction in which the layers are
-component       y;
+internalField   uniform 0;
 
-// Is the mesh symmetric? If so average(symmetric fields) or
-// subtract(asymmetric) contributions from both halves
-symmetric       true;
+boundaryField
+{
+    bottomWall
+    {
+        type            zeroGradient;
+    }
+    topWall
+    {
+        type            zeroGradient;
+    }
+    sides_half0
+    {
+        type            cyclic;
+    }
+    sides_half1
+    {
+        type            cyclic;
+    }
+    INLET
+    {
+        type            cyclic;
+    }
+    OUTLET
+    {
+        type            cyclic;
+    }
+}
 
 
 // ************************************************************************* //
