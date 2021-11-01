@@ -44,6 +44,7 @@ ly 	#calc "$H2 - $ymin";
 lz 	#calc "$W - $zmin";
 
 xcells 	#calc "round(($lx)/($deltax))";
+ycells 	#calc "round(($ly)/($deltay))";
 zcells 	#calc "round(($lz)/($deltaz))";
 
 //-----------------------------------------------------------------------
@@ -66,18 +67,11 @@ vertices
 );
 
 // Grading Calculator: https://openfoamwiki.net/index.php/Scripts/blockMesh_grading_calculation
-/*
-blocks
-(
-    hex ( 0  1  2  5  6  7  8 11) (500 23 246) simpleGrading (1 25 1)
-    hex ( 5  2  3  4 11  8  9 10) (500 23 246) simpleGrading (1 0.04 1)
-);
 
-*/
 blocks
 (
-    hex ( 0  1  2  5  6  7  8 11) ($xcells 12 $zcells) simpleGrading (1 25 1)
-    hex ( 5  2  3  4 11  8  9 10) ($xcells 12 $zcells) simpleGrading (1 0.04 1)
+    hex ( 0  1  2  5  6  7  8 11) ($xcells $ycells $zcells) simpleGrading (1 25 1)
+    hex ( 5  2  3  4 11  8  9 10) ($xcells $ycells $zcells) simpleGrading (1 0.04 1)
 );
 
 edges
