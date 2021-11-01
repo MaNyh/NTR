@@ -48,11 +48,12 @@ def create(path_to_yaml_dict):
             plotter = pv.Plotter(off_screen=True)
 
             mesh = pv.PolyData(target)
-            mesh.rotate_z(90)
+            #mesh.rotate_z(90)
             plotter.add_mesh(mesh,cmap="coolwarm")
             plotter.show_axes()
             plotter.update_scalar_bar_range((low_scale,high_scale))
             plotter.camera.position = cpos
+            plotter.camera.roll += 270
             plotter.show(screenshot=frame, window_size=[resolution_x,resolution_y])
             plotter.close()
             image = imageio.imread(frame)
