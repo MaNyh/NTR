@@ -230,8 +230,9 @@ def copy_template(case_type, case_structure, path_to_sim):
 
         template_fpath = os.path.join(os.path.dirname(__file__), "../database/case_templates", case_type, *dirstructure,
                                       filename)
+        sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
+
         if filename.split(".")[-1] != "common":
-            sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
             shutil.copyfile(template_fpath, sim_fpath)
         else:
             #todo: schöner schreiben
