@@ -44,7 +44,6 @@ def create(path_to_yaml_dict):
 
 
         dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath,i))]
-        dirs = dirs[:10]
         vtkname = var+"_constantPlane.vtk"
         plotter = pv.Plotter(notebook=False, off_screen=True,window_size=([resolution_x, resolution_y]))
 
