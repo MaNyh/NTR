@@ -95,15 +95,14 @@ def create_parastudsims(path_to_parayaml):
                                 os.path.basename(i)])
 
         for path, dir, file in datlist:
-            if not os.path.isdir(os.path.join(target_dir,dir)):
-                os.makedirs(os.path.join(target_dir,dir), exist_ok=True)
-            target_file = os.path.join(target_dir,dir, os.path.basename(file))
-            shutil.move(os.path.join(path,file), target_file)
+            if not os.path.isdir(os.path.join(target_dir, dir)):
+                os.makedirs(os.path.join(target_dir, dir), exist_ok=True)
+            target_file = os.path.join(target_dir, dir, os.path.basename(file))
+            shutil.move(os.path.join(path, file), target_file)
         yamltarget = os.path.join(target_dir, subname + "_settings.yml")
         shutil.copy(tmp_yml, yamltarget)
-        #clean up after yourself
+        # clean up after yourself
         tmp_dir.cleanup()
-
 
         sim_dirs.append(target_dir)
 
@@ -123,7 +122,7 @@ def create_simulationcase(path_to_yaml_dict):
     settings = yaml_dict_read(path_to_yaml_dict)
     casetype = settings["case_settings"]["type"]
     assert casetype == "simulation", "check your yaml-dict. the case is not defined as a simulation"
-    assert "description" in settings["case_settings"].keys() , "no description set for the simulation"
+    assert "description" in settings["case_settings"].keys(), "no description set for the simulation"
     assert "name" in settings["case_settings"], "no name for the case defined"
 
     casepath = os.path.abspath(os.path.dirname(path_to_yaml_dict))
@@ -135,9 +134,13 @@ def create_simulationcase(path_to_yaml_dict):
     path_to_sim = os.path.join(casepath, casedirs["simcase"])
 
     create_casedirstructure(casedirs, casepath)
+
     case_structure = case_structures[case_type]
+
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
+    swap_commons(case_type, path_to_sim)
+
     all_parameters = list(nested_dict_pairs_iterator(case_structure))
     case_structure_parameters_var = find_vars_opts(case_structure, "var", all_parameters)
     case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_parameters)
@@ -147,19 +150,48 @@ def create_simulationcase(path_to_yaml_dict):
     writeout_simulation_options(case_structure_parameters, path_to_sim, settings)
     create_jobmanagement(casetype, settings, casepath)
     write_runsim_bash(settings, casepath)
-    writeout_readme(case_type,path_to_sim,case_description)
+    writeout_readme(case_type, path_to_sim, case_description)
 
-def writeout_readme(case_type,path_to_sim,description):
+
+def swap_commons(case_type, path_to_sim):
+    dirstruct = get_directory_structure(path_to_sim)
+    filelist = list(nested_dict_pairs_iterator(dirstruct))
+    commons = []
+    commonstring = ".common"
+    for f in filelist:
+        if commonstring in f[-2]:
+            commons.append(f)
+
+    allowed = []
+    if case_type == "openfoam_channel_les_axper":
+        allowed.append("openfoam_channelcase_les")
+
+    path_to_commons = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
+
+    for cf in commons:
+        targetdir = os.path.join(*cf[1:-2])
+        sourcefile = cf[-2]
+        targetfile = sourcefile.replace(commonstring, "")
+        for subdir in allowed:
+            casecommons = os.listdir(os.path.join(path_to_commons, subdir))
+
+            if sourcefile in casecommons:
+                source = os.path.join(path_to_commons,subdir, sourcefile)
+                target = os.path.join(path_to_sim, targetdir, targetfile)
+                shutil.copyfile(source, target)
+
+
+def writeout_readme(case_type, path_to_sim, description):
     charlen = len(case_type)
     txt = ""
-    txt += "="*charlen
+    txt += "=" * charlen
     txt += "\n"
     txt += case_type
     txt += "\n"
-    txt += "="*charlen
+    txt += "=" * charlen
     txt += "\n"
     txt += description
-    with open(os.path.join(path_to_sim,"README.rst"),"w") as fobj:
+    with open(os.path.join(path_to_sim, "README.rst"), "w") as fobj:
         fobj.write(txt)
 
 
@@ -232,22 +264,7 @@ def copy_template(case_type, case_structure, path_to_sim):
                                       filename)
         sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
 
-        if filename.split(".")[-1] != "common":
-            shutil.copyfile(template_fpath, sim_fpath)
-        else:
-            #todo: schöner schreiben
-            flist = []
-            for i in files:
-                item = []
-                item.append(i[0])
-                #item.append(i[1])
-                for y in i[2]:
-                    entry = item[:]
-                    entry.append(y)
-                    flist.append(entry)
-            idx = [i[-1] for i in flist].index(filename.split(".")[0]+".common")
-            filepath = os.path.join(*flist[idx])
-            shutil.copyfile(filepath, sim_fpath.replace(".common",""))
+        shutil.copyfile(template_fpath, sim_fpath)
 
 
 def check_settings_necessarities(case_structure, settings_dict):
