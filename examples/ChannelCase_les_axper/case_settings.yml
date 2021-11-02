@@ -60,7 +60,7 @@ simcase_settings:
         NCORRECTORS: "2"
         NNONORTHOGONALCORRECTORS: "0"
 
-        MESH_SCALING : 0.3
+        MESH_SCALING : 0.4
         GEO_LENGTH : &GEO_LENGTH "5"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
