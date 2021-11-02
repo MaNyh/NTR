@@ -65,7 +65,7 @@ simcase_settings:
         LINLET : "0.01"                                         #m
 
         POUTLET: "101325"
-        POUT_LINF: "0.01"
+        POUT_LINF: "0.02"
         TOUTLET: "293.15"
         TOUT_LINF: "0.01"
 
@@ -80,6 +80,8 @@ simcase_settings:
 
         ADUSTABLETIMESTEP : "off"
         TIMEDTTSCHEME : "Euler"
+        GRADSCHEMES : "Gauss upwind"
+        DIVSCHEMES:  "Gauss upwind"
 
         PROCS: "384"
 
@@ -221,7 +223,19 @@ post_settings:
     animation_creation:
 
         p_global:
-            cpos                        : [0,0,1]
+            cpos                        : [ 0,0,1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
+            variable                    : "p"
+            low_scale_limit             : 90000
+            high_scale_limit            : 120000
+            resolution_x                : 2600
+            resolution_y                : 2600
+
+        p_local:
+            cpos                        : [ 0,0,0.1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
             variable                    : "p"
             low_scale_limit             : 90000
             high_scale_limit            : 120000
@@ -229,9 +243,23 @@ post_settings:
             resolution_y                : 2600
 
         U_global:
-            cpos: [ 0,0,1 ]
+            cpos                        : [ 0,0,1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
             variable                    : "U"
             low_scale_limit             : 0
             high_scale_limit            : 90
             resolution_x                : 2600
             resolution_y                : 2600
+
+
+        U_global:
+            cpos                        : [ 0,0,0.1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
+            variable: "U"
+            low_scale_limit: 0
+            high_scale_limit: 90
+            resolution_x: 2600
+            resolution_y: 2600
+
