@@ -5,7 +5,6 @@ Created on Mon May  3 00:33:31 2021
 @author: malte
 """
 
-
 import pyvista as pv
 import imageio
 import os
@@ -38,32 +37,34 @@ def create(path_to_yaml_dict):
         resolution_y = int(animationsettings["resolution_y"])
 
         cpos = animationsettings["cpos"]
+        focus = animationsettings["focus"]
+        view =animationsettings["view"]
 
         low_scale = animationsettings["low_scale_limit"]
         high_scale = animationsettings["high_scale_limit"]
 
+        dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath, i))]
+        vtkname = var + "_constantPlane.vtk"
+        plotter = pv.Plotter(notebook=False, off_screen=True, window_size=([resolution_x, resolution_y]))
 
-        dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath,i))]
-        vtkname = var+"_constantPlane.vtk"
-        plotter = pv.Plotter(notebook=False, off_screen=True,window_size=([resolution_x, resolution_y]))
-
-
-        plotter.open_gif(os.path.join(casepath,casedirs["data"],var + "_animation.gif"))
-        pv.set_plot_theme("document")
+        plotter.open_gif(os.path.join(casepath, casedirs["data"], var + "_" + animationname +".gif"))
+        plotter.background_color=(1,1,1)
 
         for d in tqdm(dirs):
-
-            target = os.path.join(cutplanepath,d,vtkname)
-            #plotter.theme = pv.themes.DocumentTheme()
+            target = os.path.join(cutplanepath, d, vtkname)
+            # plotter.theme = pv.themes.DocumentTheme()
             mesh = pv.PolyData(target)
-            actor_mesh = plotter.add_mesh(mesh,cmap="coolwarm")
+            actor_mesh = plotter.add_mesh(mesh, cmap="coolwarm")
             plotter.update_scalar_bar_range((low_scale, high_scale))
-            plotter.camera_position=[cpos,mesh.center,(0,1,0)]
+            plotter.camera_position = [cpos,focus,view]
+
+
+
 
             plotter.show_axes()
 
             plotter.render()
-            #plotter.show(cpos=cpos)
+            # plotter.show(cpos=cpos)
             plotter.write_frame()
             plotter.remove_actor(actor_mesh)
             plotter.clear()
