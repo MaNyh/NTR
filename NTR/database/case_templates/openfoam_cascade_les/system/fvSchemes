@@ -27,13 +27,13 @@ ddtSchemes
 
 gradSchemes
 {
-    default           Gauss linear;
+    default         <var GRADSCHEMES var>;
 }
 
 divSchemes
 {
     
-    default                             none;
+    default                             <var DIVSCHEMES var>;
     div(phi,U)                          Gauss LUST grad(U); 
     div(phi,e)                          Gauss LUST grad(e);
     div(phi,K)                          Gauss limitedLinear 1.0;

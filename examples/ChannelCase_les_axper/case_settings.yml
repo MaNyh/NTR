@@ -53,6 +53,9 @@ simcase_settings:
         ADUSTABLETIMESTEP : "off"
         TIMEDTTSCHEME : "backward"
 
+        GRADSCHEMES : "Gauss linear"
+        DIVSCHEMES:  "Gauss linear"
+
         NOUTERCORRECTORS: "1"
         NCORRECTORS: "2"
         NNONORTHOGONALCORRECTORS: "0"
@@ -135,7 +138,9 @@ post_settings:
     animation_creation:
         U_global:
             variable                    : "U"
-            cpos                        : [0,0,1]
+            cpos                        : 0,0,1
+            focus                       : 0,0,0
+            view                        : 0,1,0
             low_scale_limit             : 0
             high_scale_limit            : 2
             resolution_x                : 2600
@@ -144,6 +149,8 @@ post_settings:
         p_global:
             variable                    : "U"
             cpos                        : [0,0,1]
+            focus                       : [0,0,0]
+            view                        : [0,1,0]
             low_scale_limit             : 0
             high_scale_limit            : 2
             resolution_x                : 2600
