@@ -43,26 +43,30 @@ def create(path_to_yaml_dict):
         high_scale = animationsettings["high_scale_limit"]
 
 
-    dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath,i))]
-    vtkname = var+"_constantPlane.vtk"
-    plotter = pv.Plotter(notebook=False, off_screen=True)
+        dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath,i))]
+        dirs = dirs[:10]
+        vtkname = var+"_constantPlane.vtk"
+        plotter = pv.Plotter(notebook=False, off_screen=True,window_size=([resolution_x, resolution_y]))
 
-    pv.set_plot_theme("document")
 
-    plotter.open_gif(os.path.join(casepath,casedirs["data"],var + "_animation.gif"))
+        plotter.open_gif(os.path.join(casepath,casedirs["data"],var + "_animation.gif"))
+        pv.set_plot_theme("document")
 
-    for d in tqdm(dirs):
-        target = os.path.join(cutplanepath,d,vtkname)
-        plotter.theme = pv.themes.DocumentTheme()
-        mesh = pv.PolyData(target)
-        mesh.rotate_z(90)
-        actor_mesh = plotter.add_mesh(mesh,cmap="coolwarm")
-        plotter.update_scalar_bar_range((low_scale, high_scale))
-        plotter.show_axes()
+        for d in tqdm(dirs):
 
-        plotter.render()
-        plotter.write_frame()
-        plotter.remove_actor(actor_mesh)
-        plotter.clear()
+            target = os.path.join(cutplanepath,d,vtkname)
+            #plotter.theme = pv.themes.DocumentTheme()
+            mesh = pv.PolyData(target)
+            actor_mesh = plotter.add_mesh(mesh,cmap="coolwarm")
+            plotter.update_scalar_bar_range((low_scale, high_scale))
+            plotter.camera_position=[cpos,mesh.center,(0,1,0)]
 
-    plotter.close()
+            plotter.show_axes()
+
+            plotter.render()
+            #plotter.show(cpos=cpos)
+            plotter.write_frame()
+            plotter.remove_actor(actor_mesh)
+            plotter.clear()
+
+        plotter.close()
