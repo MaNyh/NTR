@@ -229,6 +229,7 @@ post_settings:
             resolution_y                : 2600
 
         U_global:
+            cpos: [ 0,0,1 ]
             variable                    : "U"
             low_scale_limit             : 0
             high_scale_limit            : 90
