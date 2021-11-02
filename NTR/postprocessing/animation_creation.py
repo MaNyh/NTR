@@ -5,6 +5,7 @@ Created on Mon May  3 00:33:31 2021
 @author: malte
 """
 
+
 import pyvista as pv
 import imageio
 import os
@@ -41,26 +42,27 @@ def create(path_to_yaml_dict):
         low_scale = animationsettings["low_scale_limit"]
         high_scale = animationsettings["high_scale_limit"]
 
-        dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath, i))]
-        vtkname = var + "_constantPlane.vtk"
-        frame = "frame.jpg"
 
-        pv.set_plot_theme("document")
-        with imageio.get_writer(os.path.join(casepath, casedirs["data"], var + "_animation.gif"), mode='I') as writer:
-            for d in tqdm(dirs):
-                target = os.path.join(cutplanepath, d, vtkname)
-                plotter = pv.Plotter(off_screen=True)
+    dirs = [i for i in os.listdir(cutplanepath) if os.path.isdir(os.path.join(cutplanepath,i))]
+    vtkname = var+"_constantPlane.vtk"
+    plotter = pv.Plotter(notebook=False, off_screen=True)
 
-                mesh = pv.PolyData(target)
-                # mesh.rotate_z(90)
-                plotter.add_mesh(mesh, cmap="coolwarm")
-                plotter.show_axes()
-                plotter.update_scalar_bar_range((low_scale, high_scale))
-                plotter.camera.position = cpos
-                plotter.camera.roll += 270
-                plotter.show(screenshot=frame, window_size=[resolution_x, resolution_y])
-                plotter.close()
-                image = imageio.imread(frame)
-                writer.append_data(image)
-                os.remove(frame)
-            writer.close()
+    pv.set_plot_theme("document")
+
+    plotter.open_gif(os.path.join(casepath,casedirs["data"],var + "_animation.gif"))
+
+    for d in tqdm(dirs):
+        target = os.path.join(cutplanepath,d,vtkname)
+        plotter.theme = pv.themes.DocumentTheme()
+        mesh = pv.PolyData(target)
+        mesh.rotate_z(90)
+        actor_mesh = plotter.add_mesh(mesh,cmap="coolwarm")
+        plotter.update_scalar_bar_range((low_scale, high_scale))
+        plotter.show_axes()
+
+        plotter.render()
+        plotter.write_frame()
+        plotter.remove_actor(actor_mesh)
+        plotter.clear()
+
+    plotter.close()
