@@ -61,7 +61,7 @@ def logfilestats(settings_dict):
 
 
 def read_logfile(filepath):
-    logfile_raw = readtxtfile(os.path.join(casepath, filepath))
+    logfile_raw = readtxtfile(filepath)
     timestepobj_list = []
     timestep_lines = []
     timestep_counter = 0
