@@ -85,11 +85,11 @@ def create_parastudsims(path_to_parayaml):
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
         create_simulationcase(tmp_yml)
-        tmpsimdir = os.path.join(tmp_dir.name, "02_Simcase")
+        tmpsimdir = os.path.join(tmp_dir.name, casedirs["simcase"])
 
         # create dirstructure and move files from teampdir
         datlist = []
-        for i in glob.glob(os.path.join(tmp_dir.name, "02_Simcase\\**\\*"), recursive=True):
+        for i in glob.glob(os.path.join(tmp_dir.name, casedirs["simcase"]+"\\**\\*"), recursive=True):
             if os.path.isfile(i):
                 datlist.append([os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)),
                                 os.path.basename(i)])
