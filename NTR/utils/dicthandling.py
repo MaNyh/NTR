@@ -1,6 +1,9 @@
 import operator
 from functools import reduce
-import copy
+
+def delete_keys_from_dict(dictionary, key_list):
+    dictionary = reduce(dict.get, key_list[0:-1], dictionary)
+    del dictionary[key_list[-1]]
 
 def getFromDict(dataDict, mapList):
     return reduce(operator.getitem, mapList, dataDict)
