@@ -10,13 +10,13 @@ from tqdm import tqdm
 
 import NTR
 from NTR.database.job_management import create_jobmanagement, write_runsim_bash, mgmt_parastud
-from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator, merge
+from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator, merge, delete_keys_from_dict
 from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle, walk_file_or_dir
 from NTR.utils.functions import func_by_name
 from NTR.database.case_dirstructure import casedirs
 
 
-def find_vars_opts(case_structure, sign, all_pairs):
+def find_vars_opts(case_structure, sign, all_pairs, path_to_sim):
     # allowing names like JOB_NUMBERS, only capital letters and underlines - no digits, no whitespaces
     datadict = copy.deepcopy(case_structure)
     varsignature = r"<PLACEHOLDER [A-Z]{3,}(_{1,1}[A-Z]{3,}){,} PLACEHOLDER>".replace(r'PLACEHOLDER', sign)
@@ -24,8 +24,8 @@ def find_vars_opts(case_structure, sign, all_pairs):
 
     for pair in all_pairs:
         setInDict(datadict, pair[:-1], {})
-        filepath = os.path.join(*pair[:-1])
-        with open(os.path.join(os.path.dirname(__file__), "../database/case_templates", filepath), "r") as fhandle:
+        filepath = os.path.join(*pair[1:-1])
+        with open(os.path.join(path_to_sim, filepath), "r") as fhandle:
             for line in fhandle.readlines():
                 datadict = search_paras(datadict, line, pair, siglim, varsignature, sign)
     return datadict
@@ -139,11 +139,11 @@ def create_simulationcase(path_to_yaml_dict):
 
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
-    swap_commons(case_type, path_to_sim)
+    case_structure = swap_commons(case_type, path_to_sim,case_structure)
 
     all_parameters = list(nested_dict_pairs_iterator(case_structure))
-    case_structure_parameters_var = find_vars_opts(case_structure, "var", all_parameters)
-    case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_parameters)
+    case_structure_parameters_var = find_vars_opts(case_structure, "var", all_parameters,path_to_sim)
+    case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_parameters,path_to_sim)
     case_structure_parameters = merge(case_structure_parameters_var, case_structure_parameters_opt)
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
@@ -153,7 +153,8 @@ def create_simulationcase(path_to_yaml_dict):
     writeout_readme(case_type, path_to_sim, case_description)
 
 
-def swap_commons(case_type, path_to_sim):
+def swap_commons(case_type, path_to_sim, case_structure):
+    case_structure_copy=case_structure.copy()
     dirstruct = get_directory_structure(path_to_sim)
     filelist = list(nested_dict_pairs_iterator(dirstruct))
     commons = []
@@ -168,17 +169,36 @@ def swap_commons(case_type, path_to_sim):
 
     path_to_commons = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
 
+    parse_dict = list(nested_dict_pairs_iterator(case_structure_copy))
+    swap_common_parsedictidx = []
     for cf in commons:
         targetdir = os.path.join(*cf[1:-2])
         sourcefile = cf[-2]
         targetfile = sourcefile.replace(commonstring, "")
+
         for subdir in allowed:
             casecommons = os.listdir(os.path.join(path_to_commons, subdir))
+
 
             if sourcefile in casecommons:
                 source = os.path.join(path_to_commons,subdir, sourcefile)
                 target = os.path.join(path_to_sim, targetdir, targetfile)
+                os.remove(os.path.join(path_to_sim, targetdir, sourcefile))
                 shutil.copyfile(source, target)
+                parsedict_index = [i[-2] for i in parse_dict].index(sourcefile)
+                swap_common_parsedictidx.append(parsedict_index)
+
+    for swaps_idx in swap_common_parsedictidx:
+        mapsvar = parse_dict[swaps_idx]
+        maps = list(mapsvar[:-1])
+
+        val = None
+        delete_keys_from_dict(case_structure_copy,maps)
+        fname = maps.pop(-1)
+        maps.append(fname.replace(commonstring,""))
+        setInDict(case_structure_copy,maps,val)
+    return case_structure_copy
+
 
 
 def writeout_readme(case_type, path_to_sim, description):
