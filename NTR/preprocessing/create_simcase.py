@@ -164,7 +164,7 @@ def swap_commons(case_type, path_to_sim, case_structure):
             commons.append(f)
 
     allowed = []
-    if case_type == "openfoam_channel_les_axper":
+    if case_type == "openfoam_channel_les_axper" or case_type== "openfoam_channel_les_dfsem_compressible":
         allowed.append("openfoam_channelcase_les")
 
     path_to_commons = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")

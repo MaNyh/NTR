@@ -19,6 +19,8 @@ dimensions      [0 0 0 1 0 0 0];
 
 internalField   uniform 293.15;
 
+boundaryField
+{
     INLET
     {
         type            waveTransmissive;
@@ -42,6 +44,16 @@ internalField   uniform 293.15;
     {
 	type	zeroGradient;
 	value	293.15;
+    }
+
+    sides_half0
+    {
+        type            cyclic;
+    }
+
+    sides_half1
+    {
+        type            cyclic;
     }
 }
 
