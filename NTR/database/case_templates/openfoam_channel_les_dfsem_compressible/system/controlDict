@@ -71,8 +71,6 @@ functions
 		writeControl	writeTime;
         startTime       <var AVE_START var>;
 	}
-}
-
     turbulenceFields1
     {
         type            turbulenceFields;
@@ -89,12 +87,7 @@ functions
         startTime       <var AVE_START var>;
         fields
         (
-          wallShearStress
-          {
-                mean true;
-                prime2Mean false;
-                base time;
-          }
+
           rho
           {
                 mean true;
