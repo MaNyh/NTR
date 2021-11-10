@@ -24,7 +24,7 @@ def find_vars_opts(case_structure, sign, all_pairs, path_to_sim):
 
     for pair in all_pairs:
         setInDict(datadict, pair[:-1], {})
-        filepath = os.path.join(*pair[1:-1])
+        filepath = os.path.join(*pair[:-1])
         with open(os.path.join(path_to_sim, filepath), "r") as fhandle:
             for line in fhandle.readlines():
                 datadict = search_paras(datadict, line, pair, siglim, varsignature, sign)
@@ -117,7 +117,7 @@ def create_simulationcase(path_to_yaml_dict):
     for cname in case_templates:
         cstruct = get_directory_structure(
             os.path.join(os.path.dirname(__file__), "../database/case_templates", cname))
-        case_structures[cname] = cstruct
+        case_structures[cname] = cstruct[cname]
 
     settings = yaml_dict_read(path_to_yaml_dict)
     casetype = settings["case_settings"]["type"]
@@ -152,6 +152,17 @@ def create_simulationcase(path_to_yaml_dict):
     write_runsim_bash(settings, casepath)
     writeout_readme(case_type, path_to_sim, case_description)
 
+def get_common_association(case_type):
+    """
+    here common-file-directories are associated to templates.
+    this means one cant associate common files to two different simulation types
+    :arg case_type: name of case
+    :return directory-name
+    """
+    if case_type == "openfoam_channel_les_axper" or case_type== "openfoam_channel_les_dfsem_compressible":
+        return "openfoam_channelcase_les"
+    else:
+        return None
 
 def swap_commons(case_type, path_to_sim, case_structure):
     case_structure_copy=case_structure.copy()
@@ -164,8 +175,9 @@ def swap_commons(case_type, path_to_sim, case_structure):
             commons.append(f)
 
     allowed = []
-    if case_type == "openfoam_channel_les_axper" or case_type== "openfoam_channel_les_dfsem_compressible":
-        allowed.append("openfoam_channelcase_les")
+    common = get_common_association(case_type)
+    if common:
+        allowed.append(common)
 
     path_to_commons = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
 
@@ -218,7 +230,7 @@ def writeout_readme(case_type, path_to_sim, description):
 def writeout_simulation(case_structure_parameters, path_to_sim, settings):
     walk_casefile_list = nested_dict_pairs_iterator(case_structure_parameters)
     for parameterdata in walk_casefile_list:
-        fpath = os.path.join(path_to_sim, *parameterdata[1:-2])
+        fpath = os.path.join(path_to_sim, *parameterdata[:-2])
         parametername = parameterdata[-2]
 
         para_type = parameterdata[-1]
@@ -234,7 +246,7 @@ def writeout_simulation(case_structure_parameters, path_to_sim, settings):
 def writeout_simulation_options(case_structure_parameters, path_to_sim, settings):
     walk_casefile_list = nested_dict_pairs_iterator(case_structure_parameters)
     for parameterdata in walk_casefile_list:
-        fpath = os.path.join(path_to_sim, *parameterdata[1:-2])
+        fpath = os.path.join(path_to_sim, *parameterdata[:-2])
         parametername = parameterdata[-2]
 
         para_type = parameterdata[-1]
@@ -272,15 +284,15 @@ def writeout_simulation_options(case_structure_parameters, path_to_sim, settings
 
 
 def copy_template(case_type, case_structure, path_to_sim):
-    commonpath = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
-    files = list(walk_file_or_dir(commonpath))
+    #commonpath = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
+    #files = list(walk_file_or_dir(commonpath))
     for file in nested_dict_pairs_iterator(case_structure):
         filename = file[-2]
-        dirstructure = file[1:-2]
+        dirstructure = file[:-2]
         if dirstructure == ():
             dirstructure = ""
 
-        template_fpath = os.path.join(os.path.dirname(__file__), "../database/case_templates", case_type, *dirstructure,
+        template_fpath = os.path.join(os.path.dirname(NTR.__file__), "database","case_templates", case_type, *dirstructure,
                                       filename)
         sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
 
@@ -329,7 +341,7 @@ def create_casedirstructure(casedirectories, casepath):
 def create_simdirstructure(filetemplates, path):
     directories = list(nested_dict_pairs_iterator(filetemplates))
     for d in directories:
-        dirstructure = d[1:-2]
+        dirstructure = d[:-2]
         if dirstructure == ():
             dirstructure = ""
         for dir in dirstructure:
