@@ -21,7 +21,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     unit = settings["geometry"]["ptcloud_profile_unit"]
     blade_shift = settings["geometry"]["shift_domain"]
     alpha = settings["geometry"]["alpha"]
-    span_z = settings["mesh"]["extrudeLength"]
+    span_z = float(settings["mesh"]["extrudeLength"])
 
     # =============================================================================
     # Daten Einlesen
