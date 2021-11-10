@@ -209,11 +209,6 @@ def test_create_simulationcase(tmpdir):
         case_structure_template = case_structure_templates[case_type]
 
         common_dir = get_common_association(case_type)
-
-        templatedirs = os.path.join(templates_basedir, case_type)
-        # for r, d, f in os.walk(os.path.join(template_dir, case_type)):
-        #   for dir in d:
-        #       templatedirs.append(os.path.join(r, dir))
         create_simdirstructure(case_structure_template,tmpdir)
         copy_template(case_type,case_structure_template,tmpdir)
         all_pairs = list(nested_dict_pairs_iterator(case_structure_template))
@@ -273,7 +268,6 @@ def test_create_simulationcase(tmpdir):
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)
         create_simulationcase(test_file)
-
 
 
 def test_read_fullfactorparastud_yaml(tmpdir):
