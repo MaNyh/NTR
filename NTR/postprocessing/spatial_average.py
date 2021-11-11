@@ -9,7 +9,6 @@ from NTR.database.case_dirstructure import casedirs
 from NTR.utils.mathfunctions import vecAbs, lineseg_dist
 
 
-
 def vol_to_line(vtkmesh, ave_direction, verbose=False):
     """
     this function is assuming a structured grid without curved gridlines
@@ -55,7 +54,7 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
         ids = np.where(np.equal(centers_poi, points_bnd))[0]
         ids_negative = np.where(np.not_equal(centers_poi, points_bnd))[0]
 
-        assert mesh.number_of_cells == (len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells),\
+        assert mesh.number_of_cells == (len(ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), \
             "somethings wrong"
 
         layer = rest.extract_cells(ids)
@@ -90,50 +89,50 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
     boundshigh = mesh.bounds[interpol_dir]
-    boundslow = mesh.bounds[interpol_dir+1]
+    boundslow = mesh.bounds[interpol_dir + 1]
 
-    helper_one = (interpol_dir+2)%6
-    helper_one_low = mesh.bounds[helper_one+1]
+    helper_one = (interpol_dir + 2) % 6
+    helper_one_low = mesh.bounds[helper_one + 1]
 
-    helper_two = (interpol_dir+4)%6
+    helper_two = (interpol_dir + 4) % 6
     helper_two_low = mesh.bounds[helper_two + 1]
 
-    end =[None,None,None]
-    end[int(interpol_dir/2)] = boundslow
-    end[int(helper_one/2)] = helper_one_low
-    end[int(helper_two/2)] = helper_two_low
+    end = [None, None, None]
+    end[int(interpol_dir / 2)] = boundslow
+    end[int(helper_one / 2)] = helper_one_low
+    end[int(helper_two / 2)] = helper_two_low
     end = np.array(end)
 
-    base =[None,None,None]
-    base[int(interpol_dir/2)] = boundshigh
-    base[int(helper_one/2)] = helper_one_low
-    base[int(helper_two/2)] = helper_two_low
+    base = [None, None, None]
+    base[int(interpol_dir / 2)] = boundshigh
+    base[int(helper_one / 2)] = helper_one_low
+    base[int(helper_two / 2)] = helper_two_low
     base = np.array(base)
 
     pts = []
-    tolerance = vecAbs(base-end)/1000
+    tolerance = vecAbs(base - end) / 1000
     for pt in mesh.points:
         dist = lineseg_dist(pt, base, end)
-        if dist< tolerance:
+        if dist < tolerance:
             pts.append(pt)
 
     slices = []
     for slice_pt in pts:
-        slice = volume.slice(origin=slice_pt,normal=ave_direction)
-        if slice.number_of_points>0:
+        slice = volume.slice(origin=slice_pt, normal=ave_direction)
+        if slice.number_of_points > 0:
             slices.append(slice)
 
     ave_slice = slices[0].copy()
 
     for arrayname in ave_slice.array_names:
-        ave_slice[arrayname]=ave_slice[arrayname]*0
+        ave_slice[arrayname] = ave_slice[arrayname] * 0
 
     for sl in slices:
         for arrayname in sl.array_names:
             ave_slice[arrayname] += sl[arrayname]
 
     for arrayname in ave_slice.array_names:
-        ave_slice[arrayname]= ave_slice[arrayname] * 1/len(slices)
+        ave_slice[arrayname] = ave_slice[arrayname] * 1 / len(slices)
 
     ave_slice = ave_slice.cell_data_to_point_data()
 
@@ -150,7 +149,6 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
 
 
 def vol_to_plane_fromsettings(settings_yml_path):
-
     settings = yaml_dict_read(settings_yml_path)
     casepath = os.path.abspath(os.path.dirname(settings_yml_path))
     meshpath = os.path.join(casepath, casedirs["solution"], settings["post_settings"]["use_vtk_meshes"]["volmesh"])
@@ -158,8 +156,9 @@ def vol_to_plane_fromsettings(settings_yml_path):
     cellcentered = settings["post_settings"]["average_volumeonplane"]["cellcentered"]
     mesh = load_mesh(meshpath)
 
-    ave_slice = vol_to_plane(mesh,line_direction,cell_centered=cellcentered)
+    ave_slice = vol_to_plane(mesh, line_direction, cell_centered=cellcentered)
     return ave_slice
+
 
 def vol_to_line_fromsettings(settings_yml_path):
     settings = yaml_dict_read(settings_yml_path)
