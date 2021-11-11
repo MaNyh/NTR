@@ -56,8 +56,6 @@ class signal_generator:
         self.sin_stationary = np.argmax(self.sin_abate < (1 - self.transientlimit))
         self.tanh_stationarity = np.argmax(np.tanh(self.timesteps * self.tanh_lasting ** -1) > self.transientlimit)
 
-        sin_freq = self.sin_omega ** -1
-        sig_time = self.time
 
     def tanh_signal(self):
         ans = np.tanh(self.timesteps * self.tanh_lasting ** -1)
@@ -143,9 +141,9 @@ def autocorr(x):
 
 def transientcheck(signal, timesteps):
     """
-
-    :param signal: timeseries
-    :return: time_of_stationarity
+    :param signal: timeseries 1 dimensional with n values
+    :param signal: signal 1 dimensional with n values
+    :return:
     """
 
     second_half_id = int(len(signal) / 2)
@@ -165,10 +163,11 @@ def transientcheck(signal, timesteps):
         print("no zero crossing found, using first minimal value (possibly last timestep). check data quality!")
         acorr_zero_crossings = np.where(autocorrelated == min(autocorrelated))[0][0]
 
-    integral_scale = simps(autocorrelated[:acorr_zero_crossings], timesteps[:acorr_zero_crossings])
+    integral_time_scale = simps(autocorrelated[:acorr_zero_crossings], timesteps[:acorr_zero_crossings])
+    integral_length_scale = integral_time_scale * second_half_mean
 
     integrals_window = 30
-    time_window = integrals_window * integral_scale
+    time_window = integrals_window * integral_time_scale
     windows = []
 
     window_upperlimit = time_window
@@ -190,8 +189,8 @@ def transientcheck(signal, timesteps):
             window_signal.append(signal_at_time)
 
     eps_time_mean = np.std(second_half_of_signal) / second_half_mean * (
-            2 * integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
-    eps_time_rms = (integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+            2 * integral_time_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+    eps_time_rms = (integral_time_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
 
     no_windows_mean = len(windows_mean)
     no_windows_rms = len(windows_rms)
