@@ -195,7 +195,6 @@ def test_midline_from_sides(verbose=False):
 def test_create_simulationcase(tmpdir):
     ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
     case_templates = os.listdir(os.path.join(ntrpath, "database", "case_templates"))
-    common_templates = os.listdir(os.path.join(ntrpath, "database", "common_files"))
 
     case_structure_templates = {}
     templates_basedir = os.path.join(ntrpath, "database", "case_templates")
