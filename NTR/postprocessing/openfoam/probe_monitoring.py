@@ -7,7 +7,7 @@ from NTR.utils.filehandling import yaml_dict_read, read_csv
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.mathfunctions import vecAbs
 from NTR.postprocessing.openfoam.loginterpreter import logfilestats
-
+from NTR.postprocessing.openfoam.probe_reading import readprobes
 
 def show_monitors(casesettings_yml):
     settings = yaml_dict_read(casesettings_yml)
@@ -27,29 +27,32 @@ def averagevaluesinlet(casesettings_yml):
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","AverValuesInlet")
-    make_averagevaluesplot(casepath, datname, monitorpath)
+    probe_variables = {"areaAverage(U)":[0,2], "areaAverage(p)":[3,4], "areaAverage(T)":[5,6]}
+    make_averagevaluesplot(casepath, datname, monitorpath,probe_variables)
 
 
 def averagevaluesoutlet(casesettings_yml):
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","AverValuesOutlet")
-    make_averagevaluesplot(casepath, datname, monitorpath)
+    probe_variables = {"areaAverage(U)":[0,2], "areaAverage(p)":[3,4], "areaAverage(T)":[5,6]}
+    make_averagevaluesplot(casepath, datname, monitorpath,probe_variables)
 
 
 def massflowoutlet(casesettings_yml):
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","MassflowOutlet")
-    make_averagevaluesplot(casepath, datname, monitorpath)
+    probe_variables = {"phi":[0,0]}
+    make_averagevaluesplot(casepath, datname, monitorpath,probe_variables)
 
 
 def massflowinlet(casesettings_yml):
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","MassflowInlet")
-
-    make_averagevaluesplot(casepath, datname, monitorpath)
+    probe_variables = {"phi":[0,-1]}
+    make_averagevaluesplot(casepath, datname, monitorpath,probe_variables)
 
 
 def xslices(casesettings_yml):
@@ -126,44 +129,31 @@ def xslices(casesettings_yml):
     return 0
 
 
-def make_averagevaluesplot(casepath, datname, monitorpath):
+def make_averagevaluesplot(casepath, datname, monitorpath,probe_variables):
     dirlist = os.listdir(os.path.join(casepath, monitorpath))
     dirlistasfloats = [float(i) for i in dirlist]
     dirlistasfloats, dirlist = zip(*sorted(zip(dirlistasfloats, dirlist)))
     timeseries = {"time": []}
+    for varname in probe_variables.keys():
+        timeseries[varname]=[]
+
     for timedirectory in dirlist:
         subdirlist = os.listdir(os.path.join(casepath, monitorpath, timedirectory))
         for item in subdirlist:
             if datname in item:
-
-                rawdata = read_csv(os.path.join(casepath, monitorpath, timedirectory, item))
-                if len(rawdata) <= 5:
+                timesteps,vals_raw = readprobes(os.path.join(casepath, monitorpath),timedirectory,"","surfaceFieldValue.dat")
+                vals_asarray = np.array([np.array(*i) for i in vals_raw])
+                if len(vals_raw) <= 0:
                     pass
-
-                else:
-                    variables = rawdata[4][1:]
-
-                    for var in variables:
-                        if var not in timeseries.keys():
-                            timeseries[var] = []
-
-                    dat = np.asarray(rawdata[5:])
-
-                    for idx, var in enumerate(timeseries.keys()):
-                        if idx < dat.shape[1]:
-                            newdat = dat[:, idx]
-                        else:
-                            newdat = ["0.0" for i in range(len(dat))]
-                        for row in newdat:
-                            if "(" in row:
-                                row = row.replace("(", "")
-                                row = row.replace(")", "")
-                                row = row.split(" ")
-                                row = [float(i) for i in row]
-                                timeseries[var].append(row)
-                            else:
-                                timeseries[var].append(float(row))
-    probe_variables = list(timeseries.keys())[1:]
+                timeseries["time"]=[*timeseries["time"],*timesteps]
+                for var in probe_variables.keys():
+                    lower = probe_variables[var][0]
+                    upper = 1+probe_variables[var][1]
+                    vals_chunk = vals_asarray[:,lower:upper]
+                    if var == "areaAverage(U)":
+                        vals_chunk=[vecAbs(i) for i in vals_chunk]
+                    #timeseries[var]+=(vals_chunk)
+                    timeseries[var] = [*timeseries[var], *vals_chunk]
 
     fig, axs = plt.subplots(len(probe_variables), 1)
     fig.suptitle(monitorpath)
@@ -172,6 +162,7 @@ def make_averagevaluesplot(casepath, datname, monitorpath):
         y = timeseries[vars]
         if len(probe_variables) > 1:
             x, y = zip(*sorted(zip(x, y)))
+            #todo: error here. need fix
             axs[idx].plot(x, y, label=vars)
             axs[idx].set_ylabel(vars)
             for xvline in dirlistasfloats:
