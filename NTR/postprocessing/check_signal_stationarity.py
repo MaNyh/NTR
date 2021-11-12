@@ -56,8 +56,6 @@ class signal_generator:
         self.sin_stationary = np.argmax(self.sin_abate < (1 - self.transientlimit))
         self.tanh_stationarity = np.argmax(np.tanh(self.timesteps * self.tanh_lasting ** -1) > self.transientlimit)
 
-        sin_freq = self.sin_omega ** -1
-        sig_time = self.time
 
     def tanh_signal(self):
         ans = np.tanh(self.timesteps * self.tanh_lasting ** -1)
@@ -65,7 +63,7 @@ class signal_generator:
 
     def sin_signal(self):
         sinus = np.sin(self.timesteps * self.sin_omega) * self.sin_abate
-        return sinus * 0.5
+        return sinus #* 0.5
 
     def noise_signal(self):
         mu, sigma = 0, np.random.rand()  # mean and standard deviation
@@ -150,25 +148,15 @@ def transientcheck(signal, timesteps):
 
     second_half_id = int(len(signal) / 2)
     second_half_of_signal = np.copy(signal[second_half_id:])
+
     second_half_mean = np.mean(second_half_of_signal)
-    second_half_of_signal -= second_half_mean
+    second_half_of_signal_fluctations = second_half_of_signal-second_half_mean
     second_half_timesteps = np.copy(timesteps[second_half_id:])
-    autocorrelated = autocorr(second_half_of_signal)
 
-    # we are integrating from zero to zero-crossing in the autocorrelation, we need the time to begin with zeros
-    # probably the used datasample is not beginning with 0. therefore:
-    timesteps -= timesteps[0]
-
-    if len(zero_crossings(autocorrelated)) > 0:
-        acorr_zero_crossings = zero_crossings(autocorrelated)[0]
-    else:
-        print("no zero crossing found, using first minimal value (possibly last timestep). check data quality!")
-        acorr_zero_crossings = np.where(autocorrelated == min(autocorrelated))[0][0]
-
-    integral_scale = simps(autocorrelated[:acorr_zero_crossings], timesteps[:acorr_zero_crossings])
+    integral_time_scale, integral_length_scale = integralscales_from_timeseries(second_half_of_signal, timesteps)
 
     integrals_window = 30
-    time_window = integrals_window * integral_scale
+    time_window = integrals_window * integral_time_scale
     windows = []
 
     window_upperlimit = time_window
@@ -189,9 +177,11 @@ def transientcheck(signal, timesteps):
         else:
             window_signal.append(signal_at_time)
 
-    eps_time_mean = np.std(second_half_of_signal) / second_half_mean * (
-            2 * integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
-    eps_time_rms = (integral_scale / (second_half_timesteps[-1] - second_half_timesteps[0])) ** .5
+    #todo: find a suitable name for the following var
+    eps_timescale = (integral_time_scale / (second_half_timesteps[-1] - second_half_timesteps[0]))
+
+    eps_time_mean = np.std(second_half_of_signal_fluctations) / second_half_mean * (2 *eps_timescale) ** .5
+    eps_time_rms = eps_timescale ** .5
 
     no_windows_mean = len(windows_mean)
     no_windows_rms = len(windows_rms)
@@ -223,6 +213,24 @@ def transientcheck(signal, timesteps):
     plt.show()
 
     return 0
+
+
+def integralscales_from_timeseries(signal, timesteps):
+    second_half_mean = np.mean(signal)
+    autocorrelated = autocorr(signal)
+    # we are integrating from zero to zero-crossing in the autocorrelation, we need the time to begin with zeros
+    # probably the used datasample is not beginning with 0. therefore:
+    timesteps -= timesteps[0]
+    if len(zero_crossings(autocorrelated)) > 0:
+        acorr_zero_crossings = zero_crossings(autocorrelated)[0]
+    else:
+        print("no zero crossing found, using first minimal value (possibly last timestep). check data quality!")
+        acorr_zero_crossings = np.where(autocorrelated == min(autocorrelated))[0][0]
+
+    integral_time_scale = simps(autocorrelated[:acorr_zero_crossings], timesteps[:acorr_zero_crossings])
+    integral_length_scale = integral_time_scale * second_half_mean
+
+    return integral_time_scale, integral_length_scale
 
 
 def zero_crossings(data_series):
