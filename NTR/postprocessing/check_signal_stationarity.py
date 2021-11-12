@@ -153,7 +153,7 @@ def transientcheck(signal, timesteps):
     second_half_of_signal_fluctations = second_half_of_signal-second_half_mean
     second_half_timesteps = np.copy(timesteps[second_half_id:])
 
-    integral_time_scale, integral_length_scale = integralscales_from_timeseries(second_half_of_signal, timesteps)
+    integral_time_scale, integral_length_scale = integralscales_from_timeseries(second_half_mean,second_half_of_signal_fluctations, timesteps)
 
     integrals_window = 30
     time_window = integrals_window * integral_time_scale
@@ -215,9 +215,9 @@ def transientcheck(signal, timesteps):
     return 0
 
 
-def integralscales_from_timeseries(signal, timesteps):
-    second_half_mean = np.mean(signal)
-    autocorrelated = autocorr(signal)
+def integralscales_from_timeseries(mean, fluctations, timesteps):
+
+    autocorrelated = autocorr(fluctations)
     # we are integrating from zero to zero-crossing in the autocorrelation, we need the time to begin with zeros
     # probably the used datasample is not beginning with 0. therefore:
     timesteps -= timesteps[0]
@@ -228,7 +228,7 @@ def integralscales_from_timeseries(signal, timesteps):
         acorr_zero_crossings = np.where(autocorrelated == min(autocorrelated))[0][0]
 
     integral_time_scale = simps(autocorrelated[:acorr_zero_crossings], timesteps[:acorr_zero_crossings])
-    integral_length_scale = integral_time_scale * second_half_mean
+    integral_length_scale = integral_time_scale * mean
 
     return integral_time_scale, integral_length_scale
 
