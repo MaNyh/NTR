@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from NTR.utils.mathfunctions import autocorr, zero_crossings
+
 """
 this module is supposed to return a timesstamp from a time-series, that equals the time when the transient signal ends
 
@@ -133,12 +135,6 @@ def test_transientcheck(verbose=True):
     return 0
 
 
-def autocorr(x):
-    norm = np.sum(np.array(x) ** 2)
-    result = np.correlate(np.array(x), np.array(x), 'full') / norm
-    return result[int(len(result) / 2):]
-
-
 def transientcheck(signal, timesteps):
     """
 
@@ -233,6 +229,3 @@ def integralscales_from_timeseries(mean, fluctations, timesteps):
     return integral_time_scale, integral_length_scale
 
 
-def zero_crossings(data_series):
-    zcs = np.where(np.diff(np.sign(data_series)))[0]
-    return zcs
