@@ -18,7 +18,7 @@ from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoin
 from NTR.utils.geom_functions.spline import splineCurvature
 from NTR.database.case_dirstructure import casedirs
 from NTR.postprocessing.spatial_average import vol_to_plane, vol_to_line
-
+from NTR.postprocessing.integralscales_from_signal import integralscales_from_timeseries
 
 def test_yamlDictRead(tmpdir):
     """
@@ -352,3 +352,17 @@ def test_vol_to_line():
     meanval = (grid_cl_high + grid_cl_low) / 2
     meanvar = np.mean(var["var"])
     assert np.isclose(meanvar, meanval)
+
+
+def test_integralscales():
+    time = np.arange(0,1000,0.1)
+    fluctationstrength = 1
+    meanvalue = 3
+    frequency = 2
+    signal = np.sin(time*frequency)*fluctationstrength+meanvalue
+    mean = np.mean(signal)
+    fluctation = signal-mean
+    timescale,lenghtscale = integralscales_from_timeseries(mean,fluctation,time)
+    assert np.isclose(timescale,frequency**-1,rtol=0.075), "calculated timescale result out of tolerance. something's wrong"
+    assert np.isclose(lenghtscale,timescale*meanvalue,rtol=0.075), "calculated length scale out of tolerance. something's wrong"
+    return 0

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from NTR.utils.mathfunctions import autocorr, zero_crossings
+from NTR.postprocessing.integralscales_from_signal import integralscales_from_timeseries
 
 """
 this module is supposed to return a timesstamp from a time-series, that equals the time when the transient signal ends
@@ -13,8 +13,6 @@ numerical solutions have a transient behaviour at the initial process
 it is assumed that this initial transient can be reproduced by a sine, tanh and a noise-function
 with these functions given, we can analytically define where the transient process ends
 """
-
-from scipy.integrate import simps
 
 
 class signal_generator:
@@ -149,7 +147,7 @@ def transientcheck(signal, timesteps):
     second_half_of_signal_fluctations = second_half_of_signal-second_half_mean
     second_half_timesteps = np.copy(timesteps[second_half_id:])
 
-    integral_time_scale, integral_length_scale = integralscales_from_timeseries(second_half_mean,second_half_of_signal_fluctations, timesteps)
+    integral_time_scale, integral_length_scale = integralscales_from_timeseries(second_half_mean, second_half_of_signal_fluctations, timesteps)
 
     integrals_window = 30
     time_window = integrals_window * integral_time_scale
@@ -209,23 +207,5 @@ def transientcheck(signal, timesteps):
     plt.show()
 
     return 0
-
-
-def integralscales_from_timeseries(mean, fluctations, timesteps):
-
-    autocorrelated = autocorr(fluctations)
-    # we are integrating from zero to zero-crossing in the autocorrelation, we need the time to begin with zeros
-    # probably the used datasample is not beginning with 0. therefore:
-    timesteps -= timesteps[0]
-    if len(zero_crossings(autocorrelated)) > 0:
-        acorr_zero_crossings = zero_crossings(autocorrelated)[0]
-    else:
-        print("no zero crossing found, using first minimal value (possibly last timestep). check data quality!")
-        acorr_zero_crossings = np.where(autocorrelated == min(autocorrelated))[0][0]
-
-    integral_time_scale = simps(autocorrelated[:acorr_zero_crossings], timesteps[:acorr_zero_crossings])
-    integral_length_scale = integral_time_scale * mean
-
-    return integral_time_scale, integral_length_scale
 
 
