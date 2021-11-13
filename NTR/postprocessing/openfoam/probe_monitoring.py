@@ -27,7 +27,7 @@ def averagevaluesinlet(casesettings_yml):
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","AverValuesInlet")
-    probe_variables = {"areaAverage(U)":[0,2], "areaAverage(p)":[3,4], "areaAverage(T)":[5,6]}
+    probe_variables = {"areaAverage(U)":[0,2], "areaAverage(p)":[3,3], "areaAverage(T)":[4,4]}
     make_averagevaluesplot(casepath, datname, monitorpath,probe_variables)
 
 
@@ -35,7 +35,7 @@ def averagevaluesoutlet(casesettings_yml):
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","AverValuesOutlet")
-    probe_variables = {"areaAverage(U)":[0,2], "areaAverage(p)":[3,4], "areaAverage(T)":[5,6]}
+    probe_variables = {"areaAverage(U)":[0,2], "areaAverage(p)":[3,3], "areaAverage(T)":[4,4]}
     make_averagevaluesplot(casepath, datname, monitorpath,probe_variables)
 
 
@@ -51,7 +51,7 @@ def massflowinlet(casesettings_yml):
     datname = "surfaceFieldValue"
     casepath = os.path.abspath(os.path.dirname(casesettings_yml))
     monitorpath = os.path.join(casepath,casedirs["solution"],"postProcessing","MassflowInlet")
-    probe_variables = {"phi":[0,-1]}
+    probe_variables = {"phi":[0,0]}
     make_averagevaluesplot(casepath, datname, monitorpath,probe_variables)
 
 
@@ -148,19 +148,18 @@ def make_averagevaluesplot(casepath, datname, monitorpath,probe_variables):
                 timeseries["time"]=[*timeseries["time"],*timesteps]
                 for var in probe_variables.keys():
                     lower = probe_variables[var][0]
-                    upper = 1+probe_variables[var][1]
+                    upper = probe_variables[var][1]+1
                     vals_chunk = vals_asarray[:,lower:upper]
                     if var == "areaAverage(U)":
                         vals_chunk=[vecAbs(i) for i in vals_chunk]
-                    #timeseries[var]+=(vals_chunk)
                     timeseries[var] = [*timeseries[var], *vals_chunk]
 
     fig, axs = plt.subplots(len(probe_variables), 1)
     fig.suptitle(monitorpath)
     x = timeseries["time"]
-    for idx, vars in enumerate(probe_variables):
+    for idx, vars in enumerate(probe_variables.keys()):
         y = timeseries[vars]
-        if len(probe_variables) > 1:
+        if len(y) > 1:
             x, y = zip(*sorted(zip(x, y)))
             #todo: error here. need fix
             axs[idx].plot(x, y, label=vars)
