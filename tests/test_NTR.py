@@ -266,11 +266,7 @@ def test_create_simulationcase(tmpdir):
         test_geo_file = tmpdir / os.path.join(casedirs["data"], "geometry.pkl")
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)
-        for root, subdirectories, files in os.walk(tmpdir):
-            for subdirectory in subdirectories:
-                print(os.path.join(root, subdirectory))
-            for file in files:
-                print(os.path.join(root, file))
+
         create_simulationcase(test_file)
         for root, dirs, files in os.walk(tmpdir):
             for f in files:
