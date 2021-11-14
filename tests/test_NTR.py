@@ -272,6 +272,11 @@ def test_create_simulationcase(tmpdir):
             for file in files:
                 print(os.path.join(root, file))
         create_simulationcase(test_file)
+        for root, dirs, files in os.walk(tmpdir):
+            for f in files:
+                os.unlink(os.path.join(root, f))
+            for d in dirs:
+                shutil.rmtree(os.path.join(root, d))
 
 
 def test_read_fullfactorparastud_yaml(tmpdir):
