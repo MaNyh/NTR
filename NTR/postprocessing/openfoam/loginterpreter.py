@@ -50,10 +50,18 @@ class timestep:
 
 
 def logfilestats(settings_dict):
-    #settings = yaml_dict_read(settings_dict)
-    filepath = os.path.join(casedirs["solution"],"log.log")
+#    casepath = os.path.abspath(os.path.dirname(settings_dict))
+#    filepath = os.path.join(casepath,casedirs["solution"],"log.log")
     casepath = os.path.abspath(os.path.dirname(settings_dict))
-    logfile_raw = readtxtfile(os.path.join(casepath,filepath))
+    filepath = os.path.join(casepath, casedirs["solution"], "log.log")
+
+    clocktime, courant, courant_max, timesteps, timesteptime_mean = read_logfile(filepath)
+
+    return timesteps, clocktime, courant_max, courant, timesteptime_mean
+
+
+def read_logfile(filepath):
+    logfile_raw = readtxtfile(filepath)
     timestepobj_list = []
     timestep_lines = []
     timestep_counter = 0
@@ -66,21 +74,17 @@ def logfilestats(settings_dict):
             timestep_lines = []
     timestepobj_list.append(timestep(timestep_lines))
     timestep_counter += 1
-
-
     timesteps = len(timestepobj_list) - 3
     clocktime = timestepobj_list[-3].clocktime
     executiontime = timestepobj_list[-3].executiontime
     courant_max = max([i.courant_max for i in timestepobj_list])
     courant = np.mean([i.courant_max for i in timestepobj_list])
     timesteptime_mean = timesteps / clocktime
-
     print("timesteps :", timesteps, " [ ]")
     print("cputime :", clocktime, " [s]")
     print("executiontime :", executiontime, " [s]")
     print("courant_max :", courant_max, " [ ]")
     print("courant :", courant, " [ ]")
     print("timesteprate :", timesteptime_mean, " [s**-1]")
-
-    return timesteps, clocktime, courant_max, courant, timesteptime_mean
+    return clocktime, courant, courant_max, timesteps, timesteptime_mean
 

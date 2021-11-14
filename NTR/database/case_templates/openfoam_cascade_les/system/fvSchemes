@@ -27,24 +27,24 @@ ddtSchemes
 
 gradSchemes
 {
-    default           Gauss linear;
+    default         <var GRADSCHEMES_DEFAULT var>;
 }
 
 divSchemes
 {
     
-    default                             none;
-    div(phi,U)                          Gauss LUST grad(U); 
-    div(phi,e)                          Gauss LUST grad(e);
-    div(phi,K)                          Gauss limitedLinear 1.0;
-    div(phiv,p)                         Gauss LUST grad(p);   
-    div(phi,k)                          Gauss limitedLinear 1.0;
-    div(phi,B)                          Gauss limitedLinear 1.0;    
-    div(phi,muTilda)                    Gauss limitedLinear 1.0;
-    div(B)                              Gauss limitedLinear 1.0;
-    div((nuEff*dev2(T(grad(U)))))       Gauss linear;
-    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
-    div(meshPhi,p)			Gauss linear;        
+    default                             <var DIVSCHEMES_DEFAULT var>;
+    div(phi,U)                          <var DIV_PHIU var>;
+    div(phi,e)                          <var DIV_PHIE var>;
+    div(phi,K)                          <var DIV_PHIKK var>;
+    div(phiv,p)                         <var DIV_PHIK var>;
+    div(phi,k)                          <var DIV_PHIP var>;
+    div(phi,B)                          <var DIV_PHIB var>;
+    div(phi,muTilda)                    <var DIV_PHINUTILDA var>;
+    div(B)                              <var DIV_BBB var>;
+    div((nuEff*dev2(T(grad(U)))))       <var DIV_PHIK var>;
+    div(((rho*nuEff)*dev2(T(grad(U))))) <var DIV_NUEFF var>;
+    div(meshPhi,p)			            <var DIV_RHONUEFF var>;
     
 }
 

@@ -2,13 +2,15 @@
 
 """Tests for `NTR` package."""
 import os
+import shutil
 
 import numpy as np
 import pyvista as pv
 import yaml
 
 import NTR
-from NTR.preprocessing.create_simcase import create_simulationcase, find_vars_opts, read_parastudyaml
+from NTR.preprocessing.create_simcase import create_simulationcase, find_vars_opts, read_parastudyaml, \
+    get_common_association, copy_template, create_simdirstructure
 from NTR.utils.dicthandling import nested_dict_pairs_iterator, merge
 from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, write_pickle, get_directory_structure
 from NTR.utils.geom_functions.pointcloud import calcConcaveHull
@@ -16,6 +18,7 @@ from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoin
 from NTR.utils.geom_functions.spline import splineCurvature
 from NTR.database.case_dirstructure import casedirs
 from NTR.postprocessing.spatial_average import vol_to_plane, vol_to_line
+from NTR.postprocessing.integralscales_from_signal import integralscales_from_timeseries
 
 def test_yamlDictRead(tmpdir):
     """
@@ -193,19 +196,42 @@ def test_create_simulationcase(tmpdir):
     ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
     case_templates = os.listdir(os.path.join(ntrpath, "database", "case_templates"))
 
-    case_structures = {}
+    case_structure_templates = {}
+    templates_basedir = os.path.join(ntrpath, "database", "case_templates")
+
     for cname in case_templates:
-        cstruct = get_directory_structure(os.path.join(ntrpath, "database", "case_templates"))
-        case_structures[cname] = cstruct
+        cstruct = get_directory_structure(os.path.join(templates_basedir, cname))
+        case_structure_templates[cname] = cstruct[cname]
 
-    for indx in range(len(list(case_structures.keys()))):
-        case_type = list(case_structures.keys())[indx]
-        case_structure = case_structures[case_type]["case_templates"]
+    for indx in range(len(list(case_structure_templates.keys()))):
+        case_type = list(case_structure_templates.keys())[indx]
+        case_structure_template = case_structure_templates[case_type]
 
-        all_pairs = list(nested_dict_pairs_iterator(case_structure))
-        case_structure_var = find_vars_opts(case_structure,"var",all_pairs)
-        case_structure_opt = find_vars_opts(case_structure,"opt",all_pairs)
-        case_structure = merge(case_structure_var,case_structure_opt)
+        common_dir = get_common_association(case_type)
+        create_simdirstructure(case_structure_template,tmpdir)
+        copy_template(case_type,case_structure_template,tmpdir)
+        all_pairs = list(nested_dict_pairs_iterator(case_structure_template))
+
+        if common_dir:
+            common_base = os.path.join(ntrpath, "database", "common_files", common_dir)
+
+            swap_pairs = [[idx,i] for idx, i in enumerate(all_pairs) if i[-2][-6:] == "common"]
+
+            for idx, sw in swap_pairs:
+                dirs = sw[:-2]
+                file = sw[-2]
+                #todo: overthink, weather not (common_base,*dirs,file) would not be a better suiting structure for these templatefiles
+                source = os.path.join(common_base, file)
+                target = os.path.join(tmpdir,*dirs,file.replace(".common",""))
+                all_pairs_helper = [list(i) for i in all_pairs]
+                all_pairs_helper[idx][-2] = list(all_pairs_helper[idx])[-2].replace(".common","")
+                all_pairs = all_pairs_helper
+                shutil.copyfile(source, target)
+                os.remove(os.path.join(tmpdir,*dirs,file))
+
+        case_structure_var = find_vars_opts(case_structure_template, "var", all_pairs, tmpdir)
+        case_structure_opt = find_vars_opts(case_structure_template, "opt", all_pairs, tmpdir)
+        case_structure = merge(case_structure_var, case_structure_opt)
         case_structlist = list(nested_dict_pairs_iterator(case_structure))
         variables = [i[-2] for i in list(case_structlist) if i[-1] == "var"]
         options = [i[-2] for i in list(case_structlist) if i[-1] == "opt"]
@@ -213,15 +239,15 @@ def test_create_simulationcase(tmpdir):
         test_dict = {"case_settings": {"case_type": case_type,
                                        "name": "testcase",
                                        "type": "simulation",
-                                       "job":{
-                                           "job_script":"submit_sp_pbs_rrzn",
-                                           "job_nodes":"1",
-                                           "job_ppn":"1",
-                                            "job_mail":"asd@asd.asd",
-                                            "job_mem":"12",
+                                       "job": {
+                                           "job_script": "submit_sp_pbs_rrzn",
+                                           "job_nodes": "1",
+                                           "job_ppn": "1",
+                                           "job_mail": "asd@asd.asd",
+                                           "job_mem": "12",
                                        },
                                        "description": "this is a test-function",
-                                       "sub_cmd":"qsub",},
+                                       "sub_cmd": "qsub", },
                      "simcase_settings": {"variables": {},
                                           "options": {}},
                      "simcase_optiondef": {},
@@ -233,7 +259,6 @@ def test_create_simulationcase(tmpdir):
             test_dict["simcase_settings"]["options"][opt] = "1"
             test_dict["simcase_optiondef"][opt] = "1"
 
-
         test_file = tmpdir / "test_create_simulationcase.yml"
         test_geo_dict = {}
         if not os.path.isdir(tmpdir / casedirs["data"]):
@@ -241,7 +266,13 @@ def test_create_simulationcase(tmpdir):
         test_geo_file = tmpdir / os.path.join(casedirs["data"], "geometry.pkl")
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)
+
         create_simulationcase(test_file)
+        for root, dirs, files in os.walk(tmpdir):
+            for f in files:
+                os.unlink(os.path.join(root, f))
+            for d in dirs:
+                shutil.rmtree(os.path.join(root, d))
 
 
 def test_read_fullfactorparastud_yaml(tmpdir):
@@ -269,7 +300,7 @@ def test_read_fullfactorparastud_yaml(tmpdir):
 
 
 def test_vol_to_plane():
-    dirs = ["x","y","z"]
+    dirs = ["x", "y", "z"]
     dir_idx_dict = np.random.choice(range(len(dirs)))
     dir = dirs[dir_idx_dict]
 
@@ -287,19 +318,19 @@ def test_vol_to_plane():
     grid.origin = (100, 33, 55.6)  # The bottom left corner of the data set
     grid.spacing = (1, 5, 2)  # These are the cell sizes along each axis
     grid.clear_arrays()
-    grid.point_arrays["var"] = grid.points[::,dir_idx_dict]
+    grid.point_arrays["var"] = grid.points[::, dir_idx_dict]
     grid = grid.point_data_to_cell_data()
-    plane = vol_to_plane(grid,dir)
+    plane = vol_to_plane(grid, dir)
 
     grid_cl_high = grid.bounds[dir_idx_dict * 2 + 1]
     grid_cl_low = grid.bounds[dir_idx_dict * 2]
 
-    meanval = (grid_cl_high +grid_cl_low)/2
-    assert len(np.where(np.isclose(plane["var"],meanval))[0])==plane.number_of_points
+    meanval = (grid_cl_high + grid_cl_low) / 2
+    assert len(np.where(np.isclose(plane["var"], meanval))[0]) == plane.number_of_points
 
 
 def test_vol_to_line():
-    dirs = ["x","y","z"]
+    dirs = ["x", "y", "z"]
     dir_idx_dict = np.random.choice(range(len(dirs)))
     dir = dirs[dir_idx_dict]
 
@@ -317,13 +348,27 @@ def test_vol_to_line():
     grid.origin = (100, 33, 55.6)  # The bottom left corner of the data set
     grid.spacing = (1, 5, 2)  # These are the cell sizes along each axis
     grid.clear_arrays()
-    grid.point_arrays["var"] = grid.points[::,dir_idx_dict]
+    grid.point_arrays["var"] = grid.points[::, dir_idx_dict]
     grid = grid.point_data_to_cell_data()
-    pts, var = vol_to_line(grid,dir)
+    pts, var = vol_to_line(grid, dir)
 
     grid_cl_high = grid.bounds[dir_idx_dict * 2 + 1]
     grid_cl_low = grid.bounds[dir_idx_dict * 2]
 
-    meanval = (grid_cl_high +grid_cl_low)/2
+    meanval = (grid_cl_high + grid_cl_low) / 2
     meanvar = np.mean(var["var"])
-    assert np.isclose(meanvar,meanval)
+    assert np.isclose(meanvar, meanval)
+
+
+def test_integralscales():
+    time = np.arange(0,1000,0.1)
+    fluctationstrength = 1
+    meanvalue = 3
+    frequency = 2
+    signal = np.sin(time*frequency)*fluctationstrength+meanvalue
+    mean = np.mean(signal)
+    fluctation = signal-mean
+    timescale,lenghtscale = integralscales_from_timeseries(mean,fluctation,time)
+    assert np.isclose(timescale,frequency**-1,rtol=0.075), "calculated timescale result out of tolerance. something's wrong"
+    assert np.isclose(lenghtscale,timescale*meanvalue,rtol=0.075), "calculated length scale out of tolerance. something's wrong"
+    return 0

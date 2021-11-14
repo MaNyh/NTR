@@ -22,19 +22,25 @@ ddtSchemes
 
 gradSchemes
 {
-    default         Gauss linear;
+    default         <var GRADSCHEMES var>;
 }
 
 divSchemes
 {
-    default         none;
-    div(phi,U)      Gauss linear;
-    div(phi,k)      Gauss limitedLinear 1;
-    div(phi,B)      Gauss limitedLinear 1;
-    div(B)          Gauss linear;
-    div(phi,nuTilda) Gauss limitedLinear 1;
-    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+    default         <var DIVSCHEMES var>;
+    //div(phi,U)      Gauss linear;
+    //div(phi,k)      Gauss limitedLinear 1;
+    //div(phi,B)      Gauss limitedLinear 1;
+    //div(B)          Gauss linear;
+    //div(phi,nuTilda) Gauss limitedLinear 1;
+    //div((nuEff*dev2(T(grad(U))))) Gauss linear;
 }
+
+//Gauss limitedLinear 1 zweiter Ordnung limited
+//Gauss linear zweiter Ordnung
+//Gauss upwind erster Ordnung
+//Gauss corrected zweiter Ordnung (irgendwas mit nichtorthogonalität)
+//https://cfd.direct/openfoam/user-guide/v6-fvschemes/
 
 laplacianSchemes
 {

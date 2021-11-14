@@ -37,30 +37,34 @@ boundaryField
     {
         type            cyclic;
     }
+
     INLET
     {
-   type                            turbulentDFSEMWaveTransmissiveInletMod;
-   boxScale                        1;
-   d                               10;
-   pitchSpeed                      0.0;
-   shapeWake                       0.0;
-   stretchWake                      0.0;
-   uDashScaling                    480;
-   nCellPerEddy                    8;
-   lastUPrime                      uniform (0.0001 0.0001 0.0001);
-   gamma                           1.4;
-   lInf                            0.001;
-   fieldInf                        uniform (<var UMEAN var> 0 0);
-   y_min                           0;
-   y_max                           1;
-   relax                           0.0001;
-   L                               uniform 0.0015;
-   numberOfWakes                   1;
-   mapMethod                       cellVolumeWeight;
-   startBlendRelChannelHeight       1;
-   endBlendRelChannelHeight       1;
-   value                           uniform (<var UMEAN var> 0 0);
+       type                            turbulentDFSEMWaveTransmissiveInletMod;
+       cyclicZ         <var GEO_WIDTH var>; #s.o. nur in Z-Richtung abstand der periodischen raender
+       boxScale                        1; //unwichtig
+       d                               10; // dichte der virtuellen eddiwes
+       uDashScaling                    <var UDASHSCALING var>; //skalierug, so lassen
+       nCellPerEddy                    1;
+       lastUPrime                      uniform (0.0001 0.0001 0.0001);
+       gamma                           1.4;
+       lInf                            0.02;
+       fieldInf                        uniform (<var UMEAN var> 0 0);
+       relax                           0.0001;
+       L                               uniform 0.0015;
+       U                                uniform (1 0 0);
+       R                                uniform (1 0 0 1 0 1);
+       mapMethod                       cellVolumeWeight;
+       value                           uniform (<var UMEAN var> 0 0);
 
+       numberOfWakes                   1;
+       startBlendRelChannelHeight       1;
+       endBlendRelChannelHeight       1;
+       y_min                           0;
+       y_max                           1;
+       pitchSpeed                      0.0;
+       shapeWake                       0.0;
+       stretchWake                      0.0;
     }
 
     OUTLET

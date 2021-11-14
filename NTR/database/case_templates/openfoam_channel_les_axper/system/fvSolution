@@ -54,8 +54,6 @@ PIMPLE
     nOuterCorrectors <var NOUTERCORRECTORS var>;  // 1;	1=PISO 1<PIMPLE
     nCorrectors      <var NCORRECTORS var>; // 1;	//outer loops
     nNonOrthogonalCorrectors <var NNONORTHOGONALCORRECTORS var>;	//p loops
-    pRefCell        1001;
-    pRefValue       0;
 }
 
 
