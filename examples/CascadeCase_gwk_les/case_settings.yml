@@ -6,19 +6,21 @@ case_settings:
         mesh-status:
             good quality mesh
             high resolution in order to compensate problems at TE and LE
-            ~17 mio cells
+            ~10 mio cells
         boundarycondition-status:
             trying to supress a seperation on the suction side of the leading edge,
             variying incidence in order to supress seperations
         solution-status:
             trying to supress oscillations. BC are probably not physically correct
-            next step would be to adapt the incidence and numerical schemes. use limiters in schemes!
+            i tried several incidences and we still have these problems
+            therefor i am using mostly 1st order schemes (except gradScheme)
         postprocessing-status:
             need of more postprocessing and evaluation methods
     prep : |
         cp ../01_Meshing/fluent.msh .
         fluent3DMeshToFoam fluent.msh
         createPatch -overwrite
+        renumberMesh
         topoSet
         #mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
         decomposePar
@@ -58,16 +60,15 @@ simcase_settings:
 
         PINLET: "95000"                                         #Pa
         TINLET : "293.15"                                       #K
-        TIN_LINF: "0.02"                                       #m
-        UINLET: "46.25719641 49.84246965 0"                          #m/s
+        TIN_LINF: "0.02"                                        #m
+        UINLET: "46.25719641 49.84246965 0"                     #m/s
         UIN_LINF: "0.02"                                        #m
         RINLET : "4 0 0 4 0 4"                                  #m^2/s^2
         LINLET : "0.01"                                         #m
 
         POUTLET: "101325"
-        POUT_LINF: "0.01"
+        POUT_LINF: "0.02"
         TOUTLET: "293.15"
-        TOUT_LINF: "0.01"
 
         PITCHPER: "0.0765"
         ZSPAN: &ZSPAN "0.04"
@@ -78,8 +79,21 @@ simcase_settings:
         WRITEINTERVAL : "2000"
         PURGEWRITE: "2"
 
-        ADUSTABLETIMESTEP : "off"
-        TIMEDTTSCHEME : "Euler"
+        ADUSTABLETIMESTEP           : "off"
+        TIMEDTTSCHEME               : "Euler"
+        GRADSCHEMES_DEFAULT         : "Gauss linearUpwind grad(U)"
+        DIVSCHEMES_DEFAULT          : "Gauss linearUpwind"
+        DIV_PHIU                    : "Gauss linearUpwind grad(U)"
+        DIV_PHIE                    : "Gauss linearUpwind grad(U)"
+        DIV_PHIKK                   : "Gauss linearUpwind grad(U)"
+        DIV_PHIK                    : "Gauss linearUpwind grad(U)"
+        DIV_PHIP                    : "Gauss linearUpwind grad(U)"
+        DIV_PHIB                    : "Gauss linearUpwind grad(U)"
+        DIV_PHINUTILDA              : "Gauss linearUpwind grad(U)"
+        DIV_BBB                     : "Gauss linearUpwind grad(U)"
+        DIV_PHIK                    : "Gauss linearUpwind grad(U)"
+        DIV_NUEFF                   : "Gauss linearUpwind grad(U)"
+        DIV_RHONUEFF                : "Gauss linearUpwind grad(U)"
 
         PROCS: "384"
 
@@ -182,7 +196,7 @@ geometry:
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 0.9                                   #Mesh-density factor
+    factor                          : 0.95                                   #Mesh-density factor
     ogrid_factor                    : 3.5                                   #o-grid-node-ratio
     delta_i                         : 0.0005                                #node-distribution along fixed edges
     first_cell_width                : 0.00001                               #first cell height when factor=1
@@ -191,7 +205,7 @@ mesh:
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 18                                    #fixed cells in boundary layer
     extrudeLength                   : *ZSPAN                                  #length of extruded span
-    blockStartFromChord             : 0.0175                                 #LE and TE-Block Meshing
+    blockStartFromChord             : 0.0185                                 #LE and TE-Block Meshing
     cellwidthcoeff                  : 0.1                                 #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                     #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.2                                 #move low-y-per-block along y-pitch
@@ -221,7 +235,19 @@ post_settings:
     animation_creation:
 
         p_global:
-            cpos                        : [0,0,1]
+            cpos                        : [ 0,0,1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
+            variable                    : "p"
+            low_scale_limit             : 90000
+            high_scale_limit            : 120000
+            resolution_x                : 2600
+            resolution_y                : 2600
+
+        p_local:
+            cpos                        : [ 0,0,0.1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
             variable                    : "p"
             low_scale_limit             : 90000
             high_scale_limit            : 120000
@@ -229,8 +255,22 @@ post_settings:
             resolution_y                : 2600
 
         U_global:
+            cpos                        : [ 0,0,1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
             variable                    : "U"
             low_scale_limit             : 0
             high_scale_limit            : 90
             resolution_x                : 2600
             resolution_y                : 2600
+
+
+        U_global:
+            cpos                        : [ 0,0,0.1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
+            variable: "U"
+            low_scale_limit: 0
+            high_scale_limit: 90
+            resolution_x: 2600
+            resolution_y: 2600

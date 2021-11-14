@@ -38,7 +38,7 @@ case_settings:
     sub_cmd : "qsub"
 
 openfoam_cascade_les_settings:
-    timestep : &timestep "0.04"
+    timestep : &timestep "0.015"
 
 simcase_settings:
     variables:
@@ -53,11 +53,14 @@ simcase_settings:
         ADUSTABLETIMESTEP : "off"
         TIMEDTTSCHEME : "backward"
 
+        GRADSCHEMES : "Gauss linear"
+        DIVSCHEMES:  "Gauss linear"
+
         NOUTERCORRECTORS: "1"
         NCORRECTORS: "2"
         NNONORTHOGONALCORRECTORS: "0"
 
-        MESH_SCALING : 0.05
+        MESH_SCALING : 0.4
         GEO_LENGTH : &GEO_LENGTH "5"
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
@@ -133,12 +136,25 @@ post_settings:
         use_rhofield: "rho"
 
     animation_creation:
-        variable                    : "U"
-        cpos                        : [0,0,1]
-        low_scale_limit             : 0
-        high_scale_limit            : 2
-        resolution_x                : 2600
-        resolution_y                : 2600
+        U_global:
+            variable                    : "U"
+            cpos                        : 0,0,1
+            focus                       : 0,0,0
+            view                        : 0,1,0
+            low_scale_limit             : 0
+            high_scale_limit            : 2
+            resolution_x                : 2600
+            resolution_y                : 2600
+
+        p_global:
+            variable                    : "U"
+            cpos                        : [0,0,1]
+            focus                       : [0,0,0]
+            view                        : [0,1,0]
+            low_scale_limit             : 0
+            high_scale_limit            : 2
+            resolution_x                : 2600
+            resolution_y                : 2600
 
     average_volumeonline:
         line_dir : y
