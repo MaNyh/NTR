@@ -18,7 +18,7 @@ from NTR.utils.geom_functions.profileparas import extract_vk_hk, sortProfilePoin
 from NTR.utils.geom_functions.spline import splineCurvature
 from NTR.database.case_dirstructure import casedirs
 from NTR.postprocessing.spatial_average import vol_to_plane, vol_to_line
-
+from NTR.postprocessing.integralscales_from_signal import integralscales_from_timeseries
 
 def test_yamlDictRead(tmpdir):
     """
@@ -195,7 +195,6 @@ def test_midline_from_sides(verbose=False):
 def test_create_simulationcase(tmpdir):
     ntrpath = os.path.abspath(os.path.dirname(NTR.__file__))
     case_templates = os.listdir(os.path.join(ntrpath, "database", "case_templates"))
-    common_templates = os.listdir(os.path.join(ntrpath, "database", "common_files"))
 
     case_structure_templates = {}
     templates_basedir = os.path.join(ntrpath, "database", "case_templates")
@@ -267,7 +266,13 @@ def test_create_simulationcase(tmpdir):
         test_geo_file = tmpdir / os.path.join(casedirs["data"], "geometry.pkl")
         write_yaml_dict(test_file, test_dict)
         write_pickle(test_geo_file, test_geo_dict)
+
         create_simulationcase(test_file)
+        for root, dirs, files in os.walk(tmpdir):
+            for f in files:
+                os.unlink(os.path.join(root, f))
+            for d in dirs:
+                shutil.rmtree(os.path.join(root, d))
 
 
 def test_read_fullfactorparastud_yaml(tmpdir):
@@ -353,3 +358,17 @@ def test_vol_to_line():
     meanval = (grid_cl_high + grid_cl_low) / 2
     meanvar = np.mean(var["var"])
     assert np.isclose(meanvar, meanval)
+
+
+def test_integralscales():
+    time = np.arange(0,1000,0.1)
+    fluctationstrength = 1
+    meanvalue = 3
+    frequency = 2
+    signal = np.sin(time*frequency)*fluctationstrength+meanvalue
+    mean = np.mean(signal)
+    fluctation = signal-mean
+    timescale,lenghtscale = integralscales_from_timeseries(mean,fluctation,time)
+    assert np.isclose(timescale,frequency**-1,rtol=0.075), "calculated timescale result out of tolerance. something's wrong"
+    assert np.isclose(lenghtscale,timescale*meanvalue,rtol=0.075), "calculated length scale out of tolerance. something's wrong"
+    return 0

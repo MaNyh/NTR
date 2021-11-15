@@ -278,3 +278,14 @@ def lineseg_dist(p, a, b):
     c = np.cross(p - a, d)
 
     return np.hypot(h, np.linalg.norm(c))
+
+
+def autocorr(x):
+    norm = np.sum(np.array(x) ** 2)
+    result = np.correlate(np.array(x), np.array(x), 'full') / norm
+    return result[int(len(result) / 2):]
+
+
+def zero_crossings(data_series):
+    zcs = np.where(np.diff(np.sign(data_series)))[0]
+    return zcs
