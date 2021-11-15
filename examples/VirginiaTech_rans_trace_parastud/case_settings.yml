@@ -1,0 +1,86 @@
+case_settings:
+    name : &name "VerginiaTech_TRACE_RAS"
+    case_type : "trace_virginiatech_SEC_PARASTUD"
+    type: "parameterstudy"
+    description: |
+        mesh-status:
+            good quality mesh
+            meshstudy is done
+        boundarycondition-status:
+            evaluated by RWTH AACHEN
+        solution-status:
+            model working
+        postprocessing-status:
+            need of more postprocessing and evaluation methods
+    prep: |
+        cp ../../00_Ressources/split_48.cgns input/.
+        dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh
+
+    job:
+        job_mail: "nyhuis@tfd.uni-hannover.de"
+        job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
+        job_exe: "TRACE"
+        job_name: *name
+        job_runtime: "10:00:00" #h
+        job_nodes : "1"
+        job_ppn : "12"
+        job_mem : "12"
+        account : "niinyhma"
+    sub_cmd : "sh"
+
+simcase_settings:
+    variables:
+
+        SECDEV_TDR:
+            #- 0.75
+            - 0.8
+            #- 0.85
+            - 0.9
+            #- 0.95
+            - 1
+            #- 1.05
+            - 1.1
+            #- 1.15
+            - 1.2
+            #- 1.25
+        SECDEV_TPR:
+            #- 0.75
+            - 0.8
+            #- 0.85
+            - 0.9
+            #- 0.95
+            - 1
+            #- 1.05
+            - 1.1
+            #- 1.15
+            - 1.2
+            #- 1.25
+        CLEARANCE_TDR:
+            #- 0.75
+            - 0.8
+            #- 0.85
+            - 0.9
+            #- 0.95
+            - 1
+            #- 1.05
+            - 1.1
+            #- 1.15
+            - 1.2
+            #- 1.25
+        CLEARANCE_TPR:
+            #- 0.75
+            - 0.8
+            #- 0.85
+            - 0.9
+            #- 0.95
+            - 1
+            #- 1.05
+            - 1.1
+            #- 1.15
+            - 1.2
+            #- 1.25
+
+
+    options:
+        simcase_optiondef:
+

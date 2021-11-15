@@ -1,0 +1,14 @@
+all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
+
+block 8 immediate Update_kw_tdr_tpr tdr_param "<var SECDEV_TDR var>"
+block 8 immediate Update_kw_tdr_tpr tpr_param "<var SECDEV_TPR var>"
+
+block 7 immediate Update_kw_tdr_tpr tdr_param "<var CLEARANCE_TDR var>"
+block 7 immediate Update_kw_tdr_tpr tpr_param "<var CLEARANCE_TPR var>"
+
+all immediate LHSRecomputationInterval 100
+all immediate LHSRecomputationPredictorThreshold 0.1
+all immediate ImplicitSolverSweeps 2
+all immediate ImplicitSolverSweepCommunication ON
+all immediate StartPrecond -b 0.005
+
