@@ -41,7 +41,7 @@ boundaryField
     INLET
     {
        type                            turbulentDFSEMWaveTransmissiveInletMod;
-       cyclicZ         <var GEO_WIDTH var>; #s.o. nur in Z-Richtung abstand der periodischen raender
+       cyclicZ                         <var GEO_WIDTH var>; #s.o. nur in Z-Richtung abstand der periodischen raender
        boxScale                        1; //unwichtig
        d                               10; // dichte der virtuellen eddiwes
        uDashScaling                    <var UDASHSCALING var>; //skalierug, so lassen
@@ -52,10 +52,11 @@ boundaryField
        fieldInf                        uniform (<var UMEAN var> 0 0);
        relax                           0.0001;
        L                               uniform 0.0015;
-       U                                uniform (1 0 0);
-       R                                uniform (1 0 0 1 0 1);
+       U                               uniform (1 0 0);
+       R                               uniform (1 0 0 1 0 1);
        mapMethod                       cellVolumeWeight;
        value                           uniform (<var UMEAN var> 0 0);
+       qMean                           nonuniform List<vector> 8((1 1 1) (1 1 1) (1 1 1) (1 1 1) (1 1 1) (1 1 1) (1 1 1) (1 1 1));
 
        numberOfWakes                   1;
        startBlendRelChannelHeight       1;
