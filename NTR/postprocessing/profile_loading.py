@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 
 from NTR.utils.fluid_functions.aeroFunctions import calc_inflow_cp
-from NTR.utils.pyvista_utils import load_mesh
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.preprocessing.create_geom import extract_geo_paras
 from NTR.utils.filehandling import yaml_dict_read
