@@ -6,7 +6,7 @@ import itertools
 
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import yaml_dict_read
-from NTR.utils.pyvista_utils import load_mesh, constructWallMesh, calc_dist_from_surface
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh, constructWallMesh, calc_dist_from_surface
 from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.utils.mathfunctions import vecAbs
 

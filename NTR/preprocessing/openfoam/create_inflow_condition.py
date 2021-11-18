@@ -3,7 +3,7 @@ from scipy import interpolate
 import numpy as np
 
 
-from NTR.utils.pyvista_utils import load_mesh
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 
 
 def create_pointfile_txt(points):

@@ -1,7 +1,7 @@
 import pyvista as pv
 import numpy as np
 
-from NTR.utils.pyvista_utils import load_mesh
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 #mesh = load_mesh(r"C:\Users\Nyhuis\Desktop\Neuer Ordner\VTK\01_data_12000.vtk")
 
 mesh = load_mesh(r"C:\Users\Nyhuis\Desktop\Neuer Ordner\VTK\mittelung99Domain_148000.vtk")
