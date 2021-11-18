@@ -106,8 +106,5 @@ mesh:
     smoothing                       : 5000                                  #smoothing iterations
 
 post_settings:
-    paraview_convert_cgns_to_vtk:
-        cgns                        : "03_Solution/TRACE.cgns"
-        vtk_name                    : "volume.vtk"
     profile_loading:
-        volmesh                     : "03_Solution/volume.vtk"
+        volmesh                     : "03_Solution/TRACE.cgns"
