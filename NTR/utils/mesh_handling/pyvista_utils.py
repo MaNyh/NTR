@@ -5,10 +5,11 @@ import os
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.mesh_handling.cgns_utils import cgnsReader
 
+
 def load_mesh(path_to_mesh):
-    assert os.path.isfile(path_to_mesh),path_to_mesh + " is not a valid file"
+    assert os.path.isfile(path_to_mesh), path_to_mesh + " is not a valid file"
     extension = os.path.splitext(path_to_mesh)[1]
-    if extension==".vtk":
+    if extension == ".vtk":
         try:
             mesh = pv.UnstructuredGrid(path_to_mesh)
         except:
@@ -16,6 +17,7 @@ def load_mesh(path_to_mesh):
                 mesh = pv.PolyData(path_to_mesh)
             except:
                 print("error loading ", path_to_mesh)
+
     elif extension == ".cgns":
         cgns = cgnsReader(path_to_mesh)
         if str(type(cgns)).find('vtkStructuredGrid') != -1:
@@ -34,7 +36,8 @@ def load_mesh(path_to_mesh):
     print(mesh)
     return mesh
 
-def mesh_scalar_gradients(mesh,array_name):
+
+def mesh_scalar_gradients(mesh, array_name):
     gradients_mesh = mesh.compute_derivative(scalars=array_name)
     keys = np.array(["dudx", "dudy", "dudz", "dvdx", "dvdy", "dvdz", "dwdx", "dwdy", "dwdz"])
     keys = keys.reshape((3, 3))[:, :gradients_mesh["gradient"].shape[1]].ravel()
@@ -44,11 +47,12 @@ def mesh_scalar_gradients(mesh,array_name):
 
     return mesh
 
+
 def slice_midspan_z(mesh):
     bounds = mesh.bounds
-    midspan_z = (bounds[5]-bounds[4])/2
-    slice = mesh.slice(normal="z",origin=(0,0,midspan_z))
-    return slice , midspan_z
+    midspan_z = (bounds[5] - bounds[4]) / 2
+    slice = mesh.slice(normal="z", origin=(0, 0, midspan_z))
+    return slice, midspan_z
 
 
 def polyline_from_points(points):
@@ -64,8 +68,8 @@ def lines_from_points(points):
     """Given an array of points, make a line set"""
     poly = pv.PolyData()
     poly.points = points
-    cells = np.full((len(points)-1, 3), 2, dtype=np.int_)
-    cells[:, 1] = np.arange(0, len(points)-1, dtype=np.int_)
+    cells = np.full((len(points) - 1, 3), 2, dtype=np.int_)
+    cells[:, 1] = np.arange(0, len(points) - 1, dtype=np.int_)
     cells[:, 2] = np.arange(1, len(points), dtype=np.int_)
     poly.lines = cells
     return poly
@@ -122,7 +126,7 @@ def calc_dist_from_surface(surface_primary, surface_secondary, verbose=False):
         dist = np.sqrt(np.sum((ip - p) ** 2))
         h0n["distances"][i] = dist
 
-    if any(h0n["distances"]==0):
+    if any(h0n["distances"] == 0):
         # Replace zeros with nans
         mask = h0n["distances"] == 0
         h0n["distances"][mask] = np.nan
@@ -135,20 +139,18 @@ def calc_dist_from_surface(surface_primary, surface_secondary, verbose=False):
         p.add_mesh(surface_secondary, color=True, opacity=0.75, smooth_shading=True)
         p.show()
 
-
     return h0n
 
 
 def plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, plotname, zoom=1, point_size=6):
     pv.set_plot_theme("document")
 
-    p = pv.Plotter(off_screen=True,window_size=[4800, 4800])
-    probe_colors = ["red","blue","green","yellow"]
-    for probename,probepoly in probes_to_plot.items():
+    p = pv.Plotter(off_screen=True, window_size=[4800, 4800])
+    probe_colors = ["red", "blue", "green", "yellow"]
+    for probename, probepoly in probes_to_plot.items():
+        p.add_mesh(probepoly, label=probename, point_size=point_size, color=probe_colors.pop(0))
 
-        p.add_mesh(probepoly,label=probename, point_size=point_size, color=probe_colors.pop(0))
-
-    for geomname,geompoly in geometry_plots.items():
+    for geomname, geompoly in geometry_plots.items():
         p.add_mesh(geompoly)
 
     p.add_legend(bcolor=(1, 1, 1), )
