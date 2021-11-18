@@ -3,17 +3,33 @@ import pyvista as pv
 import os
 
 from NTR.database.case_dirstructure import casedirs
-
+from NTR.utils.mesh_handling.cgns_utils import cgnsReader
 
 def load_mesh(path_to_mesh):
     assert os.path.isfile(path_to_mesh),path_to_mesh + " is not a valid file"
-    try:
-        mesh = pv.UnstructuredGrid(path_to_mesh)
-    except:
+    extension = os.path.splitext(path_to_mesh)[1]
+    if extension==".vtk":
         try:
-            mesh = pv.PolyData(path_to_mesh)
+            mesh = pv.UnstructuredGrid(path_to_mesh)
         except:
-            print("error loading ", path_to_mesh)
+            try:
+                mesh = pv.PolyData(path_to_mesh)
+            except:
+                print("error loading ", path_to_mesh)
+    elif extension == ".cgns":
+        cgns = cgnsReader(path_to_mesh)
+        if str(type(cgns)).find('vtkStructuredGrid') != -1:
+            mesh = pv.StructuredGrid(cgns)
+        elif str(type(cgns)).find('vtkUnstructuredGrid') != -1:
+            mesh = pv.UnstructuredGrid(cgns)
+        elif str(type(cgns)).find('vtkMultiBlockDataSet') != -1:
+            mesh = pv.UnstructuredGrid()
+            multiBlockMesh = pv.MultiBlock(cgns)
+            for domainId in range(multiBlockMesh.GetNumberOfBlocks()):
+                domain = multiBlockMesh.GetBlock(domainId)
+                for blockId in range(domain.GetNumberOfBlocks()):
+                    block = domain.GetBlock(blockId)
+                    mesh = mesh.merge(block)
 
     print(mesh)
     return mesh
