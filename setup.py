@@ -27,7 +27,8 @@ requirements = ['Click>=7.0',
                 "PyYaml>=5.4.1",
                 "scikit-image>=0.18.3",
                 "pandas>=1.3.3",
-                "tqdm>=4.59.0"
+                "tqdm>=4.59.0",
+                "h5py>=3.6.0"
                 ]
 
 setup_requirements = [ ]
@@ -62,6 +63,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nyhuis/NTR',
-    version='0.1.7',
+    version='0.1.8',
     zip_safe=False,
 )
