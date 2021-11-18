@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 import os
 
-from NTR.utils.pyvista_utils import load_mesh
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.mathfunctions import vecAbs, lineseg_dist

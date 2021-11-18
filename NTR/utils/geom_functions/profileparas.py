@@ -9,7 +9,7 @@ from NTR.utils.geom_functions.pointcloud import skeletonize_poly, calcConcaveHul
 from NTR.utils.geom_functions.spline import refine_spline, calcMidPoints
 from NTR.utils.geom_functions.distance import closest_node_index, distant_node_index
 from NTR.utils.mathfunctions import vecAbs, angle_between, vecDir
-from NTR.utils.pyvista_utils import lines_from_points, polyline_from_points
+from NTR.utils.mesh_handling.pyvista_utils import lines_from_points, polyline_from_points
 
 
 def extract_vk_hk(origPoly, sortedPoly, verbose=False):

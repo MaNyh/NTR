@@ -6,7 +6,7 @@ from scipy.interpolate import griddata,UnivariateSpline
 from skimage.morphology import skeletonize
 
 from NTR.utils.geom_functions.spline import refine_spline
-from NTR.utils.pyvista_utils import polyline_from_points
+from NTR.utils.mesh_handling.pyvista_utils import polyline_from_points
 
 
 def skeletonize_poly(points, verbose=False):
