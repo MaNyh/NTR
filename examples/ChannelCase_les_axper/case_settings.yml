@@ -30,12 +30,12 @@ case_settings:
         job_exe: "pimpleFoam"
         job_name: *name
         job_runtime: "10:00:00" #h
-        job_nodes : "2"
+        job_nodes : "1"
         job_ppn : "16"
-        job_mem : "32"
+        job_mem : "16"
         account : "niinyhma"
 
-    sub_cmd : "qsub"
+    sub_cmd : "sbatch"
 
 openfoam_cascade_les_settings:
     timestep : &timestep "0.015"
@@ -65,7 +65,7 @@ simcase_settings:
         GEO_WIDTH :  &GEO_WIDTH "3"
         GEO_HALFHEIGHT : &GEO_HALFHEIGHT "0.5"
 
-        PROCS : 32
+        PROCS : 16
     options:
         INOUT_FIELDAVE_PROBING: True
         XSCLICE_PROBING: True
