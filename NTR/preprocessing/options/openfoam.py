@@ -4,7 +4,7 @@ import numpy as np
 import pyvista as pv
 
 from NTR.utils.geom_functions.geom_utils import equi_points, getBoundaryValues
-from NTR.utils.pyvista_utils import polyline_from_points, plot_geometry_tofile
+from NTR.utils.mesh_handling.pyvista_utils import polyline_from_points, plot_geometry_tofile
 from NTR.utils.geom_functions.spline import refine_spline
 from NTR.utils.mathfunctions import angle_between
 
