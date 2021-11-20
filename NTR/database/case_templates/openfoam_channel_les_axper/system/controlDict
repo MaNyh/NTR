@@ -23,7 +23,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         100000;
+endTime         <var ENDTIME var>;
 
 deltaT          <var DELTAT var>;
 

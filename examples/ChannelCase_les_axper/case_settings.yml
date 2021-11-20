@@ -47,8 +47,9 @@ simcase_settings:
         DELTAT: *timestep
         AVE_START: &AVE_START "0"
         MAX_CFL: "0.75"
-        WRITEINTERVAL: "1000"
-        PURGEWRITE: "2"
+        WRITEINTERVAL: "100"
+        ENDTIME: "100000000"
+        PURGEWRITE: "0"
 
         ADUSTABLETIMESTEP : "off"
         TIMEDTTSCHEME : "backward"
@@ -67,8 +68,8 @@ simcase_settings:
 
         PROCS : 16
     options:
-        INOUT_FIELDAVE_PROBING: True
-        XSCLICE_PROBING: True
+        INOUT_FIELDAVE_PROBING: False
+        XSCLICE_PROBING: False
         SLICE_PROBING: True
         STREAMLINE_PROBING: True
 
