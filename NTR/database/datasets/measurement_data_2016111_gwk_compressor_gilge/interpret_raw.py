@@ -1,16 +1,23 @@
+import os.path
+
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
+import os
 
-from NTR.postprocessing.profile_loading import calc_cp
+from NTR.postprocessing.profile_loading import calc_inflow_cp
 
-def read_gilgegwk():
+def read_gilgegwk(verbose=True):
     # global idx, ps_x, ps_cp, ss_x, ss_cp
     probe_camberposition_file = "raw_positions"
     probe_data_file = "raw_measuredata"
-    position_arr = pd.read_csv(probe_camberposition_file, delimiter="\t")
-    data_arr = pd.read_csv(probe_data_file, delimiter="\t")
-
+    basedir = os.path.dirname(__file__)
+    position_fname = os.path.join(basedir,probe_camberposition_file)
+    position_arr = pd.read_csv(position_fname, delimiter="\t")
+    data_fname = os.path.join(basedir,probe_data_file)
+    data_arr = pd.read_csv(data_fname, delimiter="\t")
+    #todo: where get this data from? hardcoding no good!
+    camberlength = 0.13
     posvals = [[float(f) for f in i[0].split()] for i in position_arr.values[:, :-2]]
     head = data_arr.keys()
     mean_channels = {}
@@ -48,23 +55,23 @@ def read_gilgegwk():
     for idx, p_mean_channel in enumerate(mean_channels.values()):
         if idx < nop_ps:
             ps_p.append(p_mean_channel + prel)
-            ps_cp.append(calc_cp(ps_p[-1], pt1, p1))
+            ps_cp.append(calc_inflow_cp(ps_p[-1], pt1, p1))
         if idx >= nop_ps:
             ss_p.append(p_mean_channel + prel)
-            ss_cp.append(calc_cp(ss_p[-1], pt1, p1))
+            ss_cp.append(calc_inflow_cp(ss_p[-1], pt1, p1))
+
+    if verbose:
+        fig, ax = plt.subplots()
+        # ToDo: Hier wird der plot "korrigiert". Das ist nicht schön. Wo stammt der Fehler her?
+        ax.plot(ps_x, -(np.array(ps_cp) - 1), "x", label="ps")
+        ax.plot(ss_x, -(np.array(ss_cp) - 1), "o", label="ss", )
+        ax.set(xlabel='x/c', ylabel='cp',
+               title='profildruckverteilung gwk verdichter ')
+        ax.invert_yaxis()
+        ax.grid()
+        ax.legend()
+        plt.show()
 
     return ss_x, ss_cp, ps_x, ps_cp
 
 
-ss_x, ss_cp, ps_x, ps_cp = read_gilgegwk()
-
-fig, ax = plt.subplots()
-# ToDo: Hier wird der plot "korrigiert". Das ist nicht schön. Wo stammt der Fehler her?
-ax.plot(ps_x, -(np.array(ps_cp) - 1), "x", label="ps")
-ax.plot(ss_x, -(np.array(ss_cp) - 1), "o", label="ss", )
-ax.set(xlabel='x/c', ylabel='cp',
-       title='profildruckverteilung gwk verdichter ')
-ax.invert_yaxis()
-ax.grid()
-ax.legend()
-plt.show()
