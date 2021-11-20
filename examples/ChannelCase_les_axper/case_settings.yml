@@ -70,8 +70,8 @@ simcase_settings:
     options:
         INOUT_FIELDAVE_PROBING: False
         XSCLICE_PROBING: False
-        SLICE_PROBING: True
-        STREAMLINE_PROBING: True
+        SLICE_PROBING: False
+        STREAMLINE_PROBING: False
 
 geometry:
     algorithm: "prep"
