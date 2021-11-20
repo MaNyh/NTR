@@ -8,7 +8,7 @@ import os
 from NTR.postprocessing.profile_loading import calc_inflow_cp
 
 def read_gilgegwk(verbose=True):
-    # global idx, ps_x, ps_cp, ss_x, ss_cp
+
     probe_camberposition_file = "raw_positions"
     probe_data_file = "raw_measuredata"
     basedir = os.path.dirname(__file__)
@@ -31,11 +31,11 @@ def read_gilgegwk(verbose=True):
     popr = np.mean([float(i) for i in data_arr.loc[1:, "PoPr"].values])
     pspr = np.mean([float(i) for i in data_arr.loc[1:, "PsPr"].values])
 
-    ps_x = []
+    ps_xc = []
     ps_p = []
     ps_cp = []
 
-    ss_x = []
+    ss_xc = []
     ss_p = []
     ss_cp = []
 
@@ -47,10 +47,10 @@ def read_gilgegwk(verbose=True):
     nop_ss = 0
     for row in posvals:
         if row[1] == 1:
-            ps_x.append(row[0] * 1e-3 / camberlength)
+            ps_xc.append(row[0] * 1e-3 / camberlength)
             nop_ps += 1
         elif row[2] == 1:
-            ss_x.append(row[0] * 1e-3 / camberlength)
+            ss_xc.append(row[0] * 1e-3 / camberlength)
             nop_ss += 1
     for idx, p_mean_channel in enumerate(mean_channels.values()):
         if idx < nop_ps:
@@ -63,8 +63,8 @@ def read_gilgegwk(verbose=True):
     if verbose:
         fig, ax = plt.subplots()
         # ToDo: Hier wird der plot "korrigiert". Das ist nicht schön. Wo stammt der Fehler her?
-        ax.plot(ps_x, -(np.array(ps_cp) - 1), "x", label="ps")
-        ax.plot(ss_x, -(np.array(ss_cp) - 1), "o", label="ss", )
+        ax.plot(ps_xc, -(np.array(ps_cp) - 1), "x", label="ps")
+        ax.plot(ss_xc, -(np.array(ss_cp) - 1), "o", label="ss", )
         ax.set(xlabel='x/c', ylabel='cp',
                title='profildruckverteilung gwk verdichter ')
         ax.invert_yaxis()
@@ -72,6 +72,6 @@ def read_gilgegwk(verbose=True):
         ax.legend()
         plt.show()
 
-    return ss_x, ss_cp, ps_x, ps_cp
+    return ss_xc, ss_cp, ps_xc, ps_cp
 
 
