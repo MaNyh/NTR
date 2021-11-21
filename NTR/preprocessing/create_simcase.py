@@ -72,12 +72,23 @@ def create_parastudsims(path_to_parayaml):
     casetype = yamldict["case_settings"]["type"]
     assert casetype == "parameterstudy", "check your yaml-dict. the case is not defined as a parameterstudy"
 
+    paras = {}
+    for varname, value in yamldict["simcase_settings"]["variables"].items():
+        if type(value) == list:
+            paras[varname] = value
+
     settings = read_parastudyaml(path_to_parayaml)
 
     casepath = os.path.abspath(os.path.dirname(path_to_parayaml))
     sim_dirs = []
     for idx, settings_dict in tqdm(enumerate(settings)):
         settings_dict["case_settings"]["type"] = "simulation"
+        casepara={}
+        for idp, para in enumerate(paras.keys()):
+            casepara[para] = paras[para][idp]
+        subparatxt = ""
+        for p,v in casepara.items():
+            subparatxt+=(str(p)+"_"+str(v).replace(".","_"))
         subname = "paracase_" + str(idx)
         tmp_dir = tempfile.TemporaryDirectory()
         target_dir = os.path.join(casepath, casedirs["simcase"], subname)
