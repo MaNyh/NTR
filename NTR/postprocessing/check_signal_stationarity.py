@@ -74,7 +74,6 @@ class signal_generator:
         timescale = int(dt / Dt)
         weights = np.repeat(1.0, timescale) / timescale
         out = np.convolve(s, weights, 'same')
-        # todo: when a sine is applied, the integral scale fits. but the signal is not that noisy anymore. whats the best solution?
         out /= max(out)
         out += np.sin(self.timesteps * dt ** -1) * 0.25
         out /= max(out) * 2
@@ -169,11 +168,10 @@ def transientcheck(signal, timesteps):
         else:
             window_signal.append(signal_at_time)
 
-    #todo: find a suitable name for the following var
-    eps_timescale = (integral_time_scale / (second_half_timesteps[-1] - second_half_timesteps[0]))
+    eps_helper = (integral_time_scale / (second_half_timesteps[-1] - second_half_timesteps[0]))
 
-    eps_time_mean = np.std(second_half_of_signal_fluctations) / second_half_mean * (2 *eps_timescale) ** .5
-    eps_time_rms = eps_timescale ** .5
+    eps_time_mean = np.std(second_half_of_signal_fluctations) / second_half_mean * (2 *eps_helper) ** .5
+    eps_time_rms = eps_helper ** .5
 
     no_windows_mean = len(windows_mean)
     no_windows_rms = len(windows_rms)

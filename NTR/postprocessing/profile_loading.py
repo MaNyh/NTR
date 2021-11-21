@@ -18,8 +18,19 @@ def extract_profile_from_volmesh(alpha, volmesh):
 
     edges = z_slice.extract_feature_edges()
     split = edges.connectivity()
-    #todo: currect i==1 not secure. RegionId must have two id's
-    profilepoints_ids = [idx for idx, i in enumerate(split["RegionId"]) if i == 1]
+
+    regionIds = list(dict.fromkeys(split["RegionId"]))
+    boxes = []
+    for rId in regionIds:
+        regionPoints_ids = [idx for idx, i in enumerate(split["RegionId"]) if i == rId]
+        regionPoints = split.extract_cells(regionPoints_ids)
+        bounds = regionPoints.bounds
+        xl = bounds[1]-bounds[0]
+        yl = bounds[3]-bounds[2]
+        zl = bounds[5]-bounds[4]
+        boxes.append(xl*yl*zl)
+    profile_id = boxes.index(min(boxes))
+    profilepoints_ids = [idx for idx, i in enumerate(split["RegionId"]) if i == profile_id]
     profilepoints = split.extract_cells(profilepoints_ids)
 
     points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk, camber_angle = extract_geo_paras(
@@ -43,7 +54,7 @@ def calc_loading_volmesh(settings_yml, verbose=False):
     settings = yaml_dict_read(settings_yml)
     case_path = os.path.dirname(settings_yml)
 
-    path_to_volmesh = os.path.join(case_path, settings["post_settings"]["profile_loading"]["volmesh"])
+    path_to_volmesh = os.path.join(case_path, settings["post_settings"]["volmesh"])
 
     assert os.path.isfile(path_to_volmesh), "file " + path_to_volmesh + " does not exist"
 

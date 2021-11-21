@@ -371,7 +371,6 @@ def openFoam_createXSliceProbes(geomdat_dict, nop, x_slice_one, x_slice_two, sam
 def openFoam_create_vk_stagflow_probes(geomdat_dict, nop, length, sampling_rate,
                                        path_to_sim, start_time, end_time, case_settings):
 
-    #todo: does this work? evaluate!
     output_path = os.path.join(path_to_sim, "system")
     timestepinterval = int(
         float(sampling_rate) ** -1 / float(case_settings["openfoam_cascade_les_settings"]["timestep"]))

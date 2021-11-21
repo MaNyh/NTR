@@ -7,7 +7,7 @@ geometry:
     numberofpoints                  : 512                                 #resolution
     finite_TE                       : False                               #False=zero-thickness-HK, True=finite-thickness-HK
     half_cosine_spacing             : True                                #False=äquidistant, True=hoche VK/HK Auflösung
-    camberlength                      : 0.15                              #Sehnenlänge [m]
+    camberlength                    : 0.15                                #Sehnenlänge [m]
     x_inlet                         : -0.15                               #Shift Inlet along x [m]
     x_outlet                        : 0.3                                 #Shift Outlet along x [m]
     shift_domain                    : 0.005                               #Shift Domain to have probes inside domain [m]
