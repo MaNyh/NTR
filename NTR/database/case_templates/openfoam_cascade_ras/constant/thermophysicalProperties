@@ -3,8 +3,8 @@
 |  \\ / O peration | Version: v1906 	   				      |
 |   \\ / A nd | Web: www.OpenFOAM.com   				      |
 |    \\/ M anipulation | 						      |
-\*---------------------------------------------------------------------------*/ 
-FoamFile 
+\*---------------------------------------------------------------------------*/
+FoamFile
 {
     version 2.0;
     format ascii;
@@ -30,7 +30,7 @@ mixture
     specie
     {
         nMoles      1;
-        molWeight   28.96; 	//Air [g/mol]
+        molWeight   <var MOLAR_WEIGHT var>; 	//Air [g/mol]
     }
     thermodynamics
     {

@@ -9,7 +9,7 @@ from NTR.utils.fluid_functions.thermoFunctions import Sutherland_Law
 from NTR.utils.fluid_functions.boundaryLayerFunctions import calcWallShearStress
 from NTR.utils.simFunctions import sort_values_by_pitch
 from NTR.utils.mesh_handling.pyvista_utils import slice_midspan_z
-
+from NTR.utils.mesh_handling.pyvista_utils import mesh_scalar_gradients
 
 def calcConcaveHull_optimize(xs, ys, alpha):
     def func(alpha):
@@ -208,8 +208,9 @@ def rotatePoints(origin, x, y, angle):
     return new_x, new_y
 
 
-def GetProfileValuesMidspan(case):
-    midspan_slice, midspan_z = case.get_midspan_z()
+def GetProfileValuesMidspan(volmesh, alpha, midspan_z):
+    volmesh = mesh_scalar_gradients(volmesh,"U")
+    midspan_slice = volmesh.slice(normal="z", origin=(0, 0, midspan_z))
     midspan_slice = midspan_slice.compute_normals()
     geo = midspan_slice.extract_feature_edges()
 
@@ -217,8 +218,7 @@ def GetProfileValuesMidspan(case):
     points_complete = midspan_slice.points
 
     points_bounds = geo.points
-    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1],
-                                                     alpha=case.CascadeCoeffs.alpha)
+    x_outer_bounds, y_outer_bounds = calcConcaveHull(points_complete[:, 0], points_complete[:, 1], alpha=alpha)
 
     points_outer_bounds = np.stack((np.array(x_outer_bounds), np.array(y_outer_bounds)), axis=-1)
 
@@ -233,7 +233,7 @@ def GetProfileValuesMidspan(case):
             x_profil.append(points_bounds[i][0])
             y_profil.append(points_bounds[i][1])
 
-    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=case.CascadeCoeffs.alpha)
+    x_ss, y_ss, x_ps, y_ps = sortProfilePoints(x_profil, y_profil, alpha=alpha)
 
     indexes_ss = []
     indexes_ps = []
@@ -256,9 +256,8 @@ def GetProfileValuesMidspan(case):
     assert len(
         indexes_ss) > 0, "sortProfilePoints did not detect a suctionside. Maybe adjust case.CascadeCoeffs.alpha ? "
 
-    values_ss = []
-    values_ps = []
-    value_names = []
+    values_ss = {}
+    values_ps = {}
 
     wall_shear_stress_ss = []
     wall_shear_stress_ps = []
@@ -268,25 +267,23 @@ def GetProfileValuesMidspan(case):
     normals_ps = np.asarray([geo.cell_normals[i] for i in indexes_ps])
 
     for i in geo.point_arrays:
-        value_names.append(i)
-        values_ss.append([])
-        values_ps.append([])
+        values_ss[i] = []
+        values_ps[i] = []
         for idx in indexes_ps:
-            values_ps[-1].append(geo.point_arrays[i][idx])
+            values_ps[i].append(geo.point_arrays[i][idx])
         for idx in indexes_ss:
-            values_ss[-1].append(geo.point_arrays[i][idx])
+            values_ss[i].append(geo.point_arrays[i][idx])
 
     for i in range(len(indexes_ss)):
-
-        dudx = values_ss[value_names.index('dudx')][i]
-        dudy = values_ss[value_names.index('dudy')][i]
-        dudz = values_ss[value_names.index('dudz')][i]
-        dvdx = values_ss[value_names.index('dvdx')][i]
-        dvdy = values_ss[value_names.index('dvdy')][i]
-        dvdz = values_ss[value_names.index('dvdz')][i]
-        dwdx = values_ss[value_names.index('dwdx')][i]
-        dwdy = values_ss[value_names.index('dwdy')][i]
-        dwdz = values_ss[value_names.index('dwdz')][i]
+        dudx = values_ss['dudx'][i]
+        dudy = values_ss['dudy'][i]
+        dudz = values_ss['dudz'][i]
+        dvdx = values_ss['dvdx'][i]
+        dvdy = values_ss['dvdy'][i]
+        dvdz = values_ss['dvdz'][i]
+        dwdx = values_ss['dwdx'][i]
+        dwdy = values_ss['dwdy'][i]
+        dwdz = values_ss['dwdz'][i]
 
         if i > 0:
 
@@ -302,13 +299,13 @@ def GetProfileValuesMidspan(case):
                                                                     [face_normal_delta_y], -90.0)
         face_normal = np.array([face_normal_delta_x, face_normal_delta_y, 0])
         face_normal = face_normal / np.linalg.norm(face_normal)
-        rho = values_ss[value_names.index('rho')][i]
+        rho = values_ss['rho'][i]
 
-        if 'nu' not in value_names:
-            nu = Sutherland_Law(values_ss[value_names.index('T')][i])
+        if 'nu' not in values_ss.keys():
+            nu = Sutherland_Law(values_ss['T'][i])
         else:
-            nu = values_ss[value_names.index('nu')][i]
-        p = values_ss[value_names.index('p')][i]
+            nu = values_ss['nu'][i]
+        p = values_ss['p'][i]
 
         wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal,
                                                     rho, nu, p)
@@ -323,23 +320,23 @@ def GetProfileValuesMidspan(case):
         wall_shear_stress_ss.append(wall_shear_stress_abs)
 
     for i in range(len(indexes_ps)):
-        dudx = values_ps[value_names.index('dudx')][i]
-        dudy = values_ps[value_names.index('dudy')][i]
-        dudz = values_ps[value_names.index('dudz')][i]
-        dvdx = values_ps[value_names.index('dvdx')][i]
-        dvdy = values_ps[value_names.index('dvdy')][i]
-        dvdz = values_ps[value_names.index('dvdz')][i]
-        dwdx = values_ps[value_names.index('dwdx')][i]
-        dwdy = values_ps[value_names.index('dwdy')][i]
-        dwdz = values_ps[value_names.index('dwdz')][i]
+        dudx = values_ps['dudx'][i]
+        dudy = values_ps['dudy'][i]
+        dudz = values_ps['dudz'][i]
+        dvdx = values_ps['dvdx'][i]
+        dvdy = values_ps['dvdy'][i]
+        dvdz = values_ps['dvdz'][i]
+        dwdx = values_ps['dwdx'][i]
+        dwdy = values_ps['dwdy'][i]
+        dwdz = values_ps['dwdz'][i]
         face_normal = -normals_ps[i]
-        rho = values_ps[value_names.index('rho')][i]
+        rho = values_ps['rho'][i]
 
-        if 'nu' not in value_names:
-            nu = Sutherland_Law(values_ps[value_names.index('T')][i])
+        if 'nu' not in values_ps:
+            nu = Sutherland_Law(values_ps['T'][i])
         else:
-            nu = values_ps[value_names.index('nu')][i]
-        p = values_ps[value_names.index('p')][i]
+            nu = values_ps['nu'][i]
+        p = values_ps['p'][i]
 
         wall_shear_stress_vec = calcWallShearStress(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, face_normal,
                                                     rho, nu, p)
@@ -356,28 +353,21 @@ def GetProfileValuesMidspan(case):
         wall_shear_stress_ps.append(wall_shear_stress_abs)
         wall_shear_stress_explike_ps.append(np.sqrt(wall_shear_stress_vec[0] ** 2 + wall_shear_stress_vec[1] ** 2))
 
-    values_ss.insert(0, x_l_ax_ss)
-    values_ps.insert(0, x_l_ax_ps)
-    values_ss.insert(0, y_ss)
-    values_ps.insert(0, y_ps)
-    values_ss.insert(0, x_ss)
-    values_ps.insert(0, x_ps)
-    values_ss.append(wall_shear_stress_ss)
-    values_ss.append(wall_shear_stress_explike_ss)
-    values_ps.append(wall_shear_stress_ps)
-    values_ps.append(wall_shear_stress_explike_ps)
+    values_ss["x_l_ax_ss"] = x_l_ax_ss
+    values_ps["x_l_ax_ps"] = x_l_ax_ps
+    values_ss["y_ss"] = y_ss
+    values_ps["y_ps"] = y_ps
+    values_ss["x_ss"] = x_ss
+    values_ps["x_ps"] = x_ps
+    values_ss["wall_shear_stress_ss"] = wall_shear_stress_ss
+    values_ss["wall_shear_stress_explike_ss"] = wall_shear_stress_explike_ss
+    values_ss["wall_shear_stress_ps"] = wall_shear_stress_ps
+    values_ss["wall_shear_stress_explike_ps"] = wall_shear_stress_explike_ps
 
-    value_names.insert(0, "x<sub>Ax</sub> / l<sub>Ax</sub>")
-    value_names.insert(0, 'Y')
-    value_names.insert(0, 'X')
-    value_names.append('wall shear stress')
-    value_names.append('wall shear stress exp like')
-
-    return [value_names, [values_ss, values_ps]]
+    return values_ss, values_ps
 
 
-def getPitchValuesB2BSliceComplete(case, x):
-    mesh = case.mesh_loaded_dict["fluid"]
+def getPitchValuesB2BSliceComplete(mesh, x):
 
     cut_plane = mesh.slice(normal="x", origin=(x, 0, 0))
 

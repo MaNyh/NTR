@@ -2,7 +2,7 @@ import numpy as np
 import pyvista as pv
 from matplotlib import path as mpltPath
 from scipy.spatial import Delaunay
-from scipy.interpolate import griddata,UnivariateSpline
+from scipy.interpolate import griddata, UnivariateSpline
 from skimage.morphology import skeletonize
 
 from NTR.utils.geom_functions.spline import refine_spline
@@ -10,7 +10,6 @@ from NTR.utils.mesh_handling.pyvista_utils import polyline_from_points
 
 
 def skeletonize_poly(points, verbose=False):
-
     points2d = points[::, 0:2]
     res = 1000
     pointsclosed = np.array(list(points2d) + [points2d[-1]])
@@ -50,11 +49,11 @@ def skeletonize_poly(points, verbose=False):
     x_mid_ss, y_mid_ss = zip(*sorted(zip(px, py)))
 
     x_mid_ss_ref, y_mid_ref = refine_spline(x_mid_ss, y_mid_ss, 4000)
-    spl = UnivariateSpline( x_mid_ss_ref, y_mid_ref)
+    spl = UnivariateSpline(x_mid_ss_ref, y_mid_ref)
     xs = np.linspace(x_mid_ss_ref[0], x_mid_ss_ref[-1], 1000)
-    xout,yout = xs, spl(xs)
+    xout, yout = xs, spl(xs)
 
-    midline = np.stack((xout,yout, np.zeros(len(yout)))).T
+    midline = np.stack((xout, yout, np.zeros(len(yout)))).T
     outspline = polyline_from_points(midline)
 
     if verbose:

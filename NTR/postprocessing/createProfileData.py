@@ -3,100 +3,133 @@ import os
 import numpy as np
 import math
 
-from NTR.utils.filehandling import yaml_dict_read
+from NTR.utils.filehandling import yaml_dict_read, read_pickle
 from NTR.utils.geom_functions.geom_utils import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
-from NTR.utils.fluid_functions.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, calcPos2ValuesByAmecke, calcCp_casewrap
+from NTR.utils.fluid_functions.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, \
+    calcPos2ValuesByAmecke
 from NTR.utils.fluid_functions.thermoFunctions import Sutherland_Law
-from NTR.utils.mathfunctions import absvec_array
+from NTR.utils.mathfunctions import absvec_array, vecAbs
 from NTR.utils.simFunctions import sort_value2, sort_value3
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.database.case_dirstructure import casedirs
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh
+from NTR.postprocessing.profile_loading import calc_inflow_cp
 
 def createProfileData_fromSettings(settings):
     case_settings = yaml_dict_read(settings)
+    case_path = os.path.dirname(settings)
+    geo_path = os.path.join(case_path, casedirs["data"], "geometry.pkl")
+    volmesh = case_settings["post_settings"]["use_vtk_meshes"]["volmesh"]
+    mplane_in = case_settings["post_settings"]["measureplane_slices"]["x_pos_1"]
+    mplane_out = case_settings["post_settings"]["measureplane_slices"]["x_pos_2"]
+    geomdat = read_pickle(geo_path)
+    midspan_z = geomdat["span_z"] / 2
+    alpha = case_settings["geometry"]["alpha"]
+    # todo: insert a test-function for the definition of fluid-coeffs. incompressible sim? are values welldefined?
+    kappa = float(case_settings["case_settings"]["fluid"]["kappa"])
+    R_L = float(case_settings["case_settings"]["fluid"]["R_L"])
+    p_k = float(case_settings["case_settings"]["fluid"]["p_k"])
+    As = float(case_settings["case_settings"]["fluid"]["As"])
+    cp = float(case_settings["case_settings"]["fluid"]["cp"])
+    Ts = float(case_settings["case_settings"]["fluid"]["Ts"])
+    l = vecAbs(
+        geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_vk"]] - geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_hk"]])
+    meshpath = os.path.join(case_path, casedirs["solution"], volmesh)
+    mesh = load_mesh(meshpath)
+    outputpath = os.path.join(case_path, casedirs["data"])
+    createProfileData(mesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, R_L, p_k, As, l, cp, Ts)
 
-def createProfileData(case):
 
-    post_slice_1_x = case.x_pos["x_pos1"]
-    post_slice_2_x = case.x_pos["x_pos2"]
+def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, R_L, p_k, As, l, cp,
+                      Ts):
+    """
 
-    [value_names, [values_ss, values_ps]] = GetProfileValuesMidspan(case)
+    :param mesh: volume mesh
+    :param midspan_z: [m]
+    :param alpha: dimensionless parameter for geo-extraction
+    :param post_slice_1_x: [m]
+    :param post_slice_2_x: [m]
+    :param output_path: os.path-like
+    :param kappa: isentropic exponent
+    :param R_L: specific gas constant
+    :param p_k: ???
+    :param As:
+    :param l: characteristic length
+    :param cp: heat capacity isobar
+    :return:
+    """
+    values_ss, values_ps = GetProfileValuesMidspan(mesh, alpha, midspan_z)
 
-    x_ss = list(values_ss[value_names.index('X')])#[::-1]
-    y_ss = list(values_ss[value_names.index('Y')])#[::-1]
-    p_ss = list(values_ss[value_names.index('p')])#[::-1]
+    x_ss = values_ss["x_ss"]
+    y_ss = values_ss["y_ss"]
+    p_ss = values_ss["p"]
 
-    x_ps = list(values_ps[value_names.index('X')])
-    y_ps = list(values_ps[value_names.index('Y')])
-    p_ps = list(values_ps[value_names.index('p')])
+    x_ps = values_ps["x_ps"]
+    y_ps = values_ps["y_ps"]
+    p_ps = values_ps["p"]
 
     plt.figure(figsize=(8, 8))
     plt.plot(x_ss, y_ss, '-r', lw=1)
     plt.plot(x_ps, y_ps, '-b', lw=1)
 
     plt.axis('equal')
-    output_path = os.path.join(case.casedir,casedirs["data"])# os.path.dirname(os.path.abspath(path_to_mesh))
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_profil.pdf'))
 
-    inte_mag_u1, inte_ux1, inte_uy1, inte_uz1, inte_rho1, inte_T1, inte_p1, inte_p_tot1, inte_T_tot1 = calcPostSliceValues(case, post_slice_1_x, 1)
-    inte_mag_u2, inte_ux2, inte_uy2, inte_uz2, inte_rho2, inte_T2, inte_p2, inte_p_tot2, inte_T_tot2 = calcPostSliceValues(case, post_slice_2_x, 2)
+    inte_mag_u1, inte_ux1, inte_uy1, inte_uz1, inte_rho1, inte_T1, inte_p1, inte_p_tot1, inte_T_tot1 = calcPostSliceValues(
+        mesh, output_path, post_slice_1_x, 1, kappa, R_L)
+    inte_mag_u2, inte_ux2, inte_uy2, inte_uz2, inte_rho2, inte_T2, inte_p2, inte_p_tot2, inte_T_tot2 = calcPostSliceValues(
+        mesh, output_path, post_slice_2_x, 2, kappa, R_L)
 
-    zeta = (inte_p_tot1 - inte_p_tot2) / (inte_p_tot1 - case.FluidCoeffs.p_k)
+    zeta = (inte_p_tot1 - inte_p_tot2) / (inte_p_tot1 - p_k)
 
-    Ma1 = Ma(inte_mag_u1, case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, inte_T1)
-    Ma2 = Ma(inte_mag_u2, case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, inte_T2)
+    Ma1 = Ma(inte_mag_u1, kappa, R_L, inte_T1)
+    Ma2 = Ma(inte_mag_u2, kappa, R_L, inte_T2)
 
-    Ma_is_2 = Ma_is(case.FluidCoeffs.p_k, case.FluidCoeffs.kappa, inte_p1, inte_rho1, inte_mag_u1, case.FluidCoeffs.R_L, inte_T_tot1)
+    Ma_is_2 = Ma_is(p_k, kappa, inte_p1, inte_rho1, inte_mag_u1, R_L, inte_T_tot1)
 
-    Re_is_2 = Re_is(case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, case.FluidCoeffs.l,
-                    case.FluidCoeffs.As, Ma_is_2, case.FluidCoeffs.p_k, inte_T_tot1,
-                    inte_mag_u1, case.FluidCoeffs.cp, case.FluidCoeffs.Ts)
+    Re_is_2 = Re_is(kappa, R_L, l, As, Ma_is_2, p_k, inte_T_tot1, inte_mag_u1, cp, Ts)
 
     beta1 = 90.0 + math.atan(inte_uy1 / inte_ux1) / 2.0 / math.pi * 360.0
     beta2 = 90.0 + math.atan(inte_uy2 / inte_ux2) / 2.0 / math.pi * 360.0
 
-    nu1 = Sutherland_Law(inte_T1, case.FluidCoeffs.As, case.FluidCoeffs.Ts)
-    nu2 = Sutherland_Law(inte_T2, case.FluidCoeffs.As, case.FluidCoeffs.Ts)
+    nu1 = Sutherland_Law(inte_T1, As, Ts)
+    nu2 = Sutherland_Law(inte_T2, As, Ts)
 
-    Re1 = Re(inte_rho1, inte_mag_u1, case.FluidCoeffs.l, nu1)
-    Re2 = Re(inte_rho2, inte_mag_u2, case.FluidCoeffs.l, nu2)
+    Re1 = Re(inte_rho1, inte_mag_u1, l, nu1)
+    Re2 = Re(inte_rho2, inte_mag_u2, l, nu2)
 
     AVDR_value = AVDR(inte_rho1, inte_mag_u1, beta1, inte_rho2, inte_mag_u2, beta2)
     delta_beta = beta1 - beta2
-    delta_p_static = (inte_p1 - inte_p2) / (inte_p_tot1 - case.FluidCoeffs.p_k)
+    delta_p_static = (inte_p1 - inte_p2) / (inte_p_tot1 - p_k)
 
-    y, array_names, values = getPitchValuesB2BSliceComplete(case, post_slice_2_x)
+    y, array_names, values = getPitchValuesB2BSliceComplete(mesh, post_slice_2_x)
 
     # brechnung der amecke werte
     p_2_y = values[array_names.index('p')]
     pt_2_y = []
 
-
     Ux_2_y = np.asarray(values[array_names.index('U')])[::, 0]
     Uy_2_y = np.asarray(values[array_names.index('U')])[::, 1]
 
-
-    Mag_U_2_y = absvec_array(values[array_names.index("U")])#values[array_names.index('Mag_U')]
-
+    Mag_U_2_y = absvec_array(values[array_names.index("U")])  # values[array_names.index('Mag_U')]
 
     T_2_y = values[array_names.index('T')]
     beta_2_y = []
     for i in range(len(p_2_y)):
         beta_2_y.append(Beta(Ux_2_y[i], Uy_2_y[i]))
-        pt_2_y.append(p_t_is(case.FluidCoeffs.kappa, Ma(Mag_U_2_y[i], case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, T_2_y[i]), p_2_y[i]))
+        pt_2_y.append(p_t_is(kappa, Ma(Mag_U_2_y[i], kappa, R_L, T_2_y[i]), p_2_y[i]))
 
     Ma2_amecke, beta2_amecke, pt2_amecke, p2_amecke = calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, inte_p_tot1,
-                                                                             kappa=case.FluidCoeffs.kappa)
+                                                                             kappa=kappa)
 
-    zeta_amecke = (inte_p_tot1 - pt2_amecke) / (inte_p_tot1 - case.FluidCoeffs.p_k)
-    ma_is_amecke = Ma_is_x(case.FluidCoeffs.kappa, p2_amecke, pt2_amecke)
+    zeta_amecke = (inte_p_tot1 - pt2_amecke) / (inte_p_tot1 - p_k)
+    ma_is_amecke = Ma_is_x(kappa, p2_amecke, pt2_amecke)
 
     x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps = calcProfileValues(
-        p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1)
+        p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1, kappa)
 
     def writeOutput(outpath):
-
         output_path = os.path.join(outpath, 'profile_data.dat')
         values = [[x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss],
                   [x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps]]
@@ -153,15 +186,12 @@ def createProfileData(case):
         data_output.write('\tgV.Ma_is_2_amecke=' + str(ma_is_amecke) + '\n')
         data_output.close()
 
-
-    writeOutput(os.path.join(case.casedir,casedirs["data"]))
+    writeOutput(output_path)
 
     return x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps
 
 
-def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1):
-
-    output_path = os.path.join(case.casedir,casedirs["data"])
+def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1, kappa):
 
     p = p_ss + p_ps[::-1]
     p_max = max(p)
@@ -174,11 +204,10 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, int
     x_zu_l_ax_ss = []
 
     for i in range(len(x_ss)):
-
-        cp_ss.append(calcCp_casewrap(p_ss[i], inte_p_tot1, case.FluidCoeffs.p_k, inte_mag_u1, inte_rho1, inte_p1, case))
+        cp_ss.append(calc_inflow_cp(p_ss[i],inte_p_tot1,inte_p1))
         cp_max_ss.append((p_ss[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
-        ma_is_x_ss.append(Ma_is_x(case.FluidCoeffs.kappa, p_ss[i], inte_p_tot1))
+        ma_is_x_ss.append(Ma_is_x(kappa, p_ss[i], inte_p_tot1))
 
     cp_ps = []
     cp_max_ps = []
@@ -187,12 +216,12 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, int
     x_zu_l_ax_ps = []
 
     for i in range(len(x_ps)):
-        cp_ps.append(calcCp_casewrap(p_ps[i], inte_p_tot1, case.FluidCoeffs.p_k, inte_mag_u1, inte_rho1, inte_p1, case))
+        cp_ps.append(calc_inflow_cp(p_ps[i],inte_p_tot1,inte_p1))
         cp_max_ps.append((p_ps[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
-        ma_is_x_ps.append(Ma_is_x(case.FluidCoeffs.kappa, p_ps[i], inte_p_tot1))
+        ma_is_x_ps.append(Ma_is_x(kappa, p_ps[i], inte_p_tot1))
 
-    #ACHTUNG, ps wird gedreht, weil calcConcaveHull im mathematischem Drehsinn die
+    # ACHTUNG, ps wird gedreht, weil calcConcaveHull im mathematischem Drehsinn die
     cp = cp_ss + cp_ps[::-1]
     cp_max = cp_max_ss + cp_max_ps[::-1]
     x_zu_l_ax = x_zu_l_ax_ss + x_zu_l_ax_ps[::-1]
@@ -222,9 +251,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, case, x_ps, y_ss, y_ps, int
     return x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps
 
 
-def calcPostSliceValues(case, x, ind):
-    output_path = os.path.join(case.casedir,casedirs["data"])
-    mesh = case.mesh_loaded_dict["fluid"]
+def calcPostSliceValues(mesh, output_path, x, ind, kappa, R_L):
     cut_plane = mesh.slice(normal="x", origin=(x, 0, 0))
     points = cut_plane.points
     npts = cut_plane.number_of_points
@@ -239,17 +266,17 @@ def calcPostSliceValues(case, x, ind):
         xx[ii] = pt[0]
         zz[ii] = pt[2]
 
-    mag_u_array = absvec_array(cut_plane.point_arrays[case.var_dict["U"]])
+    mag_u_array = absvec_array(cut_plane.point_arrays["U"])
 
     nvls = len(mag_u_array)
 
-    ux_array = cut_plane.point_arrays[case.var_dict["U"]][::, 0]
-    uy_array = cut_plane.point_arrays[case.var_dict["U"]][::, 1]
-    uz_array = cut_plane.point_arrays[case.var_dict["U"]][::, 2]
+    ux_array = cut_plane.point_arrays["U"][::, 0]
+    uy_array = cut_plane.point_arrays["U"][::, 1]
+    uz_array = cut_plane.point_arrays["U"][::, 2]
 
-    rho_array = cut_plane.point_arrays[case.var_dict["rho"]]
-    T_array = cut_plane.point_arrays[case.var_dict["T"]]
-    p_array = cut_plane.point_arrays[case.var_dict["p"]]
+    rho_array = cut_plane.point_arrays["rho"]
+    T_array = cut_plane.point_arrays["T"]
+    p_array = cut_plane.point_arrays["p"]
 
     mag_u = []
 
@@ -270,7 +297,7 @@ def calcPostSliceValues(case, x, ind):
         rho.append(rho_array[i])
         T.append(T_array[i])
         p.append(p_array[i])
-        ma.append(Ma(mag_u[-1], case.FluidCoeffs.kappa, case.FluidCoeffs.R_L, T[-1]))
+        ma.append(Ma(mag_u[-1], kappa, R_L, T[-1]))
 
     xx = sort_value3(y, xx)
     zz = sort_value3(y, zz)
@@ -289,9 +316,8 @@ def calcPostSliceValues(case, x, ind):
     T_tot = []
     for i in range(len(p)):
         # kappa ma
-        p_tot.append(p_t_is(case.FluidCoeffs.kappa, ma[i], p[i]))
-        T_tot.append(T_t_is(case.FluidCoeffs.kappa, ma[i], T[i]))
-
+        p_tot.append(p_t_is(kappa, ma[i], p[i]))
+        T_tot.append(T_t_is(kappa, ma[i], T[i]))
 
     inte_ux = mass_average(y, ux, rho, ux)
     inte_uy = mass_average(y, uy, rho, ux)
@@ -330,7 +356,7 @@ def calcPostSliceValues(case, x, ind):
     ax7.set_title('p')
 
     plt.grid()
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.savefig(os.path.join(output_path, 'kontrollplot_auswerteebene_' + str(ind) + '.pdf'))
 
     values = [[xx, y, zz, mag_u, ux, uy, uz, p, rho, T, ma, T_tot, p_tot]]
@@ -343,14 +369,12 @@ def calcPostSliceValues(case, x, ind):
 
 
 def area_average(y, var):
-
     area_average_val = np.trapz(var, x=y) / (max(y) - min(y))
 
     return area_average_val
 
 
 def mass_average(y, var, rho, velo):
-
     mass_flow_local = []
     mass_flow_dot_var = []
 

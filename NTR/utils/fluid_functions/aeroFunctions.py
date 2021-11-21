@@ -45,13 +45,24 @@ def Re_is(k, R, l_chord, beta_s, Ma2th, pk, T1, Mag_U, cp, S):
 
 # isenstrope machzahl
 def Ma_is(pk, kappa, p1, rho1, Mag_U, R, T1):
+    """
+
+    :param pk:
+    :param kappa: isentropic exponent
+    :param p1: pressure
+    :param rho1: density_1 kg/m^3
+    :param Mag_U: velocity m/s
+    :param R: gas constant
+    :param T1: temperature
+    :return:
+    """
     pt1 = p_t_is(kappa, Ma(Mag_U, kappa, R, T1), p1)
     q2th = pt1 - pk
     y = np.sqrt(2.0 / (kappa - 1.0) * (pow(1.0 + (q2th / pk), (kappa - 1.0) / kappa) - 1.0))
     return y
 
 
-def calcBPValues(p_in, rho_in, T_in, Ux_in, Uy_in, p_out, l_chord, kappa=1.4, R=287.058, beta_s=1.458e-06, S=110.4):
+def calcBPValues(p_in, rho_in, T_in, Ux_in, Uy_in, p_out, l_chord, kappa, R, beta_s, S):
     Mag_U = np.sqrt(Ux_in ** 2 + Uy_in ** 2)
     pt_in = p_t_is(kappa, Ma(Mag_U, kappa, R, T_in), p_in)
     print(pt_in)
