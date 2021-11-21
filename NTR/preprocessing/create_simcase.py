@@ -11,7 +11,7 @@ from tqdm import tqdm
 import NTR
 from NTR.database.job_management import create_jobmanagement, write_runsim_bash, mgmt_parastud
 from NTR.utils.dicthandling import setInDict, nested_val_set, nested_dict_pairs_iterator, merge, delete_keys_from_dict
-from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle, walk_file_or_dir
+from NTR.utils.filehandling import get_directory_structure, yaml_dict_read, read_pickle
 from NTR.utils.functions import func_by_name
 from NTR.database.case_dirstructure import casedirs
 
