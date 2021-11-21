@@ -3,13 +3,17 @@ import os
 import numpy as np
 import math
 
-from NTR.utils.geom_functions import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
+from NTR.utils.filehandling import yaml_dict_read
+from NTR.utils.geom_functions.geom_utils import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
 from NTR.utils.fluid_functions.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, calcPos2ValuesByAmecke, calcCp_casewrap
 from NTR.utils.fluid_functions.thermoFunctions import Sutherland_Law
 from NTR.utils.mathfunctions import absvec_array
 from NTR.utils.simFunctions import sort_value2, sort_value3
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.database.case_dirstructure import casedirs
+
+def createProfileData_fromSettings(settings):
+    case_settings = yaml_dict_read(settings)
 
 def createProfileData(case):
 

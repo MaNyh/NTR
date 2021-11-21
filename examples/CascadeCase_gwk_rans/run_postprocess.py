@@ -1,5 +1,3 @@
-from NTR.utils.casereader import case_from_dict
-from NTR.postprocessing.createProfileData import createProfileData
+from NTR.postprocessing.createProfileData import createProfileData_fromSettings
 
-c = case_from_dict("case_settings.yml")
-createProfileData(c)
+createProfileData_fromSettings("case_settings.yml")
