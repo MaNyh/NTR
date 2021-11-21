@@ -3,7 +3,7 @@ import pyvista as pv
 import os
 
 from NTR.database.case_dirstructure import casedirs
-from NTR.utils.mesh_handling.cgns_utils import cgnsReader
+from NTR.utils.mesh_handling.vtk_utils import cgnsReader
 
 
 def load_mesh(path_to_mesh):
@@ -33,7 +33,6 @@ def load_mesh(path_to_mesh):
                     block = domain.GetBlock(blockId)
                     mesh = mesh.merge(block)
 
-    print(mesh)
     return mesh
 
 
@@ -158,3 +157,12 @@ def plot_geometry_tofile(path_to_sim, probes_to_plot, geometry_plots, plotname, 
     p.camera.roll += 270
     p.camera.zoom(zoom)
     p.show(screenshot=os.path.join(path_to_sim, "..", casedirs["data"], plotname))
+
+
+def print_meshquality(mesh):
+    mqual = mesh.compute_cell_quality()
+    mquals = mqual["CellQuality"]
+    print(mesh)
+    print("mean: " + str(round(np.mean(mquals),2)))
+    print("min: " + str(round(np.min(mquals),2)))
+    print("max: " + str(round(np.max(mquals),2)))

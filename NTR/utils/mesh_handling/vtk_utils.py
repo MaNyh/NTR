@@ -26,6 +26,13 @@ def cgnsReader(file):
     dataset = reader.GetOutput()
     return dataset
 
+def vtkUnstructuredGridReader(file):
+    reader = vtk.vtkUnstructuredGridReader()
+    reader.SetFileName(file)
+    reader.UpdateInformation()
+    reader.Update()
+    dataset = reader.GetOutput()
+    return dataset
 
 def gradient(dataset, array_name, result_array_name):
     """
