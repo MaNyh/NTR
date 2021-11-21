@@ -88,8 +88,8 @@ def create_parastudsims(path_to_parayaml):
             casepara[para] = paras[para][idp]
         subparatxt = ""
         for p,v in casepara.items():
-            subparatxt+=(str(p)+"_"+str(v).replace(".","_"))
-        subname = "paracase_" + str(idx)
+            subparatxt+=("_"+str(p)+"_"+str(v).replace(".","_"))
+        subname = "case_" + str(idx) + subparatxt
         tmp_dir = tempfile.TemporaryDirectory()
         target_dir = os.path.join(casepath, casedirs["simcase"], subname)
         tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
