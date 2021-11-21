@@ -101,6 +101,3 @@ def getWalluTaus(mu_0, rhoW, gradUWall):
 
     return u_tau
 
-
-def vals_from_volmesh(volmesh):
-    return 0
