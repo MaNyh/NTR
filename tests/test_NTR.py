@@ -108,7 +108,7 @@ def test_extract_vk_hk(verbose=False):
     """
     from NTR.database.data_generators.naca_airfoil_creator import naca
 
-    res = 80
+    res = 400
 
     # d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
     # digitstring = str(d1)+str(d2)+str(d3)+str(d4)

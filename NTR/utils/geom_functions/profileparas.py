@@ -13,6 +13,23 @@ from NTR.utils.mesh_handling.pyvista_utils import lines_from_points, polyline_fr
 from NTR.utils.geom_functions.distance import calc_largedistant_idx
 
 
+def midLength(ind_1, ind_2, sortedPoly, verbose=False):
+    psPoly, ssPoly = extractSidePolys(ind_1, ind_2, sortedPoly, False)
+    midsPoly = midline_from_sides(ind_1, ind_2, sortedPoly.points, psPoly, ssPoly)
+    arclength = midsPoly.compute_arc_length()["arc_length"]
+    midslength = sum(arclength)
+
+    if verbose:
+        p = pv.Plotter()
+        p.add_mesh(midsPoly)
+        p.add_mesh(sortedPoly)
+        p.add_mesh(sortedPoly.points[ind_1], color="yellow", point_size=20)
+        p.add_mesh(sortedPoly.points[ind_2], color="red", point_size=20)
+        p.add_text("length: " + str(midslength))
+
+        p.show()
+    return midslength
+
 def extract_vk_hk(sortedPoly, verbose=False):
     """
     This function is calculating the leading-edge and trailing edge of a long 2d-body
@@ -27,38 +44,41 @@ def extract_vk_hk(sortedPoly, verbose=False):
 
     xs, ys = sortedPoly.points[::, 0], sortedPoly.points[::, 1]
     ind_1, ind_2 = calc_largedistant_idx(xs, ys)
-
+    allowed_shift = 1
+    midLength0 = midLength(ind_1, ind_2,sortedPoly,verbose)
     nopt = sortedPoly.number_of_points
 
-    allowed_shift = int(nopt * 0.08)
-    shifts = np.arange(-allowed_shift,allowed_shift+1)
-    ind_1_ts = (shifts + ind_1)%nopt
-    ind_2_ts = (shifts + ind_2)%nopt
+    checked_combs = {}
+    found = True
+    while(found):
 
-    combs = list(product(ind_1_ts,ind_2_ts))
+        shifts = np.arange(-allowed_shift,allowed_shift+1)
+        ind_1_ts = (shifts + ind_1)%nopt
+        ind_2_ts = (shifts + ind_2)%nopt
 
-    def midLength(ind_1, ind_2 ,verbose=False):
-        psPoly, ssPoly = extractSidePolys(ind_1, ind_2, sortedPoly, False)
-        midsPoly = midline_from_sides(ind_1, ind_2, sortedPoly.points, psPoly, ssPoly)
-        arclength = midsPoly.compute_arc_length()["arc_length"]
-        midslength = sum(arclength)
+        combs = list(product(ind_1_ts,ind_2_ts))
+        for key in combs:
+            if key not in checked_combs.keys():
+                checked_combs[key]=False
 
-        if verbose:
-            p = pv.Plotter()
-            p.add_mesh(midsPoly)
-            p.add_mesh(sortedPoly)
-            p.add_mesh(sortedPoly.points[ind_1], color="yellow", point_size=20)
-            p.add_mesh(sortedPoly.points[ind_2], color="red", point_size=20)
-            p.add_text("length: " + str(midslength))
+        midLengths = []
+        for ind_1_t, ind2_t in combs:
+            if checked_combs[(ind_1_t,ind2_t)]==False:
+                checked_combs[(ind_1_t,ind2_t)]=True
+                midLengths.append(midLength(ind_1_t, ind2_t,sortedPoly,verbose))
+            else:
+                midLengths.append(0)
+        cids = midLengths.index(max(midLengths))
 
-            p.show()
-        return midslength
-
-    midLengths = []
-    for ind_1_t, ind2_t in combs:
-        midLengths.append(midLength(ind_1_t, ind2_t,verbose))
-    cids = midLengths.index(max(midLengths))
-    ind_1, ind_2 = combs[cids]
+        ind_1_n, ind_2_n = combs[cids]
+        midLength_new = midLength(ind_1_n, ind_2_n,sortedPoly)
+        if midLength_new>midLength0:
+            ind_1, ind_2 = ind_1_n, ind_2_n
+            midLength0=midLength_new
+            allowed_shift+=1
+            found = True
+        else:
+            found = False
 
     if sortedPoly.points[ind_1][0] > sortedPoly.points[ind_2][0]:
         ind_vk = ind_2
