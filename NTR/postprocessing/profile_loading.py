@@ -27,8 +27,7 @@ def extract_profile_from_volmesh(alpha, volmesh):
         bounds = regionPoints.bounds
         xl = bounds[1]-bounds[0]
         yl = bounds[3]-bounds[2]
-        zl = bounds[5]-bounds[4]
-        boxes.append(xl*yl*zl)
+        boxes.append(xl*yl)
     profile_id = boxes.index(min(boxes))
     profilepoints_ids = [idx for idx, i in enumerate(split["RegionId"]) if i == profile_id]
     profilepoints = split.extract_cells(profilepoints_ids)
