@@ -30,7 +30,7 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
 
     nopt = sortedPoly.number_of_points
 
-    allowed_shift = int(nopt * 0.1)
+    allowed_shift = int(nopt * 0.08)
     shifts = np.arange(-allowed_shift,allowed_shift+1)
     ind_1_ts = (shifts + ind_1)%nopt
     ind_2_ts = (shifts + ind_2)%nopt
@@ -54,10 +54,10 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
             p.show()
         return midslength
 
-    curves = []
+    midLengths = []
     for ind_1_t, ind2_t in combs:
-        curves.append(midLength(ind_1_t, ind2_t,verbose))
-    cids = curves.index(max(curves))
+        midLengths.append(midLength(ind_1_t, ind2_t,verbose))
+    cids = midLengths.index(max(midLengths))
     ind_1, ind_2 = combs[cids]
 
     if sortedPoly.points[ind_1][0] > sortedPoly.points[ind_2][0]:
