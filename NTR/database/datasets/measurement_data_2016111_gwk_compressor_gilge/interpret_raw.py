@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import os
 
-from NTR.postprocessing.profile_loading import calc_inflow_cp
+from NTR.utils.fluid_functions.aeroFunctions import calc_inflow_cp
 
 def read_gilgegwk(verbose=True):
 

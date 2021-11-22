@@ -1,14 +1,16 @@
 import os
+
 import pyvista as pv
 import numpy as np
 from matplotlib import pyplot as plt
 
-
+from NTR.database.datasets.measurement_data_2016111_gwk_compressor_gilge.interpret_raw import read_gilgegwk
+from NTR.postprocessing.sim_values import getXSliceVals
+from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.fluid_functions.aeroFunctions import calc_inflow_cp
-from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.utils.geom_functions.distance import closest_node_index
 from NTR.preprocessing.create_geom import extract_geo_paras
-from NTR.utils.filehandling import yaml_dict_read
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 
 
 def extract_profile_from_volmesh(alpha, volmesh):
@@ -49,17 +51,7 @@ def extract_profile_from_volmesh(alpha, volmesh):
     return psVals, ssVals, points, ind_vk, ind_hk, camber_angle
 
 
-def calc_loading_volmesh(settings_yml, verbose=False):
-    settings = yaml_dict_read(settings_yml)
-    case_path = os.path.dirname(settings_yml)
-
-    path_to_volmesh = os.path.join(case_path, settings["post_settings"]["volmesh"])
-
-    assert os.path.isfile(path_to_volmesh), "file " + path_to_volmesh + " does not exist"
-
-    volmesh = load_mesh(path_to_volmesh)
-
-    alpha = settings["geometry"]["alpha"]
+def calc_loading_volmesh(volmesh,alpha, verbose=False):
     psVals, ssVals, sortedPoints, ind_vk, ind_hk, camber_angle = extract_profile_from_volmesh(alpha, volmesh)
 
     camber = pv.Line((0, 0, 0), -(sortedPoints[ind_vk] - sortedPoints[ind_hk]))
@@ -118,3 +110,46 @@ def calc_loading_volmesh(settings_yml, verbose=False):
         plt.plot(psVals_monotone_xc, psVals_monotone_Pressure)
         plt.show()
     return psVals, ssVals
+
+
+def compare_profileloading_numexp(settings_yml):
+
+    settings = yaml_dict_read(settings_yml)
+    case_path = os.path.dirname(settings_yml)
+    path_to_volmesh = os.path.join(case_path, settings["post_settings"]["volmesh"])
+    assert os.path.isfile(path_to_volmesh), "file " + path_to_volmesh + " does not exist"
+    volmesh = load_mesh(path_to_volmesh)
+    alpha = settings["geometry"]["alpha"]
+    psVals, ssVals = calc_loading_volmesh(volmesh, alpha)
+    inlet = getXSliceVals(volmesh, 0)
+    inlet_sizes = inlet.compute_cell_sizes()
+    if "Velocity" in inlet_sizes.array_names:
+        U = inlet_sizes["Velocity"][::, 0]
+    elif "UMean" in inlet_sizes.array_names:
+        U = inlet_sizes["UMean"][::, 0]
+    if "Density" in inlet_sizes.array_names:
+        rho = inlet_sizes["Density"]
+    elif "rhoMean" in inlet_sizes.array_names:
+        rho = inlet_sizes["rhoMean"]
+    if "Pressure" in inlet_sizes.array_names:
+        p = inlet_sizes["Pressure"]
+    elif "pMean" in inlet_sizes.array_names:
+        p = inlet_sizes["pMean"]
+    dmdt_cell = U * rho * inlet_sizes["Area"]
+    pdyn = U ** 2 * rho / 2
+    massflow = sum(dmdt_cell)
+    pressure = sum(p * inlet_sizes["Area"]) / sum(inlet_sizes["Area"])
+    pressure_tot = sum((p + pdyn) * inlet_sizes["Area"]) / sum(inlet_sizes["Area"])
+    ps_xc_numerical = psVals["xc"]
+    ps_xc_pressure_numerical = psVals["Pressure"]
+    ps_xc_cp_numerical = calc_inflow_cp(ps_xc_pressure_numerical, pressure_tot, pressure)
+    ss_xc_numerical = ssVals["xc"]
+    ss_xc_pressure_numerical = ssVals["Pressure"]
+    ss_xc_cp_numerical = calc_inflow_cp(ss_xc_pressure_numerical, pressure_tot, pressure)
+    ss_xc, ss_cp, ps_xc, ps_cp = read_gilgegwk(verbose=False)
+    plt.figure()
+    plt.plot(ss_xc, ss_cp, label="ss from experiment")
+    plt.plot(ps_xc, ps_cp, label="ps from experiment")
+    plt.plot(ss_xc_numerical, ss_xc_cp_numerical, label="ss from numeric")
+    plt.plot(ps_xc_numerical, ps_xc_cp_numerical, label="ss from numeric")
+    plt.show()

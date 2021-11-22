@@ -1,8 +1,6 @@
 import os
 import numpy as np
-import pyvista as pv
 from tqdm import tqdm
-import itertools
 
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import yaml_dict_read
@@ -101,3 +99,6 @@ def getWalluTaus(mu_0, rhoW, gradUWall):
 
     return u_tau
 
+def getXSliceVals(mesh,x):
+    slice = mesh.slice(normal="x",origin=(x,0,0))
+    return slice
