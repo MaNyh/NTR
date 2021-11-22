@@ -34,6 +34,14 @@ def vtkUnstructuredGridReader(file):
     dataset = reader.GetOutput()
     return dataset
 
+def vtkFLUENTReader(file):
+    reader = vtk.vtkFLUENTReader
+    reader.SetFileName(file)
+    reader.UpdateInformation()
+    reader.Update()
+    dataset = reader.GetOutput()
+    return dataset
+
 def gradient(dataset, array_name, result_array_name):
     """
     #Berechnung des Gradienten mithilfe des Filters "vtkGradientFilter".
