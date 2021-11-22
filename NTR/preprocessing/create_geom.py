@@ -388,7 +388,7 @@ def extract_geo_paras(points, alpha, verbose=False):
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
     sortedPoly = pv.PolyData(points)
 
-    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly)
+    ind_hk, ind_vk = extract_vk_hk(origPoly, sortedPoly)
     psPoly, ssPoly = extractSidePolys(ind_hk, ind_vk, sortedPoly, verbose)
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
     metal_angle_hk, metal_angle_vk, camber_angle = angles_from_mids(midsPoly)
@@ -399,7 +399,6 @@ def extract_geo_paras(points, alpha, verbose=False):
         p.add_mesh(psPoly, color="green", label="psPoly")
         p.add_mesh(ssPoly, color="black", label="ssPoly")
         p.add_mesh(midsPoly, color="black", label="midsPoly")
-        p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
         p.add_legend()
         p.show()
 

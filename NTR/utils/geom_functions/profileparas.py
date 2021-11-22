@@ -3,13 +3,14 @@ import pyvista as pv
 from matplotlib import path as mpltPath
 from scipy.interpolate import splprep, splev
 from scipy.spatial import Voronoi
+from itertools import product
 
-from NTR.utils.functions import all_equal
-from NTR.utils.geom_functions.pointcloud import skeletonize_poly, calcConcaveHull
+from NTR.utils.geom_functions.pointcloud import calcConcaveHull
 from NTR.utils.geom_functions.spline import refine_spline, calcMidPoints
 from NTR.utils.geom_functions.distance import closest_node_index, distant_node_index
 from NTR.utils.mathfunctions import vecAbs, angle_between, vecDir
 from NTR.utils.mesh_handling.pyvista_utils import lines_from_points, polyline_from_points
+from NTR.utils.geom_functions.distance import calc_largedistant_idx
 
 
 def extract_vk_hk(origPoly, sortedPoly, verbose=False):
@@ -25,256 +26,47 @@ def extract_vk_hk(origPoly, sortedPoly, verbose=False):
     """
 
     xs, ys = sortedPoly.points[::, 0], sortedPoly.points[::, 1]
-    x_new, y_new = refine_spline(xs, ys, 10000)
-    splineNew = np.stack((x_new, y_new, np.zeros(len(x_new)))).T
-    linePoly = lines_from_points(splineNew)
-    veronoi_mid = skeletonize_poly(linePoly.points, verbose)
-    midpts = veronoi_mid.points.copy()
-    midpts = midpts[np.argsort(midpts[:, 0])]
+    ind_1, ind_2 = calc_largedistant_idx(xs, ys)
 
-    if verbose:
-        p = pv.Plotter()
-        p.add_mesh(origPoly, color="black", opacity=0.1, label="origPoly")
-        p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-        p.add_mesh(veronoi_mid, color="green", label="veronoi_mid")
-        p.add_legend()
-        p.set_background("white")
-        p.show()
+    nopt = sortedPoly.number_of_points
 
-    farpts = []
+    allowed_shift = int(nopt * 0.1)
+    shifts = np.arange(-allowed_shift,allowed_shift+1)
+    ind_1_ts = (shifts + ind_1)%nopt
+    ind_2_ts = (shifts + ind_2)%nopt
 
-    valid_checkPoints = []
-    found_limits = {"low": False,
-                    "high": False}
+    combs = list(product(ind_1_ts,ind_2_ts))
 
-    for limit in found_limits.keys():
-        attempts = 0
+    def midLength(ind_1, ind_2 ,verbose=False):
+        psPoly, ssPoly = extractSidePolys(ind_1, ind_2, sortedPoly, False)
+        midsPoly = midline_from_sides(ind_1, ind_2, sortedPoly.points, psPoly, ssPoly)
+        arclength = midsPoly.compute_arc_length()["arc_length"]
+        midslength = sum(arclength)
 
-        while found_limits[limit] == False:
+        if verbose:
+            p = pv.Plotter()
+            p.add_mesh(midsPoly)
+            p.add_mesh(sortedPoly)
+            p.add_mesh(sortedPoly.points[ind_1], color="yellow", point_size=20)
+            p.add_mesh(sortedPoly.points[ind_2], color="red", point_size=20)
+            p.add_text("length: " + str(midslength))
 
-            if verbose:
-                p = pv.Plotter()
-                p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-                p.add_legend()
-                p.set_background("white")
-                p.show()
+            p.show()
+        return midslength
 
-            while (found_limits[limit] != True):
+    curves = []
+    for ind_1_t, ind2_t in combs:
+        curves.append(midLength(ind_1_t, ind2_t,verbose))
+    cids = curves.index(max(curves))
+    ind_1, ind_2 = combs[cids]
 
-                if limit == "low":
-                    random_idx = np.random.randint(-int((0.1 + 0.2 * (attempts / 100)) * len(veronoi_mid.points)), -1)
-                elif limit == "high":
-                    random_idx = np.random.randint(0, int((0.1 + 0.2 * (attempts / 100)) * len(veronoi_mid.points)))
-                attempts += 1
-                trypt = midpts[random_idx]
-
-                closest = closest_node_index(np.array([trypt[0], trypt[1], 0]), sortedPoly.points)
-                closest_dist = vecAbs(np.array([trypt[0], trypt[1], 0]) - sortedPoly.points[closest])
-
-                add = (attempts / 100) * closest_dist * np.array(
-                    [2 * (-0.5 + np.random.rand()), 2 * (-0.5 + 1 * np.random.rand()), 0])
-
-                shift_Try = trypt + add
-
-                up = veronoi_mid.points[random_idx - 1][:]
-                down = veronoi_mid.points[random_idx + 1][:]
-
-                if up[0] > down[0]:
-                    mid_tangent = (up - down)
-                elif up[0] <= down[0]:
-                    mid_tangent = (down - up)
-
-                mid_angle = -angle_between(mid_tangent, np.array([0, 1, 0])) / np.pi * 180
-
-                count_ang = 0
-                while (found_limits[limit] != True and count_ang <= 10):
-                    mid_angle += (attempts / 100) * np.random.randint(-15.5, 15.5)
-                    count_ang += 1
-
-                    try_center = np.array([shift_Try[0], shift_Try[1], 0])
-                    try_radius = closest_dist + np.random.rand() * closest_dist * (0.15 + 0.15 * (attempts / 100))
-                    # TODO: refactor "check position in long body geometry" BEGIN
-                    try_circle = pv.Cylinder(try_center,  # center
-                                             (0, 0, 1),  # direction
-                                             try_radius,  # radius
-                                             closest_dist,  # height
-                                             1000,  # resolution
-                                             )
-
-                    try_quad = pv.Plane(center=try_center,
-                                        i_size=2 * try_radius,
-                                        j_size=2 * try_radius,
-                                        direction=(0, 0, 1),
-                                        i_resolution=1,
-                                        j_resolution=1)
-                    try_quad = try_quad.extract_feature_edges()
-                    try_quad.translate(-try_center)
-                    try_quad.rotate_z(mid_angle)
-                    try_quad.translate(try_center)
-
-
-                    smash = linePoly.slice_along_line(polyline_from_points(try_circle.slice(normal="z").points))
-
-                    if len(smash.points) == 4:
-
-                        if verbose:
-                            p = pv.Plotter()
-                            p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-                            p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
-                            p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
-                            p.add_mesh(try_quad, color="black", label="try_quad")
-                            p.add_mesh(smash, color="red", label="smash")
-                            p.add_legend()
-                            p.set_background("white")
-                            p.show()
-
-                        first_edge = pv.Line(try_quad.points[1], try_quad.points[2], 100)
-                        second_edge = pv.Line(try_quad.points[3], try_quad.points[0], 100)
-                        first_no = pv.Line(try_quad.points[0], try_quad.points[1], 100)
-                        second_no = pv.Line(try_quad.points[2], try_quad.points[3], 100)
-
-                        counter = np.zeros(4)
-
-                        for smashpt in smash.points:
-                            first_edge_dist = vecAbs(
-                                first_edge.points[closest_node_index(smashpt, first_edge.points)] - smashpt)
-                            second_edge_dist = vecAbs(
-                                second_edge.points[closest_node_index(smashpt, second_edge.points)] - smashpt)
-                            first_no_dist = vecAbs(
-                                first_no.points[closest_node_index(smashpt, first_no.points)] - smashpt)
-                            second_no_dist = vecAbs(
-                                second_no.points[closest_node_index(smashpt, second_no.points)] - smashpt)
-
-                            counter[
-                                np.argmin([first_edge_dist, second_edge_dist, first_no_dist, second_no_dist])] += 1
-
-                        # TODO: refactor "check position in long body geometry" END
-
-                        if counter[0] == 2 and counter[1] == 2:
-
-                            # TODO: refactor look for edge BEGIN
-                            smashquad = smash.delaunay_2d()
-                            smashquad = smashquad.extract_feature_edges()
-                            smashquad_dist_first_edge = [
-                                vecAbs(first_edge.points[closest_node_index(i, first_edge.points)] - i) for i in
-                                smashquad.points]
-                            smashquad_dist_second_edge = [
-                                vecAbs(second_edge.points[closest_node_index(i, second_edge.points)] - i) for i in
-                                smashquad.points]
-                            smash_firstpts = []
-                            smash_secpts = []
-                            for idx, pt in enumerate(smashquad.points):
-                                if smashquad_dist_first_edge[idx] > smashquad_dist_second_edge[idx]:
-                                    smash_firstpts.append(pt)
-                                else:
-                                    smash_secpts.append(pt)
-                            crosslines = [pv.Line(smash_firstpts[0], smash_secpts[0], 10),
-                                          pv.Line(smash_firstpts[0], smash_secpts[1], 10),
-                                          pv.Line(smash_firstpts[1], smash_secpts[0], 10),
-                                          pv.Line(smash_firstpts[1], smash_secpts[1], 10)]
-
-                            deletelines = []
-
-                            for idx, cl in enumerate(crosslines):
-                                if idx < 2:
-                                    rg = (2, 4)
-                                elif idx >= 2:
-                                    rg = (0, 2)
-                                for test_cl_idx in range(*rg):
-                                    test_cl = crosslines[test_cl_idx]
-                                    tester = pv.Line(test_cl.points[1], test_cl.points[-2])
-                                    cross = tester.slice_along_line(cl)
-                                    if cross.number_of_points > 0:
-                                        deletelines.append(idx)
-
-                            crosslines = [i for j, i in enumerate(crosslines) if j not in deletelines]
-                            otherlines = [pv.Line(crosslines[0].points[0], crosslines[1].points[0], 2),
-                                          pv.Line(crosslines[0].points[1], crosslines[1].points[1], 2)]
-
-                            mids = [crosslines[0].points[5], crosslines[1].points[5]]
-
-                            checkPoints = extract_edge_poi(try_center, try_radius, mids, limit, origPoly, verbose)
-
-                            if len(checkPoints) == 0:
-                                break
-
-                            if any([i.length < try_radius / 2 *(100-attempts)/100 for i in otherlines]):
-                                break
-
-                            farpt = [distant_node_index(i, checkPoints) for i in mids]
-
-
-                            if verbose:
-                                p = pv.Plotter()
-                                p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-                                p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
-                                p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
-                                p.add_mesh(try_quad, color="black", label="try_quad")
-                                p.add_mesh(smash, color="red", label="smash")
-                                p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow",
-                                           point_size=15, label="farpt")
-                                p.add_mesh(np.array(mids), color="black", label="mids")
-                                p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
-                                p.add_legend()
-                                p.set_background("white")
-                                p.show()
-
-                            # TODO: refactor look for edge END
-                            if all_equal(farpt):
-
-                                farpts.append(checkPoints[farpt[-1]])
-
-                                #find original id's from used pointset (sortedPoly) for further usage
-                                sortedPolyPointIds = []
-                                origPolyPointIds = []
-
-                                for fpt in farpts:
-                                    diff_sortedP = sortedPoly.points-fpt
-                                    normdiff  = np.linalg.norm(diff_sortedP, axis=1)
-                                    mindiff = np.argmin(normdiff)
-                                    sortedPolyPointIds.append(mindiff)
-
-                                for fpt in farpts:
-                                    diff_sortedO = origPoly.points - fpt
-                                    normdiff = np.linalg.norm(diff_sortedO, axis=1)
-                                    mindiff = np.argmin(normdiff)
-                                    origPolyPointIds.append(mindiff)
-
-                                #sortedPolyPointIds = [np.where((sortedPoly.points == i).all(axis=1))[0][0] for i in farpts]
-                                #origPolyPointIds = [np.where((origPoly.points == i).all(axis=1))[0][0] for i in farpts]
-
-                                found_limits[limit] = True
-                                valid_checkPoints.append(checkPoints)
-
-                                if verbose:
-                                    p = pv.Plotter()
-                                    p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-                                    p.add_mesh(origPoly.extract_points(origPolyPointIds))
-                                    p.add_mesh(pv.PolyData(trypt), color="green", label="trypt")
-                                    p.add_mesh(try_circle.slice(normal="z"), color="black", label="try_circle")
-                                    p.add_mesh(try_quad, color="black", label="try_quad")
-                                    p.add_mesh(smash, color="red", label="smash")
-                                    p.add_mesh(np.array([checkPoints[i] for i in farpt]), color="yellow",
-                                               point_size=15, label="farpt")
-                                    p.add_mesh(np.array(mids), color="black", label="mids")
-                                    p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
-                                    p.add_legend()
-                                    p.set_background("white")
-                                    p.show()
-    ind_vk = sortedPolyPointIds[[i[0] for i in farpts].index(min([i[0] for i in farpts]))]
-    ind_hk = sortedPolyPointIds[[i[0] for i in farpts].index(max([i[0] for i in farpts]))]
-
-    if verbose:
-        p = pv.Plotter()
-        p.add_mesh(sortedPoly, color="orange", label="sortedPoly")
-        p.add_mesh(veronoi_mid, color="yellow", label="veronoi_mid")
-        p.add_mesh(sortedPoly.points[ind_vk], color="red", label="leading edge (vk)", point_size=20)
-        p.add_mesh(sortedPoly.points[ind_hk], color="blue", label="trailing edge (hk)", point_size=20)
-        p.add_legend()
-        p.set_background("white")
-        p.show()
-
-    return ind_hk, ind_vk, veronoi_mid
+    if sortedPoly.points[ind_1][0] > sortedPoly.points[ind_2][0]:
+        ind_vk = ind_2
+        ind_hk = ind_1
+    else:
+        ind_vk = ind_1
+        ind_hk = ind_2
+    return ind_hk, ind_vk
 
 
 def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbose=False):
@@ -299,10 +91,10 @@ def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbos
 
     if direction == "low":
         splitBox.rotate_z(-rotate)
-        splitBox.translate(vecDir(try_center - mids_minx)*try_radius)
+        splitBox.translate(vecDir(try_center - mids_minx) * try_radius)
     elif direction == "high":
         splitBox.rotate_z(-rotate)
-        splitBox.translate(vecDir(try_center - mids_maxx)*try_radius)
+        splitBox.translate(vecDir(try_center - mids_maxx) * try_radius)
 
     splitBox.points += try_center
     enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
@@ -340,7 +132,7 @@ def extractSidePolys(ind_hk, ind_vk, sortedPoly, verbose=False):
     psl_helper = polyline_from_points(np.stack((x_ps, y_ps, np.zeros(len(x_ps)))).T)
     ssl_helper = polyline_from_points(np.stack((x_ss, y_ss, np.zeros(len(x_ss)))).T)
 
-    if psl_helper.length>ssl_helper.length:
+    if psl_helper.length > ssl_helper.length:
 
         psPoly = pv.PolyData(ssl_helper.points)
         ssPoly = pv.PolyData(psl_helper.points)

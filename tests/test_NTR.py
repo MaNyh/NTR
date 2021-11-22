@@ -113,7 +113,7 @@ def test_extract_vk_hk(verbose=False):
     # d1,d2,d3,d4 = np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9),np.random.randint(0,9)
     # digitstring = str(d1)+str(d2)+str(d3)+str(d4)
     # manifold problems with other profiles with veronoi-mid and other unoptimized code. therefor tests only 0009
-    X, Y = naca("6504", res, finite_TE=False, half_cosine_spacing=True)
+    X, Y = naca("6409", res, finite_TE=False, half_cosine_spacing=True)
     ind_hk_test = 0
     ind_vk_test = res
 
@@ -126,11 +126,11 @@ def test_extract_vk_hk(verbose=False):
 
     origPoly = pv.PolyData(profilepoints)
     sortedPoly = pv.PolyData(profilepoints)
-    ind_hk, ind_vk, veronoi_mid = extract_vk_hk(origPoly, sortedPoly, verbose=verbose)
+    ind_hk, ind_vk = extract_vk_hk(origPoly, sortedPoly, verbose=verbose)
 
     if verbose:
         p = pv.Plotter()
-        p.add_mesh(sortedPoly.points[ind_hk], color="red", point_size=20)
+        p.add_mesh(sortedPoly.points[ind_hk], color="yellow", point_size=20)
         p.add_mesh(sortedPoly.points[ind_vk], color="red", point_size=20)
         p.add_mesh(sortedPoly)
         p.show()
