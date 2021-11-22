@@ -350,22 +350,36 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
     ptsx, ptsy = naca(nacadigits, numberofpoints, finite_TE, half_cosine_spacing)
     ind_hk = 0
     ind_vk = numberofpoints
-    points = np.stack((ptsx[:-1], ptsy[:-1], np.zeros(numberofpoints * 2) - 1)).T
+    points = np.stack((ptsx[:-1], ptsy[:-1], np.zeros(numberofpoints * 2))).T
     scalegeo = geoscaling / vecAbs(points[ind_hk] - points[ind_vk])
     poly = pv.PolyData(points)
     poly.points *= scalegeo
     poly.rotate_z(staggerangle)
     points = poly.points
+
+    if finite_TE:
+        pointa = poly.points[0]
+        pointb = poly.points[-1]
+        center = (pointb-pointa)/2+pointa
+        arcres = 100
+        arc =pv.CircularArc(pointa, pointb, center, resolution=arcres, negative=True)
+        arcpts = arc.points[1:-2]
+        points = np.vstack([points,arcpts[::-1]])
+        poly = pv.PolyData(points)
+        ind_hk =(ind_hk-int(len(arcpts)/2))%len(points)
+
     ssPoly, psPoly = extractSidePolys(ind_hk, ind_vk, poly, verbose)
     midsPoly = midline_from_sides(ind_hk, ind_vk, points, psPoly, ssPoly)
     metal_angle_hk, metal_angle_vk, camber_angle = angles_from_mids(midsPoly)
 
     if verbose:
         p = pv.Plotter()
-        p.add_mesh(points, color="orange", label="points")
+        #p.add_mesh(points, color="orange", label="points")
         p.add_mesh(psPoly, color="green", label="psPoly")
         p.add_mesh(ssPoly, color="black", label="ssPoly")
         p.add_mesh(midsPoly, color="black", label="midsPoly")
+        if finite_TE:
+            p.add_mesh(arc,line_width=10,color="red",label="arc")
         p.add_legend()
         p.show()
     return points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk, camber_angle
