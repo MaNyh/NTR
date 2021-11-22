@@ -10,7 +10,7 @@ from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.fluid_functions.aeroFunctions import calc_inflow_cp
 from NTR.preprocessing.create_geom import extract_geo_paras
 from NTR.utils.mesh_handling.pyvista_utils import load_mesh
-
+from NTR.utils.mathfunctions import absvec_array
 
 def extract_profile_from_volmesh(alpha, volmesh):
     bounds = volmesh.bounds
@@ -117,9 +117,9 @@ def compare_profileloading_numexp(settings_yml):
     inlet_sizes = inlet.compute_cell_sizes()
 
     if "Velocity" in inlet_sizes.array_names:
-        U = inlet_sizes["Velocity"][::, 0]
+        U = inlet_sizes["Velocity"]
     elif "UMean" in inlet_sizes.array_names:
-        U = inlet_sizes["UMean"][::, 0]
+        U = inlet_sizes["UMean"]
     if "Density" in inlet_sizes.array_names:
         rho = inlet_sizes["Density"]
     elif "rhoMean" in inlet_sizes.array_names:
@@ -129,7 +129,7 @@ def compare_profileloading_numexp(settings_yml):
     elif "pMean" in inlet_sizes.array_names:
         p = inlet_sizes["pMean"]
 
-    pdyn = U ** 2 * rho / 2
+    pdyn = absvec_array(U) ** 2 * rho / 2
 
     pressure = sum(p * inlet_sizes["Area"]) / sum(inlet_sizes["Area"])
     pressure_tot = sum((p + pdyn) * inlet_sizes["Area"]) / sum(inlet_sizes["Area"])

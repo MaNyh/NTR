@@ -237,7 +237,7 @@ def absVec(vec):
 
 
 def absvec_array(array):
-    return [absVec(vec) for vec in array]
+    return np.array([absVec(vec) for vec in array])
 
 
 def unitVec(vector):
