@@ -1,21 +1,29 @@
-
 all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
 
-block 11 immediate Update_kw_tdr_tpr tdr_param "<var OGRID_TDR var>"  #BLOCK_12
-block 2 immediate Update_kw_tdr_tpr tdr_param "<var OGRID_TDR var>"  #BLOCK_3
-block 3 immediate Update_kw_tdr_tpr tdr_param "<var OGRID_TDR var>"  #BLOCK_4
+block 11 immediate Update_tmCoeffs productionCoeff "<var OGR_PROD var>"  #BLOCK_12
+block 2 immediate Update_tmCoeffs productionCoeff "<var OGR_PROD var>"  #BLOCK_3
+block 3 immediate Update_tmCoeffs productionCoeff "<var OGR_PROD var>"  #BLOCK_4
 
-block 11 immediate Update_kw_tdr_tpr tdr_param "<var OGRID_TPR var>"
-block 2 immediate Update_kw_tdr_tpr tdr_param "<var OGRID_TPR var>"
-block 3 immediate Update_kw_tdr_tpr tdr_param "<var OGRID_TPR var>"
+block 11 immediate Update_tmCoeffs diffusionCoeff "<var OGR_DIFF var>"
+block 2 immediate Update_tmCoeffs diffusionCoeff "<var OGR_DIFF var>"
+block 3 immediate Update_tmCoeffs diffusionCoeff "<var OGR_DIFF var>"
 
-block 1 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TDR var>" #BLOCK_10
-block 7 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TDR var>" #BLOCK_2
-block 8 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TDR var>" #BLOCK_8
-block 9 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TDR var>" #BLOCK_9
+block 11 immediate Update_tmCoeffs dissipationCoeff "<var OGR_DISS var>"
+block 2 immediate Update_tmCoeffs dissipationCoeff "<var OGR_DISS var>"
+block 3 immediate Update_tmCoeffs dissipationCoeff "<var OGR_DISS var>"
 
-block 1 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TPR var>"
-block 7 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TPR var>"
-block 8 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TPR var>"
-block 9 immediate Update_kw_tdr_tpr tdr_param "<var WAKE_TPR var>"
+block 1 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>" #BLOCK_10
+block 7 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>" #BLOCK_2
+block 8 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>" #BLOCK_8
+block 9 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>" #BLOCK_9
+
+block 1 immediate Update_tmCoeffs diffusionCoeff "<var WAKE_DIFF var>"
+block 7 immediate Update_tmCoeffs diffusionCoeff "<var WAKE_DIFF var>"
+block 8 immediate Update_tmCoeffs diffusionCoeff "<var WAKE_DIFF var>"
+block 9 immediate Update_tmCoeffs diffusionCoeff "<var WAKE_DIFF var>"
+
+block 1 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
+block 7 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
+block 8 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
+block 9 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
 

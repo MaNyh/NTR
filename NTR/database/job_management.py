@@ -6,13 +6,13 @@ from NTR.database.case_dirstructure import casedirs
 from NTR.utils.filehandling import write_file
 
 
-def mgmt_parastud(settings, casepath):
+def mgmt_parastud(settings, casepath,sim_dirs):
     parastudsh_fname = "parastud.sh"
     txt = ""
     prepsh = "prep.sh"
 
     for idx,setting in enumerate(settings):
-        subname = "paracase_" + str(idx)
+        subname = sim_dirs[idx]
         scriptname = setting["case_settings"]["job"]["job_script"]
         subcmd = setting["case_settings"]["sub_cmd"]
         txt += "# "+subname+ "\n"

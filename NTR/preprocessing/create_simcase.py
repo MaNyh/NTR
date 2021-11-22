@@ -83,15 +83,17 @@ def create_parastudsims(path_to_parayaml):
     sim_dirs = []
     for idx, settings_dict in tqdm(enumerate(settings)):
         settings_dict["case_settings"]["type"] = "simulation"
+
         casepara={}
-        for idp, para in enumerate(paras.keys()):
-            casepara[para] = paras[para][idp]
+        for para in paras.keys():
+            casepara[para] = settings_dict["simcase_settings"]["variables"][para]
+
         subparatxt = ""
         for p,v in casepara.items():
             subparatxt+=("_"+str(p)+"_"+str(v).replace(".","_"))
-        subname = "case_" + str(idx) + subparatxt
+        sub_case_dir = "case_" + str(idx) + subparatxt
         tmp_dir = tempfile.TemporaryDirectory()
-        target_dir = os.path.join(casepath, casedirs["simcase"], subname)
+        target_dir = os.path.join(casepath, casedirs["simcase"], sub_case_dir)
         tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
         with open(tmp_yml, "w") as handle:
             yaml.dump(settings_dict, handle, default_flow_style=False)
@@ -110,15 +112,15 @@ def create_parastudsims(path_to_parayaml):
                 os.makedirs(os.path.join(target_dir, dir), exist_ok=True)
             target_file = os.path.join(target_dir, dir, os.path.basename(file))
             shutil.move(os.path.join(path, file), target_file)
-        yamltarget = os.path.join(target_dir, subname + "_settings.yml")
+        yamltarget = os.path.join(target_dir, sub_case_dir + "_settings.yml")
         shutil.copy(tmp_yml, yamltarget)
         # clean up after yourself
         tmp_dir.cleanup()
 
-        sim_dirs.append(target_dir)
+        sim_dirs.append(os.path.basename(target_dir))
 
-        create_jobmanagement(casetype, settings_dict, os.path.join(casepath, subname))
-    mgmt_parastud(settings, casepath)
+        create_jobmanagement(casetype, settings_dict, os.path.join(casepath, sub_case_dir))
+    mgmt_parastud(settings, casepath,sim_dirs)
 
 
 def create_simulationcase(path_to_yaml_dict):
