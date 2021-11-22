@@ -13,7 +13,7 @@ from NTR.utils.mesh_handling.pyvista_utils import lines_from_points, polyline_fr
 from NTR.utils.geom_functions.distance import calc_largedistant_idx
 
 
-def extract_vk_hk(origPoly, sortedPoly, verbose=False):
+def extract_vk_hk(sortedPoly, verbose=False):
     """
     This function is calculating the leading-edge and trailing edge of a long 2d-body
     The function is not 100% reliable yet. The computation is iterative and it can take a while

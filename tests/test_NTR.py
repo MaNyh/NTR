@@ -124,9 +124,8 @@ def test_extract_vk_hk(verbose=False):
     random_angle = np.random.randint(-40, 40)
     profilepoints.rotate_z(random_angle)
 
-    origPoly = pv.PolyData(profilepoints)
     sortedPoly = pv.PolyData(profilepoints)
-    ind_hk, ind_vk = extract_vk_hk(origPoly, sortedPoly, verbose=verbose)
+    ind_hk, ind_vk = extract_vk_hk(sortedPoly, verbose=verbose)
 
     if verbose:
         p = pv.Plotter()
