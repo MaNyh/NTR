@@ -112,7 +112,7 @@ def create_parastudsims(path_to_parayaml):
                 os.makedirs(os.path.join(target_dir, dir), exist_ok=True)
             target_file = os.path.join(target_dir, dir, os.path.basename(file))
             shutil.move(os.path.join(path, file), target_file)
-        yamltarget = os.path.join(target_dir, sub_case_dir + "_settings.yml")
+        yamltarget = os.path.join(target_dir, "paracase_settings.yml")
         shutil.copy(tmp_yml, yamltarget)
         # clean up after yourself
         tmp_dir.cleanup()

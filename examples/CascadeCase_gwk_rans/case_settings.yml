@@ -37,7 +37,7 @@ case_settings:
 
     fluid:
         kappa: "1.4"
-        molar_weight_M: "28.96"
+        molar_weight_M: &molar_weight_M "28.96"
         R_L: "287.05"
         mu: "20.0e-6"
         As: "1.458e-06"
@@ -52,6 +52,7 @@ openfoam_cascade_les_settings:
 
 simcase_settings:
     variables:
+        MOLAR_WEIGHT: *molar_weight_M
         DYNVISK: "20e-6"
         AVE_START : &AVE_START "10"
         MAX_CFL: "0.4"
