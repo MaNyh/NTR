@@ -106,4 +106,7 @@ mesh:
     smoothing                       : 5000                                  #smoothing iterations
 
 post_settings:
-    volmesh                     : "03_Solution/TRACE.cgns"
+    solution                     : "03_Solution/TRACE.cgns"
+
+    call_funcs:
+        - profile_data

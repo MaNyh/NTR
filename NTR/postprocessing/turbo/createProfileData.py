@@ -3,41 +3,14 @@ import os
 import numpy as np
 import math
 
-from NTR.utils.filehandling import yaml_dict_read, read_pickle
 from NTR.utils.geom_functions.geom_utils import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
 from NTR.utils.fluid_functions.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, \
     calcPos2ValuesByAmecke
 from NTR.utils.fluid_functions.thermoFunctions import Sutherland_Law
-from NTR.utils.mathfunctions import absvec_array, vecAbs
+from NTR.utils.mathfunctions import absvec_array
 from NTR.utils.simFunctions import sort_value2, sort_value3
 from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
-from NTR.database.case_dirstructure import casedirs
-from NTR.utils.mesh_handling.pyvista_utils import load_mesh
-from NTR.postprocessing.profile_loading import calc_inflow_cp
-
-def createProfileData_fromSettings(settings):
-    case_settings = yaml_dict_read(settings)
-    case_path = os.path.dirname(settings)
-    geo_path = os.path.join(case_path, casedirs["data"], "geometry.pkl")
-    volmesh = case_settings["post_settings"]["use_vtk_meshes"]["volmesh"]
-    mplane_in = case_settings["post_settings"]["measureplane_slices"]["x_pos_1"]
-    mplane_out = case_settings["post_settings"]["measureplane_slices"]["x_pos_2"]
-    geomdat = read_pickle(geo_path)
-    midspan_z = geomdat["span_z"] / 2
-    alpha = case_settings["geometry"]["alpha"]
-    # todo: insert a test-function for the definition of fluid-coeffs. incompressible sim? are values welldefined?
-    kappa = float(case_settings["case_settings"]["fluid"]["kappa"])
-    R_L = float(case_settings["case_settings"]["fluid"]["R_L"])
-    p_k = float(case_settings["case_settings"]["fluid"]["p_k"])
-    As = float(case_settings["case_settings"]["fluid"]["As"])
-    cp = float(case_settings["case_settings"]["fluid"]["cp"])
-    Ts = float(case_settings["case_settings"]["fluid"]["Ts"])
-    l = vecAbs(
-        geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_vk"]] - geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_hk"]])
-    meshpath = os.path.join(case_path, casedirs["solution"], volmesh)
-    mesh = load_mesh(meshpath)
-    outputpath = os.path.join(case_path, casedirs["data"])
-    createProfileData(mesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, R_L, p_k, As, l, cp, Ts)
+from NTR.postprocessing.turbo.profile_loading import calc_inflow_cp
 
 
 def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, R_L, p_k, As, l, cp,

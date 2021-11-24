@@ -17,6 +17,7 @@ case_settings:
         dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh
         cd input/
         /bigwork/nhkckcen/sw/GMC/gmc_9_3_4/gmcPlay_v9_3_4 verdichter.jou
+        rm mesh.cgns
         cd ..
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
@@ -123,3 +124,9 @@ mesh:
     shift_vk_block_xaxiscoeff       : 0.0475                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.0                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
+
+post_settings:
+    solution                     : "03_Solution/TRACE.cgns"
+
+    call_funcs:
+        - profile_data

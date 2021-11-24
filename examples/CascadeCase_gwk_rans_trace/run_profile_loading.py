@@ -1,3 +1,0 @@
-from NTR.postprocessing.profile_loading import compare_profileloading_numexp
-
-compare_profileloading_numexp("case_settings.yml")
