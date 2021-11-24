@@ -81,45 +81,48 @@ def create_parastudsims(path_to_parayaml):
 
     casepath = os.path.abspath(os.path.dirname(path_to_parayaml))
     sim_dirs = []
-    for idx, settings_dict in tqdm(enumerate(settings)):
-        settings_dict["case_settings"]["type"] = "simulation"
+    no_sims = len(settings)
+    with tqdm(total=no_sims) as pbar:
+        for idx, settings_dict in enumerate(settings):
+            settings_dict["case_settings"]["type"] = "simulation"
 
-        casepara={}
-        for para in paras.keys():
-            casepara[para] = settings_dict["simcase_settings"]["variables"][para]
+            casepara={}
+            for para in paras.keys():
+                casepara[para] = settings_dict["simcase_settings"]["variables"][para]
 
-        subparatxt = ""
-        for p,v in casepara.items():
-            subparatxt+=("_"+str(p)+"_"+str(v).replace(".","_"))
-        sub_case_dir = "case_" + str(idx) + subparatxt
-        tmp_dir = tempfile.TemporaryDirectory()
-        target_dir = os.path.join(casepath, casedirs["simcase"], sub_case_dir)
-        tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
-        with open(tmp_yml, "w") as handle:
-            yaml.dump(settings_dict, handle, default_flow_style=False)
-        create_simulationcase(tmp_yml)
-        tmpsimdir = os.path.join(tmp_dir.name, casedirs["simcase"])
+            subparatxt = ""
+            for p,v in casepara.items():
+                subparatxt+=("_"+str(p)+"_"+str(v).replace(".","_"))
+            sub_case_dir = "case_" + str(idx) + subparatxt
+            tmp_dir = tempfile.TemporaryDirectory()
+            target_dir = os.path.join(casepath, casedirs["simcase"], sub_case_dir)
+            tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
+            with open(tmp_yml, "w") as handle:
+                yaml.dump(settings_dict, handle, default_flow_style=False)
+            create_simulationcase(tmp_yml)
+            tmpsimdir = os.path.join(tmp_dir.name, casedirs["simcase"])
 
-        # create dirstructure and move files from teampdir
-        datlist = []
-        for i in glob.glob(os.path.join(tmp_dir.name, casedirs["simcase"]+"\\**\\*"), recursive=True):
-            if os.path.isfile(i):
-                datlist.append([os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)),
-                                os.path.basename(i)])
+            # create dirstructure and move files from teampdir
+            datlist = []
+            for i in glob.glob(os.path.join(tmp_dir.name, casedirs["simcase"]+"\\**\\*"), recursive=True):
+                if os.path.isfile(i):
+                    datlist.append([os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)),
+                                    os.path.basename(i)])
 
-        for path, dir, file in datlist:
-            if not os.path.isdir(os.path.join(target_dir, dir)):
-                os.makedirs(os.path.join(target_dir, dir), exist_ok=True)
-            target_file = os.path.join(target_dir, dir, os.path.basename(file))
-            shutil.move(os.path.join(path, file), target_file)
-        yamltarget = os.path.join(target_dir, sub_case_dir + "_settings.yml")
-        shutil.copy(tmp_yml, yamltarget)
-        # clean up after yourself
-        tmp_dir.cleanup()
+            for path, dir, file in datlist:
+                if not os.path.isdir(os.path.join(target_dir, dir)):
+                    os.makedirs(os.path.join(target_dir, dir), exist_ok=True)
+                target_file = os.path.join(target_dir, dir, os.path.basename(file))
+                shutil.move(os.path.join(path, file), target_file)
+            yamltarget = os.path.join(target_dir, "paracase_settings.yml")
+            shutil.copy(tmp_yml, yamltarget)
+            # clean up after yourself
+            tmp_dir.cleanup()
 
-        sim_dirs.append(os.path.basename(target_dir))
+            sim_dirs.append(os.path.basename(target_dir))
 
-        create_jobmanagement(casetype, settings_dict, os.path.join(casepath, sub_case_dir))
+            create_jobmanagement(casetype, settings_dict, os.path.join(casepath, sub_case_dir))
+            pbar.update(1)
     mgmt_parastud(settings, casepath,sim_dirs)
 
 

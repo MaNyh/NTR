@@ -28,7 +28,8 @@ requirements = ['Click>=7.0',
                 "scikit-image>=0.18.3",
                 "pandas>=1.3.3",
                 "tqdm>=4.59.0",
-                "h5py>=3.6.0"
+                "h5py>=3.6.0",
+                "pytest"
                 ]
 
 setup_requirements = [ ]

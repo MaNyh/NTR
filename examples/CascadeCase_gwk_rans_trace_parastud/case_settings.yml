@@ -23,7 +23,7 @@ case_settings:
         job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
         job_exe: "TRACE"
         job_name: *name
-        job_runtime: "6:00:00" #h
+        job_runtime: "3:00:00" #h
         job_nodes : "1"
         job_ppn : "12"
         job_mem : "12"
@@ -66,29 +66,30 @@ simcase_settings:
 
         OGR_PROD:
             - 0.8
+            - 0.9
             - 1
+            - 1.1
             - 1.2
-        OGR_DIFF:
-            - 0.8
-            - 1
-            - 1.2
+        OGR_DIFF: 1
         OGR_DISS:
             - 0.8
+            - 0.9
             - 1
+            - 1.1
             - 1.2
         WAKE_PROD:
             - 0.8
+            - 0.9
             - 1
+            - 1.1
             - 1.2
-        WAKE_DIFF:
-            - 0.8
-            - 1
-            - 1.2
+        WAKE_DIFF: 1
         WAKE_DISS:
             - 0.8
+            - 0.9
             - 1
+            - 1.1
             - 1.2
-
 
     options:
 simcase_optiondef:
