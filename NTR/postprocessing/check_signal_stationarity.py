@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from NTR.postprocessing.integralscales_from_signal import integralscales_from_timeseries
 """
 this module is supposed to return a timesstamp from a time-series, that equals the time when the transient signal ends
 
