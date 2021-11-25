@@ -31,3 +31,11 @@ implementation of parastudy-creation. it is still necessary to implement options
 ------------------
 new feature: job-management. you can choose from a set of job-scripts. You can easily set parameters in your job-script
 This allowes a simulation management for the parameter-study-method.
+
+0.1.10 (2021-11-25)
+------------------
+loads of major updates.
+    -new extract_hk_vk: way more reliable, easier to maintain and faster
+    -implementation of a new profile-generator
+    -generic postprocess caller-method
+    -advanced job-management

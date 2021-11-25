@@ -67,38 +67,40 @@ def read_parastudyaml(path_to_yaml_dict):
     return settings_parastud
 
 
+def paracase_name(casepara, idx):
+    subparatxt = ""
+    for p, v in casepara.items():
+        subparatxt += ("_" + str(p) + "_" + str(v).replace(".", "_"))
+    sub_case_dir = "case_" + str(idx) + subparatxt
+    return sub_case_dir
+
+
 def create_parastudsims(path_to_parayaml):
     yamldict = yaml_dict_read(path_to_parayaml)
     casetype = yamldict["case_settings"]["type"]
     assert casetype == "parameterstudy", "check your yaml-dict. the case is not defined as a parameterstudy"
 
-    paras = {}
-    for varname, value in yamldict["simcase_settings"]["variables"].items():
-        if type(value) == list:
-            paras[varname] = value
-
+    paras = get_parastud_parameternames_fromdict(yamldict)
     settings = read_parastudyaml(path_to_parayaml)
 
     casepath = os.path.abspath(os.path.dirname(path_to_parayaml))
     sim_dirs = []
     no_sims = len(settings)
     with tqdm(total=no_sims) as pbar:
+
         for idx, settings_dict in enumerate(settings):
             settings_dict["case_settings"]["type"] = "simulation"
 
-            casepara={}
-            for para in paras.keys():
-                casepara[para] = settings_dict["simcase_settings"]["variables"][para]
+            casepara = construct_paracasedict(paras, settings_dict)
+            sub_case_dir = paracase_name(casepara, idx)
 
-            subparatxt = ""
-            for p,v in casepara.items():
-                subparatxt+=("_"+str(p)+"_"+str(v).replace(".","_"))
-            sub_case_dir = "case_" + str(idx) + subparatxt
             tmp_dir = tempfile.TemporaryDirectory()
             target_dir = os.path.join(casepath, casedirs["simcase"], sub_case_dir)
+
             tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
             with open(tmp_yml, "w") as handle:
                 yaml.dump(settings_dict, handle, default_flow_style=False)
+
             create_simulationcase(tmp_yml)
             tmpsimdir = os.path.join(tmp_dir.name, casedirs["simcase"])
 
@@ -124,6 +126,21 @@ def create_parastudsims(path_to_parayaml):
             create_jobmanagement(casetype, settings_dict, os.path.join(casepath, sub_case_dir))
             pbar.update(1)
     mgmt_parastud(settings, casepath,sim_dirs)
+
+
+def construct_paracasedict(paras, settings_dict):
+    casepara = {}
+    for para in paras.keys():
+        casepara[para] = settings_dict["simcase_settings"]["variables"][para]
+    return casepara
+
+
+def get_parastud_parameternames_fromdict(yamldict):
+    paras = {}
+    for varname, value in yamldict["simcase_settings"]["variables"].items():
+        if type(value) == list:
+            paras[varname] = value
+    return paras
 
 
 def create_simulationcase(path_to_yaml_dict):

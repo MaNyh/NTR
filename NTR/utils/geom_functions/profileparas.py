@@ -89,49 +89,6 @@ def extract_vk_hk(sortedPoly, verbose=False):
     return ind_hk, ind_vk
 
 
-def extract_edge_poi(try_center, try_radius, mids, direction, sortedPoly, verbose=False):
-    mids_minx = mids[[i[0] for i in mids].index(min([i[0] for i in mids]))]
-    mids_maxx = mids[[i[0] for i in mids].index(max([i[0] for i in mids]))]
-
-    mids_tangent = mids_minx - mids_maxx
-
-    splitBoxLength = vecAbs(try_center - sortedPoly.points[distant_node_index(try_center, sortedPoly.points)]) * 2.1
-    splitBox = pv.Plane(center=(0, 0, 0), direction=(0, 0, 1), i_size=try_radius * 1.6, j_size=splitBoxLength,
-                        i_resolution=100, j_resolution=100)
-
-    rotate = -angle_between(mids_tangent, np.array([0, 1, 0])) / np.pi * 180
-    if direction == "low":
-        splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] <= 0]))
-    elif direction == "high":
-        splitBox = pv.PolyData(np.array([i for i in splitBox.points if i[1] >= 0]))
-
-    splitBox = splitBox.delaunay_2d()
-    splitBox = splitBox.extrude((0, 0, 0.1))
-    splitBox.translate((0, 0, -0.05))
-
-    if direction == "low":
-        splitBox.rotate_z(-rotate)
-        splitBox.translate(vecDir(try_center - mids_minx) * try_radius)
-    elif direction == "high":
-        splitBox.rotate_z(-rotate)
-        splitBox.translate(vecDir(try_center - mids_maxx) * try_radius)
-
-    splitBox.points += try_center
-    enclosedBoxPoints = sortedPoly.select_enclosed_points(splitBox)
-    checkPoints = [i for idx, i in enumerate(enclosedBoxPoints.points) if
-                   enclosedBoxPoints["SelectedPoints"][idx] == 1]
-
-    if verbose:
-        p = pv.Plotter()
-        p.add_mesh(sortedPoly)
-        p.add_mesh(pv.PolyData(np.asarray(checkPoints)), color="blue")
-        p.add_mesh(splitBox.extract_feature_edges())
-        p.add_mesh(np.array(mids), color="red")
-        p.show()
-
-    return checkPoints
-
-
 def extractSidePolys(ind_hk, ind_vk, sortedPoly, verbose=False):
     xs, ys = list(sortedPoly.points[::, 0]), list(sortedPoly.points[::, 1])
 

@@ -17,6 +17,7 @@ case_settings:
         dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh
         cd input/
         /bigwork/nhkckcen/sw/GMC/gmc_9_3_4/gmcPlay_v9_3_4 verdichter.jou
+        rm mesh.cgns
         cd ..
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
@@ -28,6 +29,17 @@ case_settings:
         job_ppn : "12"
         job_mem : "12"
         account : "niinyhma"
+
+    fluid:
+        kappa: "1.4"
+        molar_weight_M: &molar_weight_M "28.96"
+        R_L: "287.05"
+        mu: "20.0e-6"
+        As: "1.458e-06"
+        cp: "1004.5"
+        Ts: "110.4"
+        p_k: "95000.0"
+
     sub_cmd : "sh"
 
 simcase_settings:
@@ -123,3 +135,12 @@ mesh:
     shift_vk_block_xaxiscoeff       : 0.0475                                  #move periodic vertices (yPer from LE) along x
     shift_hk_block_xaxiscoeff       : 0.0                                  #move periodic vertices (yPer from TE) along x
     smoothing                       : 5000                                  #smoothing iterations
+
+post_settings:
+    solution                     : "03_Solution/*/output/cgns/TRACE.cgns"
+    post_func_data:
+        measureplane_slices:
+                x_pos_1 : 0.01
+                x_pos_2 : 0.25
+    call_funcs:
+        - profile_data

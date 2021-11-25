@@ -265,7 +265,7 @@ def GetProfileValuesMidspan(volmesh, alpha, midspan_z):
     wall_shear_stress_explike_ps = []
 
     normals_ps = np.asarray([geo.cell_normals[i] for i in indexes_ps])
-
+    #geo = geo.cell_data_to_point_data()
     for i in geo.point_arrays:
         values_ss[i] = []
         values_ps[i] = []

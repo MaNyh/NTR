@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from NTR.database.datasets.measurement_data_2016111_gwk_compressor_gilge.interpret_raw import read_gilgegwk
-from NTR.postprocessing.sim_values import getXSliceVals
+from NTR.postprocessing.generic.sim_values import getXSliceVals
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.fluid_functions.aeroFunctions import calc_inflow_cp
 from NTR.preprocessing.create_geom import extract_geo_paras
