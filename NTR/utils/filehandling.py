@@ -39,6 +39,10 @@ def read_pickle(file):
     return args
 
 def write_yaml_dict(fpath,data):
+    """
+    :param fpath: target path
+    :param data: dictionary
+    """
     with open(fpath, 'w') as outfile:
         yaml.dump(data, outfile, default_flow_style=False)
 

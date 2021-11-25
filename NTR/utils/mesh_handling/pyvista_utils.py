@@ -5,6 +5,19 @@ import os
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.mesh_handling.vtk_utils import cgnsReader
 
+def translate_meshnames(mesh):
+    array_names = mesh.array_names
+    for name in array_names:
+        if name == "Velocity":
+            mesh.rename_array("Velocity", "U")
+        if name == "Pressure":
+            mesh.rename_array("Pressure", "p")
+        if name == "Density":
+            mesh.rename_array("Density", "rho")
+        if name == "Temperature":
+            mesh.rename_array("Temperature", "T")
+    mesh = mesh.cell_data_to_point_data()
+    return mesh
 
 def load_mesh(path_to_mesh):
     assert os.path.isfile(path_to_mesh), path_to_mesh + " is not a valid file"
@@ -33,6 +46,7 @@ def load_mesh(path_to_mesh):
                     block = domain.GetBlock(blockId)
                     mesh = mesh.merge(block)
 
+    mesh = translate_meshnames(mesh)
     return mesh
 
 
