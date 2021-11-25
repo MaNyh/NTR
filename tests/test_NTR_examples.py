@@ -111,5 +111,5 @@ def test_example_channel_les_dfsem_incompressible():
 
 @pytest.mark.skipif(ON_CI, reason="do not run in continuous integration environment due to limited ressources")
 def test_example_channel_les_dfsem_compressible():
-    run_create_geometry(ChannelCase_les_dfsem_compressible)
-    create_simulationcase(ChannelCase_les_dfsem_compressible)
+    run_create_geometry(examples_channel_les_dfsem_compressible)
+    create_simulationcase(examples_channel_les_dfsem_compressible)
