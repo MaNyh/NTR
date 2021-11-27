@@ -8,12 +8,11 @@ from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.utils.mesh_handling.pyvista_utils import mesh_scalar_gradients
 
 
-def createProfileData_fromSettings(settings):
+def createProfileData_fromSettings(volmesh, settings):
     case_settings = yaml_dict_read(settings)
     case_path = os.path.dirname(settings)
     geo_path = os.path.join(case_path, casedirs["data"], "geometry.pkl")
 
-    volmesh = case_settings["post_settings"]["solution"]
     mplane_in = case_settings["post_settings"]["post_func_data"]["measureplane_slices"]["x_pos_1"]
     mplane_out = case_settings["post_settings"]["post_func_data"]["measureplane_slices"]["x_pos_2"]
     geomdat = read_pickle(geo_path)
@@ -28,7 +27,6 @@ def createProfileData_fromSettings(settings):
     Ts = float(case_settings["case_settings"]["fluid"]["Ts"])
     l = vecAbs(
         geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_vk"]] - geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_hk"]])
-    meshpath = os.path.join(volmesh)
-    mesh = load_mesh(meshpath)
+
     outputpath = os.path.join(case_path, casedirs["data"])
-    createProfileData(mesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, R_L, p_k, As, l, cp, Ts)
+    createProfileData(volmesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, R_L, p_k, As, l, cp, Ts)
