@@ -4,8 +4,6 @@ from NTR.database.case_dirstructure import casedirs
 from NTR.postprocessing.turbo.createProfileData import createProfileData
 from NTR.utils.filehandling import yaml_dict_read, read_pickle
 from NTR.utils.mathfunctions import vecAbs
-from NTR.utils.mesh_handling.pyvista_utils import load_mesh
-from NTR.utils.mesh_handling.pyvista_utils import mesh_scalar_gradients
 
 
 def createProfileData_fromSettings(volmesh, settings):
@@ -29,4 +27,4 @@ def createProfileData_fromSettings(volmesh, settings):
         geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_vk"]] - geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_hk"]])
 
     outputpath = os.path.join(case_path, casedirs["data"])
-    createProfileData(volmesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, R_L, p_k, As, l, cp, Ts)
+    return createProfileData(volmesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, R_L, p_k, As, l, cp, Ts)
