@@ -50,6 +50,7 @@ def postprocess(settings_yml):
 
         with tqdm(total=len(paracasedirs)) as pbar:
             for cdir, case_settgs in zip(paracasedirs, paracases_settings):
+                pbar.set_description(cdir)
                 for f in funcs_to_call:
 
                     mesh_path = os.path.join(solutionpath.replace("*", cdir))
@@ -76,5 +77,5 @@ def postprocess(settings_yml):
                     postresults[cdir] = {}
 
                     postresults[cdir][f] = funcs[f](mesh, postprocess_yml)
-            pbar.set_description(cdir)
-            pbar.update(1)
+
+                pbar.update(1)
