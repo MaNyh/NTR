@@ -102,66 +102,50 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps = calcProfileValues(
         p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1, kappa)
 
-    def writeOutput(outpath):
-        output_path = os.path.join(outpath, 'profile_data.dat')
-        values = [[x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss],
-                  [x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps]]
-        writeTecplot1DFile(output_path, ['X', 'Y', 'x<sub>Ax</sub> / l<sub>Ax</sub>', 'p', 'cp', 'cp_max', 'ma_is_x'],
-                           ['Saugseite', 'Druckseite'], values, 'Profildaten')
 
-        output_path = os.path.join(outpath, 'postSlicesValues.py')
-        data_output = open(output_path, 'w')
-        data_output.write('#!/usr/bin/env python2\n')
-        data_output.write('# -*- coding: utf-8 -*-\n')
-        data_output.write('def get_postSlicesValues(gV):\n\n')
-        data_output.write('\t#Allgemeine Groessen\n\n')
-        data_output.write('\tgV.zeta=' + str(zeta) + '\n\n')
-        data_output.write('\t#Daten Auswerteebene 1\n\n')
-        data_output.write('\tgV.Ma_1=' + str(Ma1) + '\n')
-        data_output.write('\tgV.p_1=' + str(inte_p1) + '\n')
-        data_output.write('\tgV.pt_1=' + str(inte_p_tot1) + '\n')
-        data_output.write('\tgV.Mag_U_1=' + str(inte_mag_u1) + '\n')
-        data_output.write('\tgV.Ux_1=' + str(inte_ux1) + '\n')
-        data_output.write('\tgV.Uy_1=' + str(inte_uy1) + '\n')
-        data_output.write('\tgV.Uz_1=' + str(inte_uz1) + '\n')
-        data_output.write('\tgV.rho_1=' + str(inte_rho1) + '\n')
-        data_output.write('\tgV.T_1=' + str(inte_T1) + '\n')
-        data_output.write('\tgV.Tt_1=' + str(inte_T_tot1) + '\n')
-        data_output.write('\tgV.beta_1=' + str(beta1) + '\n')
-        data_output.write('\tgV.nu_1=' + str(nu1) + '\n')
-        data_output.write('\tgV.Re_1=' + str(Re1) + '\n\n')
-        data_output.write('\t#Daten Auswerteebene 2\n\n')
-        data_output.write('\tgV.Ma_2=' + str(Ma2) + '\n')
-        data_output.write('\tgV.p_2=' + str(inte_p2) + '\n')
-        data_output.write('\tgV.pt_2=' + str(inte_p_tot2) + '\n')
-        data_output.write('\tgV.Mag_U_2=' + str(inte_mag_u2) + '\n')
-        data_output.write('\tgV.Ux_2=' + str(inte_ux2) + '\n')
-        data_output.write('\tgV.Uy_2=' + str(inte_uy2) + '\n')
-        data_output.write('\tgV.Uz_2=' + str(inte_uz2) + '\n')
-        data_output.write('\tgV.rho_2=' + str(inte_rho2) + '\n')
-        data_output.write('\tgV.T_2=' + str(inte_T2) + '\n')
-        data_output.write('\tgV.Tt_2=' + str(inte_T_tot2) + '\n')
-        data_output.write('\tgV.beta_2=' + str(beta2) + '\n')
-        data_output.write('\tgV.nu_2=' + str(nu2) + '\n')
-        data_output.write('\tgV.Re_2=' + str(Re2) + '\n\n')
-        data_output.write('\t#Daten Betriebspunkt\n\n')
-        data_output.write('\tgV.Ma_is_2=' + str(Ma_is_2) + '\n')
-        data_output.write('\tgV.Re_is_2=' + str(Re_is_2) + '\n')
-        data_output.write('\tgV.AVDR=' + str(AVDR_value) + '\n')
-        data_output.write('\tgV.delta_beta=' + str(delta_beta) + '\n')
-        data_output.write('\tgV.delta_p_static=' + str(delta_p_static) + '\n\n')
-        data_output.write('\t#Daten Amecke-Auswertung\n\n')
-        data_output.write('\tgV.Ma_2_amecke=' + str(Ma2_amecke) + '\n')
-        data_output.write('\tgV.beta_2_amecke=' + str(beta2_amecke) + '\n')
-        data_output.write('\tgV.pt_2_amecke=' + str(pt2_amecke) + '\n')
-        data_output.write('\tgV.p_2_amecke=' + str(p2_amecke) + '\n')
-        data_output.write('\tgV.zeta_amecke=' + str(zeta_amecke) + '\n')
-        data_output.write('\tgV.Ma_is_2_amecke=' + str(ma_is_amecke) + '\n')
-        data_output.close()
+    ans = {}
+    ans["zeta"]=zeta
+    ans["inte_p1"]=inte_p1
+    ans["inte_p_tot1"]=inte_p_tot1
+    ans["inte_mag_u1"]=inte_mag_u1
+    ans["inte_ux1"]=inte_ux1
+    ans["inte_uy1"]=inte_uy1
+    ans["inte_uz1"]=inte_uz1
+    ans["inte_rho1"]=inte_rho1
+    ans["inte_T1"]=inte_T1
+    ans["inte_T_tot1"]=inte_T_tot1
+    ans["beta1"]=beta1
+    ans["nu1"]=nu1
+    ans["Re1"]=Re1
+    ans["Ma1"]=Ma1
+    ans["Ma2"]=Ma2
+    ans["inte_p2"]=inte_p2
+    ans["inte_p_tot2"]=inte_p_tot2
+    ans["inte_mag_u2"]=inte_mag_u2
+    ans["inte_ux2"]=inte_ux2
+    ans["inte_uy2"]=inte_uy2
+    ans["inte_uz2"]=inte_uz2
+    ans["inte_rho2"]=inte_rho2
+    ans["inte_T2"]=inte_T2
+    ans["inte_T_tot2"]=inte_T_tot2
+    ans["beta2"]=beta2
+    ans["nu2"]=nu2
+    ans["Re2"]=Re2
+    ans["Ma_is_2"]=Ma_is_2
+    ans["Re_is_2"]=Re_is_2
+    ans["AVDR_value"]=AVDR_value
+    ans["delta_beta"]=delta_beta
+    ans["delta_p_static"]=delta_p_static
+    ans["Ma2_amecke"]=Ma2_amecke
+    ans["beta2_amecke"]=beta2_amecke
+    ans["pt2_amecke"]=pt2_amecke
+    ans["p2_amecke"]=p2_amecke
+    ans["zeta_amecke"]=zeta_amecke
+    ans["ma_is_amecke"]=ma_is_amecke
+    ans["profileData"] = {"x_zu_l_ax_ss":x_zu_l_ax_ss, "cp_ss":cp_ss, "x_zu_l_ax_ps":x_zu_l_ax_ps, "cp_ps":cp_ps}
 
-    writeOutput(output_path)
 
-    return x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps
+    return ans#x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps
 
 
 def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1, kappa):
