@@ -41,6 +41,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     y_ps = values_ps["y_ps"]
     p_ps = values_ps["p"]
 
+    #plt.ioff()
     plt.figure(figsize=(8, 8))
     plt.plot(x_ss, y_ss, '-r', lw=1)
     plt.plot(x_ps, y_ps, '-b', lw=1)
