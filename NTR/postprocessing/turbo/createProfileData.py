@@ -13,7 +13,7 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.postprocessing.turbo.profile_loading import calc_inflow_cp
 
 
-def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, R_L, p_k, As, l, cp,
+def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, R_L, p_k, As, l_chord, cp,
                       Ts):
     """
 
@@ -27,7 +27,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     :param R_L: specific gas constant
     :param p_k: ???
     :param As:
-    :param l: characteristic length
+    :param l_chord: characteristic length
     :param cp: heat capacity isobar
     :return:
     """
@@ -62,7 +62,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
 
     Ma_is_2 = Ma_is(p_k, kappa, inte_p1, inte_rho1, inte_mag_u1, R_L, inte_T_tot1)
 
-    Re_is_2 = Re_is(kappa, R_L, l, As, Ma_is_2, p_k, inte_T_tot1, inte_mag_u1, cp, Ts)
+    Re_is_2 = Re_is(kappa, R_L, l_chord, As, Ma_is_2, p_k, inte_T_tot1, inte_mag_u1, cp, Ts)
 
     beta1 = 90.0 + math.atan(inte_uy1 / inte_ux1) / 2.0 / math.pi * 360.0
     beta2 = 90.0 + math.atan(inte_uy2 / inte_ux2) / 2.0 / math.pi * 360.0
@@ -70,8 +70,8 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     nu1 = Sutherland_Law(inte_T1, As, Ts)
     nu2 = Sutherland_Law(inte_T2, As, Ts)
 
-    Re1 = Re(inte_rho1, inte_mag_u1, l, nu1)
-    Re2 = Re(inte_rho2, inte_mag_u2, l, nu2)
+    Re1 = Re(inte_rho1, inte_mag_u1, l_chord, nu1)
+    Re2 = Re(inte_rho2, inte_mag_u2, l_chord, nu2)
 
     AVDR_value = AVDR(inte_rho1, inte_mag_u1, beta1, inte_rho2, inte_mag_u2, beta2)
     delta_beta = beta1 - beta2
