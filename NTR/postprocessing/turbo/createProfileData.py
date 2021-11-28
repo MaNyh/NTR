@@ -42,7 +42,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     y_ps = values_ps["y_ps"]
     p_ps = values_ps["p"]
 
-    #plt.ioff()
+
     plt.figure(figsize=(8, 8))
     plt.plot(x_ss, y_ss, '-r', lw=1)
     plt.plot(x_ps, y_ps, '-b', lw=1)
@@ -50,6 +50,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     plt.axis('equal')
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_profil.pdf'))
+    plt.close()
 
     inte_mag_u1, inte_ux1, inte_uy1, inte_uz1, inte_rho1, inte_T1, inte_p1, inte_p_tot1, inte_T_tot1 = calcPostSliceValues(
         mesh, output_path, post_slice_1_x, 1, kappa, Rs)
@@ -317,6 +318,7 @@ def calcPostSliceValues(mesh, output_path, x, ind, kappa, R_L):
     plt.grid()
     # plt.tight_layout()
     plt.savefig(os.path.join(output_path, 'kontrollplot_auswerteebene_' + str(ind) + '.pdf'))
+    plt.close()
 
     values = [[xx, y, zz, mag_u, ux, uy, uz, p, rho, T, ma, T_tot, p_tot]]
 

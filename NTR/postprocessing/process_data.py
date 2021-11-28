@@ -96,3 +96,5 @@ def postprocess_func(cdir, f, mesh_path, postdat_path, postprocess_yml, postresu
             write_pickle(postdat_path, postresults)
         except:
             postresults[cdir][f] = -1
+
+        del mesh
