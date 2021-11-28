@@ -12,6 +12,7 @@ from NTR.utils.mesh_handling.pyvista_utils import load_mesh, mesh_scalar_gradien
 
 funcs = {
     "profile_data": createProfileData_fromSettings,
+    "profile_loading":None,
 }
 
 
@@ -34,7 +35,7 @@ def postprocess(settings_yml):
 
         for f in funcs_to_call:
             volmesh = settings["post_settings"]["solution"]
-            postprocess_func(cdir, f, volmesh, postdat_path, settings_yml, postresults)
+            postprocess_func(casedir, f, volmesh, postdat_path, settings_yml, postresults)
 
     elif casetype == "parameterstudy":
         paracases_settings = read_parastudyaml(settings_yml)
