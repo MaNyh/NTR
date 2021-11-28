@@ -31,14 +31,12 @@ case_settings:
         account : "niinyhma"
 
     fluid:
-        kappa: "1.4"
-        molar_weight_M: &molar_weight_M "28.96"
-        R_L: "287.05"
-        mu: "20.0e-6"
-        As: "1.458e-06"
-        cp: "1004.5"
-        Ts: "110.4"
-        p_k: "95000.0"
+        kappa: 1.4
+        molar_weight_M: 28.96
+        Rs: 287.05
+        mu: 20.0e-6
+        cp: 1004.5
+
 
     sub_cmd : "sh"
 
@@ -137,8 +135,14 @@ mesh:
     smoothing                       : 5000                                  #smoothing iterations
 
 post_settings:
+
     solution                     : "03_Solution/*/output/cgns/TRACE.cgns"
     post_func_data:
+
+        p_k: "95000.0"
+        As: "1.458e-06"
+        Ts: "110.4"
+
         measureplane_slices:
                 x_pos_1 : 0.01
                 x_pos_2 : 0.25

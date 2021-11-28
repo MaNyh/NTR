@@ -1,9 +1,8 @@
 import os
-import tempfile
 import warnings
 from tqdm import tqdm
 
-from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict
+from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, read_pickle, write_pickle
 from NTR.postprocessing.process_from_settings import createProfileData_fromSettings
 from NTR.preprocessing.create_simcase import read_parastudyaml, paracase_name, construct_paracasedict, \
     get_parastud_parameternames_fromdict
@@ -22,24 +21,25 @@ def postprocess(settings_yml):
     casetype = settings["case_settings"]["type"]
     assert "post_settings" in settings.keys()
     funcs_to_call = settings["post_settings"]["call_funcs"]
-    postresults = {}
+
+    postdat_path = os.path.join(casedir,casedirs["data"],"postprocessed.pkl")
+
+    if os.path.isfile(postdat_path):
+        postresults = read_pickle(postdat_path)
+    else:
+        postresults = {}
+
     if casetype == "simulation":
         print("postprocessing " + casedir)
 
         for f in funcs_to_call:
             volmesh = settings["post_settings"]["solution"]
-            meshpath = os.path.join(volmesh)
-            mesh = load_mesh(meshpath)
-            mesh = mesh_scalar_gradients(mesh, "U")
-            postresults[casedir] = {}
-            postresults[casedir][f] = funcs[f](mesh, settings_yml)
+            postprocess_func(cdir, f, volmesh, postdat_path, settings_yml, postresults)
 
     elif casetype == "parameterstudy":
         paracases_settings = read_parastudyaml(settings_yml)
         solutionpath = settings["post_settings"]["solution"]
         paras = get_parastud_parameternames_fromdict(settings)
-
-        tmp_dir = tempfile.TemporaryDirectory()
 
         paracasedirs = []
         for idx, settings_dict in enumerate(paracases_settings):
@@ -56,7 +56,6 @@ def postprocess(settings_yml):
                     mesh_path = os.path.join(solutionpath.replace("*", cdir))
                     origcase_yml = os.path.join(casedir, casedirs["solution"], cdir, "paracase_settings.yml")
                     postprocess_yml = os.path.join(casedir, "postprocess.yml")
-                    # tmp_settings = yaml_dict_read(postprocess_yml)
 
                     check_orig_settings = yaml_dict_read(origcase_yml)
 
@@ -67,18 +66,33 @@ def postprocess(settings_yml):
                     if "post_settings" in checkcase.keys():
                         delete_keys_from_dict(checkcase, ["post_settings"])
 
-                    if not (checkorig==checkcase):
+                    if not (checkorig == checkcase):
                         warnings.warn("case-settings from central defined case and the solution does not match!")
                     case_settgs["post_settings"]["solution"] = os.path.join(casedir, mesh_path)
 
                     write_yaml_dict(postprocess_yml, case_settgs)
 
-                    mesh = load_mesh(mesh_path)
-                    mesh = mesh_scalar_gradients(mesh, "U")
-                    postresults[cdir] = {}
-                    try:
-                        postresults[cdir][f] = funcs[f](mesh, postprocess_yml)
-                    except:
-                        postresults[cdir][f] = -1
+                    postprocess_func(cdir, f, mesh_path, postdat_path, postprocess_yml, postresults)
 
                 pbar.update(1)
+
+
+def postprocess_func(cdir, f, mesh_path, postdat_path, postprocess_yml, postresults):
+    mesh_md_fsize = os.path.getsize(mesh_path)
+    mesh_md_ftime = os.path.getmtime(mesh_path)
+    if cdir in postresults.keys() and f in postresults[cdir].keys() and \
+        postresults[cdir][f]["mesh_md"]["fsize"] == mesh_md_fsize and \
+        postresults[cdir][f]["mesh_md"]["ftime"] == mesh_md_ftime:
+        print("skipping...")
+    else:
+        postresults[cdir] = {}
+        mesh = load_mesh(mesh_path)
+        mesh = mesh_scalar_gradients(mesh, "U")
+        try:
+            postresults[cdir][f] = funcs[f](mesh, postprocess_yml)
+            postresults[cdir][f]["mesh_md"] = {"fsize": mesh_md_fsize,
+                                               "ftime": mesh_md_ftime,
+                                               }
+            write_pickle(postdat_path, postresults)
+        except:
+            postresults[cdir][f] = -1

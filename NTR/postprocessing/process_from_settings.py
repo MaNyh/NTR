@@ -4,7 +4,7 @@ from NTR.database.case_dirstructure import casedirs
 from NTR.postprocessing.turbo.createProfileData import createProfileData
 from NTR.utils.filehandling import yaml_dict_read, read_pickle
 from NTR.utils.mathfunctions import vecAbs
-
+from NTR.utils.fluid_functions.fluids import idealgas
 
 def createProfileData_fromSettings(volmesh, settings):
     case_settings = yaml_dict_read(settings)
@@ -16,15 +16,18 @@ def createProfileData_fromSettings(volmesh, settings):
     geomdat = read_pickle(geo_path)
     midspan_z = geomdat["span_z"] / 2
     alpha = case_settings["geometry"]["alpha"]
-    # todo: insert a test-function for the definition of fluid-coeffs. incompressible sim? are values welldefined?
-    kappa = float(case_settings["case_settings"]["fluid"]["kappa"])
-    R_L = float(case_settings["case_settings"]["fluid"]["R_L"])
-    p_k = float(case_settings["case_settings"]["fluid"]["p_k"])
-    As = float(case_settings["case_settings"]["fluid"]["As"])
-    cp = float(case_settings["case_settings"]["fluid"]["cp"])
-    Ts = float(case_settings["case_settings"]["fluid"]["Ts"])
+
+    fluid = idealgas(**case_settings["case_settings"]["fluid"])
+    kappa = fluid.kappa
+    Rs = fluid.Rs
+    cp = fluid.cp
+
+    p_k = float(case_settings["post_settings"]["post_func_data"]["p_k"])
+    As = float(case_settings["post_settings"]["post_func_data"]["As"])
+    Ts = float(case_settings["post_settings"]["post_func_data"]["Ts"])
+
     l = vecAbs(
         geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_vk"]] - geomdat["sortedPoly"][geomdat["hk_vk_idx"]["ind_hk"]])
 
     outputpath = os.path.join(case_path, casedirs["data"])
-    return createProfileData(volmesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, R_L, p_k, As, l, cp, Ts)
+    return createProfileData(volmesh, midspan_z, alpha, mplane_in, mplane_out, outputpath, kappa, Rs, p_k, As, l, cp, Ts)

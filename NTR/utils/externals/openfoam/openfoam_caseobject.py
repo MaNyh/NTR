@@ -8,7 +8,6 @@ Created on Thu Mar 22 14:53:09 2018
 import os
 
 from NTR.PreProcessing.Profil.openProfile import Profile
-from NTR.PreProcessing.Geometrie.createGeometry import Geometry
 from NTR.PreProcessing.Mesh.prepareMesh import Mesh
 from NTR.PreProcessing.Mesh.prepareEIZMesh import EIZMesh
 from NTR.PreProcessing.Mesh.prepareEIZCascadeMesh import EIZCascadeMesh
@@ -80,7 +79,7 @@ class Case():
             config_file.write('\n')
             config_file.write('\t#fluid para\n')
             config_file.write('\tcase.kappa=1.4\n')
-            config_file.write('\tcase.R_L=287.5\n')
+            config_file.write('\tcase.Rs=287.5\n')
             config_file.write('\tcase.mu=None\n')
             config_file.write('\tcase.rho_inf=None\n')
             config_file.write('\tcase.c_p=None\n')

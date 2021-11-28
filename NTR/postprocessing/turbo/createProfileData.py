@@ -13,10 +13,10 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.postprocessing.turbo.profile_loading import calc_inflow_cp
 
 
-def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, R_L, p_k, As, l_chord, cp,
+def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, Rs, p_k, As, l_chord, cp,
                       Ts):
     """
-
+    definitions see https://d-nb.info/1002571413/34
     :param mesh: volume mesh
     :param midspan_z: [m]
     :param alpha: dimensionless parameter for geo-extraction
@@ -24,11 +24,12 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     :param post_slice_2_x: [m]
     :param output_path: os.path-like
     :param kappa: isentropic exponent
-    :param R_L: specific gas constant
-    :param p_k: ???
-    :param As:
+    :param Rs: specific gas constant
+    :param p_k: Kammerdruck: entspricht Umgebungsdruck
+    :param As: Sutherland-Constant
     :param l_chord: characteristic length
     :param cp: heat capacity isobar
+    :param Ts: Sutherland-Constant
     :return:
     """
     values_ss, values_ps = GetProfileValuesMidspan(mesh, alpha, midspan_z)
@@ -51,18 +52,18 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     plt.savefig(os.path.join(output_path, 'kontrollplot_profil.pdf'))
 
     inte_mag_u1, inte_ux1, inte_uy1, inte_uz1, inte_rho1, inte_T1, inte_p1, inte_p_tot1, inte_T_tot1 = calcPostSliceValues(
-        mesh, output_path, post_slice_1_x, 1, kappa, R_L)
+        mesh, output_path, post_slice_1_x, 1, kappa, Rs)
     inte_mag_u2, inte_ux2, inte_uy2, inte_uz2, inte_rho2, inte_T2, inte_p2, inte_p_tot2, inte_T_tot2 = calcPostSliceValues(
-        mesh, output_path, post_slice_2_x, 2, kappa, R_L)
+        mesh, output_path, post_slice_2_x, 2, kappa, Rs)
 
+    #Totaldruckverlustbeiwert
     zeta = (inte_p_tot1 - inte_p_tot2) / (inte_p_tot1 - p_k)
 
-    Ma1 = Ma(inte_mag_u1, kappa, R_L, inte_T1)
-    Ma2 = Ma(inte_mag_u2, kappa, R_L, inte_T2)
+    Ma1 = Ma(inte_mag_u1, kappa, Rs, inte_T1)
+    Ma2 = Ma(inte_mag_u2, kappa, Rs, inte_T2)
 
-    Ma_is_2 = Ma_is(p_k, kappa, inte_p1, inte_rho1, inte_mag_u1, R_L, inte_T_tot1)
-
-    Re_is_2 = Re_is(kappa, R_L, l_chord, As, Ma_is_2, p_k, inte_T_tot1, inte_mag_u1, cp, Ts)
+    Ma_is_2 = Ma_is(p_k, kappa, inte_p1, inte_rho1, inte_mag_u1, Rs, inte_T_tot1)
+    Re_is_2 = Re_is(kappa, Rs, l_chord, As, Ma_is_2, p_k, inte_T_tot1, inte_mag_u1, cp, Ts)
 
     beta1 = 90.0 + math.atan(inte_uy1 / inte_ux1) / 2.0 / math.pi * 360.0
     beta2 = 90.0 + math.atan(inte_uy2 / inte_ux2) / 2.0 / math.pi * 360.0
@@ -92,7 +93,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     beta_2_y = []
     for i in range(len(p_2_y)):
         beta_2_y.append(Beta(Ux_2_y[i], Uy_2_y[i]))
-        pt_2_y.append(p_t_is(kappa, Ma(Mag_U_2_y[i], kappa, R_L, T_2_y[i]), p_2_y[i]))
+        pt_2_y.append(p_t_is(kappa, Ma(Mag_U_2_y[i], kappa, Rs, T_2_y[i]), p_2_y[i]))
 
     Ma2_amecke, beta2_amecke, pt2_amecke, p2_amecke = calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, inte_p_tot1,
                                                                              kappa=kappa)
