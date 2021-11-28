@@ -1,6 +1,6 @@
 import os
 import tempfile
-import shutil
+import warnings
 from tqdm import tqdm
 
 from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict
@@ -67,7 +67,8 @@ def postprocess(settings_yml):
                     if "post_settings" in checkcase.keys():
                         delete_keys_from_dict(checkcase, ["post_settings"])
 
-                    # assert checkorig==checkcase, "cases do not match"
+                    if not (checkorig==checkcase):
+                        warnings.warn("case-settings from central defined case and the solution does not match!")
                     case_settgs["post_settings"]["solution"] = os.path.join(casedir, mesh_path)
 
                     write_yaml_dict(postprocess_yml, case_settgs)
@@ -75,7 +76,9 @@ def postprocess(settings_yml):
                     mesh = load_mesh(mesh_path)
                     mesh = mesh_scalar_gradients(mesh, "U")
                     postresults[cdir] = {}
-
-                    postresults[cdir][f] = funcs[f](mesh, postprocess_yml)
+                    try:
+                        postresults[cdir][f] = funcs[f](mesh, postprocess_yml)
+                    except:
+                        postresults[cdir][f] = -1
 
                 pbar.update(1)
