@@ -47,9 +47,12 @@ case_settings:
         molar_weight_M: &molar_weight_M "28.96"
         R_L: "287.05"
         mu: "20.0e-6"
-        As: "1.458e-06"
         cp: "1004.5"
+
+        #todo: these are sutherland law-constants. move these configs accordingly
+        As: "1.458e-06"
         Ts: "110.4"
+
         p_k: "95000.0"
     sub_cmd: "sbatch"
 
