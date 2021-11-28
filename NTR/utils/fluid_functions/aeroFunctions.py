@@ -36,10 +36,24 @@ def calcCp_compressor(px, p1, rho1, u1):
 
 
 # isentrope reynoldszahl
-def Re_is(k, R, l_chord, beta_s, Ma2th, pk, T1, Mag_U, cp, S):
-    Tt1 = T_t_is(k, Ma(Mag_U, k, R, T1), T1)
-    t_iso = Tt1 / (1.0 + ((k - 1.0) / 2.0) * pow(Ma2th, 2))
-    y = np.sqrt(k / R) * l_chord / beta_s * (Ma2th * pk * (t_iso + S)) / pow(t_iso, 2)
+def Re_is(kappa, Rs, l_chord, As, Ma2th, pk, T1, Mag_U, cp, Ts):
+    """
+
+    :param kappa: kappa
+    :param Rs: specific gas constant
+    :param l_chord: chord length
+    :param As: Sutherland reference viscosity
+    :param Ma2th: ?
+    :param pk: pressure?
+    :param T1: Tempeareture
+    :param Mag_U: Velocity Magnitude
+    :param cp: isobaric heat constant
+    :param Ts: Sutherland reference temperature
+    :return:
+    """
+    Tt1 = T_t_is(kappa, Ma(Mag_U, kappa, Rs, T1), T1)
+    t_iso = Tt1 / (1.0 + ((kappa - 1.0) / 2.0) * pow(Ma2th, 2))
+    y = np.sqrt(kappa / Rs) * l_chord / As * (Ma2th * pk * (t_iso + Ts)) / pow(t_iso, 2)
     return y
 
 
@@ -63,6 +77,21 @@ def Ma_is(pk, kappa, p1, rho1, Mag_U, R, T1):
 
 
 def calcBPValues(p_in, rho_in, T_in, Ux_in, Uy_in, p_out, l_chord, kappa, R, beta_s, S):
+    """
+
+    :param p_in:
+    :param rho_in:
+    :param T_in:
+    :param Ux_in:
+    :param Uy_in:
+    :param p_out:
+    :param l_chord:
+    :param kappa:
+    :param R:
+    :param beta_s:
+    :param S:
+    :return:
+    """
     Mag_U = np.sqrt(Ux_in ** 2 + Uy_in ** 2)
     pt_in = p_t_is(kappa, Ma(Mag_U, kappa, R, T_in), p_in)
     print(pt_in)
@@ -77,51 +106,108 @@ def calcBPValues(p_in, rho_in, T_in, Ux_in, Uy_in, p_out, l_chord, kappa, R, bet
 
 
 def Ma(c, kappa, R_L, T):
+    """
+
+    :param c:
+    :param kappa:
+    :param R_L:
+    :param T:
+    :return:
+    """
     Ma = c / ((kappa * R_L * T) ** (0.5))
     return Ma
 
 
 def AVDR(rho_1, mag_u_1, beta_1, rho_2, mag_u_2, beta_2):
+    """
+
+    :param rho_1:
+    :param mag_u_1:
+    :param beta_1:
+    :param rho_2:
+    :param mag_u_2:
+    :param beta_2:
+    :return:
+    """
     AVDR = rho_2 * mag_u_2 * np.sin(np.deg2rad(beta_2)) / (rho_1 * mag_u_1 * np.sin(np.deg2rad(beta_1)))
     return AVDR
 
 
 def p_t_is(kappa, ma, p):
-    # https://www.grc.nasa.gov/www/BGH/isentrop.html
+    """
+    https://www.grc.nasa.gov/www/BGH/isentrop.html
+    :param kappa:
+    :param ma:
+    :param p:
+    :return:
+    """
     p_t_is = p * pow(1.0 + (kappa - 1.0) / 2.0 * pow(ma, 2.0), (kappa / (kappa - 1.0)))
 
     return p_t_is
 
 
 def p_is(kappa, ma, p_t_is):
-    # https://www.grc.nasa.gov/www/BGH/isentrop.html
+    """
+    https://www.grc.nasa.gov/www/BGH/isentrop.html
+    :param kappa:
+    :param ma:
+    :param p_t_is:
+    :return:
+    """
     p_is = p_t_is / pow(1.0 + (kappa - 1.0) / 2.0 * pow(ma, 2.0), (kappa / (kappa - 1.0)))
 
     return p_is
 
 
 def T_t_is(kappa, ma, T):
-    # https://www.grc.nasa.gov/www/BGH/isentrop.html
+    """
+    https://www.grc.nasa.gov/www/BGH/isentrop.html
+    Eq #7
+    :param kappa: kappa
+    :param ma: Mach-Number
+    :param T: Temperature
+    :return: isentropic Total Temperature
+    """
     T_t_is = T / (((1.0 + (kappa - 1.0) * 0.5 * ma ** 2.0)) ** (-1.0))
 
     return T_t_is
 
 
 def T_is(kappa, ma, Tt):
-    # https://www.grc.nasa.gov/www/BGH/isentrop.html
+    """
+    https://www.grc.nasa.gov/www/BGH/isentrop.html
+    Eq #7
+    :param kappa: kappa
+    :param ma: Mach-Number
+    :param Tt: Total Temperature
+    :return: Temperature
+    """
     T = Tt / (1 + ((kappa - 1) / 2.0) * ma ** 2)
-
     return T
 
 
 def Re(rho, velo, d, nu):
+    """
+
+    :param rho:
+    :param velo:
+    :param d:
+    :param nu:
+    :return:
+    """
     Re = rho * velo * d / (nu)
     return Re
 
 
 def Mass_Average(y, var, rho, velo):
-    # nachfolgende Funktion massenstrom mittelt eine 1d-linie
-
+    """
+    nachfolgende Funktion massenstrom mittelt eine 1d-linie
+    :param y:
+    :param var:
+    :param rho:
+    :param velo:
+    :return:
+    """
     mass_flow_local = []
     mass_flow_dot_var = []
 
@@ -139,7 +225,13 @@ def Mass_Average(y, var, rho, velo):
 
 
 def Flux_Average(y, var, velo):
-    # nachfolgende Funktion flussmittelt eine 1d-linie
+    """
+    nachfolgende Funktion flussmittelt eine 1d-linie
+    :param y:
+    :param var:
+    :param velo:
+    :return:
+    """
 
     flux_local = []
     flux_var = []
@@ -158,13 +250,24 @@ def Flux_Average(y, var, velo):
 
 
 def Beta(Ux, Uy):
+    """
+
+    :param Ux:
+    :param Uy:
+    :return:
+    """
     beta = 90.0 + np.rad2deg(np.arctan(Uy / float(Ux)))
 
     return beta
 
 
 def Area_Average(y, var):
-    # nachfolgende Funktion flaechenmittelt eine 1d-linie
+    """
+    nachfolgende Funktion flaechenmittelt eine 1d-linie
+    :param y:
+    :param var:
+    :return:
+    """
 
     area_average_val = np.trapz(var, x=y) / (max(y) - min(y))
 
@@ -172,26 +275,42 @@ def Area_Average(y, var):
 
 
 def Sr(U_wake, t_wake, l_ax, c_ax):
-    # Berechnet die Strouhal-Zahl
-    # U-Wake:   Rotations-/Translationsgeschwindigkeit der Wakes
-    # t_wake:   Teilung der Wakes
-    # l_ax:     axiale Sehnenlänge des zu untersuchenden Profils
-    # c_ax:     axiale Zustroemgeschwindigkeit des Profils
+    """
+    Berechnet die Strouhal-Zahl
+    :param U_wake:  Rotations-/Translationsgeschwindigkeit der Wakes
+    :param t_wake: Teilung der Wakes
+    :param l_ax: axiale Sehnenlänge des zu untersuchenden Profils
+    :param c_ax: axiale Zustroemgeschwindigkeit des Profils
+    :return:
+    """
     Sr = (l_ax / t_wake) * (U_wake / c_ax)
     return Sr
 
 
 def Sr2(U_wake, t_wake, l, U_abs_2):
-    # Berechnet die Strouhal-Zahl
-    # U-Wake:   Rotations-/Translationsgeschwindigkeit der Wakes
-    # t_wake:   Teilung der Wakes
-    # l:        Sehnenlaenge
-    # U_abs_2:     Absolute Abstroemgeschwindigkeit
+    """
+    Berechnet die Strouhal-Zahl
+    :param U_wake: Rotations-/Translationsgeschwindigkeit der Wakes
+    :param t_wake: Teilung der Wakes
+    :param l: Sehnenlaenge
+    :param U_abs_2: Absolute Abstroemgeschwindigkeit
+    :return:
+    """
     Sr = (U_wake / t_wake) * (l / U_abs_2)
     return Sr
 
 
 def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
+    """
+
+    :param pt_2_y:
+    :param beta_2_y:
+    :param p_2_y:
+    :param y:
+    :param pt_1:
+    :param kappa:
+    :return:
+    """
     # winkel umerechnen in amecke format
 
     def calcQ(kappa, p_zu_pt):
@@ -213,7 +332,16 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
         y_rel.append((y[i] - min(y)) / (max(y) - min(y)))
 
     def calcI1(pt_2_y, beta_2_y, p_2_y, y_rel, pt_1, kappa):
+        """
 
+        :param pt_2_y:
+        :param beta_2_y:
+        :param p_2_y:
+        :param y_rel:
+        :param pt_1:
+        :param kappa:
+        :return:
+        """
         values = []
 
         for i in range(len(pt_2_y)):
@@ -225,7 +353,16 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
         return I1
 
     def calcI2(pt_2_y, beta_2_y, p_2_y, y_rel, pt_1, kappa):
+        """
 
+        :param pt_2_y:
+        :param beta_2_y:
+        :param p_2_y:
+        :param y_rel:
+        :param pt_1:
+        :param kappa:
+        :return:
+        """
         values = []
 
         for i in range(len(pt_2_y)):
@@ -239,7 +376,16 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
         return I2
 
     def calcI3(pt_2_y, beta_2_y, p_2_y, y_rel, pt_1, kappa):
+        """
 
+        :param pt_2_y:
+        :param beta_2_y:
+        :param p_2_y:
+        :param y_rel:
+        :param pt_1:
+        :param kappa:
+        :return:
+        """
         values = []
 
         for i in range(len(pt_2_y)):
@@ -253,7 +399,14 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
         return I3
 
     def calcMa2(kappa, I1, I2, I3):
+        """
 
+        :param kappa:
+        :param I1:
+        :param I2:
+        :param I3:
+        :return:
+        """
         ma = np.sqrt(((kappa + 1.0) / 2.0) ** (2.0 / (kappa - 1.0)) * (I2 ** 2.0 / I1 ** 2) * (
             0.5 - (2.0 / (kappa + 1.0)) ** (2.0 / (kappa - 1)) * (I1 ** 2 / I2 ** 2) + (
             (kappa + 1.0) / (2.0 * kappa)) * (I3 ** 2 / I2 ** 2) -
