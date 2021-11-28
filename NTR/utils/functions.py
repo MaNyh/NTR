@@ -1,10 +1,16 @@
 import os
-import sys
 import pickle
 
 import NTR
 from NTR.utils.filehandling import yaml_dict_read, write_pickle_protocolzero
 
+from NTR.preprocessing.options.openfoam import openFoam_createProbesInletOutlet
+from NTR.preprocessing.options.openfoam import openFoam_create_inletoutletave_probe_dict
+from NTR.preprocessing.options.openfoam import openFoam_createXSliceProbes
+from NTR.preprocessing.options.openfoam import openFoam_createProbesProfileDict
+from NTR.preprocessing.options.openfoam import openFoam_createProbesStreamlineDict
+from NTR.preprocessing.options.openfoam import openFoam_create_vk_stagflow_probes
+from NTR.preprocessing.options.openfoam import openfoam_createSlicingDict
 
 def run_igg_meshfuncs(settings_yaml):
 
@@ -52,21 +58,14 @@ def read_pickle_args(path):
 def all_equal(iterable):
     return iterable.count(iterable[0]) == len(iterable)
 
-
 def func_by_name(val):
-    if '.' in val:
-        module_name, fun_name = val.rsplit('.', 1)
-        # you should restrict which modules may be loaded here
-        assert module_name.startswith('NTR.')
-    else:
-        module_name = '__main__'
-        fun_name = val
-    try:
-        __import__(module_name)
-    except ImportError as exc:
-        raise ConstructorError(
-            "while constructing a Python object", mark,
-            "cannot find module %r (%s)" % (utf8(module_name), exc), mark)
-    module = sys.modules[module_name]
-    fun = getattr(module, fun_name)
+    funs = {"openFoam_createProbesInletOutlet":openFoam_createProbesInletOutlet,
+            "openFoam_create_inletoutletave_probe_dict":openFoam_create_inletoutletave_probe_dict,
+            "openFoam_createXSliceProbes":openFoam_createXSliceProbes,
+            "openFoam_createProbesProfileDict":openFoam_createProbesProfileDict,
+            "openFoam_createProbesStreamlineDict":openFoam_createProbesStreamlineDict,
+            "openFoam_create_vk_stagflow_probes":openFoam_create_vk_stagflow_probes,
+            "openfoam_createSlicingDict":openfoam_createSlicingDict
+            }
+    fun = funs[val]
     return fun

@@ -9,7 +9,7 @@ case_settings:
             mesh only for test-cases
         boundarycondition-status:
             bc randomly set
-            fitting cfl
+            cfl<1 is ensured
         solution-status:
             stable solution
         postprocessing-status:
@@ -77,7 +77,7 @@ geometry:
 
 simcase_optiondef:
     INOUT_FIELDAVE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
+        func: "openFoam_create_inletoutletave_probe_dict"
         args:
             fields: "(U p)"
             sampling_rate: 10 #Hz
@@ -86,7 +86,7 @@ simcase_optiondef:
         insert: '#include "Probes_inletoutletave_Dict"'
 
     XSCLICE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openFoam_createXSliceProbes"
+        func: "openFoam_createXSliceProbes"
         args:
             nop: 3
             sampling_rate: 10 #Hz
@@ -97,7 +97,7 @@ simcase_optiondef:
         insert: '#include "Probes_XSlices_Dict"'
 
     SLICE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
+        func: "openfoam_createSlicingDict"
         args:
             fields: "(U p)"
             origin : "(0 0 0.5)"
@@ -108,7 +108,7 @@ simcase_optiondef:
         insert: '#include "Probes_Slicing_Dict"'
 
     STREAMLINE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openFoam_createProbesStreamlineDict"
+        func: "openFoam_createProbesStreamlineDict"
         args:
             fields: "(U p)"
             nop_streamline: 20

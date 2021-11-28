@@ -89,7 +89,7 @@ simcase_settings:
 simcase_optiondef:
 
     INOUT_VELOCITY_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openFoam_createProbesInletOutlet"
+        func: "openFoam_createProbesInletOutlet"
         args:
             fields: "(U p)"
             sampling_rate: 1e5 #Hz
@@ -98,7 +98,7 @@ simcase_optiondef:
         insert: '#include "Probes_InletOutlet_Dict"'
 
     INOUT_FIELDAVE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openFoam_create_inletoutletave_probe_dict"
+        func: "openFoam_create_inletoutletave_probe_dict"
         args:
             fields: "(U p T)"
             sampling_rate: 1e5 #Hz
@@ -107,7 +107,7 @@ simcase_optiondef:
         insert: '#include "Probes_inletoutletave_Dict"'
 
     XSCLICE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openFoam_createXSliceProbes"
+        func: "openFoam_createXSliceProbes"
         args:
             nop: 3
             sampling_rate: 1e6 #Hz
@@ -119,7 +119,7 @@ simcase_optiondef:
 
 
     SLICE_PROBING:
-        func: "NTR.preprocessing.options.openfoam.openfoam_createSlicingDict"
+        func: "openfoam_createSlicingDict"
         args:
             fields: "(U p gradU)"
             origin: "(0 0 0.02)"
