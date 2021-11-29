@@ -295,7 +295,7 @@ def angles_from_mids(midsPoly):
     camber = np.stack((xmids[0] - xmids[-1], ymids[0] - ymids[-1], 0)).T
     metal_angle_vk = angle_between(vk_tangent, np.array([0, 1, 0])) / np.pi * 180
     metal_angle_hk = angle_between(hk_tangent, np.array([0, 1, 0])) / np.pi * 180
-    camber_angle = angle_between(camber, np.array([0, 1, 0])) / np.pi * 180
+    camber_angle = angle_between(camber, np.array([1, 0, 0])) / np.pi * 180
     return metal_angle_hk, metal_angle_vk, camber_angle
 
 

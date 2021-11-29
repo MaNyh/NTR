@@ -397,7 +397,6 @@ def extract_geo_paras(points, alpha, verbose=False):
     :return: points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk
     """
 
-    origPoly = pv.PolyData(points)
     xs, ys = calcConcaveHull(points[:, 0], points[:, 1], alpha)
     points = np.stack((xs, ys, np.zeros(len(xs)))).T
     sortedPoly = pv.PolyData(points)
@@ -434,11 +433,10 @@ def run_create_geometry(settings_yaml):
     if settings["geometry"]["algorithm"] == "from_pointcloud":
         ptstxtfile = os.path.join(os.path.abspath(case_path), settings["geometry"]["ptcloud_profile"])
 
-        geo_dict = create_geometry_frompointcloud(ptstxtfile,
-                                                  settings, case_path)
+        create_geometry_frompointcloud(ptstxtfile, settings, case_path)
 
     elif settings["geometry"]["algorithm"] == "naca_airfoil_generator":
-        geo_dict = create_geometry_fromnacaairfoil(settings["geometry"]["naca_digits"],
+        create_geometry_fromnacaairfoil(settings["geometry"]["naca_digits"],
                                                    settings["geometry"]["numberofpoints"],
                                                    settings["geometry"]["finite_TE"],
                                                    settings["geometry"]["half_cosine_spacing"],
@@ -452,7 +450,6 @@ def run_create_geometry(settings_yaml):
                                                    case_path, )
 
     elif settings["geometry"]["algorithm"] == "prep":
-        geo_dict = prep_geo(settings_yaml)
+        prep_geo(settings_yaml)
 
-    # blockpoints(geo_dict,settings)
     return 0
