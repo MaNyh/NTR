@@ -117,10 +117,10 @@ def compare_profileloading_numexp(settings_yml):
     ss_xc_pressure_numerical = ssVals["Pressure"]
     ss_xc_cp_numerical = calc_inflow_cp(ss_xc_pressure_numerical, pressure_tot, pressure)
     ss_xc, ss_cp, ps_xc, ps_cp = read_gilgegwk(verbose=False)
-    # todo: why are the first values here shitty?
+
     plt.figure()
     plt.plot(ss_xc, ss_cp, label="ss from experiment")
     plt.plot(ps_xc, ps_cp, label="ps from experiment")
-    plt.plot(ss_xc_numerical[10:], ss_xc_cp_numerical[10:], label="ss from numeric")
-    plt.plot(ps_xc_numerical[:-10], ps_xc_cp_numerical[:-10], label="ss from numeric")
+    plt.plot(ss_xc_numerical, ss_xc_cp_numerical, label="ss from numeric")
+    plt.plot(ps_xc_numerical, ps_xc_cp_numerical, label="ss from numeric")
     plt.show()
