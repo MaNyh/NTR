@@ -72,6 +72,7 @@ simcase_settings:
         OUTFLOW_VELX: "35.392445"
         OUTFLOW_VELY: "40"
         OUTFLOW_VELZ: "0"
+        OUTLET_RADIAL_EQUI: "off"
 
         VEL_YANGLE: "48.05"
         GLOBAL_TOLERANCE: "0.0000001"
