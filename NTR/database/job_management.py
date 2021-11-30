@@ -80,8 +80,6 @@ def create_jobmanagement(casetype, settings, casepath):
     scriptpath = os.path.join(templatedir, scriptfile)
 
     # ToDo: this is stupid
-    # if casetype == "parameterstudy":
-    #    mgmt_parastud(settings, casepath)
     if casetype == "simulation":
         mgmt_simulation(settings, scriptpath, casepath)
     return 0

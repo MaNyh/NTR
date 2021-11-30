@@ -20,6 +20,7 @@ from NTR.database.case_dirstructure import casedirs
 from NTR.postprocessing.generic.spatial_average import vol_to_plane, vol_to_line
 from NTR.postprocessing.generic.integralscales_from_signal import integralscales_from_timeseries
 
+
 def test_yamlDictRead(tmpdir):
     """
     tmpdir ist eine spezialvariable die durch pytest erkannt wird (ist ein PYTHONPATH-objekt)
@@ -207,26 +208,26 @@ def test_create_simulationcase(tmpdir):
         case_structure_template = case_structure_templates[case_type]
 
         common_dir = get_common_association(case_type)
-        create_simdirstructure(case_structure_template,tmpdir)
-        copy_template(case_type,case_structure_template,tmpdir)
+        create_simdirstructure(case_structure_template, tmpdir)
+        copy_template(case_type, case_structure_template, tmpdir)
         all_pairs = list(nested_dict_pairs_iterator(case_structure_template))
 
         if common_dir:
             common_base = os.path.join(ntrpath, "database", "common_files", common_dir)
 
-            swap_pairs = [[idx,i] for idx, i in enumerate(all_pairs) if i[-2][-6:] == "common"]
+            swap_pairs = [[idx, i] for idx, i in enumerate(all_pairs) if i[-2][-6:] == "common"]
 
             for idx, sw in swap_pairs:
                 dirs = sw[:-2]
                 file = sw[-2]
-                #todo: overthink, weather not (common_base,*dirs,file) would not be a better suiting structure for these templatefiles
+                # todo: overthink, weather not (common_base,*dirs,file) would not be a better suiting structure for these templatefiles
                 source = os.path.join(common_base, file)
-                target = os.path.join(tmpdir,*dirs,file.replace(".common",""))
+                target = os.path.join(tmpdir, *dirs, file.replace(".common", ""))
                 all_pairs_helper = [list(i) for i in all_pairs]
-                all_pairs_helper[idx][-2] = list(all_pairs_helper[idx])[-2].replace(".common","")
+                all_pairs_helper[idx][-2] = list(all_pairs_helper[idx])[-2].replace(".common", "")
                 all_pairs = all_pairs_helper
                 shutil.copyfile(source, target)
-                os.remove(os.path.join(tmpdir,*dirs,file))
+                os.remove(os.path.join(tmpdir, *dirs, file))
 
         case_structure_var = find_vars_opts(case_structure_template, "var", all_pairs, tmpdir)
         case_structure_opt = find_vars_opts(case_structure_template, "opt", all_pairs, tmpdir)
@@ -360,14 +361,16 @@ def test_vol_to_line():
 
 
 def test_integralscales():
-    time = np.arange(0,1000,0.1)
+    time = np.arange(0, 1000, 0.1)
     fluctationstrength = 1
     meanvalue = 3
     frequency = 2
-    signal = np.sin(time*frequency)*fluctationstrength+meanvalue
+    signal = np.sin(time * frequency) * fluctationstrength + meanvalue
     mean = np.mean(signal)
-    fluctation = signal-mean
-    timescale,lenghtscale = integralscales_from_timeseries(mean,fluctation,time)
-    assert np.isclose(timescale,frequency**-1,rtol=0.075), "calculated timescale result out of tolerance. something's wrong"
-    assert np.isclose(lenghtscale,timescale*meanvalue,rtol=0.075), "calculated length scale out of tolerance. something's wrong"
+    fluctation = signal - mean
+    timescale, lenghtscale = integralscales_from_timeseries(mean, fluctation, time)
+    assert np.isclose(timescale, frequency ** -1,
+                      rtol=0.075), "calculated timescale result out of tolerance. something's wrong"
+    assert np.isclose(lenghtscale, timescale * meanvalue,
+                      rtol=0.075), "calculated length scale out of tolerance. something's wrong"
     return 0
