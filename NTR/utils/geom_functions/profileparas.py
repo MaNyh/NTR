@@ -30,6 +30,7 @@ def midLength(ind_1, ind_2, sortedPoly, verbose=False):
         p.show()
     return midslength
 
+
 def extract_vk_hk(sortedPoly, verbose=False):
     """
     This function is calculating the leading-edge and trailing edge of a long 2d-body
@@ -45,37 +46,37 @@ def extract_vk_hk(sortedPoly, verbose=False):
     xs, ys = sortedPoly.points[::, 0], sortedPoly.points[::, 1]
     ind_1, ind_2 = calc_largedistant_idx(xs, ys)
     allowed_shift = 1
-    midLength0 = midLength(ind_1, ind_2,sortedPoly,verbose)
+    midLength0 = midLength(ind_1, ind_2, sortedPoly, verbose)
     nopt = sortedPoly.number_of_points
 
     checked_combs = {}
     found = True
-    while(found):
+    while (found):
 
-        shifts = np.arange(-allowed_shift,allowed_shift+1)
-        ind_1_ts = (shifts + ind_1)%nopt
-        ind_2_ts = (shifts + ind_2)%nopt
+        shifts = np.arange(-allowed_shift, allowed_shift + 1)
+        ind_1_ts = (shifts + ind_1) % nopt
+        ind_2_ts = (shifts + ind_2) % nopt
 
-        combs = list(product(ind_1_ts,ind_2_ts))
+        combs = list(product(ind_1_ts, ind_2_ts))
         for key in combs:
             if key not in checked_combs.keys():
-                checked_combs[key]=False
+                checked_combs[key] = False
 
         midLengths = []
         for ind_1_t, ind2_t in combs:
-            if checked_combs[(ind_1_t,ind2_t)]==False:
-                checked_combs[(ind_1_t,ind2_t)]=True
-                midLengths.append(midLength(ind_1_t, ind2_t,sortedPoly,verbose))
+            if checked_combs[(ind_1_t, ind2_t)] == False:
+                checked_combs[(ind_1_t, ind2_t)] = True
+                midLengths.append(midLength(ind_1_t, ind2_t, sortedPoly, verbose))
             else:
                 midLengths.append(0)
         cids = midLengths.index(max(midLengths))
 
         ind_1_n, ind_2_n = combs[cids]
-        midLength_new = midLength(ind_1_n, ind_2_n,sortedPoly)
-        if midLength_new>midLength0:
+        midLength_new = midLength(ind_1_n, ind_2_n, sortedPoly)
+        if midLength_new > midLength0:
             ind_1, ind_2 = ind_1_n, ind_2_n
-            midLength0=midLength_new
-            allowed_shift+=1
+            midLength0 = midLength_new
+            allowed_shift += 1
             found = True
         else:
             found = False

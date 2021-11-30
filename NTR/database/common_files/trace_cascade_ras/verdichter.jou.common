@@ -118,7 +118,7 @@ gmc -> set_attributes of panel_group named 'BLADE' : set wall_treatment to low_R
 gmc -> set_attributes of panel_group named 'BLADE' : set translational_velocity to 0.0 0.0 0.0
 
 gmc -> set_attributes of panel_group named 'OUTLET' : set massflow to <var OUTLET_MFLOW var>
-gmc -> set_attributes of panel_group named 'OUTLET' : set radial_equilibrium to Midspan
+gmc -> set_attributes of panel_group named 'OUTLET' : set radial_equilibrium to Midspan to <var OUTLET_RADIAL_EQUI var>
 gmc -> set_attributes of panel_group named 'OUTLET' : set create_radial_bands to On
 
 gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to <var INLET_TOTAL_PRESSURE var>

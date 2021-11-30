@@ -106,7 +106,7 @@ def create_parastudsims(path_to_parayaml):
 
             # create dirstructure and move files from teampdir
             datlist = []
-            for i in glob.glob(os.path.join(tmp_dir.name, casedirs["simcase"]+"\\**\\*"), recursive=True):
+            for i in glob.glob(os.path.join(tmp_dir.name, casedirs["simcase"] + "\\**\\*"), recursive=True):
                 if os.path.isfile(i):
                     datlist.append([os.path.dirname(i), os.path.relpath(os.path.dirname(i), os.path.join(tmpsimdir)),
                                     os.path.basename(i)])
@@ -125,7 +125,7 @@ def create_parastudsims(path_to_parayaml):
 
             create_jobmanagement(casetype, settings_dict, os.path.join(casepath, sub_case_dir))
             pbar.update(1)
-    mgmt_parastud(settings, casepath,sim_dirs)
+    mgmt_parastud(settings, casepath, sim_dirs)
 
 
 def construct_paracasedict(paras, settings_dict):
@@ -172,11 +172,11 @@ def create_simulationcase(path_to_yaml_dict):
 
     create_simdirstructure(case_structure, path_to_sim)
     copy_template(case_type, case_structure, path_to_sim)
-    case_structure = swap_commons(case_type, path_to_sim,case_structure)
+    case_structure = swap_commons(case_type, path_to_sim, case_structure)
 
     all_parameters = list(nested_dict_pairs_iterator(case_structure))
-    case_structure_parameters_var = find_vars_opts(case_structure, "var", all_parameters,path_to_sim)
-    case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_parameters,path_to_sim)
+    case_structure_parameters_var = find_vars_opts(case_structure, "var", all_parameters, path_to_sim)
+    case_structure_parameters_opt = find_vars_opts(case_structure, "opt", all_parameters, path_to_sim)
     case_structure_parameters = merge(case_structure_parameters_var, case_structure_parameters_opt)
     check_settings_necessarities(case_structure_parameters, settings)
     writeout_simulation(case_structure_parameters, path_to_sim, settings)
@@ -185,6 +185,7 @@ def create_simulationcase(path_to_yaml_dict):
     write_runsim_bash(settings, casepath)
     writeout_readme(case_type, path_to_sim, case_description)
 
+
 def get_common_association(case_type):
     """
     here common-file-directories are associated to templates.
@@ -192,13 +193,16 @@ def get_common_association(case_type):
     :arg case_type: name of case
     :return directory-name
     """
-    if case_type == "openfoam_channel_les_axper" or case_type== "openfoam_channel_les_dfsem_compressible":
+    if case_type == "openfoam_channel_les_axper" or case_type == "openfoam_channel_les_dfsem_compressible":
         return "openfoam_channelcase_les"
+    elif case_type == "trace_cascade_ras":
+        return "trace_cascade_ras"
     else:
         return None
 
+
 def swap_commons(case_type, path_to_sim, case_structure):
-    case_structure_copy=case_structure.copy()
+    case_structure_copy = case_structure.copy()
     dirstruct = get_directory_structure(path_to_sim)
     filelist = list(nested_dict_pairs_iterator(dirstruct))
     commons = []
@@ -224,9 +228,8 @@ def swap_commons(case_type, path_to_sim, case_structure):
         for subdir in allowed:
             casecommons = os.listdir(os.path.join(path_to_commons, subdir))
 
-
             if sourcefile in casecommons:
-                source = os.path.join(path_to_commons,subdir, sourcefile)
+                source = os.path.join(path_to_commons, subdir, sourcefile)
                 target = os.path.join(path_to_sim, targetdir, targetfile)
                 os.remove(os.path.join(path_to_sim, targetdir, sourcefile))
                 shutil.copyfile(source, target)
@@ -238,12 +241,11 @@ def swap_commons(case_type, path_to_sim, case_structure):
         maps = list(mapsvar[:-1])
 
         val = None
-        delete_keys_from_dict(case_structure_copy,maps)
+        delete_keys_from_dict(case_structure_copy, maps)
         fname = maps.pop(-1)
-        maps.append(fname.replace(commonstring,""))
-        setInDict(case_structure_copy,maps,val)
+        maps.append(fname.replace(commonstring, ""))
+        setInDict(case_structure_copy, maps, val)
     return case_structure_copy
-
 
 
 def writeout_readme(case_type, path_to_sim, description):
@@ -317,15 +319,16 @@ def writeout_simulation_options(case_structure_parameters, path_to_sim, settings
 
 
 def copy_template(case_type, case_structure, path_to_sim):
-    #commonpath = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
-    #files = list(walk_file_or_dir(commonpath))
+    # commonpath = os.path.join(os.path.dirname(NTR.__file__), "database", "common_files")
+    # files = list(walk_file_or_dir(commonpath))
     for file in nested_dict_pairs_iterator(case_structure):
         filename = file[-2]
         dirstructure = file[:-2]
         if dirstructure == ():
             dirstructure = ""
 
-        template_fpath = os.path.join(os.path.dirname(NTR.__file__), "database","case_templates", case_type, *dirstructure,
+        template_fpath = os.path.join(os.path.dirname(NTR.__file__), "database", "case_templates", case_type,
+                                      *dirstructure,
                                       filename)
         sim_fpath = os.path.join(path_to_sim, *dirstructure, filename)
 

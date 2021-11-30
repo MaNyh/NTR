@@ -1,9 +1,9 @@
 geometry:
-    pitch                           : 0.08                                #Pitch [m]
+    pitch                           : 0.065                                #Pitch [m]
     alpha                           : 0.01                                #Geometric parameter used for hull-calculations
     midline_tolerance               : 20                                  #deprecated - not used
     algorithm                       : "naca_airfoil_generator"            # naca_airfoil_generator vs / from_pointcloud
-    naca_digits                     : "6304" #6508 #4404                  # 4/5 digit-NACA-Code
+    naca_digits                     : "6510" #6508 #4404                  # 4/5 digit-NACA-Code
     numberofpoints                  : 512                                 #resolution
     finite_TE                       : True                               #False=zero-thickness-HK, True=finite-thickness-HK
     half_cosine_spacing             : True                                #False=äquidistant, True=hoche VK/HK Auflösung
@@ -11,7 +11,7 @@ geometry:
     x_inlet                         : -0.15                               #Shift Inlet along x [m]
     x_outlet                        : 0.3                                 #Shift Outlet along x [m]
     shift_domain                    : 0.005                               #Shift Domain to have probes inside domain [m]
-    staggerangle                    : 15 #10 #0                           #degree
+    staggerangle                    : 10 #10 #0                           #degree
 
 mesh:
     factor                          : 1                                   #Mesh-density factor
