@@ -125,7 +125,7 @@ post_settings:
     solution                     : "03_Solution/*/output/cgns/TRACE.cgns"
     post_func_data:
 
-        p_k: "95000.0"
+        #p_k: "95000.0"
         As: "1.458e-06"
         Ts: "110.4"
 
@@ -133,4 +133,5 @@ post_settings:
                 x_pos_1 : 0.01
                 x_pos_2 : 0.25
     call_funcs:
-        - profile_data
+        #- profile_data
+        - profile_loading

@@ -3,7 +3,7 @@ import warnings
 from tqdm import tqdm
 
 from NTR.utils.filehandling import yaml_dict_read, write_yaml_dict, read_pickle, write_pickle
-from NTR.postprocessing.process_from_settings import createProfileData_fromSettings
+from NTR.postprocessing.process_from_settings import createProfileData_fromSettings, computeProfileLoading_fromSettings
 from NTR.preprocessing.create_simcase import read_parastudyaml, paracase_name, construct_paracasedict, \
     get_parastud_parameternames_fromdict
 from NTR.database.case_dirstructure import casedirs
@@ -12,7 +12,7 @@ from NTR.utils.mesh_handling.pyvista_utils import load_mesh, mesh_scalar_gradien
 
 funcs = {
     "profile_data": createProfileData_fromSettings,
-    "profile_loading":None,
+    "profile_loading": computeProfileLoading_fromSettings,
 }
 
 
@@ -23,7 +23,7 @@ def postprocess(settings_yml):
     assert "post_settings" in settings.keys()
     funcs_to_call = settings["post_settings"]["call_funcs"]
 
-    postdat_path = os.path.join(casedir,casedirs["data"],"postprocessed.pkl")
+    postdat_path = os.path.join(casedir, casedirs["data"], "postprocessed.pkl")
 
     if os.path.isfile(postdat_path):
         postresults = read_pickle(postdat_path)
@@ -34,6 +34,7 @@ def postprocess(settings_yml):
         print("postprocessing " + casedir)
 
         for f in funcs_to_call:
+            print("starting method " + str(f) + " on solution " + casedir)
             volmesh = settings["post_settings"]["solution"]
             postprocess_func(casedir, f, volmesh, postdat_path, settings_yml, postresults)
 
@@ -72,30 +73,41 @@ def postprocess(settings_yml):
                     case_settgs["post_settings"]["solution"] = os.path.join(casedir, mesh_path)
 
                     write_yaml_dict(postprocess_yml, case_settgs)
-
+                    pbar.set_description("starting method " + str(f) + " on solution " + cdir)
                     postprocess_func(cdir, f, mesh_path, postdat_path, postprocess_yml, postresults)
 
                 pbar.update(1)
 
 
 def postprocess_func(cdir, f, mesh_path, postdat_path, postprocess_yml, postresults):
+    if not os.path.isfile(mesh_path):
+        postresults[cdir][f] = -1
+        warnings.warn("mesh not found, skipping")
+        return -1
+
     mesh_md_fsize = os.path.getsize(mesh_path)
     mesh_md_ftime = os.path.getmtime(mesh_path)
+
     if cdir in postresults.keys() and f in postresults[cdir].keys() and \
         postresults[cdir][f]["mesh_md"]["fsize"] == mesh_md_fsize and \
         postresults[cdir][f]["mesh_md"]["ftime"] == mesh_md_ftime:
         print("skipping...")
+
     else:
         postresults[cdir] = {}
         mesh = load_mesh(mesh_path)
         mesh = mesh_scalar_gradients(mesh, "U")
+        #todo: get rid of try-except!
         try:
             postresults[cdir][f] = funcs[f](mesh, postprocess_yml)
             postresults[cdir][f]["mesh_md"] = {"fsize": mesh_md_fsize,
                                                "ftime": mesh_md_ftime,
                                                }
             write_pickle(postdat_path, postresults)
-        except:
-            postresults[cdir][f] = -1
 
-        del mesh
+            return 0
+
+        except:
+
+            postresults[cdir][f] = -1
+            return -1
