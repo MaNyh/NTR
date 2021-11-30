@@ -1,0 +1,149 @@
+# journal recorded by gmc_v9.1.8 at 2021/06/11 14:58:57
+
+gmc -> open 'mesh.cgns'
+
+gmc -> repair
+
+gmc -> create_zone : name 'row01' type STATOR
+
+gmc -> move_block 'Block_7' to zone named 'row01'
+gmc -> move_block 'Block_8' to zone named 'row01'
+gmc -> move_block 'Block_9' to zone named 'row01'
+gmc -> move_block 'Block_1' to zone named 'row01'
+gmc -> move_block 'Block_10' to zone named 'row01'
+gmc -> move_block 'Block_11' to zone named 'row01'
+gmc -> move_block 'Block_12' to zone named 'row01'
+gmc -> move_block 'Block_2' to zone named 'row01'
+gmc -> move_block 'Block_3' to zone named 'row01'
+gmc -> move_block 'Block_4' to zone named 'row01'
+gmc -> move_block 'Block_5' to zone named 'row01'
+gmc -> move_block 'Block_6' to zone named 'row01'
+
+gmc -> delete_empty_zones
+
+gmc -> set_global_tolerance <var GLOBAL_TOLERANCE var>
+
+gmc -> set_pmode linear_periodic
+
+gmc -> set_y_translation_count of zone named 'row01' to <var LENGTH_YPER var>
+gmc -> set_z_translation_count of zone named 'row01' to 0.0
+
+gmc -> find_connectivity_light
+gmc -> find_connectivity
+
+gmc -> create_panel_group : name 'INLET' type INLET_BC
+gmc -> create_panel_group : name 'OUTLET' type OUTLET_BC
+gmc -> create_panel_group : name 'BLADE' type VISCOUS_BC
+gmc -> create_panel_group : name 'FREESLIP' type INVISCID_BC
+
+gmc -> move_panel 'Block_2/1' to group named 'INLET'
+gmc -> move_panel 'Block_3/1' to group named 'INLET'
+gmc -> move_panel 'Block_1/1' to group named 'INLET'
+
+gmc -> move_panel 'Block_7/2' to group named 'OUTLET'
+gmc -> move_panel 'Block_6/2' to group named 'OUTLET'
+gmc -> move_panel 'Block_5/2' to group named 'OUTLET'
+
+gmc -> move_panel 'Block_11/4' to group named 'BLADE'
+gmc -> move_panel 'Block_12/3' to group named 'BLADE'
+gmc -> move_panel 'Block_10/4' to group named 'BLADE'
+gmc -> move_panel 'Block_9/2' to group named 'BLADE'
+
+gmc -> move_panel 'Block_1/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_1/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_2/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_2/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_3/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_3/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_4/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_4/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_5/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_5/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_6/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_6/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_7/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_7/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_8/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_8/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_9/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_9/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_10/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_10/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_11/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_11/6' to group named 'FREESLIP'
+gmc -> move_panel 'Block_12/5' to group named 'FREESLIP'
+gmc -> move_panel 'Block_12/6' to group named 'FREESLIP'
+
+gmc -> compute_wall_distances
+
+gmc -> generate_machine_from_scratch
+gmc -> modify_component named 'default_component' : name 'CascadeCase_rans_trace' type LPC
+
+gmc -> set_trans_velocity of component type 'LPC' to 0.000000 0.000000 0.000000
+gmc -> set_default_stages of component type 'LPC'
+gmc -> apply_default_settings for component type 'LPC'
+gmc -> apply_default_settings for machine
+gmc -> delete_attributes of panel_group named 'BLADE' : delete transition_properties
+gmc -> set_attributes of zone named 'row01' : set UpstreamRPM to 0.000000
+gmc -> set_attributes of zone named 'row01' : set UpstreamNoOfBlades to 0.000000
+
+gmc -> set_reference Length to 0.13
+gmc -> set_reference Temperature to 298
+gmc -> set_reference Pressure to 1e6
+
+gmc -> set_equation_properties for machine : StagnationPointAnomallyFix to <var STAGPOINT_ANNOMALLYFIX var>
+gmc -> set_equation_properties for machine : QuasiUnsteadyModel to <var QUASIUNSTEADYMODEL var>
+gmc -> set_equation_properties for machine : WavinessModel to <var WAVINESSMODEL var>
+gmc -> set_equation_properties for machine : Version2009 to <var VERSION_TWONULLNULLNINE var>
+gmc -> set_equation_properties for machine : HeatFluxModel to <var HEATFLUXMODEL var>
+gmc -> set_equation_properties for machine : PrandtlTurbulent to <var PRANDTLTURBULENT var>
+gmc -> set_equation_properties for machine : RotationalEffects to <var ROTATIONAL_EFF var>
+gmc -> set_equation_properties for machine : TransitionModel to <var TRANSITIONMODEL var>
+gmc -> set_equation_properties for machine : VGJModel to <var VGJMODEL var>
+
+gmc -> set_equation_properties for row01 : StagnationPointAnomallyFix to <var STAGPOINT_ANNOMALLYFIX var>
+gmc -> set_equation_properties for row01 : QuasiUnsteadyModel to <var QUASIUNSTEADYMODEL var>
+gmc -> set_equation_properties for row01 : WavinessModel to <var WAVINESSMODEL var>
+gmc -> set_equation_properties for row01 : Version2009 to <var VERSION_TWONULLNULLNINE var>
+gmc -> set_equation_properties for row01 : HeatFluxModel to <var HEATFLUXMODEL var>
+gmc -> set_equation_properties for row01 : PrandtlTurbulent to <var PRANDTLTURBULENT var>
+gmc -> set_equation_properties for row01 : RotationalEffects to <var ROTATIONAL_EFF var>
+gmc -> set_equation_properties for row01 : TransitionModel to <var TRANSITIONMODEL var>
+gmc -> set_equation_properties for row01 : VGJModel to <var VGJMODEL var>
+
+gmc -> set_solver_properties for 'machine' : SpatialAccuracy to  <var ACCURACY_ORDER var>
+gmc -> set_solver_properties for 'row01' : SpatialAccuracy to  <var ACCURACY_ORDER var>
+
+gmc -> set_attributes of panel_group named 'BLADE' : set wall_treatment to low_Reynolds
+gmc -> set_attributes of panel_group named 'BLADE' : set translational_velocity to 0.0 0.0 0.0
+
+gmc -> set_attributes of panel_group named 'OUTLET' : set massflow to <var OUTLET_MFLOW var>
+gmc -> set_attributes of panel_group named 'OUTLET' : set radial_equilibrium to Midspan to <var OUTLET_RADIAL_EQUI var>
+gmc -> set_attributes of panel_group named 'OUTLET' : set create_radial_bands to On
+
+gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs to <var INLET_TOTAL_PRESSURE var>
+gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to <var VEL_YANGLE var>
+gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleZ to 0.000000
+gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to 293.15
+gmc -> set_attributes of panel_group named 'INLET' : set TurbulenceIntensityAbs to 0.010000
+gmc -> set_attributes of panel_group named 'INLET' : set TurbulentLengthScale to 0.010000
+gmc -> set_attributes of panel_group named 'INLET' : set create_radial_bands to On
+
+gmc -> set_init_properties for machine : DataFile to ''
+gmc -> set_init_properties for row01 : InflowTemperature to  <var INLET_TEMP var>
+gmc -> set_init_properties for row01 : InflowPressure to <var INLET_TOTAL_PRESSURE var>
+gmc -> set_init_properties for row01 : InflowVelocityX to <var INLET_VELX var>
+gmc -> set_init_properties for row01 : InflowVelocityYAbs to <var INLET_VELY var>
+gmc -> set_init_properties for row01 : InflowVelocityZ to <var INLET_VELZ var>
+
+gmc -> set_init_properties for row01 : OutflowTemperature to <var OUTFLOW_TEMP var>
+gmc -> set_init_properties for row01 : OutflowPressure to <var OUTFLOW_PRESSURE var>
+gmc -> set_init_properties for row01 : OutflowVelocityX to <var OUTFLOW_VELX var>
+gmc -> set_init_properties for row01 : OutflowVelocityYAbs to <var OUTFLOW_VELY var>
+gmc -> set_init_properties for row01 : OutflowVelocityZ to <var OUTFLOW_VELZ var>
+gmc -> set_init_properties for row01 : XStart to -0.100000
+gmc -> set_init_properties for row01 : XEnd to 0.270000
+
+
+gmc -> set_trace6_conventions on
+gmc -> save 'TRACE.cgns'
