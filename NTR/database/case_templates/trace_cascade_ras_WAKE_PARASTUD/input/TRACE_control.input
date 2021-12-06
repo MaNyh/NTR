@@ -1,5 +1,3 @@
-all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
-
 block 11 immediate Update_tmCoeffs productionCoeff "<var OGR_PROD var>"  #BLOCK_12
 block 2 immediate Update_tmCoeffs productionCoeff "<var OGR_PROD var>"  #BLOCK_3
 block 3 immediate Update_tmCoeffs productionCoeff "<var OGR_PROD var>"  #BLOCK_4
