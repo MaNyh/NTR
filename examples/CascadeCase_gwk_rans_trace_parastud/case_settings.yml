@@ -72,18 +72,21 @@ simcase_settings:
         OUTFLOW_VELZ: "0"
         OUTLET_RADIAL_EQUI: "off"
 
-        VEL_YANGLE: "48.05"
+        VEL_YANGLE:
+            - 44.05
+            - 46.05
+            - 48.05
+            - 50.08
+            - 52.05
         GLOBAL_TOLERANCE: "0.0000001"
 
-        OGR_PROD:
-            - 0.8
-            - 0.9
-            - 1
-            - 1.1
-            - 1.2
+        OGR_PROD: 1
         OGR_DIFF: 1
         OGR_DISS: 1
-        WAKE_PROD: 1
+        WAKE_PROD:
+            - 0.8
+            - 1
+            - 1.2
         WAKE_DIFF: 1
         WAKE_DISS: 1
 
@@ -102,17 +105,17 @@ geometry:
     shift_domain                    : 0.01                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 1.7                                   #Mesh-density factor
+    factor                          : 2                                   #Mesh-density factor
     ogrid_factor                    : 4                                 #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.0000075                              #first cell height when factor=1
-    le_firstcellheight_coeff        : 0.4
-    te_firstcellheight_coeff        : 0.8
+    first_cell_width                : 0.00003                              #first cell height when factor=1
+    le_firstcellheight_coeff        : 1
+    te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 2                                     #fixed cells in boundary layer
     extrudeLength                   : 0.0025                                  #length of extruded span
     blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
-    cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
+    cellwidthcoeff                  : 1                               #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.3                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.6                                  #move high-y-per-block along y-pitch

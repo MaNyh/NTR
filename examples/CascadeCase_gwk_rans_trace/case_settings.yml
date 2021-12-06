@@ -100,14 +100,14 @@ mesh:
     factor                          : 1.7                                   #Mesh-density factor
     ogrid_factor                    : 4                                 #o-grid-node-ratio
     delta_i                         : 0.0015                                #node-distribution along fixed edges
-    first_cell_width                : 0.0000075                              #first cell height when factor=1
-    le_firstcellheight_coeff        : 0.4
-    te_firstcellheight_coeff        : 0.8
+    first_cell_width                : 0.00003                              #first cell height when factor=1
+    le_firstcellheight_coeff        : 1
+    te_firstcellheight_coeff        : 1
     exp_ratio                       : 1.01                                  #expansion ratio along boundary layer
     layers                          : 2                                     #fixed cells in boundary layer
     extrudeLength                   : 0.0025                                  #length of extruded span
     blockStartFromChord             : 0.015                                 #LE and TE-Block Meshing
-    cellwidthcoeff                  : 0.001                                #cell width-coeff at LT and TE (stagnation-point-flow)
+    cellwidthcoeff                  : 1                               #cell width-coeff at LT and TE (stagnation-point-flow)
     streamline_nodedensity_factor   : 1                                   #define node-density factor (in/outlet vs periodic)
     yPerLowHGridBlockPitchStart     : 0.3                                 #move low-y-per-block along y-pitch
     yPerHighHGridBlockPitchStart    : 0.6                                  #move high-y-per-block along y-pitch
