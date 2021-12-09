@@ -35,10 +35,18 @@ def create(path_to_yaml_dict):
         var = animationsettings["variable"]
         resolution_x = int(animationsettings["resolution_x"])
         resolution_y = int(animationsettings["resolution_y"])
-
         cpos = animationsettings["cpos"]
         focus = animationsettings["focus"]
-        view =animationsettings["view"]
+        view = animationsettings["view"]
+        if "postprocess" in animationsettings.keys():
+            postprocess = animationsettings["post"]
+        else:
+            postprocess = None
+
+        if "autoscale" in animationsettings.keys():
+            autoscale = animationsettings["autoscale"]
+        else:
+            autoscale = None
 
         low_scale = animationsettings["low_scale_limit"]
         high_scale = animationsettings["high_scale_limit"]
@@ -47,19 +55,27 @@ def create(path_to_yaml_dict):
         vtkname = var + "_constantPlane.vtk"
         plotter = pv.Plotter(notebook=False, off_screen=True, window_size=([resolution_x, resolution_y]))
 
-        plotter.open_gif(os.path.join(casepath, casedirs["data"], var + "_" + animationname +".gif"))
-        plotter.background_color=(1,1,1)
+        plotter.open_gif(os.path.join(casepath, casedirs["data"], var + "_" + animationname + ".gif"))
+        plotter.background_color = (1, 1, 1)
+
+        if autoscale:
+            dir = dirs[0]
+            target = os.path.join(cutplanepath, dir, vtkname)
+            mesh = pv.PolyData(target)
+            if postprocess == "divergence":
+                mesh = mesh.compute_derivative(scalars=var, divergence=True)
 
         for d in tqdm(dirs):
             target = os.path.join(cutplanepath, d, vtkname)
             # plotter.theme = pv.themes.DocumentTheme()
             mesh = pv.PolyData(target)
+            if postprocess == "divergence":
+                mesh = mesh.compute_derivative(scalars=var, divergence=True)
+
+                mesh.set_active_scalars("divergence")
             actor_mesh = plotter.add_mesh(mesh, cmap="coolwarm")
             plotter.update_scalar_bar_range((low_scale, high_scale))
-            plotter.camera_position = [cpos,focus,view]
-
-
-
+            plotter.camera_position = [cpos, focus, view]
 
             plotter.show_axes()
 
