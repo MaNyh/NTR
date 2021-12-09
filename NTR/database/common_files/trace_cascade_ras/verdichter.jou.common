@@ -125,8 +125,9 @@ gmc -> set_attributes of panel_group named 'INLET' : set PressureStagnationAbs t
 gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleYAbs to <var VEL_YANGLE var>
 gmc -> set_attributes of panel_group named 'INLET' : set VelocityAngleZ to 0.000000
 gmc -> set_attributes of panel_group named 'INLET' : set TemperatureStagnationAbs to 293.15
-gmc -> set_attributes of panel_group named 'INLET' : set TurbulenceIntensityAbs to 0.010000
-gmc -> set_attributes of panel_group named 'INLET' : set TurbulentLengthScale to 0.010000
+gmc -> set_attributes of panel_group named 'INLET' : set TurbulenceIntensityAbs to 0.040000
+gmc -> set_attributes of panel_group named 'INLET' : set TurbulentLengthScale to 0.000200
+gmc -> set_attributes of panel_group named 'INLET' : set Species all to null
 gmc -> set_attributes of panel_group named 'INLET' : set create_radial_bands to On
 
 gmc -> set_init_properties for machine : DataFile to ''
