@@ -48,6 +48,11 @@ solvers
         relTol          0;
     }
 
+    "(Phi)"
+    {
+    $p
+    }
+
     pcorr
     {
         solver	GAMG;

@@ -22,6 +22,7 @@ case_settings:
         createPatch -overwrite
         renumberMesh
         topoSet
+        potentialFoam -case . -writep
         #mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
         decomposePar
         dos2unix submit_mpi_job_slurm_hlrn.sh
