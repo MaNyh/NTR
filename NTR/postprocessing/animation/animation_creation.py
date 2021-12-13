@@ -64,6 +64,8 @@ def create(path_to_yaml_dict):
             mesh = pv.PolyData(target)
             if postprocess == "divergence":
                 mesh = mesh.compute_derivative(scalars=var, divergence=True)
+                low_scale = min(mesh["divergence"])#animationsettings["low_scale_limit"]
+                high_scale = max(mesh["divergence"])#animationsettings["high_scale_limit"]
 
         for d in tqdm(dirs):
             target = os.path.join(cutplanepath, d, vtkname)
