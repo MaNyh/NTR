@@ -22,8 +22,8 @@ case_settings:
         createPatch -overwrite
         renumberMesh
         topoSet
-        potentialFoam -case . -writep
-        #mapFields /scratch/usr/niinyhma/14_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
+        #potentialFoam -case . -writep
+        mapFields /scratch/usr/niinyhma/04_CascadeCase_gwk_les/02_Simcase -sourceTime 'latestTime' -consistent
         decomposePar
         dos2unix submit_mpi_job_slurm_hlrn.sh
 
@@ -70,14 +70,14 @@ simcase_settings:
 
         PINLET: "95000"                                         #Pa
         TINLET : "293.15"                                       #K
-        TIN_LINF: "0.02"                                        #m
+        TIN_LINF: "0.005"                                        #m
         UINLET: "46.25719641 49.84246965 0"                     #m/s
-        UIN_LINF: "0.02"                                        #m
+        UIN_LINF: "0.005"                                        #m
         RINLET : "4 0 0 4 0 4"                                  #m^2/s^2
-        LINLET : "0.01"                                         #m
+        LINLET : "0.005"                                         #m
 
         POUTLET: "101325"
-        POUT_LINF: "0.02"
+        POUT_LINF: "0.005"
         TOUTLET: "293.15"
 
         PITCHPER: "0.0765"
@@ -91,7 +91,7 @@ simcase_settings:
 
         ADUSTABLETIMESTEP           : "off"
         TIMEDTTSCHEME               : "Euler"
-        GRADSCHEMES_DEFAULT         : "Gauss linearUpwind grad(U)"
+        GRADSCHEMES_DEFAULT         : "Gauss linear"
         DIVSCHEMES_DEFAULT          : "none"
         DIV_PHIU                    : "Gauss LUST grad(U)"
         DIV_PHIE                    : "Gauss LUST grad(e)"
@@ -284,7 +284,7 @@ post_settings:
             resolution_y                : 2600
 
 
-        U_global:
+        U_local:
             cpos                        : [ 0,0,0.1 ]
             focus                       : [ 0,0,0 ]
             view                        : [ 0,1,0 ]
