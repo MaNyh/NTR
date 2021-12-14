@@ -71,6 +71,7 @@ def create(path_to_yaml_dict):
             target = os.path.join(cutplanepath, d, vtkname)
             # plotter.theme = pv.themes.DocumentTheme()
             mesh = pv.PolyData(target)
+            mesh.set_active_scalars(var)
             if postprocess == "divergence":
                 mesh = mesh.compute_derivative(scalars=var, divergence=True)
 
@@ -78,6 +79,9 @@ def create(path_to_yaml_dict):
             actor_mesh = plotter.add_mesh(mesh, cmap="coolwarm")
             plotter.update_scalar_bar_range((low_scale, high_scale))
             plotter.camera_position = [cpos, focus, view]
+
+
+
 
             plotter.show_axes()
 
