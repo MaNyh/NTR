@@ -9,40 +9,70 @@ from NTR.utils.filehandling import yaml_dict_read
 from NTR.utils.fluid_functions.aeroFunctions import calc_inflow_cp
 from NTR.preprocessing.create_geom import extract_geo_paras
 from NTR.utils.mesh_handling.pyvista_utils import load_mesh
-from NTR.utils.mathfunctions import absvec_array
-
+from NTR.utils.mathfunctions import absvec_array, absVec
+from NTR.utils.mathfunctions import vecProjection
+from NTR.utils.mesh_handling.pyvista_utils import lines_from_points
+from NTR.preprocessing.create_geom import calcConcaveHull
 
 def extract_profile_from_volmesh(alpha, volmesh):
-    bounds = volmesh.bounds
+
+    surface = volmesh.extract_surface()
+    bounds = surface.bounds
+
     midspan_z = (bounds[-1] - bounds[-2]) / 2
-    z_slice = volmesh.slice(normal="z", origin=(0, 0, midspan_z))
+    z_slice = surface.slice(normal="z", origin=(0, 0, midspan_z))
+    z_slice["pointIds"] = [i for i in range(z_slice.number_of_points)]
 
-    edges = z_slice.extract_feature_edges()
-    split = edges.connectivity()
+    z_slicepoints = z_slice.points
 
-    regionIds = list(dict.fromkeys(split["RegionId"]))
-    boxes = []
-    for rId in regionIds:
-        regionPoints_ids = [idx for idx, i in enumerate(split["RegionId"]) if i == rId]
-        regionPoints = split.extract_cells(regionPoints_ids)
-        bounds = regionPoints.bounds
-        xl = bounds[1] - bounds[0]
-        yl = bounds[3] - bounds[2]
-        boxes.append(xl * yl)
-    profile_id = boxes.index(min(boxes))
-    profilepoints_ids = [idx for idx, i in enumerate(split["RegionId"]) if i == profile_id]
-    profilepoints = split.extract_cells(profilepoints_ids)
+    allxx, allyy = z_slicepoints[::,0],z_slicepoints[::,1]
+    outerxx, outeryy = calcConcaveHull(z_slicepoints[::,0],z_slicepoints[::,1],alpha)
+
+    outerIds = []
+    innerIds = []
+    for idx in z_slice["pointIds"]:
+        if allxx[idx] in list(outerxx) and allyy[idx] in list(outeryy):
+            innerIds.append(idx)
+        else:
+            outerIds.append(idx)
+
+    profilepoints = z_slice.extract_points(innerIds)
+
 
     points, psPoly, ssPoly, ind_vk, ind_hk, midsPoly, metal_angle_vk, metal_angle_hk, camber_angle = extract_geo_paras(
         profilepoints.points, alpha)
+    psVals = lines_from_points(psPoly.points)
+    ssVals = lines_from_points(ssPoly.points)
+    psVals = psVals.sample(surface)
+    ssVals = ssVals.sample(surface)
+    ssBladeForce = 0
+    psBladeForce = 0
 
-    psVals = psPoly.sample(volmesh)
-    ssVals = ssPoly.sample(volmesh)
-    return psVals, ssVals, points, ind_vk, ind_hk, camber_angle
+    for i in range(psVals.number_of_cells):
+        cell = psVals.extract_cells(i)
+        pc = cell["p"][0]
+        cellVec = cell.points[1]-cell.points[0]
+        cellProject = vecProjection((1,0,0),cellVec)
+        projectedLength = absVec(cellProject)
+        yforce = pc*projectedLength
+        psBladeForce += yforce
+
+    for i in range(ssVals.number_of_cells):
+        cell = ssVals.extract_cells(i)
+        pc = cell["p"][0]
+        cellVec = cell.points[1] - cell.points[0]
+        cellProject = vecProjection((1, 0, 0), cellVec)
+        projectedLength = absVec(cellProject)
+        yforce = pc * projectedLength
+        ssBladeForce += yforce
+
+    bladeForce = psBladeForce - ssBladeForce
+
+    return psVals, ssVals, points, ind_vk, ind_hk, camber_angle, bladeForce
 
 
 def calc_loading_volmesh(volmesh, alpha, verbose=False):
-    psVals, ssVals, sortedPoints, ind_vk, ind_hk, camber_angle = extract_profile_from_volmesh(alpha, volmesh)
+    psVals, ssVals, sortedPoints, ind_vk, ind_hk, camber_angle, bladeForce_1d = extract_profile_from_volmesh(alpha, volmesh)
 
     bounds = volmesh.bounds
     x1 = bounds[0] + 1e-5 * bounds[1]
@@ -89,7 +119,7 @@ def calc_loading_volmesh(volmesh, alpha, verbose=False):
         plt.plot(ss_xc, ss_cp)
         plt.plot(ps_xc, ps_cp)
         plt.show()
-    return psVals, ssVals
+    return psVals, ssVals ,bladeForce_1d
 
 
 def compare_profileloading_numexp(settings_yml):
@@ -100,7 +130,7 @@ def compare_profileloading_numexp(settings_yml):
 
     volmesh = load_mesh(path_to_volmesh)
     alpha = settings["geometry"]["alpha"]
-    psVals, ssVals = calc_loading_volmesh(volmesh, alpha)
+    psVals, ssVals, bladeForce = calc_loading_volmesh(volmesh, alpha)
 
     inlet = getXSliceVals(volmesh, 0)
     inlet_sizes = inlet.compute_cell_sizes()

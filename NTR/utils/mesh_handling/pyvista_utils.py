@@ -1,6 +1,7 @@
 import numpy as np
 import pyvista as pv
 import os
+import vtk
 
 from NTR.database.case_dirstructure import casedirs
 from NTR.utils.mesh_handling.vtk_utils import cgnsReader
@@ -38,13 +39,8 @@ def load_mesh(path_to_mesh):
         elif str(type(cgns)).find('vtkUnstructuredGrid') != -1:
             mesh = pv.UnstructuredGrid(cgns)
         elif str(type(cgns)).find('vtkMultiBlockDataSet') != -1:
-            mesh = pv.UnstructuredGrid()
-            multiBlockMesh = pv.MultiBlock(cgns)
-            for domainId in range(multiBlockMesh.GetNumberOfBlocks()):
-                domain = multiBlockMesh.GetBlock(domainId)
-                for blockId in range(domain.GetNumberOfBlocks()):
-                    block = domain.GetBlock(blockId)
-                    mesh = mesh.merge(block)
+            mesh = pv.UnstructuredGrid(cgns)
+
 
     mesh = translate_meshnames(mesh)
     return mesh
