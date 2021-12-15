@@ -78,7 +78,7 @@ def create(path_to_yaml_dict):
             actor_mesh = plotter.add_mesh(mesh, cmap="coolwarm")
             plotter.update_scalar_bar_range((low_scale, high_scale))
             plotter.camera_position = [cpos, focus, view]
-
+            plotter.add_text(d)
             plotter.show_axes()
 
             plotter.render()
