@@ -105,8 +105,21 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps = calcProfileValues(
         p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1, kappa)
 
+    """
+    betriebskenndaten
+    """
+    p_ref = 101325
+    T_ref = 288.15
+    m_s = inte_mag_u1 * inte_rho1
+
+    m_red_s = m_s * p_ref / inte_p1 * (inte_T1/T_ref)**.5
+    eta_is = inte_T1*((inte_p2/inte_p1)**((kappa-1)/kappa)-1)/(inte_T2-inte_T1)
 
     ans = {}
+
+    ans["mred"]=m_red_s
+    ans["eta_is"] = eta_is
+
     ans["zeta"]=zeta
     ans["inte_p1"]=inte_p1
     ans["inte_p_tot1"]=inte_p_tot1
