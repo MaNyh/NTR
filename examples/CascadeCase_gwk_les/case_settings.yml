@@ -253,6 +253,16 @@ post_settings:
 
     animation_creation:
 
+        U_divergence:
+            cpos                        : [ 0,0,1 ]
+            focus                       : [ 0,0,0 ]
+            view                        : [ 0,1,0 ]
+            variable                    : "U"
+            post                        : divergence
+            low_scale_limit             : 0
+            high_scale_limit            : 90
+            resolution_x                : 2600
+            resolution_y                : 2600
         p_global:
             cpos                        : [ 0,0,1 ]
             focus                       : [ 0,0,0 ]

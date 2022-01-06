@@ -71,6 +71,7 @@ def create(path_to_yaml_dict):
             target = os.path.join(cutplanepath, d, vtkname)
             # plotter.theme = pv.themes.DocumentTheme()
             mesh = pv.PolyData(target)
+            mesh.set_active_scalars(var)
             if postprocess == "divergence":
                 mesh = mesh.compute_derivative(scalars=var, divergence=True)
 
