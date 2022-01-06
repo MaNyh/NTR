@@ -195,7 +195,7 @@ def get_common_association(case_type):
     """
     if case_type == "openfoam_channel_les_axper" or case_type == "openfoam_channel_les_dfsem_compressible":
         return "openfoam_channelcase_les"
-    elif case_type == "trace_cascade_ras":
+    elif case_type == "trace_cascade_ras_WAKE_PARASTUD" or case_type == "trace_cascade_ras":
         return "trace_cascade_ras"
     else:
         return None
