@@ -13,7 +13,7 @@ case_settings:
         postprocessing-status:
             need of more postprocessing and evaluation methods
     prep: |
-        cp ../../00_Ressources/split_48.cgns input/.
+        cp ../../00_Ressources/split_48.cgns input/TRACE.cgns
         dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh
 
     job:
@@ -21,7 +21,7 @@ case_settings:
         job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
         job_exe: "TRACE"
         job_name: *name
-        job_runtime: "10:00:00" #h
+        job_runtime: "20:00:00" #h
         job_nodes : "1"
         job_ppn : "12"
         job_mem : "12"
@@ -31,22 +31,19 @@ case_settings:
 simcase_settings:
     variables:
 
-        SECDEV_TDR:
-            - 0.8
-            - 1
-            - 1.2
+        SECDEV_TDR: 1
         SECDEV_TPR:
             - 0.8
             - 1
             - 1.2
-        CLEARANCE_TDR:
-            - 0.8
-            - 1
-            - 1.2
-        CLEARANCE_TPR:
-            - 0.8
-            - 1
-            - 1.2
+        CLEARANCE_TDR: 1
+        CLEARANCE_TPR: 1
+        INLETANGLE:
+            - 61.00
+            - 62.00
+            - 63.00
+            - 64.00
+            - 65.00
 
     options:
         simcase_optiondef:

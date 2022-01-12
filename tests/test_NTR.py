@@ -35,7 +35,7 @@ def test_splineCurvature():
     radius = np.random.rand()
     curve = 1 / radius
     circle = pv.CircularArc((-radius, 0, 0), (radius, 0, 0), (0, 0, 0))
-    circle.rotate_z(-180)
+    circle.rotate_z(-180,inplace=False)
     curvature_return = splineCurvature(circle.points[::, 0], circle.points[::, 1])
     assert not any(abs(curvature_return[3:-3] - curve) > 0.05), "spline curvature calculation failed"
 
@@ -47,7 +47,7 @@ def test_calcConcaveHull():
     square = pv.Plane()
     boxedges = square.extract_feature_edges()
 
-    boxedges.rotate_z(np.random.randint(0, 360))
+    boxedges.rotate_z(np.random.randint(0, 360),inplace=False)
     boxpoints = boxedges.points
 
     np.random.shuffle(boxpoints)
@@ -61,7 +61,7 @@ def test_calcConcaveHull():
     assert any([yi in ys_raw for yi in ys])
 
     polygon = pv.Polygon()
-    polygon.rotate_z(np.random.randint(0, 360))
+    polygon.rotate_z(np.random.randint(0, 360),inplace=False)
     polyedges = polygon.extract_feature_edges()
     polypoints = polyedges.points
     np.random.shuffle(polypoints)
@@ -83,7 +83,7 @@ def test_profilePoints():
 
     tarea = sum(test_area["Area"])
 
-    ellipse.rotate_z(np.random.randint(0, 360))
+    ellipse.rotate_z(np.random.randint(0, 360),inplace=False)
     shape = ellipse.extract_geometry()
     pts = shape.points
     xs = pts[:, 0]
@@ -123,7 +123,7 @@ def test_extract_vk_hk(verbose=False):
     profilepoints = pv.PolyData(points)
 
     random_angle = np.random.randint(-40, 40)
-    profilepoints.rotate_z(random_angle)
+    profilepoints.rotate_z(random_angle,inplace=False)
 
     sortedPoly = pv.PolyData(profilepoints)
     ind_hk, ind_vk = extract_vk_hk(sortedPoly, verbose=verbose)

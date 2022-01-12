@@ -121,10 +121,10 @@ def extractSidePolys(ind_hk, ind_vk, sortedPoly, verbose=False):
     if verbose:
         p = pv.Plotter()
         psl = polyline_from_points(psPoly.points)
-        psl.point_arrays["scalars"] = range(psl.number_of_points)
+        psl.point_data["scalars"] = range(psl.number_of_points)
         p.add_mesh(psl, label="psPoly")
         ssl = polyline_from_points(ssPoly.points)
-        ssl.point_arrays["scalars"] = range(ssl.number_of_points)
+        ssl.point_data["scalars"] = range(ssl.number_of_points)
         p.add_mesh(ssl, label="ssPoly")
         p.add_mesh(psPoly, label="psPoly", color="white", point_size=1)
         p.add_mesh(ssPoly, label="ssPoly", color="black", point_size=1)

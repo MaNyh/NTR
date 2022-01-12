@@ -266,13 +266,13 @@ def GetProfileValuesMidspan(volmesh, alpha, midspan_z):
 
     normals_ps = np.asarray([geo.cell_normals[i] for i in indexes_ps])
     #geo = geo.cell_data_to_point_data()
-    for i in geo.point_arrays:
+    for i in geo.point_data:
         values_ss[i] = []
         values_ps[i] = []
         for idx in indexes_ps:
-            values_ps[i].append(geo.point_arrays[i][idx])
+            values_ps[i].append(geo.point_data[i][idx])
         for idx in indexes_ss:
-            values_ss[i].append(geo.point_arrays[i][idx])
+            values_ss[i].append(geo.point_data[i][idx])
 
     for i in range(len(indexes_ss)):
         dudx = values_ss['dudx'][i]
@@ -384,11 +384,11 @@ def getPitchValuesB2BSliceComplete(mesh, x):
         xx[i] = pt[0]
         zz[i] = pt[2]
 
-    array_names = cut_plane.point_arrays.keys()
+    array_names = cut_plane.point_data.keys()
     values = []
 
     for arrname in array_names:
-        array_values = cut_plane.point_arrays[arrname]
+        array_values = cut_plane.point_data[arrname]
 
         y2, [array_values] = sort_values_by_pitch(y, [array_values])
         values.append(array_values)

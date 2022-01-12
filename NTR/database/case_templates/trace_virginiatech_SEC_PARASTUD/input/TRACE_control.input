@@ -6,6 +6,9 @@ block 8 immediate Update_kw_tdr_tpr tpr_param "<var SECDEV_TPR var>"
 block 7 immediate Update_kw_tdr_tpr tdr_param "<var CLEARANCE_TDR var>"
 block 7 immediate Update_kw_tdr_tpr tpr_param "<var CLEARANCE_TPR var>"
 
+gmc -> set_attributes of panel_group named 'inlet' : set VelocityAngleYAbs to -<var INLETANGLE var>
+gmc -> set_attributes of panel_group named 'inlet' : set Species all to null
+
 all immediate LHSRecomputationInterval 100
 all immediate LHSRecomputationPredictorThreshold 0.1
 all immediate ImplicitSolverSweeps 2

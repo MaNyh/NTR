@@ -33,7 +33,7 @@ def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_r
     ref_ss_poly = polyline_from_points(ref_ssPoly.points)
     ref_ss_face = ref_ss_poly.extrude((0, 0, midspan_z * 2)).compute_normals()
     ref_ss_face_shift = ref_ss_face.copy()
-    ref_ss_face_shift.points += tolerance * ref_ss_face_shift.point_arrays["Normals"]
+    ref_ss_face_shift.points += tolerance * ref_ss_face_shift.point_data["Normals"]
     ref_ss_cut = ref_ss_face_shift.slice(normal="z", origin=(0, 0, midspan_z))
 
     psPoly = geomdat_dict["sidePolys"]["psPoly"]
@@ -43,7 +43,7 @@ def openFoam_createProbesProfileDict(geomdat_dict,  pden_ss, pden_ps, sampling_r
     ref_ps_poly = polyline_from_points(ref_psPoly.points)
     ref_ps_face = ref_ps_poly.extrude((0, 0, midspan_z * 2)).compute_normals()
     ref_ps_face_shift = ref_ps_face.copy()
-    ref_ps_face_shift.points += tolerance * ref_ps_face_shift.point_arrays["Normals"]
+    ref_ps_face_shift.points += tolerance * ref_ps_face_shift.point_data["Normals"]
     ref_ps_cut = ref_ps_face_shift.slice(normal="z", origin=(0, 0, midspan_z))
 
     x_ss_shift = ref_ss_cut.points[::,0]
@@ -379,7 +379,7 @@ def openFoam_create_vk_stagflow_probes(geomdat_dict, nop, length, sampling_rate,
     u_inlet = np.array([float(i) for i in case_settings["simcase_settings"]["variables"]["UINLET"].split(" ")])
     angle = angle_between(u_inlet,(1,0,0)) * 180 / np.pi
     stagnationLine = pv.Line((0, 0, 0), (-length, 0, 0), nop - 1)
-    stagnationLine.rotate_z(angle)
+    stagnationLine.rotate_z(angle,inplace=True)
     stagnationLine.translate(vk_point)
     midspan_z = geomdat_dict["span_z"] / 2
     x_probes = stagnationLine.points[::, 0]

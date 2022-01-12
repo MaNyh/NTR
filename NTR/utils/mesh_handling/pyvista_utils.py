@@ -44,7 +44,7 @@ def load_mesh(path_to_mesh):
             # Points with same coordinates are merged
             # with tolerance 0.0000001 GMC GLOBAL Properties
             appendFilter.MergePointsOn()
-            appendFilter.SetTolerance(0.0000002)
+            appendFilter.SetTolerance(0.0000001)
 
 #            mesh = pv.UnstructuredGrid()
             multiBlockMesh = pv.MultiBlock(cgns)

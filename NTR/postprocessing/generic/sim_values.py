@@ -65,7 +65,7 @@ def calc_yplus(path_to_yaml_dict, verbose=True):
 
         nearwall_distancemap = calc_dist_from_surface(nw_center_surf, wall)
         nearwall_dists = nearwall_distancemap.interpolate(nw_wall)
-        nearwall_dists.point_arrays["distances"] = nearwall_dists["distances"]
+        nearwall_dists.point_data["distances"] = nearwall_dists["distances"]
         nearwalls[nw_name] = nearwall_dists.point_data_to_cell_data("distanes")
 
     for patchname, nearwall_mesh in nearwalls.items():

@@ -239,17 +239,17 @@ def calcPostSliceValues(mesh, output_path, x, ind, kappa, R_L):
         xx[ii] = pt[0]
         zz[ii] = pt[2]
 
-    mag_u_array = absvec_array(cut_plane.point_arrays["U"])
+    mag_u_array = absvec_array(cut_plane.point_data["U"])
 
     nvls = len(mag_u_array)
 
-    ux_array = cut_plane.point_arrays["U"][::, 0]
-    uy_array = cut_plane.point_arrays["U"][::, 1]
-    uz_array = cut_plane.point_arrays["U"][::, 2]
+    ux_array = cut_plane.point_data["U"][::, 0]
+    uy_array = cut_plane.point_data["U"][::, 1]
+    uz_array = cut_plane.point_data["U"][::, 2]
 
-    rho_array = cut_plane.point_arrays["rho"]
-    T_array = cut_plane.point_arrays["T"]
-    p_array = cut_plane.point_arrays["p"]
+    rho_array = cut_plane.point_data["rho"]
+    T_array = cut_plane.point_data["T"]
+    p_array = cut_plane.point_data["p"]
 
     mag_u = []
 
