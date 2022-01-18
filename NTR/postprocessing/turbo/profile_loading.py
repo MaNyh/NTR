@@ -113,7 +113,9 @@ def calc_loading_volmesh(volmesh, alpha, verbose=False):
         ss_cp[idx] = calc_inflow_cp(ssVals.point_data["p"][idx], p2, p1)
 
     ssVals["xc"] = ss_xc
+    ssVals["cp"] = ss_cp
     psVals["xc"] = ps_xc
+    psVals["cp"] = ps_cp
 
     if verbose:
         plt.figure()

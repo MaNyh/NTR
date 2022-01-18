@@ -115,6 +115,27 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     m_red_s = m_s * p_ref / inte_p1 * (inte_T1/T_ref)**.5
     eta_is = inte_T1*((inte_p2/inte_p1)**((kappa-1)/kappa)-1)/(inte_T2-inte_T1)
 
+    for i in range(psVals.number_of_cells):
+        cell = psVals.extract_cells(i)
+        pc = cell["p"][0]
+        cellVec = cell.points[1]-cell.points[0]
+        cellProject = vecProjection((1,0,0),cellVec)
+        projectedLength = absVec(cellProject)
+        yforce = pc*projectedLength
+        psBladeForce += yforce
+
+    for i in range(ssVals.number_of_cells):
+        cell = ssVals.extract_cells(i)
+        pc = cell["p"][0]
+        cellVec = cell.points[1] - cell.points[0]
+        cellProject = vecProjection((1, 0, 0), cellVec)
+        projectedLength = absVec(cellProject)
+        yforce = pc * projectedLength
+        ssBladeForce += yforce
+
+    bladeForce = psBladeForce - ssBladeForce
+
+
     ans = {}
 
     ans["mred"]=m_red_s
