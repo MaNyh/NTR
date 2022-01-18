@@ -7,7 +7,7 @@
 ###############################################################################
 EMAIL=<var JOB_MAIL var>
 NODES=<var JOB_NODES var>
-NPROCS=<var JOB_PROCS var>
+NPROCS=<var JOB_PPN var>
 MEMORY=<var JOB_MEM var>gb
 QUEUE="all"
 WALLTIME=<var JOB_RUNTIME var>
