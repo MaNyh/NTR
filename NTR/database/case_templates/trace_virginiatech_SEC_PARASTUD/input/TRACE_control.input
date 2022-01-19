@@ -1,33 +1,38 @@
 all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
 
-block 5 immediate Update_kw_tdr_tpr tdr_param "<var SECDEV_TDR var>"
-block 5 immediate Update_kw_tdr_tpr tpr_param "<var SECDEV_TPR var>"
+block 5 immediate Update_tmCoeffs diffusionCoeff 1
+block 5 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 5 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
 
-block 6 immediate Update_kw_tdr_tpr tdr_param "<var SECDEV_TDR var>"
-block 6 immediate Update_kw_tdr_tpr tpr_param "<var SECDEV_TPR var>"
+block 6 immediate Update_tmCoeffs diffusionCoeff 1
+block 6 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 6 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
 
-block 7 immediate Update_kw_tdr_tpr tdr_param "<var SECDEV_TDR var>"
-block 7 immediate Update_kw_tdr_tpr tpr_param "<var SECDEV_TPR var>"
+block 7 immediate Update_tmCoeffs diffusionCoeff 1
+block 7 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 7 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
 
-block 8 immediate Update_kw_tdr_tpr tdr_param "<var SECDEV_TDR var>"
-block 8 immediate Update_kw_tdr_tpr tpr_param "<var SECDEV_TPR var>"
+block 8 immediate Update_tmCoeffs diffusionCoeff 1
+block 8 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 8 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
 
 
 
-block 11 immediate Update_kw_tdr_tpr tdr_param "<var CLEARANCE_TDR var>"
-block 11 immediate Update_kw_tdr_tpr tpr_param "<var CLEARANCE_TPR var>"
+block 11 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 11 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+block 11 immediate Update_tmCoeffs diffusionCoeff 1
 
-block 12 immediate Update_kw_tdr_tpr tdr_param "<var CLEARANCE_TDR var>"
-block 12 immediate Update_kw_tdr_tpr tpr_param "<var CLEARANCE_TPR var>"
+block 12 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 12 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+block 12 immediate Update_tmCoeffs diffusionCoeff 1
 
-block 13 immediate Update_kw_tdr_tpr tdr_param "<var CLEARANCE_TDR var>"
-block 13 immediate Update_kw_tdr_tpr tpr_param "<var CLEARANCE_TPR var>"
+block 13 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 13 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+block 13 immediate Update_tmCoeffs diffusionCoeff 1
 
-block 14 immediate Update_kw_tdr_tpr tdr_param "<var CLEARANCE_TDR var>"
-block 14 immediate Update_kw_tdr_tpr tpr_param "<var CLEARANCE_TPR var>"
-
-gmc -> set_attributes of panel_group named 'inlet' : set VelocityAngleYAbs to -<var INLETANGLE var>
-gmc -> set_attributes of panel_group named 'inlet' : set Species all to null
+block 14 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 14 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+block 14 immediate Update_tmCoeffs diffusionCoeff 1
 
 all immediate LHSRecomputationInterval 100
 all immediate LHSRecomputationPredictorThreshold 0.1

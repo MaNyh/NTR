@@ -142,7 +142,8 @@ def calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
 
 
     Input:
-    x_mcl, y_mcl = Tuple
+    x_mcl = Tuple
+    y_mcl = Tuple
     beta1, beta2 = Angle in deg - Beta = Anströmwinkel
     x_inlet, x_outlet = scalar - representing position x-component of in/outlet
     t = scalar pitch

@@ -3,6 +3,7 @@ import os
 import numpy as np
 import math
 
+from NTR.utils.geom_functions.profileparas import calcMidPassageStreamLine
 from NTR.utils.geom_functions.geom_utils import GetProfileValuesMidspan, getPitchValuesB2BSliceComplete
 from NTR.utils.fluid_functions.aeroFunctions import Ma, Ma_is, Ma_is_x, Re, Re_is, p_t_is, T_t_is, AVDR, Beta, \
     calcPos2ValuesByAmecke
@@ -13,7 +14,8 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.postprocessing.turbo.profile_loading import calc_inflow_cp
 
 
-def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, Rs, p_k, As, l_chord, cp,
+def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, Rs, p_k, As, l_chord,
+                      cp,
                       Ts):
     """
     definitions see https://d-nb.info/1002571413/34
@@ -42,7 +44,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     y_ps = values_ps["y_ps"]
     p_ps = values_ps["p"]
 
-
+    """
     plt.figure(figsize=(8, 8))
     plt.plot(x_ss, y_ss, '-r', lw=1)
     plt.plot(x_ps, y_ps, '-b', lw=1)
@@ -51,13 +53,13 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_profil.pdf'))
     plt.close()
-
+    """
     inte_mag_u1, inte_ux1, inte_uy1, inte_uz1, inte_rho1, inte_T1, inte_p1, inte_p_tot1, inte_T_tot1 = calcPostSliceValues(
         mesh, output_path, post_slice_1_x, 1, kappa, Rs)
     inte_mag_u2, inte_ux2, inte_uy2, inte_uz2, inte_rho2, inte_T2, inte_p2, inte_p_tot2, inte_T_tot2 = calcPostSliceValues(
         mesh, output_path, post_slice_2_x, 2, kappa, Rs)
 
-    #Totaldruckverlustbeiwert
+    # Totaldruckverlustbeiwert
     zeta = (inte_p_tot1 - inte_p_tot2) / (inte_p_tot1 - p_k)
 
     Ma1 = Ma(inte_mag_u1, kappa, Rs, inte_T1)
@@ -66,8 +68,8 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     Ma_is_2 = Ma_is(p_k, kappa, inte_p1, inte_rho1, inte_mag_u1, Rs, inte_T_tot1)
     Re_is_2 = Re_is(kappa, Rs, l_chord, As, Ma_is_2, p_k, inte_T_tot1, inte_mag_u1, cp, Ts)
 
-    beta1 = 90.0 + math.atan(inte_uy1 / inte_ux1) / 2.0 / math.pi * 360.0
-    beta2 = 90.0 + math.atan(inte_uy2 / inte_ux2) / 2.0 / math.pi * 360.0
+    beta1 = 90.0 + math.atan(inte_uy1 / inte_ux1) / math.pi * 180
+    beta2 = 90.0 + math.atan(inte_uy2 / inte_ux2) / math.pi * 180
 
     nu1 = Sutherland_Law(inte_T1, As, Ts)
     nu2 = Sutherland_Law(inte_T2, As, Ts)
@@ -105,6 +107,8 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps = calcProfileValues(
         p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1, kappa)
 
+    # mids = calcMidPassageStreamLine(x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t)
+    # (x_mcl, y_mcl, beta1, beta2, x_inlet, x_outlet, t):
     """
     betriebskenndaten
     """
@@ -112,81 +116,61 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     T_ref = 288.15
     m_s = inte_mag_u1 * inte_rho1
 
-    m_red_s = m_s * p_ref / inte_p1 * (inte_T1/T_ref)**.5
-    eta_is = inte_T1*((inte_p2/inte_p1)**((kappa-1)/kappa)-1)/(inte_T2-inte_T1)
-
-    for i in range(psVals.number_of_cells):
-        cell = psVals.extract_cells(i)
-        pc = cell["p"][0]
-        cellVec = cell.points[1]-cell.points[0]
-        cellProject = vecProjection((1,0,0),cellVec)
-        projectedLength = absVec(cellProject)
-        yforce = pc*projectedLength
-        psBladeForce += yforce
-
-    for i in range(ssVals.number_of_cells):
-        cell = ssVals.extract_cells(i)
-        pc = cell["p"][0]
-        cellVec = cell.points[1] - cell.points[0]
-        cellProject = vecProjection((1, 0, 0), cellVec)
-        projectedLength = absVec(cellProject)
-        yforce = pc * projectedLength
-        ssBladeForce += yforce
-
-    bladeForce = psBladeForce - ssBladeForce
-
+    m_red_s = m_s * p_ref / inte_p1 * (inte_T1 / T_ref) ** .5
+    lift_ps = np.trapz(p_ss, x_ss)
+    lift_ss = np.trapz(p_ps, x_ps)
+    lift = lift_ps + lift_ss
 
     ans = {}
 
-    ans["mred"]=m_red_s
-    ans["eta_is"] = eta_is
+    ans["mred"] = m_red_s
+    ans["lift"] = lift
+    ans["lift_coefficient"] = lift / (inte_p_tot1 * l_chord)
+    ans["zeta"] = zeta
+    ans["inte_p1"] = inte_p1
+    ans["inte_p_tot1"] = inte_p_tot1
+    ans["inte_mag_u1"] = inte_mag_u1
+    ans["inte_ux1"] = inte_ux1
+    ans["inte_uy1"] = inte_uy1
+    ans["inte_uz1"] = inte_uz1
+    ans["inte_rho1"] = inte_rho1
+    ans["inte_T1"] = inte_T1
+    ans["inte_T_tot1"] = inte_T_tot1
+    ans["beta1"] = beta1
+    ans["nu1"] = nu1
+    ans["Re1"] = Re1
+    ans["Ma1"] = Ma1
+    ans["Ma2"] = Ma2
+    ans["inte_p2"] = inte_p2
+    ans["inte_p_tot2"] = inte_p_tot2
+    ans["inte_mag_u2"] = inte_mag_u2
+    ans["inte_ux2"] = inte_ux2
+    ans["inte_uy2"] = inte_uy2
+    ans["inte_uz2"] = inte_uz2
+    ans["inte_rho2"] = inte_rho2
+    ans["inte_T2"] = inte_T2
+    ans["inte_T_tot2"] = inte_T_tot2
+    ans["beta2"] = beta2
+    ans["nu2"] = nu2
+    ans["Re2"] = Re2
+    ans["Ma_is_2"] = Ma_is_2
+    ans["Re_is_2"] = Re_is_2
+    ans["AVDR_value"] = AVDR_value
+    ans["delta_beta"] = delta_beta
+    ans["delta_p_static"] = delta_p_static
+    ans["Ma2_amecke"] = Ma2_amecke
+    ans["beta2_amecke"] = beta2_amecke
+    ans["pt2_amecke"] = pt2_amecke
+    ans["p2_amecke"] = p2_amecke
+    ans["zeta_amecke"] = zeta_amecke
+    ans["ma_is_amecke"] = ma_is_amecke
+    ans["profileData"] = {"x_zu_l_ax_ss": x_zu_l_ax_ss, "cp_ss": cp_ss, "x_zu_l_ax_ps": x_zu_l_ax_ps, "cp_ps": cp_ps}
 
-    ans["zeta"]=zeta
-    ans["inte_p1"]=inte_p1
-    ans["inte_p_tot1"]=inte_p_tot1
-    ans["inte_mag_u1"]=inte_mag_u1
-    ans["inte_ux1"]=inte_ux1
-    ans["inte_uy1"]=inte_uy1
-    ans["inte_uz1"]=inte_uz1
-    ans["inte_rho1"]=inte_rho1
-    ans["inte_T1"]=inte_T1
-    ans["inte_T_tot1"]=inte_T_tot1
-    ans["beta1"]=beta1
-    ans["nu1"]=nu1
-    ans["Re1"]=Re1
-    ans["Ma1"]=Ma1
-    ans["Ma2"]=Ma2
-    ans["inte_p2"]=inte_p2
-    ans["inte_p_tot2"]=inte_p_tot2
-    ans["inte_mag_u2"]=inte_mag_u2
-    ans["inte_ux2"]=inte_ux2
-    ans["inte_uy2"]=inte_uy2
-    ans["inte_uz2"]=inte_uz2
-    ans["inte_rho2"]=inte_rho2
-    ans["inte_T2"]=inte_T2
-    ans["inte_T_tot2"]=inte_T_tot2
-    ans["beta2"]=beta2
-    ans["nu2"]=nu2
-    ans["Re2"]=Re2
-    ans["Ma_is_2"]=Ma_is_2
-    ans["Re_is_2"]=Re_is_2
-    ans["AVDR_value"]=AVDR_value
-    ans["delta_beta"]=delta_beta
-    ans["delta_p_static"]=delta_p_static
-    ans["Ma2_amecke"]=Ma2_amecke
-    ans["beta2_amecke"]=beta2_amecke
-    ans["pt2_amecke"]=pt2_amecke
-    ans["p2_amecke"]=p2_amecke
-    ans["zeta_amecke"]=zeta_amecke
-    ans["ma_is_amecke"]=ma_is_amecke
-    ans["profileData"] = {"x_zu_l_ax_ss":x_zu_l_ax_ss, "cp_ss":cp_ss, "x_zu_l_ax_ps":x_zu_l_ax_ps, "cp_ps":cp_ps}
+    return ans  # x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps
 
 
-    return ans#x_zu_l_ax_ss, cp_ss, x_zu_l_ax_ps, cp_ps
-
-
-def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1, kappa):
-
+def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_ps, inte_mag_u1, inte_rho1, inte_p1,
+                      kappa):
     p = p_ss + p_ps[::-1]
     p_max = max(p)
     p_te = p_ps[-1]
@@ -198,7 +182,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_
     x_zu_l_ax_ss = []
 
     for i in range(len(x_ss)):
-        cp_ss.append(calc_inflow_cp(p_ss[i],inte_p_tot1,inte_p1))
+        cp_ss.append(calc_inflow_cp(p_ss[i], inte_p_tot1, inte_p1))
         cp_max_ss.append((p_ss[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ss.append((x_ss[i] - min(x_ss)) / (max(x_ss) - min(x_ss)))
         ma_is_x_ss.append(Ma_is_x(kappa, p_ss[i], inte_p_tot1))
@@ -210,7 +194,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_
     x_zu_l_ax_ps = []
 
     for i in range(len(x_ps)):
-        cp_ps.append(calc_inflow_cp(p_ps[i],inte_p_tot1,inte_p1))
+        cp_ps.append(calc_inflow_cp(p_ps[i], inte_p_tot1, inte_p1))
         cp_max_ps.append((p_ps[i] - p_te) / (p_max - p_te))
         x_zu_l_ax_ps.append((x_ps[i] - min(x_ps)) / (max(x_ps) - min(x_ps)))
         ma_is_x_ps.append(Ma_is_x(kappa, p_ps[i], inte_p_tot1))
@@ -220,7 +204,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_
     cp_max = cp_max_ss + cp_max_ps[::-1]
     x_zu_l_ax = x_zu_l_ax_ss + x_zu_l_ax_ps[::-1]
     ma_is_x = ma_is_x_ss + ma_is_x_ps[::-1]
-
+    """
     plt.figure(figsize=(9, 6))
     plt.plot(x_zu_l_ax, cp, '-r', lw=1, label='cp')
     plt.plot(x_zu_l_ax, cp_max, '-b', lw=1, label='cp_max')
@@ -241,6 +225,7 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_
     plt.grid()
     plt.savefig(os.path.join(output_path, 'kontrollplot_ma_is_x.pdf'))
     plt.close('all')
+    """
 
     return x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps
 
@@ -324,7 +309,7 @@ def calcPostSliceValues(mesh, output_path, x, ind, kappa, R_L):
 
     inte_p_tot = mass_average(y, p_tot, rho, ux)
     inte_T_tot = mass_average(y, T_tot, rho, ux)
-
+    """
     f, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(1, 7, sharey=True)
 
     ax1.plot(mag_u, y)
@@ -353,6 +338,7 @@ def calcPostSliceValues(mesh, output_path, x, ind, kappa, R_L):
     # plt.tight_layout()
     plt.savefig(os.path.join(output_path, 'kontrollplot_auswerteebene_' + str(ind) + '.pdf'))
     plt.close()
+    """
 
     values = [[xx, y, zz, mag_u, ux, uy, uz, p, rho, T, ma, T_tot, p_tot]]
 

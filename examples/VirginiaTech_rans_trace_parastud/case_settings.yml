@@ -15,7 +15,9 @@ case_settings:
     prep: |
         cp ../../00_Ressources/VT.cgns input/TRACE.cgns
         dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh
-
+        cd input/
+        /bigwork/nhkckcen/sw/GMC/gmc_9_3_4/gmcPlay_v9_3_4 virginiatech.jou
+        cd ..
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
         job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
@@ -32,12 +34,12 @@ simcase_settings:
     variables:
 
         SECDEV_TDR: 1
-        SECDEV_TPR: 1
-        CLEARANCE_TDR: 1
-        CLEARANCE_TPR:
+        SECDEV_TPR:
             - 0.8
             - 1
             - 1.2
+        CLEARANCE_TDR: 1
+        CLEARANCE_TPR: 1
         INLETANGLE:
             - 61.00
             - 62.00

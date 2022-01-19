@@ -24,7 +24,7 @@ case_settings:
         job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
         job_exe: "TRACE"
         job_name: *name
-        job_runtime: "3:00:00" #h
+        job_runtime: "6:00:00" #h
         job_nodes : "1"
         job_ppn : "12"
         job_mem : "12"
@@ -73,11 +73,14 @@ simcase_settings:
         OUTLET_RADIAL_EQUI: "off"
 
         VEL_YANGLE:
-            - 44.05
-            - 46.05
-            - 48.05
-            - 50.08
-            - 52.05
+            - 43.0
+            - 44.0
+            - 45.0
+            - 46.0
+            - 47.0
+            - 48.0
+            - 49.0
+            - 50.0
         GLOBAL_TOLERANCE: "0.0000001"
 
         OGR_PROD: 1
@@ -85,7 +88,6 @@ simcase_settings:
         OGR_DISS: 1
         WAKE_PROD:
             - 0.8
-            - 1
             - 1.2
         WAKE_DIFF: 1
         WAKE_DISS: 1
