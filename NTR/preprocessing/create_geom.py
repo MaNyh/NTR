@@ -354,7 +354,7 @@ def create_naca_geoparas(nacadigits, numberofpoints, finite_TE, half_cosine_spac
     scalegeo = geoscaling / vecAbs(points[ind_hk] - points[ind_vk])
     poly = pv.PolyData(points)
     poly.points *= scalegeo
-    poly.rotate_z(staggerangle,inplace=True)
+    poly.rotate_z(staggerangle)
     points = poly.points
 
     if finite_TE:

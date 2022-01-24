@@ -92,8 +92,8 @@ def calc_loading_volmesh(volmesh, alpha, verbose=False):
     ssVals.points -= shift
     psVals.points -= shift
 
-    ssVals.rotate_z(-camber_angle,inplace=True)
-    psVals.rotate_z(-camber_angle,inplace=True)
+    ssVals.rotate_z(-camber_angle)
+    psVals.rotate_z(-camber_angle)
 
     psVals = psVals.cell_data_to_point_data()
     ssVals = ssVals.cell_data_to_point_data()

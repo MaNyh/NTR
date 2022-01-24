@@ -125,7 +125,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
 
     ans["mred"] = m_red_s
     ans["lift"] = lift
-    ans["lift_coefficient"] = lift / (inte_p_tot1 * l_chord)
+    ans["lift_coefficient"] = lift / (0.5*inte_rho1* inte_mag_u1**2* l_chord)
     ans["zeta"] = zeta
     ans["inte_p1"] = inte_p1
     ans["inte_p_tot1"] = inte_p_tot1
