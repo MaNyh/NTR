@@ -7,37 +7,148 @@ import pyvista as pv
 from NTR.utils.filehandling import write_pickle, read_pickle
 from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.postprocessing.turbo.createProfileData import createProfileData
+from NTR.utils.mesh_handling.pyvista_utils import mesh_scalar_gradients
+from NTR.utils.mathfunctions import vecAngle, vecAbs, vecProjection
+
+
+def areaAvePlane(mesh, val):
+    array = mesh[val]
+    areas = mesh["Area"]
+    area_ave = sum((array.T * areas).T) / sum(areas)
+    return area_ave
+
+
+def massflowPlane(mesh):
+    if not "Normals" in mesh.array_names:
+        mesh = mesh.compute_normals()
+    if not "Area" in mesh.array_names:
+        mesh = mesh.compute_cell_sizes()
+    mesh = mesh.point_data_to_cell_data()
+    normals = mesh.cell_normals
+    rhos = mesh["rho"]
+    areas = mesh["Area"]
+    velocities = mesh["U"]
+
+    massflow = np.array(
+        [vecAbs(vecProjection(velocities[i], normals[i])) for i in range(mesh.number_of_cells)]) ** 2 * rhos * areas
+
+    return massflow
+
+
+def massflowAvePlane(mesh, val):
+    massflow = massflowPlane(mesh)
+
+    mass_ave = sum(mesh[val] * massflow) / sum(massflow)
+    return mass_ave
 
 
 
+def rigvals(inlet,outlet,blade, output, p_ref, T_ref):
+    path = os.path.normpath(os.path.dirname(inlet))
+    #print(path)
+    #casename, yangle, prod = os.path.basename(inlet).split("-")
+    inlet = load_mesh(inlet).extract_surface()
+    outlet = load_mesh(outlet).extract_surface()
+    blade = load_mesh(blade).extract_surface()
 
-def profile_data_workflow(input, output):
+    if not "Normals" in inlet.array_names:
+        inlet = inlet.compute_normals()
+    if not "Area" in inlet.array_names:
+        inlet = inlet.compute_cell_sizes()
+
+    if not "Normals" in blade.array_names:
+        blade = blade.compute_normals()
+    if not "Area" in blade.array_names:
+        blade = blade.compute_cell_sizes()
+    blade = blade.point_data_to_cell_data()
+
+    inlet = inlet.point_data_to_cell_data()
+    inlet_massflow = sum(massflowPlane(inlet))
+
+    if not "Normals" in outlet.array_names:
+        outlet = outlet.compute_normals()
+    if not "Area" in outlet.array_names:
+        outlet = outlet.compute_cell_sizes()
+    outlet = outlet.point_data_to_cell_data()
+
+    outlet_massflow = sum(massflowPlane(outlet))
+
+    p_out = areaAvePlane(outlet,"p")
+    p_out_dyn = np.array(outlet["U"] ** 2).sum(axis=1) * outlet["rho"] / 2
+
+    p_in = areaAvePlane(inlet,"p")
+    p_in_dyn = np.array(inlet["U"] ** 2).sum(axis=1) * inlet["rho"] / 2
+
+    inlet["u-normal"] = np.array([vecAbs(vecProjection(u,n)) for u,n in zip(inlet["U"], inlet["Normals"])])
+    inlet["i-normal"] = inlet["u-normal"] * inlet["rho"]
+    m_s = areaAvePlane(inlet,"i-normal")  # areaAvePlane(inflow,"U")*areaAvePlane(inflow,"rho")
+    m_red_s = ((m_s * (p_ref / areaAvePlane(inlet, "p"))) * (areaAvePlane(inlet, "T") / T_ref)) ** .5
+    p_tot_loss = (p_out + p_out_dyn) - (p_in + p_in_dyn)
+
+
+    force = blade["Area"] * blade["p"]
+    blade["force_y"] = blade["Normals"][:,1]* force
+    blade["force_x"] = blade["Normals"][:,0]* force
+
+    inte_rho_in = massflowAvePlane(inlet, "rho")
+    inte_U_in = vecAbs(areaAvePlane(inlet,"U"))
+
+    liftcoefficient = abs(sum(blade["force_y"]))/(0.5*inte_rho_in* inte_U_in**2* sum(blade["Area"]))
+
+    # blade["force_z"] = [vecProjection(np.array([0, 0, 1]), i) for i in blade["Normals"] * blade["force"][:, np.newaxis]]
+
+    rigvals = {"p_out": p_out,
+               "p_dyn_out": p_out_dyn,
+               "m_in": inlet_massflow,
+               "p_in": p_in,
+               "p_dyn_in": p_in_dyn,
+               "m_out": outlet_massflow,
+               "m_red": m_red_s,
+               "p_tot_loss": p_tot_loss,
+               "blade_forcey": sum(blade["force_y"]),
+               "blade_forcex": sum(blade["force_x"]),
+               "lift_coefficient": liftcoefficient,
+               }
+
+    write_pickle(output, rigvals)
+    # mesh.save(output)
+
+
+def zslice_domain(mesh, output, relative_heights):
+    """
+
+    :param input: os.path to input-file
+    :param output: os.path to output-file
+    :param relative_heights: list of floats
+
+    """
+
+    refmesh = mesh_scalar_gradients(load_mesh(mesh), "U")
+    bounds = refmesh.bounds
+    for rheight in relative_heights:
+        zspan = (bounds[5] - bounds[4]) * rheight
+        slice = refmesh.slice(normal="z", origin=(0, 0, zspan))
+        slice = slice.compute_normals()
+        slice.save(output)
+
+
+def profile_data_workflow(input, output, rigvals, alpha, kappa, As, Ts, R_L, cp):
     # =============================================================================
     # Daten Einlesen
     # =============================================================================
-    # profile_data = {}
-    refmesh = load_mesh(input)
-    profile_data = {}
+    slice = load_mesh(input)
+    rigval = read_pickle(rigvals)
+    p_k = rigval["p_out"]
 
-    midspan_z = (refmesh.bounds[5] - refmesh.bounds[4]) / 2
-    alpha = 0.005
-    post_slice_1_x = refmesh.bounds[0] + 1e-6
-    post_slice_2_x = refmesh.bounds[1] - 1e-6
-    kappa = 1.4
-    As = 1.458e-06
-    Ts = 110.4
-    R_L = 287
-    outflow = refmesh.slice(normal="x", origin=(post_slice_2_x, 0, 0)).compute_cell_sizes()
-    outflow = outflow.point_data_to_cell_data()
-    p_k = outflow["p"] * outflow["Area"] / (sum(outflow["Area"]))
-    cp = 1004.5
-    l = 0.13
+    post_slice_1_x = slice.bounds[0] + 1e-6
+    post_slice_2_x = slice.bounds[1] - 1e-6
+
     output_path = os.path.dirname(input)
 
-    profile_data = createProfileData(refmesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x,
+    profile_data = createProfileData(slice, alpha, post_slice_1_x, post_slice_2_x,
                                      output_path,
                                      kappa, R_L,
-                                     p_k, As, l, cp, Ts)
+                                     p_k, As, cp, Ts)
 
     write_pickle(output, profile_data)
 
@@ -47,22 +158,23 @@ def plot_profiledata(inputs, output):
 
     lines = {}
     for respath in inputs:
-        fname = os.path.basename(respath)[:-17]
+        fname = os.path.basename(respath)
 
-        name, yangle_raw, prod_raw = fname.split("_")
+        name, yangle_raw, prod_raw = fname.split("-")[0], fname.split("-")[1], fname.split("-")[2]
         yangle = int(yangle_raw) / 100
-        prod = int(prod_raw) / 10
+        ## prod = int(prod_raw) / 10
 
         line_name = name + "_" + prod_raw
 
         if line_name not in lines.keys():
             lines[line_name] = {"mred": [], "pi": [], "tot_p_loss": [], "lift_coefficient": [], "beta1": []}
         res = read_pickle(respath)
-        lines[line_name]["mred"].append(res["mred"])
-        lines[line_name]["pi"].append(res["inte_p2"] / res["inte_p1"])
-        lines[line_name]["tot_p_loss"].append(res["inte_p_tot2"] - res["inte_p_tot1"])
-        lines[line_name]["lift_coefficient"].append(res["lift_coefficient"])
-        lines[line_name]["beta1"].append(res["beta1"])
+        lines[line_name]["mred"].append(res["m_red"])
+        lines[line_name]["pi"].append(res["p_out"] / res["p_in"])
+        lines[line_name]["tot_p_loss"].append(res["p_tot_loss"])
+
+        lines[line_name]["lift_coefficient"].append(abs(res["lift_coefficient"]))
+        lines[line_name]["beta1"].append(yangle)
 
     for linename, line in lines.items():
         axs[0].plot(line["mred"], line["pi"], label=linename)
@@ -79,42 +191,44 @@ def plot_profiledata(inputs, output):
     plt.savefig(output)
     plt.close()
 
+
 def plot_profilepressure_comp(input, output):
+    fname = os.path.basename(input)[:-17]
+    name, yangle_raw, prod_raw, zslice = fname.split("-")
+    print(input, output)
+    result_dict = read_pickle(input)
 
-        fname = os.path.basename(input)[:-17]
-        name, yangle_raw, prod_raw = fname.split("_")
-        print(input)
-        print(fname)
-        result_dict = read_pickle(input)
-        refpath = os.path.join(os.path.dirname(input), "reference_" + yangle_raw + "_10_profile_data.pkl")
-        reference_dict = read_pickle(refpath)
+    refpath = os.path.join(input.replace(name, "reference").replace(prod_raw, "10"))
 
-        casename = name + "_" + prod_raw
-        prod = int(prod_raw) / 100
+    reference_dict = read_pickle(refpath)
 
+    casename = name + "_" + prod_raw
+    prod = int(prod_raw) / 100
 
-        plt.figure()
+    plt.figure()
 
-        if name == "reference":
-            plt.plot(reference_dict["profileData"]["x_zu_l_ax_ps"], reference_dict["profileData"]["cp_ps"],label=name+"_ps" )
-            plt.plot(reference_dict["profileData"]["x_zu_l_ax_ss"], reference_dict["profileData"]["cp_ss"],label=name+"_ss" )
+    if name == "reference":
+        plt.plot(reference_dict["profileData"]["x_zu_l_ax_ps"], reference_dict["profileData"]["cp_ps"],
+                 label=name + "_ps", color="blue")
+        plt.plot(reference_dict["profileData"]["x_zu_l_ax_ss"], reference_dict["profileData"]["cp_ss"],
+                 label=name + "_ss", color="red")
 
-        else:
+    else:
 
-            plt.plot(reference_dict["profileData"]["x_zu_l_ax_ps"], reference_dict["profileData"]["cp_ps"],
-                     linestyle="solid", color=(1, 1, 0), label="reference")
-            plt.plot(reference_dict["profileData"]["x_zu_l_ax_ss"], reference_dict["profileData"]["cp_ss"],
-                     linestyle="solid", color=(1, 1, 0), label="reference")
+        plt.plot(reference_dict["profileData"]["x_zu_l_ax_ps"], reference_dict["profileData"]["cp_ps"],
+                 linestyle="solid", label="reference_ps", color="blue")
+        plt.plot(reference_dict["profileData"]["x_zu_l_ax_ss"], reference_dict["profileData"]["cp_ss"],
+                 linestyle="solid", label="reference_ss", color="red")
 
-            plt.plot(result_dict["profileData"]["x_zu_l_ax_ps"], result_dict["profileData"]["cp_ps"], linestyle="dashed",
-                     color=(1, 1, 0), label=casename+"_ps")
-            plt.plot(result_dict["profileData"]["x_zu_l_ax_ss"], result_dict["profileData"]["cp_ss"], linestyle="dashed",
-                     color=(1, 1, 0), label=casename+"_ss")
-
-        plt.legend()
-
-        plt.savefig(output)
-        plt.close()
+        plt.plot(result_dict["profileData"]["x_zu_l_ax_ps"], result_dict["profileData"]["cp_ps"], linestyle="dashed",
+                 label=casename + "_ps", color="blue")
+        plt.plot(result_dict["profileData"]["x_zu_l_ax_ss"], result_dict["profileData"]["cp_ss"], linestyle="dashed",
+                 label=casename + "_ss", color="red")
+    plt.grid(True, linestyle='-', linewidth=1)
+    plt.legend()
+    plt.title(input)
+    plt.savefig(output)
+    plt.close()
 
 
 def plot_profilepressure_all(inputs, output):
@@ -150,65 +264,100 @@ def plot_profilepressure_all(inputs, output):
             ss_vals = curvevals["ss_curve"][idx]
 
             if ax_id == -1:
-                axs[0].plot(ps_vals[0], ps_vals[1], linestyle="dashed", color=(1, 1, 0), label=casename+"_ps")
-                axs[0].plot(ss_vals[0], ss_vals[1], linestyle="dashed", color=(1, 0, 0), label=casename+"_ss")
-                axs[1].plot(ps_vals[0], ps_vals[1], linestyle="dashed", color=(1, 1, 0), label=casename+"_ps")
-                axs[1].plot(ss_vals[0], ss_vals[1], linestyle="dashed", color=(1, 0, 0), label=casename+"_ss")
+                axs[0].plot(ps_vals[0], ps_vals[1], linestyle="dashed", color=(1, 1, 0), label=casename + "_ps")
+                axs[0].plot(ss_vals[0], ss_vals[1], linestyle="dashed", color=(1, 0, 0), label=casename + "_ss")
+                axs[1].plot(ps_vals[0], ps_vals[1], linestyle="dashed", color=(1, 1, 0), label=casename + "_ps")
+                axs[1].plot(ss_vals[0], ss_vals[1], linestyle="dashed", color=(1, 0, 0), label=casename + "_ss")
             else:
-                axs[ax_id].plot(ps_vals[0], ps_vals[1], linestyle="solid", color=(1, 1, 0), label=casename+"_ps")
-                axs[ax_id].plot(ss_vals[0], ss_vals[1], linestyle="solid", color=(1, 0, 0), label=casename+"_ss")
+                axs[ax_id].plot(ps_vals[0], ps_vals[1], linestyle="solid", color=(1, 1, 0), label=casename + "_ps")
+                axs[ax_id].plot(ss_vals[0], ss_vals[1], linestyle="solid", color=(1, 0, 0), label=casename + "_ss")
 
     # plt.legend()
-    plt.savefig(output)
+    plt.title(inputs)
+    plt.savefig(output, dpi=1200)
     plt.close()
 
 
 def plot_entropy_comp(input, output):
     casename = input.split("/")[1].split("_")[0]
-    refcase = input.split("/")[1].replace(casename,"reference")[:-2]+"10"
-    refpath = os.path.join(*input.split("/")[:-4],refcase,"output","cgns","TRACE.cgns")
+    refcase = input.split("/")[1].replace(casename, "reference")[:-2] + "10"
+    refpath = os.path.join(*input.split("/")[:-4], refcase, "output", "cgns", "TRACE.cgns")
 
     resultmesh = load_mesh(input)
     resultmesh.rotate_z(90)
     bounds_z = resultmesh.bounds[5] - resultmesh.bounds[4]
-    midspanplane_result = resultmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-
+    # midspanplane_result = resultmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
 
     pv.set_plot_theme("document")
 
-    if casename=="reference":
-        compute_entropy(midspanplane_result)
+    if casename == "reference":
+        compute_entropy(resultmesh)
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result,scalars="s")
-        p.show(screenshot=output,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(resultmesh, scalars="s")
+        p.show(screenshot=output, cpos=(0, 0, 1), window_size=[4800, 4800], title=input)
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
         midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0,shift_y,0))
+        midspanplane_reference.translate((0, shift_y, 0))
         compute_entropy(midspanplane_result)
         compute_entropy(midspanplane_reference)
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference,scalars="s")
-        p.add_mesh(midspanplane_result,scalars="s")
-        p.show(screenshot=output,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_reference, scalars="s")
+        p.add_mesh(midspanplane_result, scalars="s")
+        p.show(screenshot=output, cpos=(0, 0, 1), window_size=[4800, 4800], title=input)
 
-def compute_entropy(mesh):
-    cp = 1.0035
 
-    R = 8.31446261815324
+def compute_entropy(mesh, cp, R, Tref, pref):
     s0 = 0
-    T0 = 293.15
-    p0 = 1.0135e5
-    s = s0 + cp * np.log(mesh["T"]/T0)-R*np.log(mesh["p"]/p0)
-    mesh["s"]=s
+    s = s0 + cp * np.log(mesh["T"] / Tref) - R * np.log(mesh["p"] / pref)
+    mesh["s"] = s
 
 
-def plot_entropy_comp_diff(input, output):
+def plot_entropy_comp_diff(input, output, cp, R, Tref, pref):
+    casename, yangle, prod, zslice = os.path.basename(input).split("-")
+    casename = input.split("/")[-1].split("-")[0]
+    refpath = input.replace(casename, "reference").replace(prod, "10")
+
+    resultmesh = load_mesh(input)
+    resultmesh.rotate_z(90)
+
+    pv.set_plot_theme("document")
+
+    res = 4800
+    title_size = int(0.02 * res)
+    sargs = dict(
+        title_font_size=title_size,
+        label_font_size=int(0.016 * res),
+        shadow=True,
+        n_labels=3,
+        italic=True,
+        # fmt="%.1f",
+        font_family="arial",
+    )
+
+    p = pv.Plotter(off_screen=True)
+    p.add_title(input, font_size=title_size)
+    if casename == "reference":
+        compute_entropy(resultmesh, cp, R, Tref, pref)
+        p.add_mesh(resultmesh, scalars="s", scalar_bar_args=sargs, cmap="coolwarm")
+        p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
+    else:
+        refmesh = load_mesh(refpath)
+        refmesh.rotate_z(90)
+        compute_entropy(resultmesh, cp, R, Tref, pref)
+        compute_entropy(refmesh, cp, R, Tref, pref)
+        resultmesh["sdiff"] = resultmesh["s"] - refmesh["s"]
+
+        p.add_mesh(resultmesh, scalars="sdiff", scalar_bar_args=sargs, cmap="coolwarm")
+        p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
+
+
+def plot_countours(input, output_U, output_p, output_T, output_rho):
     casename = input.split("/")[1].split("_")[0]
-    refcase = input.split("/")[1].replace(casename,"reference")[:-2]+"10"
-    refpath = os.path.join(*input.split("/")[:-4],refcase,"output","cgns","TRACE.cgns")
+    refcase = input.split("/")[1].replace(casename, "reference")[:-2] + "10"
+    refpath = os.path.join(*input.split("/")[:-4], refcase, "output", "cgns", "TRACE.cgns")
 
     resultmesh = load_mesh(input)
     resultmesh.rotate_z(90)
@@ -217,97 +366,66 @@ def plot_entropy_comp_diff(input, output):
 
     pv.set_plot_theme("document")
 
-    if casename=="reference":
-        compute_entropy(midspanplane_result)
+    if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result,scalars="s")
-        p.show(screenshot=output,cpos=(0,0,1),window_size=[4800,4800])
-    else:
-        refmesh = load_mesh(refpath)
-        refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        compute_entropy(midspanplane_result)
-        compute_entropy(midspanplane_reference)
-        midspanplane_result["sdiff"] =midspanplane_result["s"]-midspanplane_reference["s"]
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result,scalars="sdiff")
-        p.show(screenshot=output,cpos=(0,0,1),window_size=[4800,4800])
-
-
-def plot_countours(input,output_U,output_p,output_T,output_rho):
-    casename = input.split("/")[1].split("_")[0]
-    refcase = input.split("/")[1].replace(casename,"reference")[:-2]+"10"
-    refpath = os.path.join(*input.split("/")[:-4],refcase,"output","cgns","TRACE.cgns")
-
-    resultmesh = load_mesh(input)
-    resultmesh.rotate_z(90)
-    bounds_z = resultmesh.bounds[5] - resultmesh.bounds[4]
-    midspanplane_result = resultmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-
-    pv.set_plot_theme("document")
-
-    if casename=="reference":
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result,scalars="U")
-        p.show(screenshot=output_U,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_result, scalars="U")
+        p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
         midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0,shift_y,0))
+        midspanplane_reference.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference,scalars="U")
-        p.add_mesh(midspanplane_result,scalars="U")
-        p.show(screenshot=output_U,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_reference, scalars="U")
+        p.add_mesh(midspanplane_result, scalars="U")
+        p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
 
-
-    if casename=="reference":
+    if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result,scalars="p")
-        p.show(screenshot=output_p,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_result, scalars="p")
+        p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
         midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0,shift_y,0))
+        midspanplane_reference.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference,scalars="p")
-        p.add_mesh(midspanplane_result,scalars="p")
-        p.show(screenshot=output_p,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_reference, scalars="p")
+        p.add_mesh(midspanplane_result, scalars="p")
+        p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
 
-    if casename=="reference":
+    if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result,scalars="T")
-        p.show(screenshot=output_T,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_result, scalars="T")
+        p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
         midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0,shift_y,0))
+        midspanplane_reference.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference,scalars="T")
-        p.add_mesh(midspanplane_result,scalars="T")
-        p.show(screenshot=output_T,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_reference, scalars="T")
+        p.add_mesh(midspanplane_result, scalars="T")
+        p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
 
-
-    if casename=="reference":
+    if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result,scalars="rho")
-        p.show(screenshot=output_rho,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_result, scalars="rho")
+        p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
         midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0,shift_y,0))
+        midspanplane_reference.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference,scalars="rho")
-        p.add_mesh(midspanplane_result,scalars="rho")
-        p.show(screenshot=output_rho,cpos=(0,0,1),window_size=[4800,4800])
+        p.add_mesh(midspanplane_reference, scalars="rho")
+        p.add_mesh(midspanplane_result, scalars="rho")
+        p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])

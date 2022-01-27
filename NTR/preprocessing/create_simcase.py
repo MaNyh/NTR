@@ -70,8 +70,8 @@ def read_parastudyaml(path_to_yaml_dict):
 def paracase_name(casepara, idx):
     subparatxt = ""
     for p, v in casepara.items():
-        subparatxt += ("_" + str(p) + "_" + str(v).replace(".", "_"))
-    sub_case_dir = "case_" + str(idx) + subparatxt
+        subparatxt += ("-" + str(p) + "-" + str(v))
+    sub_case_dir = subparatxt
     return sub_case_dir
 
 
@@ -195,7 +195,7 @@ def get_common_association(case_type):
     """
     if case_type == "openfoam_channel_les_axper" or case_type == "openfoam_channel_les_dfsem_compressible":
         return "openfoam_channelcase_les"
-    elif case_type == "trace_cascade_ras":
+    elif case_type == "trace_cascade_ras" or case_type == "trace_cascade_ras_WAKE_PARASTUD":
         return "trace_cascade_ras"
     else:
         return None

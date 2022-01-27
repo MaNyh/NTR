@@ -34,7 +34,8 @@ import matplotlib.pyplot as plt
 """Einlesen des Mittelschnitts"""
 
 
-def createBoundaryLayerData(case, path_midspan_slice, beta_01, beta_02, midspan_z, Ts, As, incom_bool=False):
+#def createBoundaryLayerData(case, path_midspan_slice, beta_01, beta_02, midspan_z, Ts, As, incom_bool=False):
+def createBoundaryLayerData(slice):
     def getProfileCoords(path_slice):
 
         reader = vtk.vtkXMLUnstructuredGridReader()

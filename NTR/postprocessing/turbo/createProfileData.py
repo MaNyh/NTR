@@ -14,9 +14,7 @@ from NTR.utils.externals.tecplot.tecplot_functions import writeTecplot1DFile
 from NTR.postprocessing.turbo.profile_loading import calc_inflow_cp
 
 
-def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, Rs, p_k, As, l_chord,
-                      cp,
-                      Ts):
+def createProfileData(slice, alpha, post_slice_1_x, post_slice_2_x, output_path, kappa, Rs, p_k, As,cp,Ts):
     """
     definitions see https://d-nb.info/1002571413/34
     :param mesh: volume mesh
@@ -34,7 +32,10 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     :param Ts: Sutherland-Constant
     :return:
     """
-    values_ss, values_ps = GetProfileValuesMidspan(mesh, alpha, midspan_z)
+    #todo: this must be placed in rig-data
+    l_chord=0.13
+
+    values_ss, values_ps = GetProfileValuesMidspan(slice, alpha)
 
     x_ss = values_ss["x_ss"]
     y_ss = values_ss["y_ss"]
@@ -55,9 +56,9 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     plt.close()
     """
     inte_mag_u1, inte_ux1, inte_uy1, inte_uz1, inte_rho1, inte_T1, inte_p1, inte_p_tot1, inte_T_tot1 = calcPostSliceValues(
-        mesh, output_path, post_slice_1_x, 1, kappa, Rs)
+        slice, output_path, post_slice_1_x, 1, kappa, Rs)
     inte_mag_u2, inte_ux2, inte_uy2, inte_uz2, inte_rho2, inte_T2, inte_p2, inte_p_tot2, inte_T_tot2 = calcPostSliceValues(
-        mesh, output_path, post_slice_2_x, 2, kappa, Rs)
+        slice, output_path, post_slice_2_x, 2, kappa, Rs)
 
     # Totaldruckverlustbeiwert
     zeta = (inte_p_tot1 - inte_p_tot2) / (inte_p_tot1 - p_k)
@@ -81,7 +82,7 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     delta_beta = beta1 - beta2
     delta_p_static = (inte_p1 - inte_p2) / (inte_p_tot1 - p_k)
 
-    y, array_names, values = getPitchValuesB2BSliceComplete(mesh, post_slice_2_x)
+    y, array_names, values = getPitchValuesB2BSliceComplete(slice, post_slice_2_x)
 
     # brechnung der amecke werte
     p_2_y = values[array_names.index('p')]
@@ -112,18 +113,12 @@ def createProfileData(mesh, midspan_z, alpha, post_slice_1_x, post_slice_2_x, ou
     """
     betriebskenndaten
     """
-    p_ref = 101325
-    T_ref = 288.15
-    m_s = inte_mag_u1 * inte_rho1
-
-    m_red_s = m_s * p_ref / inte_p1 * (inte_T1 / T_ref) ** .5
     lift_ps = np.trapz(p_ss, x_ss)
     lift_ss = np.trapz(p_ps, x_ps)
     lift = lift_ps + lift_ss
 
     ans = {}
 
-    ans["mred"] = m_red_s
     ans["lift"] = lift
     ans["lift_coefficient"] = lift / (0.5*inte_rho1* inte_mag_u1**2* l_chord)
     ans["zeta"] = zeta
@@ -230,10 +225,9 @@ def calcProfileValues(p_ss, p_ps, x_ss, inte_p_tot1, output_path, x_ps, y_ss, y_
     return x_ss, y_ss, x_zu_l_ax_ss, p_ss, cp_ss, cp_max_ss, ma_is_x_ss, x_ps, y_ps, x_zu_l_ax_ps, p_ps, cp_ps, cp_max_ps, ma_is_x_ps
 
 
-def calcPostSliceValues(mesh, output_path, x, ind, kappa, R_L):
-    cut_plane = mesh.slice(normal="x", origin=(x, 0, 0))
-    points = cut_plane.points
-    npts = cut_plane.number_of_points
+def calcPostSliceValues(slice, output_path, x, ind, kappa, R_L):
+    points = slice.points
+    npts = slice.number_of_points
 
     xx = np.zeros(npts)
     y = np.zeros(npts)
@@ -245,17 +239,17 @@ def calcPostSliceValues(mesh, output_path, x, ind, kappa, R_L):
         xx[ii] = pt[0]
         zz[ii] = pt[2]
 
-    mag_u_array = absvec_array(cut_plane.point_data["U"])
+    mag_u_array = absvec_array(slice.point_data["U"])
 
     nvls = len(mag_u_array)
 
-    ux_array = cut_plane.point_data["U"][::, 0]
-    uy_array = cut_plane.point_data["U"][::, 1]
-    uz_array = cut_plane.point_data["U"][::, 2]
+    ux_array = slice.point_data["U"][::, 0]
+    uy_array = slice.point_data["U"][::, 1]
+    uz_array = slice.point_data["U"][::, 2]
 
-    rho_array = cut_plane.point_data["rho"]
-    T_array = cut_plane.point_data["T"]
-    p_array = cut_plane.point_data["p"]
+    rho_array = slice.point_data["rho"]
+    T_array = slice.point_data["T"]
+    p_array = slice.point_data["p"]
 
     mag_u = []
 

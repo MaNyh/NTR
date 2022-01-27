@@ -326,10 +326,6 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
 
         return theta
 
-    y_rel = []
-
-    for i in range(len(y)):
-        y_rel.append((y[i] - min(y)) / (max(y) - min(y)))
 
     def calcI1(pt_2_y, beta_2_y, p_2_y, y_rel, pt_1, kappa):
         """
@@ -414,6 +410,12 @@ def calcPos2ValuesByAmecke(pt_2_y, beta_2_y, p_2_y, y, pt_1, kappa=1.4):
                 (kappa ** 2 - 1.0) / (4.0 * kappa ** 2)) * (I3 ** 2 / I2 ** 2))))
 
         return ma
+
+
+    maxy = max(y)
+    miny = min(y)
+    y_rel = (np.array(y) -miny)/(maxy-miny)
+
 
     I1 = calcI1(pt_2_y, beta_2_y, p_2_y, y_rel, pt_1, kappa)
     I2 = calcI2(pt_2_y, beta_2_y, p_2_y, y_rel, pt_1, kappa)

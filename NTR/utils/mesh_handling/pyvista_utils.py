@@ -55,9 +55,20 @@ def load_mesh(path_to_mesh):
                     appendFilter.AddInputData(block)
                     appendFilter.Update()
 
-#                    mesh = mesh.merge(block)
-    vtkmesh = appendFilter.GetOutput()
-    mesh = pv.UnstructuredGrid(vtkmesh)
+            vtkmesh = appendFilter.GetOutput()
+            mesh = pv.UnstructuredGrid(vtkmesh)
+
+    elif extension == ".vtm":
+        mesh = pv.PolyData()
+        multiBlockMesh = pv.MultiBlock(path_to_mesh)
+        for domainId in range(multiBlockMesh.GetNumberOfBlocks()):
+            domain = multiBlockMesh.GetBlock(domainId)
+            for blockId in range(domain.GetNumberOfBlocks()):
+                block = domain.GetBlock(blockId)
+                for patchId in range(block.GetNumberOfBlocks()):
+                    patch = block.GetBlock(patchId)
+                    mesh = mesh.merge(patch)
+
     mesh = translate_meshnames(mesh)
     return mesh
 

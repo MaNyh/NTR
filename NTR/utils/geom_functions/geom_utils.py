@@ -208,10 +208,7 @@ def rotatePoints(origin, x, y, angle):
     return new_x, new_y
 
 
-def GetProfileValuesMidspan(volmesh, alpha, midspan_z):
-    volmesh = mesh_scalar_gradients(volmesh,"U")
-    midspan_slice = volmesh.slice(normal="z", origin=(0, 0, midspan_z))
-    midspan_slice = midspan_slice.compute_normals()
+def GetProfileValuesMidspan(midspan_slice, alpha, ):
     geo = midspan_slice.extract_feature_edges()
 
     # points_complete = alle punkte auf dem mittelschnitt mit domain
@@ -263,8 +260,7 @@ def GetProfileValuesMidspan(volmesh, alpha, midspan_z):
     wall_shear_stress_ps = []
     wall_shear_stress_explike_ss = []
     wall_shear_stress_explike_ps = []
-
-    normals_ps = np.asarray([geo.cell_normals[i] for i in indexes_ps])
+    normals_ps = np.asarray([geo["Normals"][i] for i in indexes_ps])
     #geo = geo.cell_data_to_point_data()
     for i in geo.point_data:
         values_ss[i] = []
@@ -367,9 +363,7 @@ def GetProfileValuesMidspan(volmesh, alpha, midspan_z):
     return values_ss, values_ps
 
 
-def getPitchValuesB2BSliceComplete(mesh, x):
-
-    cut_plane = mesh.slice(normal="x", origin=(x, 0, 0))
+def getPitchValuesB2BSliceComplete(cut_plane, x):
 
     points = cut_plane.points
 
