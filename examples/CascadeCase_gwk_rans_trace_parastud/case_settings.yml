@@ -83,9 +83,7 @@ simcase_settings:
             - 50.0
         GLOBAL_TOLERANCE: "0.0000001"
 
-        OGR_PROD:
-            - 0.8
-            - 1.2
+        OGR_PROD: 1
         OGR_DIFF: 1
         OGR_DISS: 1
         WAKE_PROD: 1
