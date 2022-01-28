@@ -203,3 +203,42 @@ def print_meshquality(mesh):
     print("mean: " + str(round(np.mean(mquals),2)))
     print("min: " + str(round(np.min(mquals),2)))
     print("max: " + str(round(np.max(mquals),2)))
+
+
+def contour_screenshot(output, resultmesh,scalar):
+    pv.set_plot_theme("document")
+    res = 4800
+    title_size = int(0.02 * res)
+    sargs = dict(
+        title_font_size=title_size,
+        label_font_size=int(0.016 * res),
+        shadow=True,
+        n_labels=3,
+        italic=True,
+        # fmt="%.1f",
+        font_family="arial",
+    )
+    p = pv.Plotter(off_screen=True)
+    p.add_title(output, font_size=title_size)
+    p.add_mesh(resultmesh, scalars=scalar, scalar_bar_args=sargs, cmap="coolwarm")
+    p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
+
+
+def contour_screenshot_compare(output, mesh1, mesh2, scalar):
+    pv.set_plot_theme("document")
+    res = 4800
+    title_size = int(0.02 * res)
+    sargs = dict(
+        title_font_size=title_size,
+        label_font_size=int(0.016 * res),
+        shadow=True,
+        n_labels=3,
+        italic=True,
+        # fmt="%.1f",
+        font_family="arial",
+    )
+    p = pv.Plotter(off_screen=True)
+    p.add_title(output, font_size=title_size)
+    p.add_mesh(mesh1, scalars=scalar, scalar_bar_args=sargs, cmap="coolwarm")
+    p.add_mesh(mesh2, scalars=scalar, scalar_bar_args=sargs, cmap="coolwarm")
+    p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])

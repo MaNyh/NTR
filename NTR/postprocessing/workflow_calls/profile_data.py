@@ -8,8 +8,8 @@ from NTR.utils.filehandling import write_pickle, read_pickle
 from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.postprocessing.turbo.createProfileData import createProfileData
 from NTR.utils.mesh_handling.pyvista_utils import mesh_scalar_gradients
-from NTR.utils.mathfunctions import vecAngle, vecAbs, vecProjection
-
+from NTR.utils.mathfunctions import vecAbs, vecProjection
+from NTR.utils.mesh_handling.pyvista_utils import contour_screenshot, contour_screenshot_compare
 
 def areaAvePlane(mesh, val):
     array = mesh[val]
@@ -323,109 +323,63 @@ def plot_entropy_comp_diff(input, output, cp, R, Tref, pref):
     resultmesh = load_mesh(input)
     resultmesh.rotate_z(90)
 
-    pv.set_plot_theme("document")
 
-    res = 4800
-    title_size = int(0.02 * res)
-    sargs = dict(
-        title_font_size=title_size,
-        label_font_size=int(0.016 * res),
-        shadow=True,
-        n_labels=3,
-        italic=True,
-        # fmt="%.1f",
-        font_family="arial",
-    )
-
-    p = pv.Plotter(off_screen=True)
-    p.add_title(input, font_size=title_size)
     if casename == "reference":
         compute_entropy(resultmesh, cp, R, Tref, pref)
-        p.add_mesh(resultmesh, scalars="s", scalar_bar_args=sargs, cmap="coolwarm")
-        p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
+
+        contour_screenshot(output, resultmesh,"s")
     else:
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
         compute_entropy(resultmesh, cp, R, Tref, pref)
         compute_entropy(refmesh, cp, R, Tref, pref)
         resultmesh["sdiff"] = resultmesh["s"] - refmesh["s"]
-
-        p.add_mesh(resultmesh, scalars="sdiff", scalar_bar_args=sargs, cmap="coolwarm")
-        p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
+        contour_screenshot(output, resultmesh,"sdiff")
 
 
 def plot_countours(input, output_U, output_p, output_T, output_rho):
-    casename = input.split("/")[1].split("_")[0]
-    refcase = input.split("/")[1].replace(casename, "reference")[:-2] + "10"
-    refpath = os.path.join(*input.split("/")[:-4], refcase, "output", "cgns", "TRACE.cgns")
+    casename = input.split("/")[1].split("-")[0]
+    origprod = input.split("/")[1].split("-")[2]
+
+    refcase = input.replace(casename, "reference").replace(origprod,"10")
 
     resultmesh = load_mesh(input)
     resultmesh.rotate_z(90)
-    bounds_z = resultmesh.bounds[5] - resultmesh.bounds[4]
-    midspanplane_result = resultmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
 
-    pv.set_plot_theme("document")
 
     if casename == "reference":
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="U")
-        p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
+        contour_screenshot(output_U, resultmesh)
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
-        refmesh = load_mesh(refpath)
+        refmesh = load_mesh(refcase)
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
-
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="U")
-        p.add_mesh(midspanplane_result, scalars="U")
-        p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
+        refmesh.translate((0, shift_y, 0))
+        contour_screenshot_compare(output_U,refmesh,resultmesh,"U")
 
     if casename == "reference":
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="p")
-        p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
+        contour_screenshot(output_p,resultmesh,"p")
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
-        refmesh = load_mesh(refpath)
+        refmesh = load_mesh(refcase)
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
+        refmesh.translate((0, shift_y, 0))
 
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="p")
-        p.add_mesh(midspanplane_result, scalars="p")
-        p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
+        contour_screenshot_compare(output_p,refmesh,resultmesh,"p")
 
     if casename == "reference":
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="T")
-        p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
+        contour_screenshot(output_T,resultmesh,"T")
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
-        refmesh = load_mesh(refpath)
+        refmesh = load_mesh(refcase)
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
-
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="T")
-        p.add_mesh(midspanplane_result, scalars="T")
-        p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
+        refmesh.translate((0, shift_y, 0))
+        contour_screenshot(output_T,resultmesh,"T")
 
     if casename == "reference":
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="rho")
-        p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
+        contour_screenshot(output_rho,resultmesh,"rho")
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
-        refmesh = load_mesh(refpath)
+        refmesh = load_mesh(refcase)
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
-
-        p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="rho")
-        p.add_mesh(midspanplane_result, scalars="rho")
-        p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
+        refmesh.translate((0, shift_y, 0))
+        contour_screenshot_compare(output_rho,refmesh,resultmesh,"rho")

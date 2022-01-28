@@ -70,7 +70,7 @@ def read_parastudyaml(path_to_yaml_dict):
 def paracase_name(casepara, idx):
     subparatxt = ""
     for p, v in casepara.items():
-        subparatxt += ("-" + str(p) + "-" + str(v))
+        subparatxt += (str(p) + "-" + str(v))
     sub_case_dir = subparatxt
     return sub_case_dir
 

@@ -24,7 +24,7 @@ case_settings:
         job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
         job_exe: "TRACE"
         job_name: *name
-        job_runtime: "6:00:00" #h
+        job_runtime: "12:00:00" #h
         job_nodes : "1"
         job_ppn : "12"
         job_mem : "12"
@@ -43,7 +43,7 @@ case_settings:
 simcase_settings:
     variables:
 
-        TURBMODEL_IDENTIFIER: "Wilcox1988"   # MenterSST2003 // Wilcox1988
+        TURBMODEL_IDENTIFIER: "MNEDITWilcox1988"   # MenterSST2003 // Wilcox1988
 
         ACCURACY_ORDER: "2ndOrder"
         STAGPOINT_ANNOMALLYFIX: "KatoLaunder"
