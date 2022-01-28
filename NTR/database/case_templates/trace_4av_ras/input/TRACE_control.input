@@ -1,0 +1,2 @@
+all immediate ChangeTurbulenceSettings --model Wilcox1988 --solutionMethod ILU --transitionModel OFF
+all immediate ChangeScalarTransportAttr --model TURBULENCE --spaceAccuracy 2ndOrder

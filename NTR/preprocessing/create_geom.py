@@ -41,7 +41,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
         points,
         alpha,
         verbose)
-
+    ##############################################################
     x_mids = midsPoly.points[::, 0]
     y_mids = midsPoly.points[::, 1]
     x_ss = ssPoly.points[::, 0]
