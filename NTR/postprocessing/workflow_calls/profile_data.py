@@ -2,6 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
+import pandas as pd
 import pyvista as pv
 
 from NTR.utils.filehandling import write_pickle, read_pickle
@@ -42,10 +43,8 @@ def massflowAvePlane(mesh, val):
     return mass_ave
 
 
-
 def rigvals(inlet,outlet,blade, output, p_ref, T_ref):
     path = os.path.normpath(os.path.dirname(inlet))
-    #print(path)
     #casename, yangle, prod = os.path.basename(inlet).split("-")
     inlet = load_mesh(inlet).extract_surface()
     outlet = load_mesh(outlet).extract_surface()
@@ -75,15 +74,19 @@ def rigvals(inlet,outlet,blade, output, p_ref, T_ref):
 
     p_out = areaAvePlane(outlet,"p")
     p_out_dyn = np.array(outlet["U"] ** 2).sum(axis=1) * outlet["rho"] / 2
+    outlet["p_out_dyn"]=p_out_dyn
+    p_out_dyn_ave = areaAvePlane(outlet,"p_out_dyn")
 
     p_in = areaAvePlane(inlet,"p")
     p_in_dyn = np.array(inlet["U"] ** 2).sum(axis=1) * inlet["rho"] / 2
+    inlet["p_in_dyn"] = p_in_dyn
+    p_in_dyn_ave = areaAvePlane(inlet, "p_in_dyn")
 
     inlet["u-normal"] = np.array([vecAbs(vecProjection(u,n)) for u,n in zip(inlet["U"], inlet["Normals"])])
     inlet["i-normal"] = inlet["u-normal"] * inlet["rho"]
     m_s = areaAvePlane(inlet,"i-normal")  # areaAvePlane(inflow,"U")*areaAvePlane(inflow,"rho")
     m_red_s = ((m_s * (p_ref / areaAvePlane(inlet, "p"))) * (areaAvePlane(inlet, "T") / T_ref)) ** .5
-    p_tot_loss = (p_out + p_out_dyn) - (p_in + p_in_dyn)
+    p_tot_loss = -((p_out + p_out_dyn_ave) - (p_in + p_in_dyn_ave))
 
 
     force = blade["Area"] * blade["p"]
@@ -154,7 +157,7 @@ def profile_data_workflow(input, output, rigvals, alpha, kappa, As, Ts, R_L, cp)
 
 
 def plot_profiledata(inputs, output):
-    fig, axs = plt.subplots(1, 3)
+    fig, axs = plt.subplots(1, 3,figsize=(13,8))
 
     lines = {}
     for respath in inputs:
@@ -188,6 +191,7 @@ def plot_profiledata(inputs, output):
     axs[2].set_ylabel('lift')
     # plt.show()
     plt.legend()
+    plt.tight_layout()
     plt.savefig(output)
     plt.close()
 
@@ -195,7 +199,6 @@ def plot_profiledata(inputs, output):
 def plot_profilepressure_comp(input, output):
     fname = os.path.basename(input)[:-17]
     name, yangle_raw, prod_raw, zslice = fname.split("-")
-    print(input, output)
     result_dict = read_pickle(input)
 
     refpath = os.path.join(input.replace(name, "reference").replace(prod_raw, "10"))
@@ -286,7 +289,6 @@ def plot_entropy_comp(input, output):
     resultmesh = load_mesh(input)
     resultmesh.rotate_z(90)
     bounds_z = resultmesh.bounds[5] - resultmesh.bounds[4]
-    # midspanplane_result = resultmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
 
     pv.set_plot_theme("document")
 
@@ -355,77 +357,92 @@ def plot_entropy_comp_diff(input, output, cp, R, Tref, pref):
 
 
 def plot_countours(input, output_U, output_p, output_T, output_rho):
-    casename = input.split("/")[1].split("_")[0]
-    refcase = input.split("/")[1].replace(casename, "reference")[:-2] + "10"
-    refpath = os.path.join(*input.split("/")[:-4], refcase, "output", "cgns", "TRACE.cgns")
+    directory = input.split("/")[0]
+    casename = input.split("/")[1].split("-")[0]
+    prod = input.split("/")[1].split("-")[2]
+    refcase = input.split("/")[1].replace(casename, "reference").replace(prod,"10")
+    refpath = os.path.join(directory, refcase)
 
     resultmesh = load_mesh(input)
     resultmesh.rotate_z(90)
-    bounds_z = resultmesh.bounds[5] - resultmesh.bounds[4]
-    midspanplane_result = resultmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-
     pv.set_plot_theme("document")
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="U")
+        p.add_mesh(resultmesh, scalars="U")
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
+
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
+        refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="U")
-        p.add_mesh(midspanplane_result, scalars="U")
+        p.add_mesh(refmesh, scalars="U")
+        p.add_mesh(resultmesh, scalars="U")
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="p")
+        p.add_mesh(resultmesh, scalars="p")
         p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
+        refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="p")
-        p.add_mesh(midspanplane_result, scalars="p")
+        p.add_mesh(refmesh, scalars="p")
+        p.add_mesh(resultmesh, scalars="p")
         p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="T")
+        p.add_mesh(resultmesh, scalars="T")
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
+        refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="T")
-        p.add_mesh(midspanplane_result, scalars="T")
+        p.add_mesh(refmesh, scalars="T")
+        p.add_mesh(resultmesh, scalars="T")
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_result, scalars="rho")
+        p.add_mesh(resultmesh, scalars="rho")
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
         refmesh.rotate_z(90)
-        midspanplane_reference = refmesh.slice(normal="z", origin=(0, 0, bounds_z / 2))
-        midspanplane_reference.translate((0, shift_y, 0))
+        refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(midspanplane_reference, scalars="rho")
-        p.add_mesh(midspanplane_result, scalars="rho")
+        p.add_mesh(refmesh, scalars="rho")
+        p.add_mesh(resultmesh, scalars="rho")
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
+
+
+def check_trace_residuals(input,output):
+    def readCSV(path, start_row, header, seperator):
+        df = pd.read_csv(path,skiprows=start_row,header=header,sep=seperator)
+        return df
+
+    converged = {}
+    for i in input:
+        residual = readCSV(i,4,None,seperator="\s+")
+        rmsMax = 1e-3
+        if not all([True if i > rmsMax else False for i in residual[3][-100:]]):
+            converged[input] = True
+        else:
+            converged[input] = False
+    if all(converged.values()):
+        f = open(output[0],"a")
+        f.write("OK")
+        f.close()

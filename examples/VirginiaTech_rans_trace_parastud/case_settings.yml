@@ -36,16 +36,17 @@ simcase_settings:
         SECDEV_TDR: 1
         SECDEV_TPR:
             - 0.8
-            - 1
             - 1.2
         CLEARANCE_TDR: 1
         CLEARANCE_TPR: 1
         INLETANGLE:
+            - 60.00
             - 61.00
             - 62.00
             - 63.00
             - 64.00
             - 65.00
+            - 66.00
 
     options:
         simcase_optiondef:

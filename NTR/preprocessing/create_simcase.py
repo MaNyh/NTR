@@ -67,10 +67,10 @@ def read_parastudyaml(path_to_yaml_dict):
     return settings_parastud
 
 
-def paracase_name(casepara, idx):
+def paracase_name(casepara):
     subparatxt = ""
     for p, v in casepara.items():
-        subparatxt += ("-" + str(p) + "-" + str(v))
+        subparatxt += (str(p) + "-" + str(v))
     sub_case_dir = subparatxt
     return sub_case_dir
 
@@ -92,10 +92,10 @@ def create_parastudsims(path_to_parayaml):
             settings_dict["case_settings"]["type"] = "simulation"
 
             casepara = construct_paracasedict(paras, settings_dict)
-            sub_case_dir = paracase_name(casepara, idx)
+            para_case_name = paracase_name(casepara)
 
             tmp_dir = tempfile.TemporaryDirectory()
-            target_dir = os.path.join(casepath, casedirs["simcase"], sub_case_dir)
+            target_dir = os.path.join(casepath, casedirs["simcase"], para_case_name)
 
             tmp_yml = os.path.join(tmp_dir.name, "tmp_settings.yaml")
             with open(tmp_yml, "w") as handle:
@@ -123,7 +123,7 @@ def create_parastudsims(path_to_parayaml):
 
             sim_dirs.append(os.path.basename(target_dir))
 
-            create_jobmanagement(casetype, settings_dict, os.path.join(casepath, sub_case_dir))
+            create_jobmanagement(casetype, settings_dict, os.path.join(casepath, para_case_name))
             pbar.update(1)
     mgmt_parastud(settings, casepath, sim_dirs)
 
