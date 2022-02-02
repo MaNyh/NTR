@@ -41,7 +41,7 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
         points,
         alpha,
         verbose)
-
+    ##############################################################
     x_mids = midsPoly.points[::, 0]
     y_mids = midsPoly.points[::, 1]
     x_ss = ssPoly.points[::, 0]
@@ -144,14 +144,14 @@ def create_geometry_frompointcloud(path_profile_coords, settings, casepath, verb
     psPoly_line = lines_from_points(psPoly.points)
     psPoly_surf = psPoly_line.extrude(vector=(0, 0, 0.1))
     psPoly_surf = psPoly_surf.compute_normals()
-    psPoly_surf.points += 0.01 * psPoly_surf.point_arrays["Normals"]
+    psPoly_surf.points += 0.01 * psPoly_surf.point_data["Normals"]
     psPoly_surf.translate((0, 0, -0.05))
     psPoly_slice = psPoly_surf.slice(origin=(0, 0, 0), normal=(0, 0, 1))
 
     ssPoly_line = lines_from_points(ssPoly.points)
     ssPoly_surf = ssPoly_line.extrude(vector=(0, 0, 0.1))
     ssPoly_surf = ssPoly_surf.compute_normals()
-    ssPoly_surf.points += 0.01 * ssPoly_surf.point_arrays["Normals"]
+    ssPoly_surf.points += 0.01 * ssPoly_surf.point_data["Normals"]
     ssPoly_surf.translate((0, 0, -0.05))
     ssPoly_slice = ssPoly_surf.slice(origin=(0, 0, 0), normal=(0, 0, 1))
     p = pv.Plotter()

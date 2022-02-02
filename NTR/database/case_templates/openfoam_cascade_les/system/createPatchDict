@@ -65,7 +65,7 @@ patches
 
             transform translational;
             separationVector (0 0 <var ZSPAN var>);
-            matchTolerance 0.02;
+            matchTolerance 0.01;
         }
 
         // How to construct: either from 'patches' or 'set'
@@ -90,7 +90,7 @@ patches
 
             transform translational;
             separationVector (0 0 -<var ZSPAN var>);
-            matchTolerance 0.1;
+            matchTolerance 0.01;
         }
 
         // How to construct: either from 'patches' or 'set'
@@ -115,7 +115,7 @@ patches
 
             transform translational;
             separationVector (0 0.0765 0);
-            matchTolerance 0.1;
+            matchTolerance 0.01;
         }
 
         // How to construct: either from 'patches' or 'set'
@@ -136,7 +136,7 @@ patches
 
             transform translational;
             separationVector (0 -0.0765 0);
-            matchTolerance 0.02;
+            matchTolerance 0.01;
         }
 
         // How to construct: either from 'patches' or 'set'

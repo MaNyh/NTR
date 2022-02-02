@@ -39,8 +39,35 @@ def load_mesh(path_to_mesh):
         elif str(type(cgns)).find('vtkUnstructuredGrid') != -1:
             mesh = pv.UnstructuredGrid(cgns)
         elif str(type(cgns)).find('vtkMultiBlockDataSet') != -1:
-            mesh = pv.UnstructuredGrid(cgns)
 
+            appendFilter = vtk.vtkAppendFilter()
+            # Points with same coordinates are merged
+            # with tolerance 0.0000001 GMC GLOBAL Properties
+            appendFilter.MergePointsOn()
+            appendFilter.SetTolerance(0.0000001)
+
+#            mesh = pv.UnstructuredGrid()
+            multiBlockMesh = pv.MultiBlock(cgns)
+            for domainId in range(multiBlockMesh.GetNumberOfBlocks()):
+                domain = multiBlockMesh.GetBlock(domainId)
+                for blockId in range(domain.GetNumberOfBlocks()):
+                    block = domain.GetBlock(blockId)
+                    appendFilter.AddInputData(block)
+                    appendFilter.Update()
+
+            vtkmesh = appendFilter.GetOutput()
+            mesh = pv.UnstructuredGrid(vtkmesh)
+
+    elif extension == ".vtm":
+        mesh = pv.PolyData()
+        multiBlockMesh = pv.MultiBlock(path_to_mesh)
+        for domainId in range(multiBlockMesh.GetNumberOfBlocks()):
+            domain = multiBlockMesh.GetBlock(domainId)
+            for blockId in range(domain.GetNumberOfBlocks()):
+                block = domain.GetBlock(blockId)
+                for patchId in range(block.GetNumberOfBlocks()):
+                    patch = block.GetBlock(patchId)
+                    mesh = mesh.merge(patch)
 
     mesh = translate_meshnames(mesh)
     return mesh

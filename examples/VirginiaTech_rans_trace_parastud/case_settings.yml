@@ -13,40 +13,40 @@ case_settings:
         postprocessing-status:
             need of more postprocessing and evaluation methods
     prep: |
-        cp ../../00_Ressources/split_48.cgns input/.
+        cp ../../00_Ressources/VT.cgns input/TRACE.cgns
         dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh
-
+        cd input/
+        /bigwork/nhkckcen/sw/GMC/gmc_9_3_4/gmcPlay_v9_3_4 virginiatech.jou
+        cd ..
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
         job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
         job_exe: "TRACE"
         job_name: *name
-        job_runtime: "10:00:00" #h
-        job_nodes : "1"
+        job_runtime: "30:00:00" #h
+        job_nodes : "4"
         job_ppn : "12"
-        job_mem : "12"
+        job_mem : "24"
         account : "niinyhma"
     sub_cmd : "sh"
 
 simcase_settings:
     variables:
 
-        SECDEV_TDR:
-            - 0.8
-            - 1
-            - 1.2
+        SECDEV_TDR: 1
         SECDEV_TPR:
             - 0.8
-            - 1
             - 1.2
-        CLEARANCE_TDR:
-            - 0.8
-            - 1
-            - 1.2
-        CLEARANCE_TPR:
-            - 0.8
-            - 1
-            - 1.2
+        CLEARANCE_TDR: 1
+        CLEARANCE_TPR: 1
+        INLETANGLE:
+            - 60.00
+            - 61.00
+            - 62.00
+            - 63.00
+            - 64.00
+            - 65.00
+            - 66.00
 
     options:
         simcase_optiondef:

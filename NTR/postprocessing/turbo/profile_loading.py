@@ -15,8 +15,9 @@ from NTR.utils.mesh_handling.pyvista_utils import lines_from_points
 from NTR.preprocessing.create_geom import calcConcaveHull
 
 def extract_profile_from_volmesh(alpha, volmesh):
-
-    surface = volmesh.extract_surface()
+    surf_idx = volmesh.surface_indices()
+    surface_vol = volmesh.extract_cells(surf_idx)
+    surface = surface_vol.extract_surface()
     bounds = surface.bounds
 
     midspan_z = (bounds[-1] - bounds[-2]) / 2
@@ -32,9 +33,9 @@ def extract_profile_from_volmesh(alpha, volmesh):
     innerIds = []
     for idx in z_slice["pointIds"]:
         if allxx[idx] in list(outerxx) and allyy[idx] in list(outeryy):
-            innerIds.append(idx)
-        else:
             outerIds.append(idx)
+        else:
+            innerIds.append(idx)
 
     profilepoints = z_slice.extract_points(innerIds)
 
@@ -102,17 +103,19 @@ def calc_loading_volmesh(volmesh, alpha, verbose=False):
 
     for idx, pt in enumerate(psVals.points):
         ps_xc[idx] = pt[0] / camber.length
-        ps_cp[idx] = calc_inflow_cp(psVals.point_arrays["p"][idx], p2, p1)
+        ps_cp[idx] = calc_inflow_cp(psVals.point_data["p"][idx], p2, p1)
 
     ss_xc = np.zeros(ssVals.number_of_points)
     ss_cp = np.zeros(ssVals.number_of_points)
 
     for idx, pt in enumerate(ssVals.points):
         ss_xc[idx] = pt[0] / camber.length
-        ss_cp[idx] = calc_inflow_cp(ssVals.point_arrays["p"][idx], p2, p1)
+        ss_cp[idx] = calc_inflow_cp(ssVals.point_data["p"][idx], p2, p1)
 
     ssVals["xc"] = ss_xc
+    ssVals["cp"] = ss_cp
     psVals["xc"] = ps_xc
+    psVals["cp"] = ps_cp
 
     if verbose:
         plt.figure()

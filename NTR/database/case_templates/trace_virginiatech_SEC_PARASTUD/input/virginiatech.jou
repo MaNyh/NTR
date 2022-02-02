@@ -1,0 +1,5 @@
+gmc -> open 'TRACE.cgns'
+gmc -> set_attributes of panel_group named 'inlet' : set VelocityAngleYAbs to -<var INLETANGLE var>
+gmc -> set_attributes of panel_group named 'inlet' : set Species all to null
+gmc -> set_trace6_conventions on
+gmc -> save 'TRACE.cgns'

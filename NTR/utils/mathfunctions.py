@@ -93,7 +93,7 @@ def radiusFromPt(pts, sigma):
 
 
 def vecAbs(vec):
-    return np.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2)
+    return (sum(vec**2))**.5#np.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2)
 
 
 def vecDir(vec):
