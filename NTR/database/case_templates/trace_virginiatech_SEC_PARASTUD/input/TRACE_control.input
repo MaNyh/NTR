@@ -1,39 +1,39 @@
 all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
 
 #in gmc 5,6,7,8
+block 4 immediate Update_tmCoeffs diffusionCoeff 1
+block 4 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 4 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+
+block 5 immediate Update_tmCoeffs diffusionCoeff 1
+block 5 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 5 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+
 block 6 immediate Update_tmCoeffs diffusionCoeff 1
-block 6 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
-block 6 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
+block 6 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 6 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
 
 block 7 immediate Update_tmCoeffs diffusionCoeff 1
-block 7 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
-block 7 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
-
-block 8 immediate Update_tmCoeffs diffusionCoeff 1
-block 8 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
-block 8 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
-
-block 9 immediate Update_tmCoeffs diffusionCoeff 1
-block 9 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
-block 9 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
+block 7 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
+block 7 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
 
 
 #in gmc 11,12,13,14
-block 12 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
-block 12 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+block 10 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 10 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
+block 10 immediate Update_tmCoeffs diffusionCoeff 1
+
+block 11 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 11 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
+block 11 immediate Update_tmCoeffs diffusionCoeff 1
+
+block 12 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 12 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
 block 12 immediate Update_tmCoeffs diffusionCoeff 1
 
-block 13 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
-block 13 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
+block 13 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_TDR var>"
+block 13 immediate Update_tmCoeffs productionCoeff "<var SECDEV_TPR var>"
 block 13 immediate Update_tmCoeffs diffusionCoeff 1
-
-block 14 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
-block 14 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
-block 14 immediate Update_tmCoeffs diffusionCoeff 1
-
-block 15 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_TDR var>"
-block 15 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_TPR var>"
-block 15 immediate Update_tmCoeffs diffusionCoeff 1
 
 all immediate LHSRecomputationInterval 100
 all immediate LHSRecomputationPredictorThreshold 0.1

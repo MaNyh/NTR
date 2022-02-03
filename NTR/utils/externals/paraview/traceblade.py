@@ -9,23 +9,29 @@ from paraview.simple import *
 paraview.simple._DisableFirstRenderCameraReset()
 
 # create a new 'CGNS Series Reader'
-tRACEcgns = CGNSSeriesReader(FileNames=[r"<var MESH var>"])
-tRACEcgns.Blocks = ['/Hierarchy/Base#1/Block_1/Grid', '/Hierarchy/Base#1/Block_10/Grid', '/Hierarchy/Base#1/Block_11/Grid', '/Hierarchy/Base#1/Block_12/Grid', '/Hierarchy/Base#1/Block_2/Grid', '/Hierarchy/Base#1/Block_3/Grid', '/Hierarchy/Base#1/Block_4/Grid', '/Hierarchy/Base#1/Block_5/Grid', '/Hierarchy/Base#1/Block_6/Grid', '/Hierarchy/Base#1/Block_7/Grid', '/Hierarchy/Base#1/Block_8/Grid', '/Hierarchy/Base#1/Block_9/Grid']
+tRACE_2Dcgns = CGNSSeriesReader(FileNames=[r"<var MESH var>"])
+# Properties modified on tRACE_2Dcgns
+tRACE_2Dcgns.CellArrayStatus = ['BoundaryLayerEdgeIndex', 'BoundaryLayerEdgeVelocity', 'Density', 'DistanceWallCoordinate', 'HeatFluxWall', 'HeightLaminarSublayer', 'Intermittency', 'Pressure', 'ReynoldsMomentumThickness', 'ReynoldsMomentumThickness0', 'ShearStressWall', 'Temperature', 'ThicknessBoundaryLayer', 'ThicknessDisplacement', 'ThicknessDisplacementInc', 'ThicknessMomentum', 'ThicknessMomentumInc', 'TurbulenceIntensityNearWall', 'TurbulentDissipationRate', 'TurbulentEnergyKinetic', 'Velocity', 'ViscosityEddyRatioNearWall']
 
-# Properties modified on tRACEcgns
-tRACEcgns.CellArrayStatus = ['Density', 'Mach', 'Pressure', 'Temperature', 'TurbulentDissipationRate', 'TurbulentDistance', 'TurbulentEnergyKinetic', 'Velocity', 'ViscosityEddy', 'ViscosityEddyRatio', 'diffusionCoeff', 'dissipationCoeff', 'productionCoeff']
 
-# Properties modified on tRACEcgns
-tRACEcgns.Blocks = ['/Hierarchy/Base#1/Block_5/2', '/Hierarchy/Base#1/Block_6/2', '/Hierarchy/Base#1/Block_7/2']
+
+# Properties modified on tRACE_2Dcgns
+tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/OUTLET-z08-p0/Grid', '/Hierarchy/Base#1/OUTLET-z09-p0/Grid', '/Hierarchy/Base#1/OUTLET-z10-p0/Grid']
+
+
+# create a new 'Merge Blocks'
+mergeBlocks1 = MergeBlocks(Input=tRACE_2Dcgns)
+
+
 # save data
-SaveData(r"<var OUTLET var>", proxy=tRACEcgns)
+SaveData(r"<var OUTLET var>", proxy=mergeBlocks1)
 
-# Properties modified on tRACEcgns
-tRACEcgns.Blocks = ['/Hierarchy/Base#1/Block_1/1', '/Hierarchy/Base#1/Block_2/1', '/Hierarchy/Base#1/Block_3/1']
+# Properties modified on tRACE_2Dcgns
+tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/INLET-z01-p0/Grid', '/Hierarchy/Base#1/INLET-z05-p0/Grid', '/Hierarchy/Base#1/INLET-z06-p0/Grid']
 # save data
-SaveData(r"<var INLET var>", proxy=tRACEcgns)
+SaveData(r"<var INLET var>", proxy=mergeBlocks1)
 
-# Properties modified on tRACEcgns
-tRACEcgns.Blocks = ['/Hierarchy/Base#1/Block_10/4', '/Hierarchy/Base#1/Block_11/4', '/Hierarchy/Base#1/Block_12/3', '/Hierarchy/Base#1/Block_9/2']
+# Properties modified on tRACE_2Dcgns
+tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/BLADE-z02-p0/Grid', '/Hierarchy/Base#1/BLADE-z03-p0/Grid', '/Hierarchy/Base#1/BLADE-z04-p0/Grid', '/Hierarchy/Base#1/BLADE-z12-p0/Grid']
 # save data
-SaveData(r"<var BLADE var>", proxy=tRACEcgns)
+SaveData(r"<var BLADE var>", proxy=mergeBlocks1)

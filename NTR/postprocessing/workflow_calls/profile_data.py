@@ -10,6 +10,7 @@ from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.postprocessing.turbo.createProfileData import createProfileData
 from NTR.utils.mesh_handling.pyvista_utils import mesh_scalar_gradients
 from NTR.utils.mathfunctions import vecAngle, vecAbs, vecProjection
+from NTR.utils.geom_functions.geom_utils import GetProfileValuesMidspan
 
 
 def areaAvePlane(mesh, val):
@@ -129,7 +130,7 @@ def zslice_domain(mesh, output, relative_heights):
     refmesh = mesh_scalar_gradients(load_mesh(mesh), "U")
     bounds = refmesh.bounds
     for rheight in relative_heights:
-        zspan = (bounds[5] - bounds[4]) * rheight
+        zspan = (bounds[4] - bounds[5]) * rheight
         slice = refmesh.slice(normal="z", origin=(0, 0, zspan))
         slice = slice.compute_normals()
         slice.save(output)
@@ -177,7 +178,8 @@ def plot_profiledata(inputs, output):
         lines[line_name]["tot_p_loss"].append(res["p_tot_loss"])
 
         lines[line_name]["lift_coefficient"].append(abs(res["lift_coefficient"]))
-        lines[line_name]["beta1"].append(yangle)
+        #todo: beta_meta_1 sollte direkt übertragen werden
+        lines[line_name]["beta1"].append(-(138.56179555815262-90)+yangle)
 
     for linename, line in lines.items():
         axs[0].plot(line["mred"], line["pi"], label=linename)
@@ -187,7 +189,7 @@ def plot_profiledata(inputs, output):
     axs[0].set_ylabel('Pi')
     axs[1].set_xlabel('mred')
     axs[1].set_ylabel('tot_p_loss')
-    axs[2].set_xlabel('mred')
+    axs[2].set_xlabel('beta1')
     axs[2].set_ylabel('lift')
     # plt.show()
     plt.legend()
@@ -196,7 +198,7 @@ def plot_profiledata(inputs, output):
     plt.close()
 
 
-def plot_profilepressure_comp(input, output):
+def plot_profilepressure_comp(input, output,highlim,lowlim):
     fname = os.path.basename(input)[:-17]
     name, yangle_raw, prod_raw, zslice = fname.split("-")
     result_dict = read_pickle(input)
@@ -229,6 +231,8 @@ def plot_profilepressure_comp(input, output):
                  label=casename + "_ss", color="red")
     plt.grid(True, linestyle='-', linewidth=1)
     plt.legend()
+    plt.ylim((lowlim, highlim))
+
     plt.title(input)
     plt.savefig(output)
     plt.close()
@@ -280,7 +284,6 @@ def plot_profilepressure_all(inputs, output):
     plt.savefig(output, dpi=1200)
     plt.close()
 
-
 def plot_entropy_comp(input, output):
     casename = input.split("/")[1].split("_")[0]
     refcase = input.split("/")[1].replace(casename, "reference")[:-2] + "10"
@@ -317,8 +320,9 @@ def compute_entropy(mesh, cp, R, Tref, pref):
     mesh["s"] = s
 
 
-def plot_entropy_comp_diff(input, output, cp, R, Tref, pref):
-    casename, yangle, prod, zslice = os.path.basename(input).split("-")
+def plot_entropy_comp_diff(input, output, cp,R,Tref,pref,s_max,s_min,sdiff_max,sdiff_min):
+    input_split = os.path.basename(input).split("-")
+    casename, yangle, prod, zslice = input_split[0],input_split[1],input_split[2],input_split[3]
     casename = input.split("/")[-1].split("-")[0]
     refpath = input.replace(casename, "reference").replace(prod, "10")
 
@@ -343,7 +347,7 @@ def plot_entropy_comp_diff(input, output, cp, R, Tref, pref):
     p.add_title(input, font_size=title_size)
     if casename == "reference":
         compute_entropy(resultmesh, cp, R, Tref, pref)
-        p.add_mesh(resultmesh, scalars="s", scalar_bar_args=sargs, cmap="coolwarm")
+        p.add_mesh(resultmesh, scalars="s", scalar_bar_args=sargs, cmap="coolwarm",clim=[s_min,s_max])
         p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
     else:
         refmesh = load_mesh(refpath)
@@ -352,7 +356,7 @@ def plot_entropy_comp_diff(input, output, cp, R, Tref, pref):
         compute_entropy(refmesh, cp, R, Tref, pref)
         resultmesh["sdiff"] = resultmesh["s"] - refmesh["s"]
 
-        p.add_mesh(resultmesh, scalars="sdiff", scalar_bar_args=sargs, cmap="coolwarm")
+        p.add_mesh(resultmesh, scalars="sdiff", scalar_bar_args=sargs, cmap="coolwarm",clim=[sdiff_min,sdiff_max])
         p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
 
 
@@ -446,3 +450,14 @@ def check_trace_residuals(input,output):
         f = open(output[0],"a")
         f.write("OK")
         f.close()
+
+def boundary_layer_values(input,output,relative_height, alpha):
+    mesh = load_mesh(input)
+    mesh = mesh.extract_geometry()
+    mesh = mesh.compute_normals()
+    bounds = mesh.bounds
+    for rheight in relative_height:
+        zspan = (bounds[5] - bounds[4]) * rheight
+        slice = mesh.slice(normal="z", origin=(0, 0, zspan))
+        values_ss, values_ps = GetProfileValuesMidspan(slice, alpha)
+        print(values_ss,values_ps)

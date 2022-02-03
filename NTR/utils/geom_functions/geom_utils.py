@@ -208,7 +208,7 @@ def rotatePoints(origin, x, y, angle):
     return new_x, new_y
 
 
-def GetProfileValuesMidspan(midspan_slice, alpha, ):
+def GetProfileValuesMidspan(midspan_slice, alpha):
     geo = midspan_slice.extract_feature_edges()
 
     # points_complete = alle punkte auf dem mittelschnitt mit domain
