@@ -1,15 +1,15 @@
 gmc -> open 'TRACE.cgns'
-gmc -> set_attributes of panel_group named 'S4_OUTFLOW' : set back_pressure to value 105000.0
+gmc -> set_attributes of panel_group named 'S4_OUTFLOW' : set back_pressure to value <var BACKPRESSURE var>
 gmc -> set_trace6_conventions on
 gmc -> save 'TRACE.cgns'
 gmc -> set_solver_properties for 'machine' : Restart to On
-gmc -> set_solver_properties for 'IGV' : Restart to  On 
-gmc -> set_solver_properties for 'R1' : Restart to On 
+gmc -> set_solver_properties for 'IGV' : Restart to  On
+gmc -> set_solver_properties for 'R1' : Restart to On
 gmc -> set_solver_properties for 'R3' : Restart to On
-gmc -> set_solver_properties for 'R4' : Restart to On 
+gmc -> set_solver_properties for 'R4' : Restart to On
 gmc -> set_solver_properties for 'S4' : Restart to On
-gmc -> set_solver_properties for 'R2' : Restart to On 
-gmc -> set_solver_properties for 'S2' : Restart to On 
-gmc -> set_solver_properties for 'S3' : Restart to On 
-gmc -> set_solver_properties for 'S1' : Restart to On 
+gmc -> set_solver_properties for 'R2' : Restart to On
+gmc -> set_solver_properties for 'S2' : Restart to On
+gmc -> set_solver_properties for 'S3' : Restart to On
+gmc -> set_solver_properties for 'S1' : Restart to On
 gmc -> save 'TRACE.cgns'

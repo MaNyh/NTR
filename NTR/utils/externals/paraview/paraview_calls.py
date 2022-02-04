@@ -8,9 +8,26 @@ from NTR.utils.filehandling import yaml_dict_read
 
 externals = yaml_dict_read(os.path.join(os.path.dirname(NTR.__file__),"utils","externals","externals_settings.yml"))
 
-def extract_patches(mesh,inlet,outlet,blade):
+def extract_patches_cascade(mesh, inlet, outlet, blade):
     temp_dir = tempfile.TemporaryDirectory()
     scriptname = "traceblade.py"
+    scriptsource = os.path.join(os.path.dirname(__file__),scriptname)
+    scripttarget = os.path.join(temp_dir.name,scriptname)
+
+    with open(scriptsource, "rt") as fin:
+        with open(scripttarget, "w") as fout:
+            for line in fin:
+                nline = line.replace("<var MESH var>", os.path.abspath(mesh))
+                nline = nline.replace("<var INLET var>", os.path.abspath(inlet))
+                nline = nline.replace("<var OUTLET var>", os.path.abspath(outlet))
+                nline = nline.replace("<var BLADE var>", os.path.abspath(blade))
+                fout.write(nline)
+    os.system(externals["paraview"]["pvpython"] + " " + scripttarget)
+    temp_dir.cleanup()
+
+def extract_patches_vt(mesh, inlet, outlet, blade):
+    temp_dir = tempfile.TemporaryDirectory()
+    scriptname = "traceblade_vt.py"
     scriptsource = os.path.join(os.path.dirname(__file__),scriptname)
     scripttarget = os.path.join(temp_dir.name,scriptname)
 

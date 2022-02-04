@@ -16,8 +16,7 @@ tRACE_2Dcgns.CellArrayStatus = ['BoundaryLayerEdgeIndex', 'BoundaryLayerEdgeVelo
 
 
 # Properties modified on tRACE_2Dcgns
-tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/OUTLET-z08-p0/Grid', '/Hierarchy/Base#1/OUTLET-z09-p0/Grid', '/Hierarchy/Base#1/OUTLET-z10-p0/Grid']
-
+tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/outlet-z27-p1/Grid', '/Hierarchy/Base#1/outlet-z28-p0/Grid', '/Hierarchy/Base#1/outlet-z30-p1/Grid', '/Hierarchy/Base#1/outlet-z34-p1/Grid', '/Hierarchy/Base#1/outlet-z36-p0/Grid', '/Hierarchy/Base#1/outlet-z40-p1/Grid']
 
 # create a new 'Merge Blocks'
 mergeBlocks1 = MergeBlocks(Input=tRACE_2Dcgns)
@@ -27,11 +26,12 @@ mergeBlocks1 = MergeBlocks(Input=tRACE_2Dcgns)
 SaveData(r"<var OUTLET var>", proxy=mergeBlocks1)
 
 # Properties modified on tRACE_2Dcgns
-tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/INLET-z01-p0/Grid', '/Hierarchy/Base#1/INLET-z05-p0/Grid', '/Hierarchy/Base#1/INLET-z06-p0/Grid']
+tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/inlet-z46-p1/Grid', '/Hierarchy/Base#1/inlet-z47-p1/Grid', '/Hierarchy/Base#1/inlet-z50-p0/Grid', '/Hierarchy/Base#1/inlet-z51-p0/Grid', '/Hierarchy/Base#1/inlet-z52-p1/Grid', '/Hierarchy/Base#1/inlet-z53-p1/Grid']
+
 # save data
 SaveData(r"<var INLET var>", proxy=mergeBlocks1)
 
 # Properties modified on tRACE_2Dcgns
-tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/BLADE-z02-p0/Grid', '/Hierarchy/Base#1/BLADE-z03-p0/Grid', '/Hierarchy/Base#1/BLADE-z04-p0/Grid', '/Hierarchy/Base#1/BLADE-z12-p0/Grid']
+tRACE_2Dcgns.Blocks = ['/Hierarchy/Base#1/blade-z14-p0/Grid', '/Hierarchy/Base#1/blade-z15-p0/Grid', '/Hierarchy/Base#1/blade-z16-p0/Grid', '/Hierarchy/Base#1/blade-z17-p0/Grid', '/Hierarchy/Base#1/blade-z18-p0/Grid', '/Hierarchy/Base#1/blade-z19-p0/Grid', '/Hierarchy/Base#1/blade-z20-p0/Grid', '/Hierarchy/Base#1/blade-z21-p0/Grid', '/Hierarchy/Base#1/blade-z22-p0/Grid']
 # save data
 SaveData(r"<var BLADE var>", proxy=mergeBlocks1)
