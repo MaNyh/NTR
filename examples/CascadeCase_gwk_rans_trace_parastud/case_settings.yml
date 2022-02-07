@@ -73,19 +73,16 @@ simcase_settings:
         OUTLET_RADIAL_EQUI: "off"
 
         VEL_YANGLE:
-            - 43.0
-            - 44.0
-            - 45.0
-            - 46.0
-            - 47.0
-            - 48.0
-            - 49.0
-            - 50.0
+            - 41.0
+            - 42.0
+            - 51.0
+            - 52.0
+            - 53.0
+            - 54.0
+            - 55.0
         GLOBAL_TOLERANCE: "0.0000001"
 
-        OGR_PROD:
-            - 0.8
-            - 1.2
+        OGR_PROD: 1
         OGR_DIFF: 1
         OGR_DISS: 1
         WAKE_PROD: 1

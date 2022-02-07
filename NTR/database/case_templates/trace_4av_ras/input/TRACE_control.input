@@ -5,108 +5,108 @@ all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaund
 
 #ogrid in gmc 4,12,19,26,33,38,43,48,54
 block 3 immediate Update_tmCoeffs diffusionCoeff 1
-block 3 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 3 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 3 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 3 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 11 immediate Update_tmCoeffs diffusionCoeff 1
-block 11 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 11 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 11 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 11 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 18 immediate Update_tmCoeffs diffusionCoeff 1
-block 18 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 18 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 18 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 18 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 25 immediate Update_tmCoeffs diffusionCoeff 1
-block 25 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 25 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 25 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 25 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 32 immediate Update_tmCoeffs diffusionCoeff 1
-block 32 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 32 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 32 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 32 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 37 immediate Update_tmCoeffs diffusionCoeff 1
-block 37 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 37 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 37 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 37 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 42 immediate Update_tmCoeffs diffusionCoeff 1
-block 42 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 42 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 42 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 42 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 47 immediate Update_tmCoeffs diffusionCoeff 1
-block 47 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 47 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 47 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 47 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 block 53 immediate Update_tmCoeffs diffusionCoeff 1
-block 53 immediate Update_tmCoeffs dissipationCoeff "<var OGRID_DISS var>"
-block 53 immediate Update_tmCoeffs productionCoeff "<var OGRID_PROD var>"
+block 53 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISS var>
+block 53 immediate Update_tmCoeffs productionCoeff <var OGRID_PROD var>
 
 #wake in gmc 1,7,14,21,28,35,40,45,50
 block 0 immediate Update_tmCoeffs diffusionCoeff 1
-block 0 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 0 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 0 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 0 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 6 immediate Update_tmCoeffs diffusionCoeff 1
-block 6 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 6 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 6 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 6 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 13 immediate Update_tmCoeffs diffusionCoeff 1
-block 13 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 13 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 13 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 13 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 20 immediate Update_tmCoeffs diffusionCoeff 1
-block 20 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 20 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 20 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 20 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 27 immediate Update_tmCoeffs diffusionCoeff 1
-block 27 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 27 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 27 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 27 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 34 immediate Update_tmCoeffs diffusionCoeff 1
-block 34 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 34 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 34 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 34 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 39 immediate Update_tmCoeffs diffusionCoeff 1
-block 39 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 39 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 39 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 39 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 44 immediate Update_tmCoeffs diffusionCoeff 1
-block 44 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 44 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 44 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 44 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 block 49 immediate Update_tmCoeffs diffusionCoeff 1
-block 49 immediate Update_tmCoeffs dissipationCoeff "<var WAKE_DISS var>"
-block 49 immediate Update_tmCoeffs productionCoeff "<var WAKE_PROD var>"
+block 49 immediate Update_tmCoeffs dissipationCoeff <var WAKE_DISS var>
+block 49 immediate Update_tmCoeffs productionCoeff <var WAKE_PROD var>
 
 #wake in gmc 10, 17, 24, 31
 block 9 immediate Update_tmCoeffs diffusionCoeff 1
-block 9 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_DISS var>"
-block 9 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_PROD var>"
+block 9 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISS var>
+block 9 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PROD var>
 
 block 16 immediate Update_tmCoeffs diffusionCoeff 1
-block 16 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_DISS var>"
-block 16 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_PROD var>"
+block 16 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISS var>
+block 16 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PROD var>
 
 block 23 immediate Update_tmCoeffs diffusionCoeff 1
-block 23 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_DISS var>"
-block 23 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_PROD var>"
+block 23 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISS var>
+block 23 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PROD var>
 
 block 30 immediate Update_tmCoeffs diffusionCoeff 1
-block 30 immediate Update_tmCoeffs dissipationCoeff "<var CLEARANCE_DISS var>"
-block 30 immediate Update_tmCoeffs productionCoeff "<var CLEARANCE_PROD var>"
+block 30 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISS var>
+block 30 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PROD var>
 
 #wake in gmc 11, 18, 25, 32
 block 10 immediate Update_tmCoeffs diffusionCoeff 1
-block 11 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_DISS var>"
-block 11 immediate Update_tmCoeffs productionCoeff "<var SECDEV_PROD var>"
+block 11 immediate Update_tmCoeffs dissipationCoeff <var SECDEV_DISS var>
+block 11 immediate Update_tmCoeffs productionCoeff <var SECDEV_PROD var>
 
 block 18 immediate Update_tmCoeffs diffusionCoeff 1
-block 18 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_DISS var>"
-block 18 immediate Update_tmCoeffs productionCoeff "<var SECDEV_PROD var>"
+block 18 immediate Update_tmCoeffs dissipationCoeff <var SECDEV_DISS var>
+block 18 immediate Update_tmCoeffs productionCoeff <var SECDEV_PROD var>
 
 block 25 immediate Update_tmCoeffs diffusionCoeff 1
-block 25 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_DISS var>"
-block 25 immediate Update_tmCoeffs productionCoeff "<var SECDEV_PROD var>"
+block 25 immediate Update_tmCoeffs dissipationCoeff <var SECDEV_DISS var>
+block 25 immediate Update_tmCoeffs productionCoeff <var SECDEV_PROD var>
 
 block 32 immediate Update_tmCoeffs diffusionCoeff 1
-block 32 immediate Update_tmCoeffs dissipationCoeff "<var SECDEV_DISS var>"
-block 32 immediate Update_tmCoeffs productionCoeff "<var SECDEV_PROD var>"
+block 32 immediate Update_tmCoeffs dissipationCoeff <var SECDEV_DISS var>
+block 32 immediate Update_tmCoeffs productionCoeff <var SECDEV_PROD var>

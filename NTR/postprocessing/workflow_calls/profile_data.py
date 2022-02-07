@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import copy
 import numpy as np
 import pandas as pd
-import pyvista as pv
 
 from NTR.utils.filehandling import write_pickle, read_pickle
 from NTR.utils.mesh_handling.pyvista_utils import load_mesh
@@ -117,7 +116,7 @@ def rigvals(inlet, outlet, blade, output, p_ref, T_ref):
     # mesh.save(output)
 
 
-def zslice_domain(mesh, output, relative_heights):
+def zslice_domain(mesh, output, rheight):
     """
 
     :param input: os.path to input-file
@@ -128,11 +127,10 @@ def zslice_domain(mesh, output, relative_heights):
 
     refmesh = mesh_scalar_gradients(load_mesh(mesh), "U")
     bounds = refmesh.bounds
-    for rheight in relative_heights:
-        zspan = (bounds[4] - bounds[5]) * rheight
-        slice = refmesh.slice(normal="z", origin=(0, 0, zspan))
-        slice = slice.compute_normals()
-        slice.save(output)
+    zspan = -(bounds[4] - bounds[5]) * float(rheight)
+    slice = refmesh.slice(normal="z", origin=(0, 0, zspan))
+    slice = slice.compute_normals()
+    slice.save(output)
 
 
 def profile_data_workflow(input, output, rigvals, alpha, kappa, As, Ts, R_L, cp):
@@ -324,9 +322,20 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
     resultmesh.rotate_z(90)
     pv.set_plot_theme("document")
 
+    res = 4800
+    title_size = int(0.02 * res)
+    sargs = dict(
+        title_font_size=title_size,
+        label_font_size=int(0.016 * res),
+        shadow=True,
+        n_labels=3,
+        italic=True,
+        # fmt="%.1f",
+        font_family="arial",
+    )
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="U")
+        p.add_mesh(resultmesh, scalars="U",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -336,13 +345,13 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="U")
-        p.add_mesh(resultmesh, scalars="U")
+        p.add_mesh(refmesh, scalars="U",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="U",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="P")
+        p.add_mesh(resultmesh, scalars="p",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -351,13 +360,13 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="P")
-        p.add_mesh(resultmesh, scalars="P")
+        p.add_mesh(refmesh, scalars="p",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="p",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="T")
+        p.add_mesh(resultmesh, scalars="T",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -366,13 +375,13 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="T")
-        p.add_mesh(resultmesh, scalars="T")
+        p.add_mesh(refmesh, scalars="T",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="T",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="rho")
+        p.add_mesh(resultmesh, scalars="rho",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -381,8 +390,8 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="rho")
-        p.add_mesh(resultmesh, scalars="rho")
+        p.add_mesh(refmesh, scalars="rho",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="rho",scalar_bar_args=sargs, cmap="coolwarm",)
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
 
 
@@ -397,8 +406,11 @@ def check_trace_residuals(input, output):
         rmsMax = 1e-3
         if not all([True if i > rmsMax else False for i in residual[3][-100:]]):
             converged[input] = True
+            print(i + " converged")
         else:
             converged[input] = False
+
+            print(i + " not converged")
     if all(converged.values()):
         f = open(output[0], "a")
         f.write("OK")
@@ -410,7 +422,8 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
     mesh = mesh.extract_geometry()
     mesh = mesh.compute_normals()
     bounds = mesh.bounds
-    zspan = (bounds[5] - bounds[4]) * float(relative_height)
+
+    zspan = (bounds[5] + bounds[4]) * float(relative_height)
     slice = mesh.slice(normal="z", origin=(0, 0, zspan))
 
     xmin = min(slice.points[::, 0])
@@ -429,7 +442,7 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
         mesh = mesh.extract_geometry()
         mesh = mesh.compute_normals()
         bounds = mesh.bounds
-        zspan = (bounds[5] - bounds[4]) * float(relative_height)
+        zspan = (-bounds[5] + bounds[4]) * float(relative_height)
         slice = mesh.slice(normal="z", origin=(0, 0, zspan))
         xmin = min(slice.points[::, 0])
         xmax = max(slice.points[::, 0])
@@ -479,7 +492,7 @@ def plot_wake_profile(input,output,xpos1,xpos2,casename,tprod):
         rus_1 = np.array([vecAbs(i) for i in rline1["U"]])
         rys_1, rus_1 = sort_ylike(rys_1, rus_1)
 
-        rline2 = slice.slice(normal="x", origin=(xpos2, 0, 0))
+        rline2 = refslice   .slice(normal="x", origin=(xpos2, 0, 0))
         rys_2 = rline2.points[::, 1]
         rus_2 = np.array([vecAbs(i) for i in rline2["U"]])
         rys_2, rus_2 = sort_ylike(rys_2, rus_2)
@@ -513,7 +526,26 @@ def turbintensity_along_domain(input,output):
         xslice = xslice.compute_normals()
         Tus = xslice["TurbulentEnergyKinetic"]/np.array([vecAbs(i) for i in xslice["U"]])
         xslice["Tus"] = Tus
-        xslice.point_data_to_cell_data()
+        xslice =xslice.point_data_to_cell_data()
         TuLine["Tu"].append(massflowAvePlane(xslice,"Tus"))
         TuLine["x"].append(pos)
     write_pickle(output,TuLine)
+
+def turbintensity_along_domain_plots(input,output,name,tprod):
+    plt.figure()
+    caseline = read_pickle(input)
+    plt.plot(caseline["x"],caseline["Tu"],label=input)
+
+    if name != "reference":
+        ref = input.replace(name,"reference").replace(tprod,"10")
+        refline =read_pickle(ref)
+        plt.plot(refline["x"],refline["Tu"],label=ref)
+
+    plt.legend()
+    plt.grid()
+    plt.title(input)
+    plt.tight_layout()
+    plt.savefig(output)
+    plt.close()
+
+
