@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import copy
 import numpy as np
 import pandas as pd
+import pyvista as pv
 
 from NTR.utils.filehandling import write_pickle, read_pickle
 from NTR.utils.mesh_handling.pyvista_utils import load_mesh
@@ -127,7 +128,7 @@ def zslice_domain(mesh, output, rheight):
 
     refmesh = mesh_scalar_gradients(load_mesh(mesh), "U")
     bounds = refmesh.bounds
-    zspan = -(bounds[4] - bounds[5]) * float(rheight)
+    zspan = -np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(rheight)
     slice = refmesh.slice(normal="z", origin=(0, 0, zspan))
     slice = slice.compute_normals()
     slice.save(output)
@@ -173,22 +174,25 @@ def plot_profiledata(inputs, output, beta_1):
         lines[line_name]["mred"].append(res["m_red"])
         lines[line_name]["pi"].append(res["p_out"] / res["p_in"])
         lines[line_name]["tot_p_loss"].append(res["p_tot_loss"])
-
         lines[line_name]["lift_coefficient"].append(abs(res["lift_coefficient"]))
-
         lines[line_name]["alpha"].append(yangle - beta_1)
 
     for linename, line in lines.items():
-        axs[0].plot(line["mred"], line["pi"], label=linename)
-        axs[1].plot(line["alpha"], line["tot_p_loss"], label=linename)
-        axs[2].plot(line["alpha"], line["lift_coefficient"], label=linename)
-    axs[0].set_xlabel('mred')
-    axs[0].set_ylabel('pi_stat')
-    axs[1].set_xlabel('alpha')
-    axs[1].set_ylabel('tot_p_loss')
-    axs[2].set_xlabel('alpha')
-    axs[2].set_ylabel('c_l')
-    # plt.show()
+        axs[0].scatter(line["mred"], line["pi"], label=linename)
+        axs[1].scatter(line["alpha"], line["tot_p_loss"], label=linename)
+        axs[2].scatter(line["alpha"], line["lift_coefficient"], label=linename)
+
+    axs[0].set_xlabel(r'$\dot{m}_{red}$')
+    axs[0].set_ylabel(r'$\Pi_{stat}$')
+    axs[1].set_xlabel(r'$\alpha$')
+    axs[1].set_ylabel(r'$\Delta p_{tot,v}$')
+    axs[2].set_xlabel(r'$\alpha$')
+    axs[2].set_ylabel(r'$c_l$')
+
+    axs[0].grid()
+    axs[1].grid()
+    axs[2].grid()
+
     plt.legend()
     plt.tight_layout()
     plt.savefig(output)
@@ -205,7 +209,6 @@ def plot_profilepressure_comp(input, output, highlim, lowlim):
     reference_dict = read_pickle(refpath)
 
     casename = name + "_" + prod_raw
-    prod = int(prod_raw) / 100
 
     plt.figure()
 
@@ -335,7 +338,7 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
     )
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="U",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -345,13 +348,13 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="U",scalar_bar_args=sargs, cmap="coolwarm",)
-        p.add_mesh(resultmesh, scalars="U",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(refmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(resultmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="p",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="p", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -360,13 +363,13 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="p",scalar_bar_args=sargs, cmap="coolwarm",)
-        p.add_mesh(resultmesh, scalars="p",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(refmesh, scalars="p", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(resultmesh, scalars="p", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_p, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="T",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -375,13 +378,13 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="T",scalar_bar_args=sargs, cmap="coolwarm",)
-        p.add_mesh(resultmesh, scalars="T",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(refmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(resultmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="rho",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(resultmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -390,8 +393,8 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="rho",scalar_bar_args=sargs, cmap="coolwarm",)
-        p.add_mesh(resultmesh, scalars="rho",scalar_bar_args=sargs, cmap="coolwarm",)
+        p.add_mesh(refmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(resultmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", )
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
 
 
@@ -423,7 +426,7 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
     mesh = mesh.compute_normals()
     bounds = mesh.bounds
 
-    zspan = (bounds[5] + bounds[4]) * float(relative_height)
+    zspan = -np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(rheight)
     slice = mesh.slice(normal="z", origin=(0, 0, zspan))
 
     xmin = min(slice.points[::, 0])
@@ -442,7 +445,7 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
         mesh = mesh.extract_geometry()
         mesh = mesh.compute_normals()
         bounds = mesh.bounds
-        zspan = (-bounds[5] + bounds[4]) * float(relative_height)
+        zspan = -np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(rheight)
         slice = mesh.slice(normal="z", origin=(0, 0, zspan))
         xmin = min(slice.points[::, 0])
         xmax = max(slice.points[::, 0])
@@ -464,82 +467,84 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
     plt.close()
 
 
-def plot_wake_profile(input,output,xpos1,xpos2,casename,tprod):
-    def sort_ylike(ys,us):
+def plot_wake_profile(input, output, xpos1, xpos2, casename, tprod):
+    def sort_ylike(ys, us):
         return [list(t) for t in zip(*sorted(zip(ys, us)))]
+
     slice = load_mesh(input)
-    line1 = slice.slice(normal="x",origin=(xpos1,0,0))
+    line1 = slice.slice(normal="x", origin=(xpos1, 0, 0))
 
-    ys_1 = line1.points[::,1]
+    ys_1 = line1.points[::, 1]
     us_1 = np.array([vecAbs(i) for i in line1["U"]])
-    ys_1,us_1 = sort_ylike(ys_1,us_1)
+    ys_1, us_1 = sort_ylike(ys_1, us_1)
 
-    line2 = slice.slice(normal="x",origin=(xpos2,0,0))
-    ys_2 = line2.points[::,1]
+    line2 = slice.slice(normal="x", origin=(xpos2, 0, 0))
+    ys_2 = line2.points[::, 1]
     us_2 = np.array([vecAbs(i) for i in line2["U"]])
-    ys_2,us_2 = sort_ylike(ys_2,us_2)
+    ys_2, us_2 = sort_ylike(ys_2, us_2)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
 
-    ax1.plot(ys_1,us_1,label=casename)
-    ax2.plot(ys_2, us_2,label=casename)
+    ax1.plot(ys_1, us_1, label=casename)
+    ax2.plot(ys_2, us_2, label=casename)
 
-    if casename !="reference":
-        ref = input.replace(casename,"reference").replace(tprod,"10")
+    if casename != "reference":
+        ref = input.replace(casename, "reference").replace(tprod, "10")
         refslice = load_mesh(ref)
         rline1 = refslice.slice(normal="x", origin=(xpos1, 0, 0))
         rys_1 = rline1.points[::, 1]
         rus_1 = np.array([vecAbs(i) for i in rline1["U"]])
         rys_1, rus_1 = sort_ylike(rys_1, rus_1)
 
-        rline2 = refslice   .slice(normal="x", origin=(xpos2, 0, 0))
+        rline2 = refslice.slice(normal="x", origin=(xpos2, 0, 0))
         rys_2 = rline2.points[::, 1]
         rus_2 = np.array([vecAbs(i) for i in rline2["U"]])
         rys_2, rus_2 = sort_ylike(rys_2, rus_2)
 
-        ax1.plot(rys_1,rus_1,label="reference")
-        ax2.plot(rys_2, rus_2,label="reference")
+        ax1.plot(rys_1, rus_1, label="reference")
+        ax2.plot(rys_2, rus_2, label="reference")
 
     fig.suptitle(input)
-    ax1.set_title("xpos1: "+ str(xpos1))
-    ax2.set_title("xpos2: "+ str(xpos2))
+    ax1.set_title("xpos1: " + str(xpos1))
+    ax2.set_title("xpos2: " + str(xpos2))
     ax1.grid()
     ax2.grid()
     plt.legend()
-    #plt.title(input)
+    # plt.title(input)
     plt.tight_layout()
     plt.savefig(output)
     plt.close()
 
-def turbintensity_along_domain(input,output):
+
+def turbintensity_along_domain(input, output):
     mesh = load_mesh(input)
 
     res = 100
     bounds = mesh.bounds
     xstart = bounds[0]
     xend = bounds[1]
-    xpos = (np.linspace(0,1,res)*(xend-xstart)+xstart)[1:-1]
+    xpos = (np.linspace(0, 1, res) * (xend - xstart) + xstart)[1:-1]
 
-    TuLine = {"Tu" : [],"x" : []}
+    TuLine = {"Tu": [], "x": []}
     for pos in xpos:
-        xslice = mesh.slice(origin=(pos,0,0),normal="x")
+        xslice = mesh.slice(origin=(pos, 0, 0), normal="x")
         xslice = xslice.compute_normals()
-        Tus = xslice["TurbulentEnergyKinetic"]/np.array([vecAbs(i) for i in xslice["U"]])
+        Tus = xslice["TurbulentEnergyKinetic"] / np.array([vecAbs(i) for i in xslice["U"]])
         xslice["Tus"] = Tus
-        xslice =xslice.point_data_to_cell_data()
-        TuLine["Tu"].append(massflowAvePlane(xslice,"Tus"))
+        xslice = xslice.point_data_to_cell_data()
+        TuLine["Tu"].append(massflowAvePlane(xslice, "Tus"))
         TuLine["x"].append(pos)
-    write_pickle(output,TuLine)
+    write_pickle(output, TuLine)
 
-def turbintensity_along_domain_plots(input,output,name,tprod):
+
+def turbintensity_along_domain_plots(input, output, name, tprod):
     plt.figure()
     caseline = read_pickle(input)
-    plt.plot(caseline["x"],caseline["Tu"],label=input)
+    plt.plot(caseline["x"], caseline["Tu"], label=input)
 
     if name != "reference":
-        ref = input.replace(name,"reference").replace(tprod,"10")
-        refline =read_pickle(ref)
-        plt.plot(refline["x"],refline["Tu"],label=ref)
+        ref = input.replace(name, "reference").replace(tprod, "10")
+        refline = read_pickle(ref)
+        plt.plot(refline["x"], refline["Tu"], label=ref)
 
     plt.legend()
     plt.grid()
@@ -547,5 +552,42 @@ def turbintensity_along_domain_plots(input,output,name,tprod):
     plt.tight_layout()
     plt.savefig(output)
     plt.close()
+
+def tke_along_domain_plots(input, output, name, tprod, xpos,lowlim,highlim):
+    res = 4800
+    title_size = int(0.02 * res)
+    sargs = dict(
+        title_font_size=title_size,
+        label_font_size=int(0.016 * res),
+        shadow=True,
+        n_labels=3,
+        italic=True,
+        # fmt="%.1f",
+        font_family="arial",
+    )
+
+    p = pv.Plotter()
+
+    mesh = load_mesh(input)
+    slice = mesh.slice(origin=(xpos,0,0),normal="x")
+    slice.set_active_scalars("TurbulentEnergyKinetic")
+    slice.rotate_z(90)
+    p.add_mesh(slice,scalar_bar_args=sargs, cmap="coolwarm", clim=[lowlim, highlim])
+
+    if name != "reference":
+
+        ref = input.replace(name, "reference").replace(tprod, "10")
+        refmesh = load_mesh(ref)
+        refslice = refmesh.slice(origin=(xpos, 0, 0), normal="x")
+        refslice.set_active_scalars("TurbulentEnergyKinetic")
+        refslice.rotate_z(90)
+        slicebounds = slice.bounds
+        pitch = slicebounds[3]-slicebounds[2]
+        refslice.translate((0,pitch,0))
+        p.add_mesh(refslice,scalar_bar_args=sargs, cmap="coolwarm", clim=[lowlim, highlim])
+
+    p.show(screenshot=output, cpos=(0, 0, 1), window_size=[4800, 4800], title=input)
+
+
 
 
