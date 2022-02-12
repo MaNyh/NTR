@@ -18,10 +18,10 @@ case_settings:
         createPatch -overwrite
         topoSet
         decomposePar
-        dos2unix submit_mpi_job_slurm_hlrn.sh
+        dos2unix submit_mpi_job_slurm_rrzn.sh
     job:
         job_mail: "nyhuis@tfd.uni-hannover.de"
-        job_script: "submit_mpi_job_slurm_hlrn"
+        job_script: "submit_mpi_job_slurm_rrzn"
         job_sourcecmd: |
             module load  gcc/7.5.0 cmake/3.16.2; source /home/niikceng/OpenFOAM/OpenFOAM-v1612+/etc/bashrc
             export FOAM_USER_PATH='$HOME/OpenFOAM/niinyhma-v1612+/'
@@ -31,7 +31,7 @@ case_settings:
         job_name: *name
         job_runtime: "2:00:00" #h
         job_nodes : "1"
-        job_ppn : "96"
+        job_ppn : "12"
         job_mem : "16"
         job_account : "niinyhma"
 
@@ -57,7 +57,7 @@ simcase_settings:
         AVE_START : &AVE_START "10"
         MAX_CFL: "0.4"
 
-        PROCS: "96"
+        PROCS: "16"
         NOUTERCORRECTORS: "3"
         NCORRECTORS: "2"
         NNONORTHOGONALCORRECTORS: "2"
