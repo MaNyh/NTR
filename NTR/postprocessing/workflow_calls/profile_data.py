@@ -4,13 +4,16 @@ import copy
 import numpy as np
 import pandas as pd
 import pyvista as pv
+import numpy as np
+import matplotlib.pylab as pl
+from matplotlib.colors import ListedColormap
+from scipy.interpolate import griddata
 
 from NTR.utils.filehandling import write_pickle, read_pickle
 from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.postprocessing.turbo.createProfileData import createProfileData
 from NTR.utils.mesh_handling.pyvista_utils import mesh_scalar_gradients
-from NTR.utils.mathfunctions import vecAngle, vecAbs, vecProjection
-from NTR.utils.geom_functions.geom_utils import GetProfileValuesMidspan
+from NTR.utils.mathfunctions import radToGrad,vecAngle, vecAbs, vecProjection
 
 
 def areaAvePlane(mesh, val):
@@ -128,7 +131,7 @@ def zslice_domain(mesh, output, rheight):
 
     refmesh = mesh_scalar_gradients(load_mesh(mesh), "U")
     bounds = refmesh.bounds
-    zspan = -np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(rheight)
+    zspan = np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(rheight) + bounds[4]
     slice = refmesh.slice(normal="z", origin=(0, 0, zspan))
     slice = slice.compute_normals()
     slice.save(output)
@@ -156,7 +159,7 @@ def profile_data_workflow(input, output, rigvals, alpha, kappa, As, Ts, R_L, cp)
 
 
 def plot_profiledata(inputs, output, beta_1):
-    fig, axs = plt.subplots(1, 3, figsize=(13, 8))
+    fig, axs = plt.subplots(1, 3, figsize=(15, 8))
 
     lines = {}
     for respath in inputs:
@@ -182,12 +185,12 @@ def plot_profiledata(inputs, output, beta_1):
         axs[1].scatter(line["alpha"], line["tot_p_loss"], label=linename)
         axs[2].scatter(line["alpha"], line["lift_coefficient"], label=linename)
 
-    axs[0].set_xlabel(r'$\dot{m}_{red}$')
-    axs[0].set_ylabel(r'$\Pi_{stat}$')
-    axs[1].set_xlabel(r'$\alpha$')
-    axs[1].set_ylabel(r'$\Delta p_{tot,v}$')
-    axs[2].set_xlabel(r'$\alpha$')
-    axs[2].set_ylabel(r'$c_l$')
+    axs[0].set_xlabel(r'$\dot{m}_{red}$', fontsize=20.0)
+    axs[0].set_ylabel(r'$\Pi_{stat}$', fontsize=20.0)
+    axs[1].set_xlabel(r'$\alpha$', fontsize=20.0)
+    axs[1].set_ylabel(r'$\Delta p_{tot,v}$', fontsize=20.0)
+    axs[2].set_xlabel(r'$\alpha$', fontsize=20.0)
+    axs[2].set_ylabel(r'$c_l$', fontsize=20.0)
 
     axs[0].grid()
     axs[1].grid()
@@ -314,7 +317,10 @@ def plot_entropy_comp_diff(input, output, cp, R, Tref, pref, s_max, s_min, sdiff
         p.show(screenshot=output, cpos=(0, 0, 1), window_size=[res, res])
 
 
-def plot_countours(input, output_U, output_p, output_T, output_rho):
+def plot_countours(input, output_U, output_p, output_T, output_rho,output_tke,
+        vel_low,vel_high,tke_low,tke_high,
+        temperature_low,temperature_high,rho_low,
+        rho_high):
     directory = input.split("/")[0]
     casename = input.split("/")[1].split("-")[0]
     prod = input.split("/")[1].split("-")[2]
@@ -338,8 +344,10 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
     )
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(resultmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm",clim=(vel_low,vel_high) )
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
+
+
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
         refmesh = load_mesh(refpath)
@@ -348,8 +356,8 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", )
-        p.add_mesh(resultmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(refmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", clim=(vel_low,vel_high))
+        p.add_mesh(resultmesh, scalars="U", scalar_bar_args=sargs, cmap="coolwarm", clim=(vel_low,vel_high))
         p.show(screenshot=output_U, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
@@ -369,7 +377,7 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(resultmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", clim=(temperature_low,temperature_high))
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -378,13 +386,13 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", )
-        p.add_mesh(resultmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(refmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", clim=(temperature_low,temperature_high))
+        p.add_mesh(resultmesh, scalars="T", scalar_bar_args=sargs, cmap="coolwarm", clim=(temperature_low,temperature_high))
         p.show(screenshot=output_T, cpos=(0, 0, 1), window_size=[4800, 4800])
 
     if casename == "reference":
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(resultmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(resultmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", clim=(rho_low,rho_high))
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
     else:
         shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
@@ -393,10 +401,25 @@ def plot_countours(input, output_U, output_p, output_T, output_rho):
         refmesh.translate((0, shift_y, 0))
 
         p = pv.Plotter(off_screen=True)
-        p.add_mesh(refmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", )
-        p.add_mesh(resultmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", )
+        p.add_mesh(refmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", clim=(rho_low,rho_high))
+        p.add_mesh(resultmesh, scalars="rho", scalar_bar_args=sargs, cmap="coolwarm", clim=(rho_low,rho_high))
         p.show(screenshot=output_rho, cpos=(0, 0, 1), window_size=[4800, 4800])
 
+
+    if casename == "reference":
+        p = pv.Plotter(off_screen=True)
+        p.add_mesh(resultmesh, scalars="TurbulentEnergyKinetic", scalar_bar_args=sargs, cmap="coolwarm", clim=(tke_low,tke_high))
+        p.show(screenshot=output_tke, cpos=(0, 0, 1), window_size=[4800, 4800])
+    else:
+        shift_y = resultmesh.bounds[3] - resultmesh.bounds[2]
+        refmesh = load_mesh(refpath)
+        refmesh.rotate_z(90)
+        refmesh.translate((0, shift_y, 0))
+
+        p = pv.Plotter(off_screen=True)
+        p.add_mesh(refmesh, scalars="TurbulentEnergyKinetic", scalar_bar_args=sargs, cmap="coolwarm", clim=(tke_low,tke_high))
+        p.add_mesh(resultmesh, scalars="TurbulentEnergyKinetic", scalar_bar_args=sargs, cmap="coolwarm", clim=(tke_low,tke_high))
+        p.show(screenshot=output_tke, cpos=(0, 0, 1), window_size=[4800, 4800])
 
 def check_trace_residuals(input, output):
     def readCSV(path, start_row, header, seperator):
@@ -426,7 +449,7 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
     mesh = mesh.compute_normals()
     bounds = mesh.bounds
 
-    zspan = -np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(rheight)
+    zspan = np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(relative_height) + bounds[4]
     slice = mesh.slice(normal="z", origin=(0, 0, zspan))
 
     xmin = min(slice.points[::, 0])
@@ -437,15 +460,16 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
     h12 = displacement_thickness / momentum_thickness
     xs = (slice.points[:, 0] - xmin) / xmax
     ys = h12
+
     plt.figure()
-    plt.scatter(xs, ys, label=input)
+    scattersize = 2
+    plt.scatter(xs, ys, s=scattersize, label=input)
     if casename != "reference":
         ref = input.replace(casename, "reference").replace(turbprod, "10")
         mesh = load_mesh(ref)
         mesh = mesh.extract_geometry()
         mesh = mesh.compute_normals()
         bounds = mesh.bounds
-        zspan = -np.sign((bounds[5] - bounds[4])) * (bounds[5] - bounds[4]) * float(rheight)
         slice = mesh.slice(normal="z", origin=(0, 0, zspan))
         xmin = min(slice.points[::, 0])
         xmax = max(slice.points[::, 0])
@@ -455,11 +479,11 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
         h12 = displacement_thickness / momentum_thickness
         xs = (slice.points[:, 0] - xmin) / xmax
         ys = h12
-        plt.scatter(xs, ys, label=ref, color="orange")
+        plt.scatter(xs, ys, s=scattersize, label=ref, color="orange")
 
     plt.ylim((ymin, ymax))
-    plt.xlabel("c_ax")
-    plt.ylabel("h1h2")
+    plt.xlabel("$c_{ax}$")
+    plt.ylabel("$H_{12}$")
     plt.title(input)
     plt.grid()
     plt.legend()
@@ -470,6 +494,8 @@ def boundary_layer_values(input, output, casename, turbprod, relative_height, ch
 def plot_wake_profile(input, output, xpos1, xpos2, casename, tprod):
     def sort_ylike(ys, us):
         return [list(t) for t in zip(*sorted(zip(ys, us)))]
+
+    fig, axs = plt.subplots(1, 2, figsize=(13, 8))
 
     slice = load_mesh(input)
     line1 = slice.slice(normal="x", origin=(xpos1, 0, 0))
@@ -483,9 +509,8 @@ def plot_wake_profile(input, output, xpos1, xpos2, casename, tprod):
     us_2 = np.array([vecAbs(i) for i in line2["U"]])
     ys_2, us_2 = sort_ylike(ys_2, us_2)
 
-
-    ax1.plot(ys_1, us_1, label=casename)
-    ax2.plot(ys_2, us_2, label=casename)
+    axs[0].plot(ys_1, us_1, label=casename)
+    axs[1].plot(ys_2, us_2, label=casename)
 
     if casename != "reference":
         ref = input.replace(casename, "reference").replace(tprod, "10")
@@ -500,14 +525,14 @@ def plot_wake_profile(input, output, xpos1, xpos2, casename, tprod):
         rus_2 = np.array([vecAbs(i) for i in rline2["U"]])
         rys_2, rus_2 = sort_ylike(rys_2, rus_2)
 
-        ax1.plot(rys_1, rus_1, label="reference")
-        ax2.plot(rys_2, rus_2, label="reference")
+        axs[0].plot(rys_1, rus_1, label="reference")
+        axs[1].plot(rys_2, rus_2, label="reference")
 
     fig.suptitle(input)
-    ax1.set_title("xpos1: " + str(xpos1))
-    ax2.set_title("xpos2: " + str(xpos2))
-    ax1.grid()
-    ax2.grid()
+    axs[0].set_title("xpos1: " + str(xpos1))
+    axs[1].set_title("xpos2: " + str(xpos2))
+    axs[0].grid()
+    axs[1].grid()
     plt.legend()
     # plt.title(input)
     plt.tight_layout()
@@ -528,7 +553,7 @@ def turbintensity_along_domain(input, output):
     for pos in xpos:
         xslice = mesh.slice(origin=(pos, 0, 0), normal="x")
         xslice = xslice.compute_normals()
-        Tus = xslice["TurbulentEnergyKinetic"] / np.array([vecAbs(i) for i in xslice["U"]])
+        Tus = (xslice["TurbulentEnergyKinetic"] * 2 / 3) ** (.5) / np.array([vecAbs(i) for i in xslice["U"]])
         xslice["Tus"] = Tus
         xslice = xslice.point_data_to_cell_data()
         TuLine["Tu"].append(massflowAvePlane(xslice, "Tus"))
@@ -536,7 +561,7 @@ def turbintensity_along_domain(input, output):
     write_pickle(output, TuLine)
 
 
-def turbintensity_along_domain_plots(input, output, name, tprod):
+def turbintensity_along_domain_plots(input, output, name, tprod, lowlim, highlim):
     plt.figure()
     caseline = read_pickle(input)
     plt.plot(caseline["x"], caseline["Tu"], label=input)
@@ -546,6 +571,7 @@ def turbintensity_along_domain_plots(input, output, name, tprod):
         refline = read_pickle(ref)
         plt.plot(refline["x"], refline["Tu"], label=ref)
 
+    plt.ylim((lowlim, highlim))
     plt.legend()
     plt.grid()
     plt.title(input)
@@ -553,7 +579,10 @@ def turbintensity_along_domain_plots(input, output, name, tprod):
     plt.savefig(output)
     plt.close()
 
-def tke_along_domain_plots(input, output, name, tprod, xpos,lowlim,highlim):
+
+def tke_along_domain_plots(input, output, name, tprod, xpos, lowlim, highlim):
+    pv.set_plot_theme("document")
+
     res = 4800
     title_size = int(0.02 * res)
     sargs = dict(
@@ -566,28 +595,241 @@ def tke_along_domain_plots(input, output, name, tprod, xpos,lowlim,highlim):
         font_family="arial",
     )
 
-    p = pv.Plotter()
+    p = pv.Plotter(off_screen=True)
 
     mesh = load_mesh(input)
-    slice = mesh.slice(origin=(xpos,0,0),normal="x")
+    slice = mesh.slice(origin=(xpos, 0, 0), normal="x")
     slice.set_active_scalars("TurbulentEnergyKinetic")
     slice.rotate_z(90)
-    p.add_mesh(slice,scalar_bar_args=sargs, cmap="coolwarm", clim=[lowlim, highlim])
+    p.add_mesh(slice, scalar_bar_args=sargs, cmap="coolwarm", clim=[lowlim, highlim])
 
     if name != "reference":
-
         ref = input.replace(name, "reference").replace(tprod, "10")
         refmesh = load_mesh(ref)
         refslice = refmesh.slice(origin=(xpos, 0, 0), normal="x")
         refslice.set_active_scalars("TurbulentEnergyKinetic")
         refslice.rotate_z(90)
         slicebounds = slice.bounds
-        pitch = slicebounds[3]-slicebounds[2]
-        refslice.translate((0,pitch,0))
-        p.add_mesh(refslice,scalar_bar_args=sargs, cmap="coolwarm", clim=[lowlim, highlim])
+        pitch = slicebounds[3] - slicebounds[2]
+        refslice.translate((0, pitch, 0))
+        p.add_mesh(refslice, scalar_bar_args=sargs, cmap="coolwarm", clim=[lowlim, highlim])
 
-    p.show(screenshot=output, cpos=(0, 0, 1), window_size=[4800, 4800], title=input)
+    #    p.set_focus(slice.center)
+    #    p.camera_set = True
+    # p.camera_position = [(-0.5428039203228628,-0.24600000000000039, -0.24600000000000039),
+    #                     (0.12300000000000019, -0.3260885553590027, -0.12700000000000003),
+    #                     (0.0, 0.0, 1.0)]
+    # p.camera_set=True
+    p.show(screenshot=output, window_size=[4800, 4800], title=input)
+
+    # cpos missing
 
 
+def plot_vol_differences(input_mesh, input_blade, output, name, tprod, cpos_param=None):
+    mesh = load_mesh(input_mesh)
+    blade = load_mesh(input_blade)
+    pv.set_plot_theme("document")
+
+    annotations = {
+        0: "Unchanged",
+    }
+
+    res = 4800
+    title_size = int(0.02 * res)
+    sargs = dict(
+        title_font_size=title_size,
+        label_font_size=int(0.016 * res),
+        shadow=True,
+        n_labels=3,
+        italic=True,
+        # fmt="%.1f",
+        font_family="arial",
+    )
+    differences = mesh.copy()
+    if name != "reference":
+        differences.clear_data()
+
+        ref = input_mesh.replace(name, "reference").replace(str(tprod), "10")
+        refmesh = load_mesh(ref)
+
+        for an in ["TurbulentEnergyKinetic"]:
+            differences[an] = -(refmesh[an] - mesh[an]) / refmesh[an]
+
+        low = min(differences["TurbulentEnergyKinetic"])
+        high = max(differences["TurbulentEnergyKinetic"])
+        differences["TKE_change"] = differences["TurbulentEnergyKinetic"] / max([abs(high), abs(low)])
+        maxdiff_id = np.argmax(np.abs(differences.point_data["TKE_change"]))
+        maxdiff_point = differences.points[maxdiff_id]
+        my_cmap_RdBu = create_transparent_cmap(pl.cm.seismic, low, high)
+
+        differencespts = pv.PolyData(differences.points)
+        differencespts["TKE_change"] = differences.point_data["TKE_change"]
+        # edges = differences.extract_all_edges()
+        feature_edges = mesh.extract_feature_edges()
+        blade = blade.extract_geometry()
+        blade.clear_data()
+        p = pv.Plotter(off_screen=True)
+        p.add_mesh(differencespts, annotations=annotations, scalars="TKE_change", cmap=my_cmap_RdBu,
+                   scalar_bar_args=sargs, clim=[-1, 1], n_colors=1024)
+        p.add_mesh(feature_edges, show_scalar_bar=False, color="black")
+        p.add_mesh(blade, show_edges=True, opacity=0.1, color="black")
+        p.add_mesh(maxdiff_point, color="black", point_size=40, render_points_as_spheres=True)
+        if cpos_param:
+            p.show(screenshot=output, window_size=[res, res], title=input_mesh, cpos=cpos_param)
+        else:
+            p.show(screenshot=output, window_size=[res, res], title=input_mesh)
+    else:
+        feature_edges = mesh.extract_feature_edges()
+        p = pv.Plotter(off_screen=True)
+        p.add_mesh(mesh, annotations=annotations, scalars="TurbulentEnergyKinetic", cmap=pl.cm.seismic,
+                   scalar_bar_args=sargs)
+        p.add_mesh(blade, show_edges=True, opacity=0.1)
+        p.add_mesh(feature_edges, show_scalar_bar=False, color="black")
+
+        if cpos_param:
+            p.show(screenshot=output, window_size=[res, res], title=input_mesh, cpos=cpos_param)
+        else:
+            p.show(screenshot=output, window_size=[res, res], title=input_mesh)
 
 
+def create_transparent_cmap(cmap, low, high):
+    """
+    :param cmap: matplotlib.pylab.cm - colormap
+    :return: cap - transparent
+    """
+    # norm = max([abs(low),abs(high)])
+    my_cmap = cmap(np.arange(cmap.N))
+    # Set alpha
+    my_cmap[:, -1] = abs(np.linspace(-1, 1, cmap.N))
+    # Create new colormap
+    my_cmap = ListedColormap(my_cmap)
+    return my_cmap
+
+
+def outflow_onedimensional(input, output, direction, facenormal):
+    mesh = load_mesh(input)
+    # todo: this is a workaround
+    mesh.rotate_x(90)
+    bounds = mesh.cell_centers().bounds
+    dirdir = {"x": 0, "y": 2, "z": 4}
+    d = dirdir[facenormal]
+    interd = dirdir[direction]
+    xlow = (d + 2) % 6
+    xhigh = (d + 3) % 6
+    ylow = (d + 4) % 6
+    yhigh = (d + 5) % 6
+
+    res = 1000
+    stepx = (bounds[xhigh] - bounds[xlow]) / res
+    stepy = (bounds[yhigh] - bounds[ylow]) / res
+    xi = np.arange(bounds[xlow], bounds[xhigh] + stepx, stepx)
+    yi = np.arange(bounds[ylow], bounds[yhigh] + stepy, stepy)
+    xi, yi = np.meshgrid(xi, yi)
+
+    xs, ys = mesh.points[::, int((d / 2 + 1) % 3)], mesh.points[::, int((d / 2 + 2) % 3)]
+
+    interpolated_2d = {}
+    for arrname in mesh.array_names:
+        if len(mesh[arrname].shape) == 1:
+            # mask = (xi > 0.5) & (xi < 0.6) & (yi > 0.5) & (yi < 0.6)
+            zi = griddata((xs, ys), mesh[arrname], (xi, yi), method='linear')
+        else:
+            zi = np.array([griddata((xs, ys), mesh[arrname][::, i], (xi, yi), method='linear') for i in
+                           range(len(mesh[arrname][0]))])
+        interpolated_2d[arrname] = zi
+
+    interpolated_1d = {}
+    rhofield = interpolated_2d["rho"]
+
+    for arrname in interpolated_2d.keys():
+        array = interpolated_2d[arrname]
+        dimension = array.ndim
+        arr = np.zeros(len(array))
+        if dimension == 3:
+            arr = []
+            for i in range(dimension):
+                arrmean = np.average(array[i], axis=0, weights=rhofield)
+                arr.append(arrmean)
+            arr = np.dstack(arr)[0]
+        else:
+            arr = np.average(array, axis=0, weights=rhofield)
+            #arr += arrmean
+        interpolated_1d[arrname] = arr
+    interpolated_1d["xs"] = xi
+    interpolated_1d["ys"] = yi
+    write_pickle(output, interpolated_1d)
+
+
+def plot_outflow_onedimensional(input, outTKE, outU, outAlpha, name, prod_raw):
+    onedim_dict = read_pickle(input)
+    refpath = os.path.join(input.replace(name, "reference").replace(prod_raw, "10"))
+
+    reference_dict = read_pickle(refpath)
+
+    velocities = onedim_dict["U"]
+
+    xs = onedim_dict["xs"]
+    velocities_normed = np.array([vecAbs(i) for i in velocities])
+    alphas = np.array([radToGrad(vecAngle(i, np.array([1, 0, 0]))) for i in velocities])
+
+    tke = onedim_dict["TurbulentEnergyKinetic"]
+
+    if name != "reference":
+
+        velocities_ref = reference_dict["U"]
+        velocities_ref_normed = np.array([vecAbs(i) for i in velocities_ref])
+        alphas_ref_normed = np.array([radToGrad(vecAngle(i, np.array([1, 0, 0]))) for i in velocities_ref])
+        tke_ref = reference_dict["TurbulentEnergyKinetic"]
+
+        plt.figure()
+        plt.plot(velocities_normed, color="blue", label=input)
+        plt.plot(velocities_ref_normed, color="red", label=refpath)
+        plt.grid(True, linestyle='-', linewidth=1)
+        plt.legend()
+        plt.title(input)
+        plt.savefig(outU)
+        plt.close()
+
+        plt.figure()
+        plt.plot(tke, color="blue")
+        plt.plot(tke_ref, color="red")
+        plt.grid(True, linestyle='-', linewidth=1)
+        plt.legend()
+        plt.title(input)
+        plt.savefig(outTKE)
+        plt.close()
+
+        plt.figure()
+        plt.plot(alphas, color="blue", label=input)
+        plt.plot(alphas_ref_normed, color="red", label=refpath)
+        plt.grid(True, linestyle='-', linewidth=1)
+        plt.legend()
+        plt.title(input)
+        plt.savefig(outAlpha)
+        plt.close()
+
+
+    else:
+        plt.figure()
+        plt.plot(velocities_normed, color="blue", label=input)
+        plt.grid(True, linestyle='-', linewidth=1)
+        plt.legend()
+        plt.title(input)
+        plt.savefig(outU)
+        plt.close()
+
+        plt.figure()
+        plt.plot(tke, color="blue")
+        plt.grid(True, linestyle='-', linewidth=1)
+        plt.legend()
+        plt.title(input)
+        plt.savefig(outTKE)
+        plt.close()
+
+        plt.figure()
+        plt.plot(alphas, color="blue", label=input)
+        plt.grid(True, linestyle='-', linewidth=1)
+        plt.legend()
+        plt.title(input)
+        plt.savefig(outAlpha)
+        plt.close()
