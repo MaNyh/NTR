@@ -32,6 +32,9 @@ def symToMatrixPVPoly(symTensor):
 def gradToRad(angle):
     return (angle / 180) * np.pi
 
+def radToGrad(angle):
+    return (angle / np.pi) * 180
+
 
 def Rx(xAngle):
     """
