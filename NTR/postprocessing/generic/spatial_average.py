@@ -171,15 +171,11 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
 
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
-
     rest = mesh.copy()
-    bounds = mesh.bounds
 
-    begin = bounds[interpol_dir]
-    end = bounds[interpol_dir + 1]
 
     pbar = tqdm(total=mesh.number_of_cells)
-    cells = []
+    slices = []
     while (rest.number_of_cells > 0):
         if verbose:
             p = pv.Plotter()
@@ -187,39 +183,19 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
             p.add_mesh(rest)
             p.show()
 
-        centers = rest.cell_centers()
-        pt = centers.points[0]
-        pt_a = np.zeros(3)
-        pt_b = np.zeros(3)
+        bounds = list(rest.bounds)
+        bounds[interpol_dir+1] = bounds[interpol_dir]
 
-        pt_a[int(interpol_dir / 2)] = begin
-        pt_a[(int(interpol_dir / 2) + 1) % 3] = pt[(int(interpol_dir / 2) + 1) % 3]
-        pt_a[(int(interpol_dir / 2) + 2) % 3] = pt[(int(interpol_dir / 2) + 2) % 3]
 
-        pt_b[int(interpol_dir / 2)] = end
-        pt_b[(int(interpol_dir / 2) + 1) % 3] = pt[(int(interpol_dir / 2) + 1) % 3]
-        pt_b[(int(interpol_dir / 2) + 2) % 3] = pt[(int(interpol_dir / 2) + 2) % 3]
-
-        cells_on_line_ids = rest.find_cells_along_line(pt_a, pt_b)
+        cells_on_line_ids = rest.find_cells_within_bounds(bounds)
         ids_negative = [i for i in range(rest.number_of_cells) if i not in cells_on_line_ids]
-        """
+
         assert mesh.number_of_cells == (len(cells_on_line_ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), \
             "somethings wrong"
-        """
-        cells_on_line = rest.extract_cells(cells_on_line_ids)
-        refcell_id = np.argmin(cells_on_line.cell_centers().points[::, int(interpol_dir / 2)])
-        refcell = cells_on_line.extract_cells(refcell_id)
-        refcell.clear_data()
-        for array_name in array_names:
-            for cell in [cells_on_line.extract_cells(i) for i in range(cells_on_line.number_of_cells)]:
-                if array_name in refcell.array_names:
-                    refcell.point_data[array_name] += cell.point_data[array_name]
-                else:
-                    refcell.point_data[array_name] = cell.point_data[array_name]
 
-            refcell.point_data[array_name] /= cells_on_line.number_of_cells
-        refcell= refcell.point_data_to_cell_data()
-        cells.append(refcell)
+        slice_ave = rest.extract_cells(cells_on_line_ids)
+
+        slices.append(slice_ave)
 
         if len(ids_negative) > 0:
             rest = rest.extract_cells(
@@ -228,10 +204,19 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
             rest = pv.UniformGrid()
 
         pbar.update(len(cells_on_line_ids))
+    slice_ave = slices[0].copy()
+    slice_ave.clear_data()
+    for s in slices:
+        for arname in array_names:
+            if arname not in slice_ave.array_names:
+                slice_ave.point_data[arname] = s.point_data[arname]
+            else:
+                slice_ave.point_data[arname] += s.point_data[arname]
+    for arname in array_names:
+        slice_ave.point_data[arname]/=len(slices)
+    slice_ave.point_data_to_cell_data()
     pbar.close()
-    ave_mesh = pv.PolyData()
-    for c in cells:
-        ave_mesh = ave_mesh.merge(c)
+
 
     return ave_mesh
 
