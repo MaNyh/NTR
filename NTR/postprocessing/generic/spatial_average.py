@@ -78,6 +78,7 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
 
     return pos, vals
 
+
 """
 def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     volume = volmesh
@@ -150,6 +151,7 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     return ave_slice
 """
 
+
 def vol_to_plane(mesh, ave_direction, verbose=False):
     """
     this function is assuming an extruded mesh in the average-direction.
@@ -174,7 +176,7 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
     bounds = mesh.bounds
 
     begin = bounds[interpol_dir]
-    end = bounds[interpol_dir+1]
+    end = bounds[interpol_dir + 1]
 
     pbar = tqdm(total=mesh.number_of_cells)
     cells = []
@@ -185,41 +187,51 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
             p.add_mesh(rest)
             p.show()
 
-        pt = rest.points[0]
+        centers = rest.cell_centers()
+        pt = centers.points[0]
         pt_a = np.zeros(3)
         pt_b = np.zeros(3)
 
         pt_a[int(interpol_dir / 2)] = begin
-        pt_a[(int(interpol_dir / 2)+1)%3] = pt[(int(interpol_dir / 2)+1)%3]
-        pt_a[(int(interpol_dir / 2)+2)%3] = pt[(int(interpol_dir / 2)+2)%3]
+        pt_a[(int(interpol_dir / 2) + 1) % 3] = pt[(int(interpol_dir / 2) + 1) % 3]
+        pt_a[(int(interpol_dir / 2) + 2) % 3] = pt[(int(interpol_dir / 2) + 2) % 3]
 
-        pt_b[int(interpol_dir/2)]=end
-        pt_b[(int(interpol_dir / 2)+1)%3] = pt[(int(interpol_dir / 2)+1)%3]
-        pt_b[(int(interpol_dir / 2)+2)%3] = pt[(int(interpol_dir / 2)+2)%3]
+        pt_b[int(interpol_dir / 2)] = end
+        pt_b[(int(interpol_dir / 2) + 1) % 3] = pt[(int(interpol_dir / 2) + 1) % 3]
+        pt_b[(int(interpol_dir / 2) + 2) % 3] = pt[(int(interpol_dir / 2) + 2) % 3]
 
-        cells_on_line_ids = mesh.find_cells_along_line(pt_a, pt_b)
-        ids_negative = [i for i in range(mesh.number_of_cells) if i not in cells_on_line_ids]
-
+        cells_on_line_ids = rest.find_cells_along_line(pt_a, pt_b)
+        ids_negative = [i for i in range(rest.number_of_cells) if i not in cells_on_line_ids]
+        """
         assert mesh.number_of_cells == (len(cells_on_line_ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), \
             "somethings wrong"
-        cells_on_line = mesh.extract_cells(cells_on_line_ids)
-        refcell_id = np.argmin(cells_on_line.cell_centers().points[::,int(interpol_dir/2)])
+        """
+        cells_on_line = rest.extract_cells(cells_on_line_ids)
+        refcell_id = np.argmin(cells_on_line.cell_centers().points[::, int(interpol_dir / 2)])
         refcell = cells_on_line.extract_cells(refcell_id)
         refcell.clear_data()
         for array_name in array_names:
             for cell in [cells_on_line.extract_cells(i) for i in range(cells_on_line.number_of_cells)]:
                 if array_name in refcell.array_names:
-                    refcell[array_name]+=cell[array_name]
+                    refcell.point_data[array_name] += cell.point_data[array_name]
                 else:
-                    refcell[array_name]=cell[array_name]
-            refcell[array_name]/=cells_on_line.number_of_cells
-            cells.append(refcell)
+                    refcell.point_data[array_name] = cell.point_data[array_name]
+
+            refcell.point_data[array_name] /= cells_on_line.number_of_cells
+        refcell= refcell.point_data_to_cell_data()
+        cells.append(refcell)
+
+        if len(ids_negative) > 0:
+            rest = rest.extract_cells(
+                np.array([i for i in range(rest.number_of_cells) if not np.isin(i, cells_on_line_ids)]))
+        else:
+            rest = pv.UniformGrid()
 
         pbar.update(len(cells_on_line_ids))
     pbar.close()
     ave_mesh = pv.PolyData()
     for c in cells:
-        ave_mesh= ave_mesh.merge(c)
+        ave_mesh = ave_mesh.merge(c)
 
     return ave_mesh
 
