@@ -23,7 +23,7 @@ def translate_meshnames(mesh):
 def load_mesh(path_to_mesh):
     assert os.path.isfile(path_to_mesh), path_to_mesh + " is not a valid file"
     extension = os.path.splitext(path_to_mesh)[1]
-    if extension == ".vtk" or extension== ".vtu":
+    if extension == ".vtk" or extension == ".vtu":
         try:
             mesh = pv.UnstructuredGrid(path_to_mesh)
         except:

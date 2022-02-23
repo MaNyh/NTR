@@ -90,8 +90,8 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
     :param verbose: show progress in plots
     :return: merged averaged cells into pv.PolyData-format
     """
-
     array_names = mesh.array_names
+    #todo: rewrite this method using a more generic approach. one can make use of cell-neighbor-methods
 
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
@@ -120,7 +120,7 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
             "somethings wrong"
 
         slice_ave = rest.extract_cells(cells_on_line_ids)
-
+        slice_ave.points -= slice_ave.center
         slices.append(slice_ave)
 
         if len(ids_negative) > 0:
@@ -130,18 +130,35 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
             rest = pv.UniformGrid()
 
         pbar.update(len(cells_on_line_ids))
-    slice_ave = slices[0].copy()
-    slice_ave.clear_data()
-    for s in slices:
-        for arname in array_names:
-            if arname not in slice_ave.array_names:
-                slice_ave.point_data[arname] = s.point_data[arname]
-            else:
-                slice_ave.point_data[arname] += s.point_data[arname]
-    for arname in array_names:
-        slice_ave.point_data[arname]/=len(slices)
-    slice_ave.point_data_to_cell_data()
     pbar.close()
+
+
+    for slice in slices:
+        slice.point_data["ids"] = np.array([vecAbs(i) for i in slice.points])
+
+    slice_ave = slices[0].copy()
+
+    lkid, ptid = slice_ave.point_data["ids"], list(range(slice_ave.number_of_points))
+
+    lkid,ptid =zip(*sorted(zip(lkid, ptid)))
+    slice_ref_cells = [slice_ave.extract_points(pid) for pid in ptid]
+    slice_ref = pv.UnstructuredGrid()
+
+    for c in slice_ref_cells:
+        slice_ref = slice_ref.merge(c)
+    slice_ref.clear_data()
+
+    for s in slices:
+
+        for arname in array_names:
+            stuff, arr = zip(*sorted(zip(s["ids"], s.point_data[arname])))
+            if arname not in slice_ref.array_names:
+                slice_ref.point_data[arname] = arr
+            else:
+                slice_ref.point_data[arname] += arr
+    for arname in array_names:
+        slice_ref.point_data[arname]/=len(slices)
+
 
 
     return slice_ave
