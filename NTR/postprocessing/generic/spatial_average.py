@@ -78,7 +78,7 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
 
     return pos, vals
 
-
+"""
 def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     volume = volmesh
     if cell_centered:
@@ -109,13 +109,14 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
     base[int(helper_two / 2)] = helper_two_low
     base = np.array(base)
 
+    print("do line stuff")
     pts = []
-    tolerance = vecAbs(base - end) / 1000
+    tolerance = vecAbs(base - end)
     for pt in mesh.points:
         dist = lineseg_dist(pt, base, end)
         if dist < tolerance:
             pts.append(pt)
-
+    print("do plane stuff")
     slices = []
     for slice_pt in pts:
         slice = volume.slice(origin=slice_pt, normal=ave_direction)
@@ -124,6 +125,7 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
 
     ave_slice = slices[0].copy()
 
+    print("do ave stuff")
     for arrayname in ave_slice.array_names:
         ave_slice[arrayname] = ave_slice[arrayname] * 0
 
@@ -146,6 +148,80 @@ def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
         p.show()
 
     return ave_slice
+"""
+
+def vol_to_plane(mesh, ave_direction, verbose=False):
+    """
+    this function is assuming an extruded mesh in the average-direction.
+    it extracts cells along the average direction and it is averaging all arrays of this cell along the extracted set of cells
+
+    :param mesh: a pyvista-mesh
+    :param ave_direction: char (x,y,z)
+    :param verbose: show progress in plots
+    :return: merged averaged cells into pv.PolyData-format
+    """
+
+    array_names_raw = mesh.array_names
+    array_names = []
+    for key in array_names_raw:
+        if key not in array_names:
+            array_names.append(key)
+
+    dirs = {"x": 0, "y": 2, "z": 4}
+    interpol_dir = dirs[ave_direction]
+
+    rest = mesh.copy()
+    bounds = mesh.bounds
+
+    begin = bounds[interpol_dir]
+    end = bounds[interpol_dir+1]
+
+    pbar = tqdm(total=mesh.number_of_cells)
+    cells = []
+    while (rest.number_of_cells > 0):
+        if verbose:
+            p = pv.Plotter()
+            p.add_mesh(mesh, opacity=0.5)
+            p.add_mesh(rest)
+            p.show()
+
+        pt = rest.points[0]
+        pt_a = np.zeros(3)
+        pt_b = np.zeros(3)
+
+        pt_a[int(interpol_dir / 2)] = begin
+        pt_a[(int(interpol_dir / 2)+1)%3] = pt[(int(interpol_dir / 2)+1)%3]
+        pt_a[(int(interpol_dir / 2)+2)%3] = pt[(int(interpol_dir / 2)+2)%3]
+
+        pt_b[int(interpol_dir/2)]=end
+        pt_b[(int(interpol_dir / 2)+1)%3] = pt[(int(interpol_dir / 2)+1)%3]
+        pt_b[(int(interpol_dir / 2)+2)%3] = pt[(int(interpol_dir / 2)+2)%3]
+
+        cells_on_line_ids = mesh.find_cells_along_line(pt_a, pt_b)
+        ids_negative = [i for i in range(mesh.number_of_cells) if i not in cells_on_line_ids]
+
+        assert mesh.number_of_cells == (len(cells_on_line_ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), \
+            "somethings wrong"
+        cells_on_line = mesh.extract_cells(cells_on_line_ids)
+        refcell_id = np.argmin(cells_on_line.cell_centers().points[::,int(interpol_dir/2)])
+        refcell = cells_on_line.extract_cells(refcell_id)
+        refcell.clear_data()
+        for array_name in array_names:
+            for cell in [cells_on_line.extract_cells(i) for i in range(cells_on_line.number_of_cells)]:
+                if array_name in refcell.array_names:
+                    refcell[array_name]+=cell[array_name]
+                else:
+                    refcell[array_name]=cell[array_name]
+            refcell[array_name]/=cells_on_line.number_of_cells
+            cells.append(refcell)
+
+        pbar.update(len(cells_on_line_ids))
+    pbar.close()
+    ave_mesh = pv.PolyData()
+    for c in cells:
+        ave_mesh= ave_mesh.merge(c)
+
+    return ave_mesh
 
 
 def vol_to_plane_fromsettings(settings_yml_path):
