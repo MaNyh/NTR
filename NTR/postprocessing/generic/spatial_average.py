@@ -79,78 +79,6 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
     return pos, vals
 
 
-"""
-def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
-    volume = volmesh
-    if cell_centered:
-        cell_centers = volume.cell_centers()
-        mesh = cell_centers
-    else:
-        mesh = volume
-    dirs = {"x": 0, "y": 2, "z": 4}
-    interpol_dir = dirs[ave_direction]
-    boundshigh = mesh.bounds[interpol_dir]
-    boundslow = mesh.bounds[interpol_dir + 1]
-
-    helper_one = (interpol_dir + 2) % 6
-    helper_one_low = mesh.bounds[helper_one + 1]
-
-    helper_two = (interpol_dir + 4) % 6
-    helper_two_low = mesh.bounds[helper_two + 1]
-
-    end = [None, None, None]
-    end[int(interpol_dir / 2)] = boundslow
-    end[int(helper_one / 2)] = helper_one_low
-    end[int(helper_two / 2)] = helper_two_low
-    end = np.array(end)
-
-    base = [None, None, None]
-    base[int(interpol_dir / 2)] = boundshigh
-    base[int(helper_one / 2)] = helper_one_low
-    base[int(helper_two / 2)] = helper_two_low
-    base = np.array(base)
-
-    print("do line stuff")
-    pts = []
-    tolerance = vecAbs(base - end)
-    for pt in mesh.points:
-        dist = lineseg_dist(pt, base, end)
-        if dist < tolerance:
-            pts.append(pt)
-    print("do plane stuff")
-    slices = []
-    for slice_pt in pts:
-        slice = volume.slice(origin=slice_pt, normal=ave_direction)
-        if slice.number_of_points > 0:
-            slices.append(slice)
-
-    ave_slice = slices[0].copy()
-
-    print("do ave stuff")
-    for arrayname in ave_slice.array_names:
-        ave_slice[arrayname] = ave_slice[arrayname] * 0
-
-    for sl in slices:
-        for arrayname in sl.array_names:
-            ave_slice[arrayname] += sl[arrayname]
-
-    for arrayname in ave_slice.array_names:
-        ave_slice[arrayname] = ave_slice[arrayname] * 1 / len(slices)
-
-    ave_slice = ave_slice.cell_data_to_point_data()
-
-    if verbose:
-        p = pv.Plotter()
-        p.add_mesh(pv.PolyData(np.array(pts)))
-        p.add_mesh(volume, show_edges=True, opacity=0.1)
-        for sl in slices:
-            if sl.number_of_cells > 0:
-                p.add_mesh(sl, opacity=0.1)
-        p.show()
-
-    return ave_slice
-"""
-
 
 def vol_to_plane(mesh, ave_direction, verbose=False):
     """
@@ -163,11 +91,7 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
     :return: merged averaged cells into pv.PolyData-format
     """
 
-    array_names_raw = mesh.array_names
-    array_names = []
-    for key in array_names_raw:
-        if key not in array_names:
-            array_names.append(key)
+    array_names = mesh.array_names
 
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
@@ -184,7 +108,9 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
             p.show()
 
         bounds = list(rest.bounds)
-        bounds[interpol_dir+1] = bounds[interpol_dir]
+        bounds_centers = list(rest.cell_centers().bounds)
+
+        bounds[interpol_dir] = bounds_centers[interpol_dir+1]
 
 
         cells_on_line_ids = rest.find_cells_within_bounds(bounds)
@@ -218,7 +144,7 @@ def vol_to_plane(mesh, ave_direction, verbose=False):
     pbar.close()
 
 
-    return ave_mesh
+    return slice_ave
 
 
 def vol_to_plane_fromsettings(settings_yml_path):
