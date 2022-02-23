@@ -377,7 +377,7 @@ def openFoam_create_vk_stagflow_probes(geomdat_dict, nop, length, sampling_rate,
 
     vk_point = geomdat_dict["sortedPoly"][geomdat_dict["hk_vk_idx"]["ind_vk"]]
     u_inlet = np.array([float(i) for i in case_settings["simcase_settings"]["variables"]["UINLET"].split(" ")])
-    angle = angle_between(u_inlet,(1,0,0)) * 180 / np.pi
+    angle = angle_between(u_inlet,np.array([1,0,0]) * 180 / np.pi)
     stagnationLine = pv.Line((0, 0, 0), (-length, 0, 0), nop - 1)
     stagnationLine.rotate_z(angle)
     stagnationLine.translate(vk_point)
