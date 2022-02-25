@@ -1,0 +1,15 @@
+# journal recorded by gmc_v9.1.8 at 2019/11/25 10:40:58
+gmc -> open 'TRACE.cgns'
+gmc -> set_solver_properties for 'machine' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'IGV' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'R1' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'R3' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'R4' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'S4' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'R2' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'S2' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'S3' : NoOfTimeSteps to 183660
+gmc -> set_solver_properties for 'S1' : NoOfTimeSteps to 183660
+gmc -> set_output 2DPhysicalOutput Standard :  Interleave to 500
+gmc -> set_output 3DPhysicalOutput Standard :  Interleave to 500
+gmc -> save 'TRACE.cgns'
