@@ -79,73 +79,89 @@ def vol_to_line(vtkmesh, ave_direction, verbose=False):
     return pos, vals
 
 
-def vol_to_plane(volmesh, ave_direction, cell_centered=False, verbose=False):
-    volume = volmesh
-    if cell_centered:
-        cell_centers = volume.cell_centers()
-        mesh = cell_centers
-    else:
-        mesh = volume
+
+def vol_to_plane(mesh, ave_direction, verbose=False):
+    """
+    this function is assuming an extruded mesh in the average-direction.
+    it extracts cells along the average direction and it is averaging all arrays of this cell along the extracted set of cells
+
+    :param mesh: a pyvista-mesh
+    :param ave_direction: char (x,y,z)
+    :param verbose: show progress in plots
+    :return: merged averaged cells into pv.PolyData-format
+    """
+    array_names = mesh.array_names
+    #todo: rewrite this method using a more generic approach. one can make use of cell-neighbor-methods
+
     dirs = {"x": 0, "y": 2, "z": 4}
     interpol_dir = dirs[ave_direction]
-    boundshigh = mesh.bounds[interpol_dir]
-    boundslow = mesh.bounds[interpol_dir + 1]
+    rest = mesh.copy()
 
-    helper_one = (interpol_dir + 2) % 6
-    helper_one_low = mesh.bounds[helper_one + 1]
 
-    helper_two = (interpol_dir + 4) % 6
-    helper_two_low = mesh.bounds[helper_two + 1]
-
-    end = [None, None, None]
-    end[int(interpol_dir / 2)] = boundslow
-    end[int(helper_one / 2)] = helper_one_low
-    end[int(helper_two / 2)] = helper_two_low
-    end = np.array(end)
-
-    base = [None, None, None]
-    base[int(interpol_dir / 2)] = boundshigh
-    base[int(helper_one / 2)] = helper_one_low
-    base[int(helper_two / 2)] = helper_two_low
-    base = np.array(base)
-
-    pts = []
-    tolerance = vecAbs(base - end) / 1000
-    for pt in mesh.points:
-        dist = lineseg_dist(pt, base, end)
-        if dist < tolerance:
-            pts.append(pt)
-
+    pbar = tqdm(total=mesh.number_of_cells)
     slices = []
-    for slice_pt in pts:
-        slice = volume.slice(origin=slice_pt, normal=ave_direction)
-        if slice.number_of_points > 0:
-            slices.append(slice)
+    while (rest.number_of_cells > 0):
+        if verbose:
+            p = pv.Plotter()
+            p.add_mesh(mesh, opacity=0.5)
+            p.add_mesh(rest)
+            p.show()
 
-    ave_slice = slices[0].copy()
+        bounds = list(rest.bounds)
+        bounds_centers = list(rest.cell_centers().bounds)
 
-    for arrayname in ave_slice.array_names:
-        ave_slice[arrayname] = ave_slice[arrayname] * 0
+        bounds[interpol_dir] = bounds_centers[interpol_dir+1]
 
-    for sl in slices:
-        for arrayname in sl.array_names:
-            ave_slice[arrayname] += sl[arrayname]
 
-    for arrayname in ave_slice.array_names:
-        ave_slice[arrayname] = ave_slice[arrayname] * 1 / len(slices)
+        cells_on_line_ids = rest.find_cells_within_bounds(bounds)
+        ids_negative = [i for i in range(rest.number_of_cells) if i not in cells_on_line_ids]
 
-    ave_slice = ave_slice.cell_data_to_point_data()
+        assert mesh.number_of_cells == (len(cells_on_line_ids) + len(ids_negative) + mesh.number_of_cells - rest.number_of_cells), \
+            "somethings wrong"
 
-    if verbose:
-        p = pv.Plotter()
-        p.add_mesh(pv.PolyData(np.array(pts)))
-        p.add_mesh(volume, show_edges=True, opacity=0.1)
-        for sl in slices:
-            if sl.number_of_cells > 0:
-                p.add_mesh(sl, opacity=0.1)
-        p.show()
+        slice_ave = rest.extract_cells(cells_on_line_ids)
+        slice_ave.points -= slice_ave.center
+        slices.append(slice_ave)
 
-    return ave_slice
+        if len(ids_negative) > 0:
+            rest = rest.extract_cells(
+                np.array([i for i in range(rest.number_of_cells) if not np.isin(i, cells_on_line_ids)]))
+        else:
+            rest = pv.UniformGrid()
+
+        pbar.update(len(cells_on_line_ids))
+    pbar.close()
+
+
+    for slice in slices:
+        slice.point_data["ids"] = np.array([vecAbs(i) for i in slice.points])
+
+    slice_ave = slices[0].copy()
+
+    lkid, ptid = slice_ave.point_data["ids"], list(range(slice_ave.number_of_points))
+
+    lkid,ptid =zip(*sorted(zip(lkid, ptid)))
+    slice_ref_cells = [slice_ave.extract_points(pid) for pid in ptid]
+    slice_ref = pv.UnstructuredGrid()
+
+    for c in slice_ref_cells:
+        slice_ref = slice_ref.merge(c)
+    slice_ref.clear_data()
+
+    for s in slices:
+
+        for arname in array_names:
+            stuff, arr = zip(*sorted(zip(s["ids"], s.point_data[arname])))
+            if arname not in slice_ref.array_names:
+                slice_ref.point_data[arname] = arr
+            else:
+                slice_ref.point_data[arname] += arr
+    for arname in array_names:
+        slice_ref.point_data[arname]/=len(slices)
+
+
+
+    return slice_ave
 
 
 def vol_to_plane_fromsettings(settings_yml_path):

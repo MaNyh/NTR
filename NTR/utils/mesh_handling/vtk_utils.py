@@ -10,7 +10,7 @@ Date: Sep 2021
 
 import vtk
 from vtkmodules.util import numpy_support as ah
-import h5py
+#import h5py
 import numpy as np
 import pyvista as pv
 
@@ -23,8 +23,28 @@ def cgnsReader(file):
     reader.EnableAllCellArrays()
     reader.EnableAllPointArrays()
     reader.Update()
-    dataset = reader.GetOutput()
-    return dataset
+
+    appendFilter = vtk.vtkAppendFilter()
+    # Points with same coordinates are merged
+    # with tolerance 0.0000001 GMC GLOBAL Properties
+    appendFilter.MergePointsOn()
+    appendFilter.SetTolerance(0.0000001)
+    # Set Base range
+
+    # loop through all bases
+    for nameBaseId in range(reader.GetNumberOfBaseArrays()):
+        base = reader.GetOutput().GetBlock(nameBaseId)
+        # loop through all zones in base
+        for nameZoneId  in range(base.GetNumberOfBlocks()):
+            zone = base.GetBlock(nameZoneId)
+            # merge zone data and update
+            appendFilter.AddInputData(zone)
+            appendFilter.Update()
+
+    mergeZones = appendFilter.GetOutput()
+    # Add to data container
+
+    return mergeZones
 
 def vtkUnstructuredGridReader(file):
     reader = vtk.vtkUnstructuredGridReader()
