@@ -1,0 +1,48 @@
+case_settings:
+    name : &name "4av_TRACE_RAS"
+    case_type : "trace_4av_ras_PARASTUD"
+    type: "parameterstudy"
+    description: |
+        mesh-status:
+            good quality mesh
+            meshstudy is done
+        boundarycondition-status:
+            evaluated by RWTH AACHEN
+        solution-status:
+            model working
+        postprocessing-status:
+            need of more postprocessing and evaluation methods
+    prep: |
+        cp ../../00_Ressources/VT.cgns input/TRACE.cgns
+        dos2unix submit_mpi_job_trace_sp_pbs_controlinput.sh
+        cd input/
+        /bigwork/nhkckcen/sw/GMC/gmc_9_3_4/gmcPlay_v9_3_4 virginiatech.jou
+        cd ..
+    job:
+        job_mail: "nyhuis@tfd.uni-hannover.de"
+        job_script: "submit_mpi_job_trace_sp_pbs_controlinput"
+        job_exe: "TRACE"
+        job_name: *name
+        job_runtime: "30:00:00" #h
+        job_nodes : "4"
+        job_ppn : "12"
+        job_mem : "24"
+        account : "niinyhma"
+    sub_cmd : "sh"
+
+simcase_settings:
+    variables:
+        BACKPRESSURE :
+            - 100000
+            - 115000
+            - 110000
+            - 120000
+            - 125000
+            - 130000
+            - 135000
+            - 140000
+            - 145000
+            - 150000
+    options:
+        simcase_optiondef:
+
