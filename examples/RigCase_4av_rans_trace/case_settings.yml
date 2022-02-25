@@ -34,15 +34,15 @@ simcase_settings:
     variables:
         BACKPRESSURE :
             - 100000
-            - 115000
             - 110000
             - 120000
-            - 125000
             - 130000
-            - 135000
             - 140000
-            - 145000
             - 150000
+            - 155000
+            - 160000
+            - 165000
+            - 170000
     options:
         simcase_optiondef:
 
