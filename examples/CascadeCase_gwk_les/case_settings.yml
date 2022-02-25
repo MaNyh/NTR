@@ -201,12 +201,12 @@ geometry:
     algorithm                       : "from_pointcloud"
     ptcloud_profile                 : "00_Ressources/profile_pointcloud.txt"   #Name of the pointcloud-file
     ptcloud_profile_unit            : "mm"                                  #m vs mm
-    x_inlet                         : -0.13                                 #Shift Inlet along x [m]
-    x_outlet                        : 0.26                                  #Shift Outlet along x [m]
+    x_inlet                         : -0.195                                #Shift Inlet along x [m]
+    x_outlet                        : 0.325                                  #Shift Outlet along x [m]
     shift_domain                    : 0.015                                 #Shift Domain to have probes inside domain [m]
 
 mesh:
-    factor                          : 0.95                                   #Mesh-density factor
+    factor                          : 0.85                                   #Mesh-density factor
     ogrid_factor                    : 3.5                                   #o-grid-node-ratio
     delta_i                         : 0.0005                                #node-distribution along fixed edges
     first_cell_width                : 0.00001                               #first cell height when factor=1
