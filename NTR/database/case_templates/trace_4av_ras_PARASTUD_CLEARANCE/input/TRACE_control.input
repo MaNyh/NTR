@@ -1,0 +1,42 @@
+all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
+
+#R1 gmc BLOCK_10/BLOCK_11
+
+block 9 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 9 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 9 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>
+
+block 10 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 10 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 10 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>
+
+
+#R2 gmc BLOCK_17/BLOCK_18
+
+block 16 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 16 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 16 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>
+
+block 17 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 17 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 17 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>
+
+#R3 gmc BLOCK_24/BLOCK_35
+
+block 23 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 23 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 23 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>
+
+block 25 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 25 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 25 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>
+
+#R4 gmc BLOCK_31/BLOCK_32
+
+block 30 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 30 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 30 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>
+
+block 31 immediate Update_tmCoeffs productionCoeff <var CLEARANCE_PRODUCTION var>
+block 31 immediate Update_tmCoeffs diffusionCoeff <var CLEARANCE_DIFFUSION var>
+block 31 immediate Update_tmCoeffs dissipationCoeff <var CLEARANCE_DISSIPATION var>

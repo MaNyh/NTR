@@ -1,5 +1,6 @@
 # journal recorded by gmc_v9.1.8 at 2019/11/25 10:40:58
 gmc -> open 'TRACE.cgns'
+gmc -> set_rpm of component type 'LPC' to <var RMP_COMPRESSOR var>
 gmc -> set_solver_properties for 'machine' : NoOfTimeSteps to 183660
 gmc -> set_solver_properties for 'IGV' : NoOfTimeSteps to 183660
 gmc -> set_solver_properties for 'R1' : NoOfTimeSteps to 183660

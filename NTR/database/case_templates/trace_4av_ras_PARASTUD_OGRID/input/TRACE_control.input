@@ -1,1 +1,55 @@
 all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
+
+#IGV gmc BLOCK_4
+
+block 3 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 3 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 3 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#R1 gmc BLOCK_12
+
+block 11 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 11 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 11 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#S1 gmc BLOCK_38
+
+block 37 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 37 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 37 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#R2 gmc BLOCK_19
+
+block 18 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 18 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 18 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#S2 gmc BLOCK_43
+
+block 42 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 42 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 42 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#R3 gmc BLOCK_26
+
+block 25 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 25 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 25 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#S3 gmc BLOCK_48
+
+block 47 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 47 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 47 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#R4 gmc BLOCK_33
+
+block 32 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 32 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 32 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
+
+#S4 gmc BLOCK_54
+
+block 53 immediate Update_tmCoeffs productionCoeff <var OGRID_PRODUCTION var>
+block 53 immediate Update_tmCoeffs diffusionCoeff <var OGRID_DIFFUSION var>
+block 53 immediate Update_tmCoeffs dissipationCoeff <var OGRID_DISSIPATION var>
