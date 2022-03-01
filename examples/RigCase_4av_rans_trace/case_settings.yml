@@ -1,6 +1,6 @@
 case_settings:
     name : &name "4av_TRACE_RAS"
-    case_type : "trace_4av_ras_PARASTUD_REFEREZN"
+    case_type : "trace_4av_ras_PARASTUD_REFERENZ"
     type: "parameterstudy"
     description: |
         mesh-status:
