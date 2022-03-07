@@ -11,7 +11,7 @@ import vtk
 import numpy as np
 
 from NTR.utils.mathfunctions import vecAbs, unitVec, vecProjection, vecAngle
-from NTR.utils.pyvista_utils import load_mesh
+from NTR.utils.mesh_handling.pyvista_utils import load_mesh
 from NTR.utils.filehandling import yaml_dict_read
 from NTR.database.case_dirstructure import casedirs
 
