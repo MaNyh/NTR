@@ -1,6 +1,6 @@
 all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
 
-#IGV gmc BLOCK_1,BLOCK_3,BLOCK_5,BLOCK_7,BLOCK_9,BLOCK_11
+#IGV gmc 1,3,5,7,9,11
 
 block 0 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 0 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
@@ -26,7 +26,7 @@ block 10 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 10 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 10 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-#R1 gmc 13;15;17;23;25
+#R1 gmc 13;15;17;21;23
 
 
 block 12 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
@@ -41,21 +41,64 @@ block 16 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 16 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 16 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
+block 20 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 20 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 20 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
 block 22 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 22 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 22 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+
+#S1 gmc 61,63,65,67,69
+
+
+block 60 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 60 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 60 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+block 62 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 62 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 62 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+block 64 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 64 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 64 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+block 66 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 66 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 66 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+block 68 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 68 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 68 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+#R2 gmc 25;27;29;33;35
+
 
 block 24 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 24 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 24 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
+block 26 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 26 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 26 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-#S1 gmc 69;71;73;75;77
+block 28 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 28 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 28 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+block 32 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 32 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 32 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+block 34 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 34 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 34 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
 
-block 68 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 68 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 68 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+#S2 gmc 71,73,75,77,79
+
 
 block 70 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 70 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
@@ -73,20 +116,11 @@ block 76 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 76 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 76 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-#R2 gmc 27;29;31;37;39
+block 78 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 78 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 78 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-
-block 26 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 26 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 26 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 28 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 28 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 28 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 30 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 30 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 30 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+#R3 gmc 37,39,41,45,47
 
 block 36 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 36 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
@@ -96,13 +130,21 @@ block 38 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 38 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 38 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
+block 40 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 40 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 40 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-#S2 gmc 79;81;83;85;87
+block 44 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 44 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 44 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+
+block 46 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 46 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 46 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
 
-block 78 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 78 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 78 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+#S3 gmc 81,83,85,87,89
+
 
 block 80 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 80 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
@@ -120,21 +162,15 @@ block 86 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 86 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 86 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-#R3 gmc 41;43;45;51;53
+block 88 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 88 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 88 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
+#R4 gmc 49,51,53,57,59
 
-
-block 40 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 40 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 40 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 42 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 42 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 42 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 44 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 44 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 44 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
+block 48 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
+block 48 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
+block 48 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
 block 50 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 50 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
@@ -144,38 +180,6 @@ block 52 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 52 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 52 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-
-#S3 gmc 89;91;93;95;97
-
-
-block 88 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 88 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 88 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 90 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 90 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 90 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 92 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 92 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 92 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 94 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 94 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 94 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 96 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 96 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 96 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-
-#R4 gmc 55;57;59;65;67
-
-
-block 54 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 54 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 54 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
 block 56 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 56 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 56 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
@@ -184,17 +188,8 @@ block 58 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 58 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
 block 58 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
 
-block 64 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 64 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 64 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
-block 66 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
-block 66 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
-block 66 immediate Update_tmCoeffs dissipationCoeff <var HUB_DISSIPATION var>
-
 
 #S4 gmc 91;93;95;97;99;101
-
 
 block 90 immediate Update_tmCoeffs productionCoeff <var HUB_PRODUCTION var>
 block 90 immediate Update_tmCoeffs diffusionCoeff <var HUB_DIFFUSION var>
