@@ -50,7 +50,7 @@ echo -e "#PBS -N $JOBNAME" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -M $EMAIL" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -m abe" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -j oe" >> $RUNDIR/tempscript.sh;
-echo -e "#PBS -l nodes=$NODES$ARCHITECTURE:ppn=$NPROCS" >> $RUNDIR/tempscript.sh;
+echo -e "#PBS -l nodes=$NODES:ppn=$NPROCS" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -l walltime=$WALLTIME" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -l mem=$MEMORY" >> $RUNDIR/tempscript.sh;
 echo -e "#PBS -q $QUEUE" >> $RUNDIR/tempscript.sh;

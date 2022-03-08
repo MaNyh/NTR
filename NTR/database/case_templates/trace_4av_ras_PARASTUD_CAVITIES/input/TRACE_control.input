@@ -1,0 +1,264 @@
+all immediate ChangeTurbulenceSettings --model MNEDITWilcox1988  -spaf KatoLaunder
+
+
+#cav_IGV 28,78,79
+
+block 27 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 27 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 27 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 77 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 77 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 77 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 78 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 78 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 78 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+
+#cav S1 	442,443,444,445,446,447,448,449
+
+block 441 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 441 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 441 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 442 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 442 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 442 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 443 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 443 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 443 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 444 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 444 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 444 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 445 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 445 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 445 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 446 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 446 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 446 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 447 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 447 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 447 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 448 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 448 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 448 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+#cav s1_1 	424,445,426,427,428,429,430,431,438,439,440,441
+
+block 423 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 423 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 423 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 444 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 444 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 444 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 425 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 425 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 425 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 426 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 426 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 426 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 427 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 427 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 427 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 428 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 428 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 428 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 429 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 429 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 429 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 430 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 430 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 430 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 437 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 437 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 437 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 438 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 438 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 438 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 439 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 439 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 439 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 440 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 440 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 440 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+#cav s2 	662,663,664,665,666,667,668,669,672,673,674,675
+
+block 661 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 661 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 661 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 662 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 662 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 662 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 663 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 663 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 663 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 664 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 664 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 664 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 665 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 665 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 665 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 666 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 666 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 666 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 667 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 667 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 667 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 668 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 668 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 668 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 671 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 671 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 671 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 672 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 672 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 672 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 673 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 673 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 673 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 674 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 674 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 674 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+
+#cav s2_1 	648,649,652,653
+
+block 647 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 647 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 647 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 648 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 648 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 648 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 651 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 651 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 651 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 652 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 652 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 652 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+#cav s3 	1020,1021,809,810,811,812,985,986
+
+block 1019 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1019 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1019 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1020 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1020 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1020 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 808 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 808 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 808 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 809 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 809 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 809 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 810 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 810 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 810 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 811 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 811 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 811 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 984 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 984 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 984 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 985 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 985 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 985 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+#cav s3_1 	1000,995,996,997,998,999
+
+block 999 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 999 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 999 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 994 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 994 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 994 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 995 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 995 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 995 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 996 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 996 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 996 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 997 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 997 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 997 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 998 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 998 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 998 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+#cav s4 	1122,1123,1124,1125,1126,1127,1128,1129
+
+block 1121 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1121 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1121 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1122 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1122 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1122 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1123 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1123 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1123 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1124 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1124 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1124 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1125 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1125 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1125 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1126 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1126 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1126 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1127 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1127 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1127 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
+
+block 1128 immediate Update_tmCoeffs productionCoeff <var CAV_PRODUCTION var>
+block 1128 immediate Update_tmCoeffs diffusionCoeff <var CAV_DIFFUSION var>
+block 1128 immediate Update_tmCoeffs dissipationCoeff <var CAV_DISSIPATION var>
