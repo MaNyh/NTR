@@ -26,7 +26,7 @@ requirements = ['Click>=7.0',
                 "pyvista>=0.25.0",
                 "PyYaml>=5.4.1",
                 "scikit-image>=0.18.3",
-                "pandas>=1.3.3",
+                "pandas>=1.1.5",
                 "tqdm>=4.59.0",
                 "h5py>=3.6.0",
                 "pytest"
